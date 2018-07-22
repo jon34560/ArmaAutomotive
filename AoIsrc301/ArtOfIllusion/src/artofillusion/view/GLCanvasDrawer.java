@@ -25,6 +25,7 @@ import javax.media.opengl.*;
 
 import buoy.event.*;
 import com.sun.opengl.util.*;
+import artofillusion.object.*; // JDT for drawing dimensionobjects.
 
 /** This is a CanvasDrawer which uses OpenGL to render the contents of a ViewerCanvas. */
 
@@ -452,6 +453,22 @@ public class GLCanvasDrawer implements CanvasDrawer
     }
     gl.glDrawElements(GL.GL_LINES, vertexIndices.length, GL.GL_UNSIGNED_INT, IntBuffer.wrap(vertexIndices));
   }
+    
+    /**
+     * renderDimensionObject
+     *
+     * Description
+     */
+    public void renderDimensionObject( ObjectInfo obj, Camera theCamera ){
+        System.out.println("  GL   renderDimensionObject");
+        // Draw dimension
+        
+        // renderLine(vert[from[i]], vert[to[i]], cam, color);
+        
+        // TODO **********
+        
+    }
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

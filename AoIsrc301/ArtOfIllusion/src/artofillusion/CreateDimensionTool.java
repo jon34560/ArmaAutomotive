@@ -1,4 +1,5 @@
-/* Copyright (C) 1999-2007 by Peter Eastman
+/*  2018  Jon
+    Copyright (C) 1999-2007 by Peter Eastman
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -93,12 +94,14 @@ public class CreateDimensionTool extends EditingTool
             //Point pointB = new Point( (int) (screenPos.x-HANDLE_SIZE/2) - 20, (int) (screenPos.y-HANDLE_SIZE/2) - 20 );
             //view.drawLine(pointA, pointB, new Color(255,0,0) );
         }
-        System.out.println(" points: " + mesh.from.length);
+        System.out.println(" draw overlay   points: " + mesh.from.length);
         
         //view.drawLine(p[mesh.from[i]], p[mesh.to[i]], ViewerCanvas.lineColor);
         
         
     }
+      
+      // test
     for (int i = 0; i < clickPoint.size(); i++)
       {
         Vec3 pos = (Vec3) clickPoint.lastElement();
@@ -146,11 +149,22 @@ public class CreateDimensionTool extends EditingTool
     Vec3 vertex[], orig, ydir, zdir;
     float s[];
 
-    if (e.getClickCount() != 2)
+      System.out.println(" mousereleased clickPoint.size()"  + clickPoint.size() );
+      
+      // abort creation of dimension
+      if (clickPoint.size() > 1 && clickPoint.size() < 2 ){
+          // abort, delete points
+          System.out.println(" *** Abort *** ");
+      }
+        
+    // Addpoint to dimension
+    if (e.getClickCount() != 2 && clickPoint.size() <= 2 )
       {
         clickPoint.addElement(cam.convertScreenToWorld(dragPoint, Camera.DEFAULT_DISTANCE_TO_SCREEN));
         smoothness.addElement(new Float(e.isShiftDown() ? 0.0f : 1.0f));
       }
+      
+    // Create dimension
     if (clickPoint.size() > 1)
       {
         // Create a new line object.  First, find all the points in world coordinates.
@@ -164,7 +178,7 @@ public class CreateDimensionTool extends EditingTool
             s[i] = ((Float) smoothness.elementAt(i)).floatValue();
             orig = orig.plus(vertex[i]);
           }
-        orig = orig.times(1.0/vertex.length);
+        orig = orig.times(1.0/vertex.length);   // ???
 
         // Find the object's coordinate system.
 
@@ -185,18 +199,22 @@ public class CreateDimensionTool extends EditingTool
         // Transform all of the vertices into the object's coordinate system.
             
         for (int i = 0; i < vertex.length; i++)
-          {
+        {
             vertex[i] = coords.toLocal().times(vertex[i]);
-          }
+        }
         theCurve = new DimensionObject(vertex, s, smoothing, false);
-        if (e.getClickCount() == 2)
+        
+          if(clickPoint.size() >= 3)
+          //if (e.getClickCount() == 2)
           {
             theCurve.setClosed(e.isControlDown());
             addToScene();
             return;
           }
-        cam.setObjectTransform(coords.fromLocal());
+          
+        cam.setObjectTransform(coords.fromLocal()); // ??? what do? camera add transform.
       }
+      
     theWindow.updateImage();
   }
   
@@ -252,7 +270,7 @@ public class CreateDimensionTool extends EditingTool
 
   /**
    *
-   * If < 3 points, cancel dimension.
+   * 
    */
   public void iconDoubleClicked()
   {

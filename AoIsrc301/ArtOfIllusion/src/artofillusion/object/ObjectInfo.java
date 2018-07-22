@@ -360,14 +360,16 @@ public class ObjectInfo
       cached = cachedWire.get();
     if (cached == null)
       {
-        if (getPose() != null && !getPose().equals(getObject().getPoseKeyframe()))
-          getObject().applyPoseKeyframe(getPose());
+          if (getPose() != null && !getPose().equals(getObject().getPoseKeyframe())){
+              getObject().applyPoseKeyframe(getPose());
+          }
         double tol = ArtOfIllusion.getPreferences().getInteractiveSurfaceError();
         Object3D obj = getDistortedObject(tol);
         cached = obj.getWireframeMesh();
         cachedWire = new SoftReference<WireframeMesh>(cached);
-        if (cachedBounds == null)
-          cachedBounds = obj.getBounds();
+          if (cachedBounds == null){
+              cachedBounds = obj.getBounds();
+          }
       }
     lastPreviewWasWireframe = true;
     return cached;

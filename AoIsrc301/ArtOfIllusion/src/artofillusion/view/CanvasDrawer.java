@@ -17,6 +17,7 @@ import artofillusion.RenderingMesh;
 import artofillusion.WireframeMesh;
 import artofillusion.math.Vec2;
 import artofillusion.math.Vec3;
+import artofillusion.object.*; // JDT for drawing dimensions
 
 /** This interface defines an object which renders the content of a ViewerCanvas. */
 
@@ -90,6 +91,11 @@ public interface CanvasDrawer
   /** Render a wireframe object. */
   
   public void renderWireframe(WireframeMesh mesh, Camera cam, Color color);
+    
+  
+  /**  JDT  **/
+  public void renderDimensionObject( ObjectInfo obj, Camera theCamera );
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

@@ -14,20 +14,26 @@ import artofillusion.ui.*;
 import buoy.widget.*;
 import java.io.*;
 
+import artofillusion.view.*;
+import artofillusion.texture.*;
+
 public class DimensionObject extends Object3D implements Mesh
 {
-    protected MeshVertex vertex[];
+    protected MeshVertex vertex[];  // 3 vertex max???
     protected float smoothness[];
     protected boolean closed;
     protected int smoothingMethod;
-    protected WireframeMesh cachedWire;
+    protected WireframeMesh cachedWire; // ???
     protected BoundingBox bounds;
     
     private static final Property PROPERTIES[] = new Property [] {
-    new Property(Translate.text("menu.smoothingMethod"), new Object[] {
-        Translate.text("menu.none"), Translate.text("menu.interpolating"), Translate.text("menu.approximating")
-    }, Translate.text("menu.shading")),
-    new Property(Translate.text("menu.closedEnds"), true)
+        new Property(Translate.text("menu.smoothingMethod"),
+                     new Object[] {
+                        Translate.text("menu.none"),
+                        Translate.text("menu.interpolating"),
+                        Translate.text("menu.approximating")
+        }, Translate.text("menu.shading")),
+        new Property(Translate.text("menu.closedEnds"), true)
     };
     
     public DimensionObject(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
@@ -261,6 +267,7 @@ public class DimensionObject extends Object3D implements Mesh
     
     public DimensionObject subdivideDimension()
     {
+        System.out.println("  DimensionObject.subdivideDimension() ");
         if (vertex.length < 2)
             return (DimensionObject) duplicate();
         if (vertex.length == 2)
@@ -415,6 +422,8 @@ public class DimensionObject extends Object3D implements Mesh
     
     private TriangleMesh triangulateDimension()
     {
+        System.out.println("  DimensionObject.triangulateDimension() ");
+        
         Vec3 v[] = new Vec3 [vertex.length], size = getBounds().getSize();
         Vec2 v2[] = new Vec2 [vertex.length];
         int i, j, current, count, min;
@@ -625,6 +634,8 @@ public class DimensionObject extends Object3D implements Mesh
     {
         super(in, theScene);
         
+        System.out.println("  DimensionObject( instream, scene ) ");
+        
         int i;
         short version = in.readShort();
         
@@ -641,21 +652,102 @@ public class DimensionObject extends Object3D implements Mesh
         smoothingMethod = in.readInt();
     }
     
+    
+    
+    
+    /**
+     * OVERRIDE
+     * Render this object into a ViewerCanvas.  The default implementation is sufficient for most
+     * objects, but subclasses may override this to customize how they are displayed.
+     *
+     * @param obj      the ObjectInfo for this object
+     * @param canvas   the canvas in which to render this object
+     * @param viewDir  the direction from which this object is being viewed
+     */
+    
+    public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
+    {
+        System.out.println(" dimension renderObject ");
+        if (!obj.isVisible())
+            return;
+        Camera theCamera = canvas.getCamera();
+        if (theCamera.visibility(obj.getBounds()) == Camera.NOT_VISIBLE)
+            return;
+        int renderMode = canvas.getRenderMode();
+        if (renderMode == ViewerCanvas.RENDER_WIREFRAME)
+        {
+            System.out.println(" RENDER_WIREFRAME ");
+            canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
+            return;
+        }
+        RenderingMesh mesh = obj.getPreviewMesh();
+        if (mesh != null)
+        {
+            
+            if (parametersChanged)
+            {
+                TexturedVertexShader.clearCachedShaders(mesh);
+                parametersChanged = false;
+            }
+            VertexShader shader;
+            if (renderMode == ViewerCanvas.RENDER_TRANSPARENT)
+            {
+                System.out.println(" RENDER_TRANSPARENT ");
+                shader = new ConstantVertexShader(ViewerCanvas.transparentColor);
+                canvas.renderMeshTransparent(mesh, shader, theCamera, obj.getCoords().toLocal().timesDirection(viewDir), null);
+            }
+            else
+            {
+                System.out.println(" RENDER_MESH ");
+                double time = 0.0;
+                if (canvas.getScene() != null)
+                    time = canvas.getScene().getTime();
+                if (renderMode == ViewerCanvas.RENDER_FLAT)
+                    shader = new FlatVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir));
+                else if (renderMode == ViewerCanvas.RENDER_SMOOTH)
+                    shader = new SmoothVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir));
+                else
+                    shader = new TexturedVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir)).optimize();
+                
+                canvas.renderMesh(mesh, shader, theCamera, obj.getObject().isClosed(), null);
+            }
+        }
+        else {
+            System.out.println(" wireframe ");
+            // always Call
+            canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
+            
+            
+            canvas.renderDimensionObject( obj, theCamera );
+            
+            
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    // ??? how to designate this object is a dimension???
     public void writeToFile(DataOutputStream out, Scene theScene) throws IOException
     {
         super.writeToFile(out, theScene);
         
+        System.out.println("  DimensionObject writeToFile ( outstream, scene ) ");
+        
         int i;
         
-        out.writeShort(0);
-        out.writeInt(vertex.length);
+        out.writeShort(0); // is this a delimiter or object id
+        out.writeInt(vertex.length); // should always be 3
         for (i = 0; i < vertex.length; i++)
         {
             vertex[i].r.writeToFile(out);
             out.writeFloat(smoothness[i]);
         }
         out.writeBoolean(closed);
-        out.writeInt(smoothingMethod);
+        out.writeInt(smoothingMethod); // maybe use this method ID as a designation for dimension object
     }
     
     public Property[] getProperties()
@@ -689,6 +781,11 @@ public class DimensionObject extends Object3D implements Mesh
             setClosed(((Boolean) value).booleanValue());
         }
     }
+    
+    
+    
+    
+    // *******
     
     /** Return a Keyframe which describes the current pose of this object. */
     

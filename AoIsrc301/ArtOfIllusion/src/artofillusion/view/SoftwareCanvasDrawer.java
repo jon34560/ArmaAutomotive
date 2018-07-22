@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
 import java.lang.ref.*;
+import artofillusion.object.*; // JDT for drawing dimensionobjects.
 
 /** This is a CanvasDrawer which implements a software renderer for generating the contents of a ViewerCanvas. */
 
@@ -624,6 +625,77 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     for (int i = 0; i < from.length; i++)
       renderLine(vert[from[i]], vert[to[i]], cam, color);
   }
+    
+  /**
+   * renderDimensionObject
+   *
+   * Description: Draw the dimension based on
+   */
+  public void renderDimensionObject( ObjectInfo obj, Camera theCamera ){
+      System.out.println("    software renderDimensionObject");
+      // Draw dimension
+      
+      // Calculate distance between points 0 and 1.
+      double distance = 0;
+      
+      
+      // renderLine(vert[from[i]], vert[to[i]], cam, color);
+      
+      // TODO **********
+      ObjectInfo objClone = obj.duplicate();
+      LayoutModeling layout = new LayoutModeling();
+      CoordinateSystem c;
+      c = layout.getCoords(objClone);
+      double scale = 1.0;
+      Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+      Vec3 [] verts = mesh.getVertexPositions();
+      
+      if(verts.length == 3){
+          
+          
+      }
+      for (Vec3 vert : verts){
+          // Transform vertex points around object loc/rot.
+          Mat4 mat4 = c.duplicate().fromLocal();
+          mat4.transform(vert);
+          
+          // Apply scale
+          vert.x = vert.x * scale;
+          vert.y = vert.y * scale;
+          vert.z = vert.z * scale;
+          
+          double x = vert.x; // + origin.x;
+          double y = vert.y; // + origin.y;
+          double z = vert.z; // + origin.z;
+          
+          Vec3 vert1 = new Vec3( x, y, z);
+          Vec3 vert2 = new Vec3( x + 0.2, y + 0.2, z + 0.2);
+          
+          renderLine(vert1, vert2, theCamera, new Color(0.0f, 0.0f, 0.9f) );
+          
+          System.out.println("         x " + x + " y: " + y + " z: " + z );
+          
+      }
+      
+          
+          
+  }
+    
+    
+    /**
+     * renderNumber
+     *
+     * Description: render a number at a specified location.
+     *
+     * TODO: set scale based on screen scale zoomlevel.
+     */
+    public void renderNumber(int number, Vec3 location, Camera theCamera){
+        
+        
+        
+    }
+    
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
 

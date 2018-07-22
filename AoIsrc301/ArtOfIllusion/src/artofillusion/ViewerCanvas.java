@@ -992,6 +992,14 @@ public abstract class ViewerCanvas extends CustomWidget
   {
     drawer.renderWireframe(mesh, cam, color);
   }
+    
+    
+  // JDT
+  public void renderDimensionObject(ObjectInfo obj, Camera theCamera)
+  {
+    drawer.renderDimensionObject(obj, theCamera);
+  }
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   
