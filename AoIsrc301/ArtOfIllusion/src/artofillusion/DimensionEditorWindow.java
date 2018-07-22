@@ -20,7 +20,7 @@ import java.awt.*;
 
 /** The CurveEditorWindow class represents the window for editing Curve objects. */
 
-public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
+public class DimensionEditorWindow extends MeshEditorWindow implements EditingWindow
 {
   protected BMenu editMenu, meshMenu, smoothMenu;
   protected BMenuItem editMenuItem[], meshMenuItem[];
@@ -30,7 +30,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
   private boolean topology;
   boolean selected[];
 
-  public CurveEditorWindow(EditingWindow parent, String title, ObjectInfo obj, Runnable onClose, boolean allowTopology)
+  public DimensionEditorWindow(EditingWindow parent, String title, ObjectInfo obj, Runnable onClose, boolean allowTopology)
   {
     super(parent, title, obj);
     this.onClose = onClose;
@@ -78,7 +78,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
           //obj = converted;
       }
       
-    createMeshMenu((Curve) obj.getObject());
+    createMeshMenu((DimensionObject) obj.getObject());
     createViewMenu();
     recursivelyAddListeners(this);
     UIUtilities.applyDefaultFont(content);
@@ -87,14 +87,14 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
     Dimension windowDim = new Dimension((screenBounds.width*3)/4, (screenBounds.height*3)/4);
     setBounds(new Rectangle((screenBounds.width-windowDim.width)/2, (screenBounds.height-windowDim.height)/2, windowDim.width, windowDim.height));
     tools.requestFocus();
-    selected = new boolean [((Curve) obj.getObject()).getVertices().length];
+    selected = new boolean [((DimensionObject) obj.getObject()).getVertices().length];
     findSelectionDistance();
     updateMenus();
   }
 
   /** This constructor is here to let TubeEditorWindow subclass CurveEditorWindow. */
 
-  protected CurveEditorWindow(EditingWindow parent, String title, ObjectInfo obj)
+  protected DimensionEditorWindow(EditingWindow parent, String title, ObjectInfo obj)
   {
     super(parent, title, obj);
   }
@@ -114,7 +114,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
     editMenu.add(Translate.menuItem("curveTension", this, "setTensionCommand"));
   }
 
-  void createMeshMenu(Curve obj)
+  void createMeshMenu(DimensionObject obj)
   {
     meshMenu = Translate.menu("curve");
     menubar.add(meshMenu);
@@ -133,9 +133,9 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
     meshMenu.add(meshMenuItem[5] = Translate.menuItem("smoothness", this, "setSmoothnessCommand"));
     meshMenu.add(smoothMenu = Translate.menu("smoothingMethod"));
     smoothItem = new BCheckBoxMenuItem [3];
-    smoothMenu.add(smoothItem[0] = Translate.checkboxMenuItem("none", this, "smoothingChanged", obj.getSmoothingMethod() == Curve.NO_SMOOTHING));
-    smoothMenu.add(smoothItem[1] = Translate.checkboxMenuItem("interpolating", this, "smoothingChanged", obj.getSmoothingMethod() == Curve.INTERPOLATING));
-    smoothMenu.add(smoothItem[2] = Translate.checkboxMenuItem("approximating", this, "smoothingChanged", obj.getSmoothingMethod() == Curve.APPROXIMATING));
+    smoothMenu.add(smoothItem[0] = Translate.checkboxMenuItem("none", this, "smoothingChanged", obj.getSmoothingMethod() == DimensionObject.NO_SMOOTHING));
+    smoothMenu.add(smoothItem[1] = Translate.checkboxMenuItem("interpolating", this, "smoothingChanged", obj.getSmoothingMethod() == DimensionObject.INTERPOLATING));
+    smoothMenu.add(smoothItem[2] = Translate.checkboxMenuItem("approximating", this, "smoothingChanged", obj.getSmoothingMethod() == DimensionObject.APPROXIMATING));
     meshMenu.add(meshMenuItem[6] = Translate.menuItem("closedEnds", this, "toggleClosedCommand"));
     if (obj.isClosed())
       meshMenuItem[6].setText(Translate.text("menu.openEnds"));
@@ -167,7 +167,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
   
   public void setMesh(Mesh mesh)
   {
-    Curve obj = (Curve) mesh;
+    DimensionObject obj = (DimensionObject) mesh;
     setObject(obj);
     if (selected.length != obj.getVertices().length)
       selected = new boolean [obj.getVertices().length];
@@ -214,7 +214,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
 
   void findSelectionDistance()
   {
-    Curve theCurve = (Curve) getObject().getObject();
+    DimensionObject theCurve = (DimensionObject) getObject().getObject();
     int i, j, dist[] = new int [theCurve.getVertices().length];
     
     maxDistance = getTensionDistance();
@@ -269,7 +269,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
   
   protected void doOk()
   {
-    Curve theMesh = (Curve) objInfo.getObject();
+    DimensionObject theMesh = (DimensionObject) objInfo.getObject();
     oldMesh.copyObject(theMesh);
     oldMesh = null;
     dispose();

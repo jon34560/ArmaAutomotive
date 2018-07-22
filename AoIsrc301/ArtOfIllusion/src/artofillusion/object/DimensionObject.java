@@ -17,7 +17,8 @@ import java.io.*;
 import artofillusion.view.*;
 import artofillusion.texture.*;
 
-public class DimensionObject extends Object3D implements Mesh
+//public class DimensionObject extends Object3D implements Mesh
+public class DimensionObject extends Curve implements Mesh
 {
     protected MeshVertex vertex[];  // 3 vertex max???
     protected float smoothness[];
@@ -38,6 +39,8 @@ public class DimensionObject extends Object3D implements Mesh
     
     public DimensionObject(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
     {
+        super(v, smoothness, smoothingMethod, isClosed);
+        
         int i;
         
         vertex = new MeshVertex [v.length];

@@ -650,8 +650,14 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       Mesh mesh = (Mesh) objClone.getObject(); // Object3D
       Vec3 [] verts = mesh.getVertexPositions();
       
-      if(verts.length == 3){
+      if(verts.length >= 2){
           
+          distance = verts[0].distance2(verts[1]);
+          System.out.println("distance: " + distance);
+          //double d = dv3.vert.distance(midv1.vert);
+          
+          
+          renderNumber(2, verts[2], theCamera);
           
       }
       for (Vec3 vert : verts){
@@ -673,11 +679,9 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           
           renderLine(vert1, vert2, theCamera, new Color(0.0f, 0.0f, 0.9f) );
           
-          System.out.println("         x " + x + " y: " + y + " z: " + z );
+          //System.out.println("         x " + x + " y: " + y + " z: " + z );
           
       }
-      
-          
           
   }
     
@@ -691,8 +695,36 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
      */
     public void renderNumber(int number, Vec3 location, Camera theCamera){
         
+        /*
+         -  ,,0.0
+         -,,0.0
+         ,,0.0
+         ,,0.0
+         -,,0.0
+         -,,0.0
+         ,,0.0
+         */
+        // 2
+        Vec3[] vert = new Vec3[7];
+        vert[0] = new Vec3(location.x +-0.07428885348479253, location.y + 0.052351699750206544,   location.z + 0.0);
+        vert[1] = new Vec3(location.x +-0.04384024242853486,  location.y + 0.1091701153778919,  location.z + 0.0);
+        vert[2] = new Vec3(location.x +0.05816460363660987,  location.y + 0.11464620743260236, location.z + 0.0);
+        vert[3] = new Vec3(location.x +0.0974080474425363, location.y + 0.03924706217355956, location.z + 0.0);
+        vert[4] = new Vec3(location.x +-0.07244766306878149,  location.y + -0.10455745365633481,  location.z + 0.0);
+        vert[5] = new Vec3(location.x +-0.06808218266954454, location.y +-0.12750458204177792,   location.z + 0.0);
+        vert[6] = new Vec3(location.x +0.07547089370795024,  location.y +-0.12306036752488851,  location.z + 0.0);
         
+        int i, from[], to[];
+        from = new int [vert.length-1];
+        to = new int [vert.length-1];
+        for (i = 0; i < vert.length-1; i++)
+        {
+            from[i] = i;
+            to[i] = i+1;
+        }
         
+        WireframeMesh mesh = new WireframeMesh(vert, from, to);
+        renderWireframe(mesh, theCamera, new Color(1.0f, 0.0f, 0.0f));
     }
     
     
