@@ -632,7 +632,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
    * Description: Draw the dimension based on
    */
   public void renderDimensionObject( ObjectInfo obj, Camera theCamera ){
-      System.out.println("    software renderDimensionObject");
+      //System.out.println("    software renderDimensionObject");
       // Draw dimension
       
       // Calculate distance between points 0 and 1.
@@ -653,11 +653,21 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       if(verts.length >= 2){
           
           distance = verts[0].distance2(verts[1]);
-          System.out.println("distance: " + distance);
+          //System.out.println("distance: " + distance);
           //double d = dv3.vert.distance(midv1.vert);
           
           
-          renderNumber(2, verts[2], theCamera);
+          //renderNumber(2, verts[2], theCamera);
+          double width = (Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x));
+          double distanceScale = width / 3; // one third
+          
+          
+          double annotationX = ( ( Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x)) / 2 ) + Math.min(verts[0].x, verts[1].x);
+          //double x = verts[0].x - verts[1].x;
+          
+          Vec3 annotationLocation = new Vec3(annotationX, verts[2].y, verts[2].z );
+          
+          renderDouble(distance, annotationLocation, distanceScale, theCamera);
           
       }
       for (Vec3 vert : verts){
@@ -675,7 +685,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           double z = vert.z; // + origin.z;
           
           Vec3 vert1 = new Vec3( x, y, z);
-          Vec3 vert2 = new Vec3( x + 0.2, y + 0.2, z + 0.2);
+          Vec3 vert2 = new Vec3( x + 0.2, y + 0.2, z + 0.0);
           
           renderLine(vert1, vert2, theCamera, new Color(0.0f, 0.0f, 0.9f) );
           
@@ -685,6 +695,33 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           
   }
     
+    /**
+     * renderDouble
+     *
+     * Description:
+     */
+    public void renderDouble(double number, Vec3 location, double scale, Camera theCamera){
+        double xOffset = 0;
+        String numberAsString = Double.toString(number);
+        for(int i = 0; i < numberAsString.length() && i < 5 ; i++){
+            char digit = numberAsString.charAt(i);
+            //System.out.println(" digit " + digit);
+            
+            if( Character.isDigit(digit) ){
+                int digitNumber = Character.getNumericValue(digit);
+                //System.out.println("number  " + digitNumber );
+                
+                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
+                renderNumber( digitNumber, offsetLocation, scale, theCamera);
+            } else {
+                // Decimal point
+                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
+                renderNumber( 99, offsetLocation, scale, theCamera);
+            }
+            
+            xOffset += 0.3;
+        }
+    }
     
     /**
      * renderNumber
@@ -693,27 +730,172 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
      *
      * TODO: set scale based on screen scale zoomlevel.
      */
-    public void renderNumber(int number, Vec3 location, Camera theCamera){
+    public void renderNumber(int number, Vec3 location, double scale, Camera theCamera){
+        Vec3[] vert;
         
-        /*
-         -  ,,0.0
-         -,,0.0
-         ,,0.0
-         ,,0.0
-         -,,0.0
-         -,,0.0
-         ,,0.0
-         */
-        // 2
-        Vec3[] vert = new Vec3[7];
-        vert[0] = new Vec3(location.x +-0.07428885348479253, location.y + 0.052351699750206544,   location.z + 0.0);
-        vert[1] = new Vec3(location.x +-0.04384024242853486,  location.y + 0.1091701153778919,  location.z + 0.0);
-        vert[2] = new Vec3(location.x +0.05816460363660987,  location.y + 0.11464620743260236, location.z + 0.0);
-        vert[3] = new Vec3(location.x +0.0974080474425363, location.y + 0.03924706217355956, location.z + 0.0);
-        vert[4] = new Vec3(location.x +-0.07244766306878149,  location.y + -0.10455745365633481,  location.z + 0.0);
-        vert[5] = new Vec3(location.x +-0.06808218266954454, location.y +-0.12750458204177792,   location.z + 0.0);
-        vert[6] = new Vec3(location.x +0.07547089370795024,  location.y +-0.12306036752488851,  location.z + 0.0);
+        if(number == 0){
+            vert = new Vec3[9];
+            vert[0] = new Vec3(location.x + 0.001232328231617008, location.y + 0.1865244068166367,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.09654041028952115, location.y + 0.16537109953360635,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.11939983935707606, location.y + 0.0013190187780338651,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.10511069575574364, location.y + -0.15814183762063375,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.003064817106157663, location.y + -0.1934755931833633,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.09933849017687268, location.y + -0.15969991967853797,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.12204587864958609, location.y + 0.003254201671876076,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.09143571583610936, location.y + 0.16483195593227395,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.0032702051447607463, location.y + 0.18631901877803386,  location.z + 0.0);
+        } else if( number == 1 ) {
+            vert = new Vec3[3];
+            vert[0] = new Vec3(location.x + -0.023328960135426565, location.y + 0.13752913324483362,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.0031536869302545324, location.y + 0.18466114694878205,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.0012614747721018237, location.y + -0.18687080858707442,  location.z + 0.0);
+        } else if( number == 2 ) {
+            // 2
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x +-0.07428885348479253, location.y + 0.052351699750206544,   location.z + 0.0);
+            vert[1] = new Vec3(location.x +-0.04384024242853486,  location.y + 0.1091701153778919,  location.z + 0.0);
+            vert[2] = new Vec3(location.x +0.05816460363660987,  location.y + 0.11464620743260236, location.z + 0.0);
+            vert[3] = new Vec3(location.x +0.0974080474425363, location.y + 0.03924706217355956, location.z + 0.0);
+            vert[4] = new Vec3(location.x +-0.07244766306878149,  location.y + -0.10455745365633481,  location.z + 0.0);
+            vert[5] = new Vec3(location.x +-0.06808218266954454, location.y +-0.12750458204177792,   location.z + 0.0);
+            vert[6] = new Vec3(location.x +0.07547089370795024,  location.y +-0.12306036752488851,  location.z + 0.0);
         
+        } else if( number == 3 ) {
+            // 3
+            vert = new Vec3[15];
+            vert[0] = new Vec3(location.x + -0.11393887536345805 , location.y + 0.10927219681853773 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.07528427041309263 , location.y + 0.17159114410725165 , location.z + 0.0);
+            vert[2] = new Vec3(location.x + 0.007621329162712173 , location.y + 0.18891623039569275 , location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.07402037110608053 , location.y + 0.17563995176356773 , location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.11416361595197853 , location.y + 0.13930243801543066 , location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.11310421230662628 , location.y + 0.051076137744275316 , location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.023978865311616453 , location.y + 0.0050711565767534135 , location.z + 0.0);
+            vert[7] = new Vec3(location.x + -0.03230426528022766 , location.y + -0.005026980884105515 , location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.020239305954960526 , location.y + -0.015235015319287866 , location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.11581585659272241 , location.y + -0.049060602659947446 , location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0.1168530301693806 , location.y + -0.13784733491765647 , location.z + 0.0);
+            vert[11] = new Vec3(location.x + 0.06956594255442959 , location.y + -0.16916230176399746 , location.z + 0.0);
+            vert[12] = new Vec3(location.x + -0.0036677225279931423 , location.y + -0.18706006898642874 , location.z + 0.0);
+            vert[13] = new Vec3(location.x + -0.07469977354709814 , location.y + -0.1727309483310295 , location.z + 0.0);
+            vert[14] = new Vec3(location.x + -0.11342817137684026 , location.y + -0.11151997306473801 , location.z + 0.0);
+        
+        } else if( number == 4 ) {
+            // 4
+        
+            vert = new Vec3[4];
+            vert[0] = new Vec3(location.x + -0.11266916341413132 , location.y + 0.17635047008893945 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.1067585326090301 , location.y + 0.010518873263086384 , location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.08018147138244289 , location.y + -0.02152545103411188 , location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.11339586920158826 , location.y + -0.015197776360518616 , location.z + 0.0);
+            
+            vert = scaleVec3(vert, scale);
+            int i, from[], to[];
+            from = new int [vert.length-1];
+            to = new int [vert.length-1];
+            for (i = 0; i < vert.length-1; i++)
+            {
+                from[i] = i;
+                to[i] = i+1;
+            }
+            WireframeMesh mesh = new WireframeMesh(vert, from, to);
+            renderWireframe(mesh, theCamera, new Color(0.0f, 0.0f, 0.0f));
+            
+            vert = new Vec3[2];
+            vert[0] = new Vec3(location.x + 0.0035128950004507387 , location.y + 0.1862298734272005 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.0012983771280621315 , location.y + -0.18793624813380028 , location.z + 0.0);
+        
+        } else if( number == 5 ) {
+            // 5
+            vert = new Vec3[10];
+            vert[0] = new Vec3(location.x + 0.11167324007317081 , location.y + 0.1829270981292792 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.1165899228123699 , location.y + 0.17892155759213146 , location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.11446314867717344 , location.y + 0.0024824139562920067 , location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.018826191252065527 , location.y + 0.0018887184891820397 , location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.08148092362744208 , location.y + -0.018614304830630424 , location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.11529610590137462 , location.y + -0.08936882421504055 , location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.08413116508831298 , location.y + -0.16253756998491564 , location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.0039812564826444685 , location.y + -0.18642215135780837 , location.z + 0.0);
+            vert[8] = new Vec3(location.x + -0.07878529544269242 , location.y + -0.17254765487808044 , location.z + 0.0);
+            vert[9] = new Vec3(location.x + -0.11446314867717344 , location.y + -0.10870701401692706 , location.z + 0.0);
+        
+        } else if( number == 6 ) {
+            // 6
+            vert = new Vec3[13];
+            vert[0] = new Vec3(location.x + 0.06178620906742023 , location.y + 0.18471689178987533 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.07191404990920423 , location.y + 0.06694046581123916 , location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.11808268451976946 , location.y + -0.03240973006436721 , location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.1190438134907837 , location.y + -0.07162904468390674 , location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.09592846824857218 , location.y + -0.15692743298588077 , location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.023363568737642785 , location.y + -0.18329595370368992 , location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.05358464699582054 , location.y + -0.16848510560698654 , location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.08822335316783501 , location.y + -0.13218550000587045 , location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.11727997898777365 , location.y + -0.07994490556111467 , location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.10416434201147469 , location.y + -0.023886065267293137 , location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0.051958059258021716 , location.y + 0.011317711278189542 , location.z + 0.0);
+            vert[11] = new Vec3(location.x + -0.04637597890594588 , location.y + 0.006369324682187458 , location.z + 0.0);
+            vert[12] = new Vec3(location.x + -0.11402680351217602 , location.y + -0.039644131922718956 , location.z + 0.0);
+        
+        } else if( number == 7 ) {
+            // 7
+            vert = new Vec3[5];
+            vert[0] = new Vec3(location.x + -0.1162870850060486 , location.y + 0.18309030405207652 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.11083466156047186 , location.y + 0.18554916703345345 , location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.003770461974042353 , location.y + 0.0012217663323763964 , location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.05194272894139759 , location.y + -0.10166328300958152 , location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.07868547900308254 , location.y + -0.18750399316525562 , location.z + 0.0);
+        
+        } else if( number == 8 ) {
+            // 8
+            vert = new Vec3[22];
+            vert[0] = new Vec3(location.x + 0.001498590577098514 , location.y + 0.18278064960194715 , location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.07057766950290731 , location.y + 0.16986979671217656 , location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.10337772067923164 , location.y + 0.13744599988041328 , location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.11850309144139083 , location.y + 0.08730606006954113 , location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.10216603251566116 , location.y + 0.027305219060296513 , location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.06196991903304895 , location.y + 0.0029869850289655437 , location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.029493351664084587 , location.y + -0.007667887423472741 , location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.10140221585428172 , location.y + -0.04092711807424544 , location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.11585954868724016 , location.y + -0.112794519699499 , location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.06952206925688814 , location.y + -0.17204285201962158 , location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0 , location.y + -0.19013524934329143 , location.z + 0.0);
+            vert[11] = new Vec3(location.x + -0.07308397095993564 , location.y + -0.17317161505330467 , location.z + 0.0);
+            vert[12] = new Vec3(location.x + -0.1175002617325727 , location.y + -0.11960546920647347 , location.z + 0.0);
+            vert[13] = new Vec3(location.x + -0.10738903951450413 , location.y + -0.05459047965313818 , location.z + 0.0);
+            vert[14] = new Vec3(location.x + -0.061301881103848176 , location.y + -0.012514640077754671 , location.z + 0.0);
+            vert[15] = new Vec3(location.x + -0.005938934294133063 , location.y + 0 , location.z + 0.0);
+            vert[16] = new Vec3(location.x + 0.06208454438565656 , location.y + 0.007374558208799073 , location.z + 0.0);
+            vert[17] = new Vec3(location.x + 0.10558093057936287 , location.y + 0.0326956219489482 , location.z + 0.0);
+            vert[18] = new Vec3(location.x + 0.11991233008745633 , location.y + 0.08241784485031552 , location.z + 0.0);
+            vert[19] = new Vec3(location.x + 0.09814340570813132 , location.y + 0.14630407136996768 , location.z + 0.0);
+            vert[20] = new Vec3(location.x + 0.05527359487868208 , location.y + 0.17208431458456516 , location.z + 0.0);
+            vert[21] = new Vec3(location.x + 0 , location.y + 0.18399233776551763 , location.z + 0.0);
+        
+        } else if( number == 9 ) {
+            // 9
+            vert = new Vec3[16];
+            vert[0] = new Vec3(location.x + 0.11598537356635315, location.y + 0.1813832608803004, location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.003509805198556543, location.y + 0.18290051406665567, location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.05896153835234658, location.y + 0.16862235867713526, location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.09713454721411936, location.y + 0.13639563874649493, location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.11881488281398317, location.y + 0.08715004052277914, location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.11805625622080554, location.y + 0.04851218853698413, location.z + 0.0);
+            vert[6] = new Vec3(location.x + -0.08775027069339843, location.y + 0.0064363489616006565, location.z + 0.0);
+            vert[7] = new Vec3(location.x + -0.04345991324562636, location.y + -0.004636240400342353, location.z + 0.0);
+            vert[8] = new Vec3(location.x + -0.01251802493933018, location.y + -0.00760938486590859, location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.02221699633285413, location.y + -0.0016630959347761157, location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0.040165560873974084, location.y + 0.015294420451155075, location.z + 0.0);
+            vert[11] = new Vec3(location.x + 0.06505146250141526, location.y + 0.037439599175041104, location.z + 0.0);
+            vert[12] = new Vec3(location.x + 0.08171519541819107, location.y + 0.08126511349879095, location.z + 0.0);
+            vert[13] = new Vec3(location.x + 0.10444794108038787, location.y + 0.1423419276776274, location.z + 0.0);
+            vert[14] = new Vec3(location.x + 0.11819989143874172, location.y + 0.1791687430079118, location.z + 0.0);
+            vert[15] = new Vec3(location.x + 0.007473997819311637, location.y + -0.18844122380859646, location.z + 0.0);
+        } else {
+            vert = new Vec3[2];
+            vert[0] = new Vec3(location.x + -0.03, location.y + -0.18, location.z + 0.0);
+            vert[1] = new Vec3(location.x +0.03, location.y + -0.18, location.z + 0.0);
+        }
+        
+        vert = scaleVec3(vert, scale);
         int i, from[], to[];
         from = new int [vert.length-1];
         to = new int [vert.length-1];
@@ -722,11 +904,17 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             from[i] = i;
             to[i] = i+1;
         }
-        
         WireframeMesh mesh = new WireframeMesh(vert, from, to);
-        renderWireframe(mesh, theCamera, new Color(1.0f, 0.0f, 0.0f));
+        renderWireframe(mesh, theCamera, new Color(0.0f, 0.0f, 0.0f));
     }
     
+    public Vec3[] scaleVec3(Vec3[] in, double scale){
+        Vec3[] out = new Vec3[in.length];
+        for(int i = 0; i < in.length; i++){
+            out[i] = new Vec3( in[i].x * scale, in[i].y * scale, in[i].z * scale );
+        }
+        return out;
+    }
     
 
   /** Render an object with flat shading in subtractive (transparent) mode. */

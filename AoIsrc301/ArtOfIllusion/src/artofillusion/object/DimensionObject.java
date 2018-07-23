@@ -270,7 +270,7 @@ public class DimensionObject extends Curve implements Mesh
     
     public DimensionObject subdivideDimension()
     {
-        System.out.println("  DimensionObject.subdivideDimension() ");
+        //System.out.println("  DimensionObject.subdivideDimension() ");
         if (vertex.length < 2)
             return (DimensionObject) duplicate();
         if (vertex.length == 2)
@@ -425,7 +425,7 @@ public class DimensionObject extends Curve implements Mesh
     
     private TriangleMesh triangulateDimension()
     {
-        System.out.println("  DimensionObject.triangulateDimension() ");
+        //System.out.println("  DimensionObject.triangulateDimension() ");
         
         Vec3 v[] = new Vec3 [vertex.length], size = getBounds().getSize();
         Vec2 v2[] = new Vec2 [vertex.length];
@@ -637,7 +637,7 @@ public class DimensionObject extends Curve implements Mesh
     {
         super(in, theScene);
         
-        System.out.println("  DimensionObject( instream, scene ) ");
+        //System.out.println("  DimensionObject( instream, scene ) ");
         
         int i;
         short version = in.readShort();
@@ -667,10 +667,12 @@ public class DimensionObject extends Curve implements Mesh
      * @param canvas   the canvas in which to render this object
      * @param viewDir  the direction from which this object is being viewed
      */
-    
+    //
+    // TODO: display wireframe on morerender modes.
+    //
     public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
     {
-        System.out.println(" dimension renderObject ");
+        //System.out.println(" dimension renderObject ");
         if (!obj.isVisible())
             return;
         Camera theCamera = canvas.getCamera();
@@ -679,7 +681,7 @@ public class DimensionObject extends Curve implements Mesh
         int renderMode = canvas.getRenderMode();
         if (renderMode == ViewerCanvas.RENDER_WIREFRAME)
         {
-            System.out.println(" RENDER_WIREFRAME ");
+            //System.out.println(" RENDER_WIREFRAME ");
             canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
             return;
         }
@@ -695,13 +697,13 @@ public class DimensionObject extends Curve implements Mesh
             VertexShader shader;
             if (renderMode == ViewerCanvas.RENDER_TRANSPARENT)
             {
-                System.out.println(" RENDER_TRANSPARENT ");
+                //System.out.println(" RENDER_TRANSPARENT ");
                 shader = new ConstantVertexShader(ViewerCanvas.transparentColor);
                 canvas.renderMeshTransparent(mesh, shader, theCamera, obj.getCoords().toLocal().timesDirection(viewDir), null);
             }
             else
             {
-                System.out.println(" RENDER_MESH ");
+                //System.out.println(" RENDER_MESH ");
                 double time = 0.0;
                 if (canvas.getScene() != null)
                     time = canvas.getScene().getTime();
@@ -716,7 +718,7 @@ public class DimensionObject extends Curve implements Mesh
             }
         }
         else {
-            System.out.println(" wireframe ");
+            //System.out.println(" wireframe ");
             // always Call
             canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
             
@@ -738,7 +740,7 @@ public class DimensionObject extends Curve implements Mesh
     {
         super.writeToFile(out, theScene);
         
-        System.out.println("  DimensionObject writeToFile ( outstream, scene ) ");
+        //System.out.println("  DimensionObject writeToFile ( outstream, scene ) ");
         
         int i;
         

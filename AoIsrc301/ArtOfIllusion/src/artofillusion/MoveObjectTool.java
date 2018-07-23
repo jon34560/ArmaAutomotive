@@ -89,7 +89,7 @@ public class MoveObjectTool extends EditingTool
 */
   public void mouseDragged(final WidgetMouseEvent e, final ViewerCanvas view)
   {
-	  System.out.println("MoveObjectTool.mouseDragged()"); // JDT
+	  //System.out.println("MoveObjectTool.mouseDragged()"); // JDT
 	LayoutModeling layout = new LayoutModeling();
 	Scene theScene = theWindow.getScene();
 	//layout.setBaseDir(theScene.getDirectory() + "\\" + theScene.getName() + "_layout_data" );
@@ -141,7 +141,7 @@ public class MoveObjectTool extends EditingTool
 
         c.setOrigin(objectPos[i].plus(v));
 
-		System.out.println("   -- " + info.name  );
+		//System.out.println("   -- " + info.name  );
 
 		// JDT
 		if(info.getLayoutView() == false){
@@ -155,7 +155,7 @@ public class MoveObjectTool extends EditingTool
     theWindow.setHelpText(Translate.text("moveObjectTool.dragText",
       Math.round(v.x*1e5)/1e5+", "+Math.round(v.y*1e5)/1e5+", "+Math.round(v.z*1e5)/1e5));
 
-      System.out.println(" --- " + v.x + " " + v.y + " " + v.z);
+      //System.out.println(" --- " + v.x + " " + v.y + " " + v.z);
   }
 
   public void mouseReleased(WidgetMouseEvent e, ViewerCanvas view)
@@ -170,7 +170,7 @@ public class MoveObjectTool extends EditingTool
 
   public void keyPressed(KeyPressedEvent e, ViewerCanvas view)
   {
-	  System.out.println("MoveObjectTool.keyPressed()"); // JDT
+    //System.out.println("MoveObjectTool.keyPressed()"); // JDT
 	LayoutModeling layout = new LayoutModeling();
     Scene theScene = theWindow.getScene();
     //layout.setBaseDir(theScene.getDirectory() + "\\" + theScene.getName() + "_layout_data" );
