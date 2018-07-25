@@ -1,4 +1,4 @@
-/*  2018  Jon
+/*  2018  Jon Taylor 2018
     Copyright (C) 1999-2007 by Peter Eastman
 
    This program is free software; you can redistribute it and/or modify it under the
@@ -21,24 +21,28 @@ import buoy.widget.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.Vector;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
-/** CreateDimensionTool is an EditingTool used for creating Curve objects. */
+/** CreateLabelTool is an EditingTool used for creating Curve objects. */
 
-public class CreateDimensionTool extends EditingTool
+public class CreateLabelTool extends EditingTool
 {
   static int counter = 1;
   private Vector<Vec3> clickPoint;
   private Vector<Float> smoothness;
   private int smoothing;
-  private DimensionObject theCurve;
+  private LabelObject theCurve;
   private CoordinateSystem coords;
+    
+  public static String labelText = null;
 
   public static final int HANDLE_SIZE = 3;
 
-  public CreateDimensionTool(EditingWindow fr)
+  public CreateLabelTool(EditingWindow fr)
   {
     super(fr);
-    initButton("dimension");
+    initButton("label");
     smoothing = Mesh.APPROXIMATING;
   }
 
@@ -61,7 +65,7 @@ public class CreateDimensionTool extends EditingTool
 
   public String getToolTipText()
   {
-      return "Create distance annotation markup between two points."; // Translate.text("createCurveTool.tipText");
+      return "Place text label. 3 points."; // Translate.text("createCurveTool.tipText");
   }
 
   public boolean hilightSelection()
@@ -94,7 +98,7 @@ public class CreateDimensionTool extends EditingTool
             //Point pointB = new Point( (int) (screenPos.x-HANDLE_SIZE/2) - 20, (int) (screenPos.y-HANDLE_SIZE/2) - 20 );
             //view.drawLine(pointA, pointB, new Color(255,0,0) );
         }
-        System.out.println(" draw overlay   points: " + mesh.from.length);
+        //System.out.println(" draw overlay   points: " + mesh.from.length);
         
         //view.drawLine(p[mesh.from[i]], p[mesh.to[i]], ViewerCanvas.lineColor);
         
@@ -149,7 +153,14 @@ public class CreateDimensionTool extends EditingTool
     Vec3 vertex[], orig, ydir, zdir;
     float s[];
 
-      System.out.println(" mousereleased clickPoint.size()"  + clickPoint.size() );
+      //System.out.println(" mousereleased clickPoint.size()"  + clickPoint.size() );
+      
+      if(this.labelText == null || this.labelText.equals("")){
+          System.out.println(" label is null  ");
+          
+          JFrame frame = new JFrame("Label Text");
+          this.labelText = JOptionPane.showInputDialog(frame, "Enter Label Text");
+      }
       
       // abort creation of dimension
       if (clickPoint.size() > 1 && clickPoint.size() < 2 ){
@@ -202,13 +213,17 @@ public class CreateDimensionTool extends EditingTool
         {
             vertex[i] = coords.toLocal().times(vertex[i]);
         }
-        theCurve = new DimensionObject(vertex, s, smoothing, false);
+        theCurve = new LabelObject(vertex, s, smoothing, false);
+        theCurve.labelText = this.labelText;
         
           if(clickPoint.size() >= 3)
           //if (e.getClickCount() == 2)
           {
             theCurve.setClosed(e.isControlDown());
             addToScene();
+              
+            this.labelText = null;
+              
             return;
           }
           
@@ -234,7 +249,7 @@ public class CreateDimensionTool extends EditingTool
   
   private void addToScene()
   {
-    System.out.println(" addToScene ");
+    //System.out.println(" addToScene ");
       // theCurve = Curve ;
       // CoordinateSystem coords
     boolean addCurve = (theCurve != null);
@@ -242,7 +257,7 @@ public class CreateDimensionTool extends EditingTool
       {
         // Make new coords to represent the dimension?
           
-        ObjectInfo info = new ObjectInfo(theCurve, coords, "Dimension "+(counter++));
+        ObjectInfo info = new ObjectInfo(theCurve, coords, "Label "+(counter++));
         info.addTrack(new PositionTrack(info), 0);
         info.addTrack(new RotationTrack(info), 1);
           
@@ -270,10 +285,16 @@ public class CreateDimensionTool extends EditingTool
 
   /**
    *
-   *
+   * 
    */
   public void iconDoubleClicked()
   {
+      System.out.println("label doubl click ");
+      
+      JFrame frame = new JFrame("Label Text");
+      this.labelText = JOptionPane.showInputDialog(frame, "Enter Label Text");
+      
+      /*
     BComboBox smoothingChoice = new BComboBox(new String [] {
       Translate.text("Interpolating"),
       Translate.text("Approximating")
@@ -291,5 +312,6 @@ public class CreateDimensionTool extends EditingTool
       smoothing = Mesh.INTERPOLATING;
     else
       smoothing = Mesh.APPROXIMATING;
+      */
   }
 }

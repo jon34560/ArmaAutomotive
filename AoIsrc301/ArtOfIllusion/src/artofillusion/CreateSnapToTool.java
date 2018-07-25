@@ -62,7 +62,7 @@ public class CreateSnapToTool extends EditingTool
 
   public String getToolTipText()
   {
-    return Translate.text("createCurveTool.tipText");
+      return "Toggle snap to vertex for other tools."; // Translate.text("createCurveTool.tipText");
   }
 
   public boolean hilightSelection()

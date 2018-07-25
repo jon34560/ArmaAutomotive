@@ -1000,6 +1000,10 @@ public abstract class ViewerCanvas extends CustomWidget
     drawer.renderDimensionObject(obj, theCamera);
   }
     
+  public void renderLabelObject(ObjectInfo obj, Camera theCamera)
+  {
+    drawer.renderLabelObject(obj, theCamera);
+  }
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

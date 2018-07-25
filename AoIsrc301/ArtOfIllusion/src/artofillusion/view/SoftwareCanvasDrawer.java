@@ -714,6 +714,65 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           
   }
     
+    public void renderLabelObject(ObjectInfo obj, Camera theCamera){
+        double distance = 0;
+        
+        
+        // renderLine(vert[from[i]], vert[to[i]], cam, color);
+        
+        // TODO **********
+        ObjectInfo objClone = obj.duplicate();
+        LayoutModeling layout = new LayoutModeling();
+        CoordinateSystem c;
+        c = layout.getCoords(objClone);
+        double scale = 1.0;
+        Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+        Vec3 [] verts = mesh.getVertexPositions();
+        
+        if(verts.length >= 2){
+            distance = verts[0].distance2(verts[1]);
+            //System.out.println("distance: " + distance);
+            //double d = dv3.vert.distance(midv1.vert);
+            
+            //renderNumber(2, verts[2], theCamera);
+            double width = (Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x));
+            double height = (Math.max(verts[0].y, verts[1].y) - Math.min(verts[0].y, verts[1].y));
+            double distanceScale = width / 1.1; //
+            boolean vertical = false;
+            if(height > width){
+                vertical = true;
+                distanceScale = height / 1.1;
+            }
+            
+            // line 1
+            Vec3 vert3 = new Vec3( verts[0].x, verts[0].y, verts[0].z); // point 1
+            Vec3 vert1 = new Vec3( verts[1].x, verts[1].y, verts[1].z); // point 2
+            Vec3 vert2 = new Vec3( verts[2].x, verts[2].y, verts[2].z); // point 3
+            renderLine(vert1, vert3, theCamera, new Color(0.2f, 0.2f, 0.2f));
+            renderLine(vert1, vert2, theCamera, new Color(0.2f, 0.2f, 0.2f));
+            
+            
+            // Line 2
+            //double line2Width = verts[2].x - verts[1].x;
+            //double line2Height = verts[2].y - verts[1].y;
+            
+            //Vec3 vert4 = new Vec3( verts[0].x + line2Width, verts[0].y + line2Height, verts[0].z); // constructed point
+            //renderLine(vert3, vert4, theCamera, new Color(0.2f, 0.2f, 0.2f));
+            
+            // Line 3
+            //renderLine(vert2, vert4, theCamera, new Color(0.2f, 0.2f, 0.2f));
+            
+            LabelObject labelObject = (LabelObject)mesh;
+            
+            // Anotation
+            double annotationX = ( ( Math.max(verts[1].x, verts[2].x) - Math.min(verts[1].x, verts[2].x)) / 2 ) + Math.min(verts[0].x, verts[1].x);
+            //double x = verts[0].x - verts[1].x;
+            Vec3 annotationLocation = new Vec3(annotationX, verts[2].y, verts[2].z );
+            renderString( labelObject.labelText , annotationLocation, distanceScale, theCamera);
+            
+        }
+    }
+    
     /**
      * renderDouble
      *
@@ -724,6 +783,32 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
         String numberAsString = Double.toString(number);
         for(int i = 0; i < numberAsString.length() && i < 5 ; i++){
             char digit = numberAsString.charAt(i);
+            //System.out.println(" digit " + digit);
+            
+            if( Character.isDigit(digit) ){
+                int digitNumber = Character.getNumericValue(digit);
+                //System.out.println("number  " + digitNumber );
+                
+                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
+                renderNumber( digitNumber, offsetLocation, scale, theCamera);
+            } else {
+                // Decimal point
+                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
+                renderNumber( 99, offsetLocation, scale, theCamera);
+            }
+            
+            xOffset += 0.3;
+        }
+    }
+    
+    public void renderString(String text, Vec3 location, double scale, Camera theCamera){
+        if(text == null){
+            return;
+        }
+        double xOffset = 0;
+        //String numberAsString = Double.toString(number);
+        for(int i = 0; i < text.length(); i++){
+            char digit = text.charAt(i);
             //System.out.println(" digit " + digit);
             
             if( Character.isDigit(digit) ){

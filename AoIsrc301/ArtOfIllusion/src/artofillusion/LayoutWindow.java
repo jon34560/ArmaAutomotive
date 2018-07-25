@@ -192,6 +192,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // Snap To Tool
     tools.addTool(new CreateDimensionTool(this));
     tools.addTool(new CreateSnapToTool(this));
+    tools.addTool(new CreateLabelTool(this));
       
       
     if (ArtOfIllusion.getPreferences().getUseCompoundMeshTool())
