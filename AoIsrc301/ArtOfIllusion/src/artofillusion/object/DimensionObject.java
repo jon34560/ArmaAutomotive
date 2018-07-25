@@ -720,11 +720,12 @@ public class DimensionObject extends Curve implements Mesh
         else {
             //System.out.println(" wireframe ");
             // always Call
-            canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
             
+            //Draw curve
+            //canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
             
+            // Draw dimension mark and annotation.
             canvas.renderDimensionObject( obj, theCamera );
-            
             
         }
     }
