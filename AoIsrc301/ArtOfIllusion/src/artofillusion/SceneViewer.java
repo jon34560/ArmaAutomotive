@@ -423,7 +423,27 @@ public class SceneViewer extends ViewerCanvas
     // the closest one.  I'm trying something different: select the smallest one.  This
     // should make it easier to select small objects which are surrounded by larger objects.
     // I may decide to change this, but it seemed like a good idea at the time...
-    
+      
+    // JDT: Yeah, I don't like this. I'm adding a list to explicitly select from the list of objects.
+      if (parentFrame instanceof LayoutWindow){
+          ((LayoutWindow) parentFrame).clearSelectionPickerList();
+      }
+      for (i = 0; i < theScene.getNumObjects(); i++)
+      {
+          info = theScene.getObject(i);
+          if (info.isVisible() && !info.isLocked())
+          {
+              theCamera.setObjectTransform(info.getCoords().fromLocal());
+              bounds = theCamera.findScreenBounds(info.getBounds());
+              if (bounds != null && pointInRectangle(p, bounds)){
+                  if (parentFrame instanceof LayoutWindow){
+                      ((LayoutWindow) parentFrame).addToSelectionPickerList(i);
+                  }
+              }
+          }
+      }
+    // END JDT
+      
     j = -1;
     minarea = Integer.MAX_VALUE;
     for (i = 0; i < theScene.getNumObjects(); i++)

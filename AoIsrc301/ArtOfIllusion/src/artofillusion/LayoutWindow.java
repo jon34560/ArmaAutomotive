@@ -45,10 +45,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   FormContainer centerContainer;
   private DockingContainer dock[];
   BScrollPane itemTreeScroller;
+  BScrollPane itemSelectionScroller;
   Score theScore;
   ToolPalette tools;
   BLabel helpText;
   TreeList itemTree;
+  TreeList itemSelectionTree; // JDT
   Scene theScene;
   BMenuBar menubar;
   BMenu fileMenu, recentFilesMenu, editMenu, objectMenu, createMenu, toolsMenu, scriptMenu;
@@ -85,6 +87,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     undoStack = new UndoStack();
     sceneChangedEvent = new SceneChangedEvent(this);
     createItemList();
+      
+    createItemSelectionList(); // JDT
 
     // Create the four SceneViewer panels.
 
@@ -128,6 +132,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     theView[2].setOrientation(4);
     theView[3].setOrientation(6);
     theView[3].setPerspective(true);
+    
+    //theView[1].setBackground(new Color(255, 0, 0)); // no effect
+    //  viewPanel[0].setBackground(new Color(255, 0, 0)); 
+      
     theView[currentView].setDrawFocus(true);
     viewsContainer = new FormContainer(new double [] {1, 1}, new double [] {1, 1});
     viewsContainer.setDefaultLayout(new LayoutInfo(LayoutInfo.CENTER, LayoutInfo.BOTH, null, null));
@@ -162,9 +170,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     BScrollPane propertiesScroller = new BScrollPane(propertiesPanel, BScrollPane.SCROLLBAR_NEVER, BScrollPane.SCROLLBAR_AS_NEEDED);
     propertiesScroller.getVerticalScrollBar().setUnitIncrement(10);
     propertiesScroller.setBackground(ThemeManager.getAppBackgroundColor());
-    getDockingContainer(BTabbedPane.RIGHT).addDockableWidget(new DefaultDockableWidget(itemTreeScroller, Translate.text("Objects")));
-    getDockingContainer(BTabbedPane.RIGHT).addDockableWidget(new DefaultDockableWidget(propertiesScroller, Translate.text("Properties")), 0, 1);
-    
+    getDockingContainer(BTabbedPane.RIGHT).addDockableWidget(new DefaultDockableWidget(itemTreeScroller, Translate.text("Objects")), 0, 0);
+    getDockingContainer(BTabbedPane.RIGHT).addDockableWidget(new DefaultDockableWidget(itemSelectionScroller, Translate.text("Selection")), 0, 1); // Object Picker List
+    getDockingContainer(BTabbedPane.RIGHT).addDockableWidget(new DefaultDockableWidget(propertiesScroller, Translate.text("Properties")), 0, 2);
+      
     // Disable animation tools
     //getDockingContainer(BTabbedPane.BOTTOM).addDockableWidget(new DefaultDockableWidget(theScore, Translate.text("Score")));
 
@@ -260,6 +269,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     //UIUtilities.applyDefaultBackground(centerContainer);
       
     itemTreeScroller.setBackground(Color.white);
+    itemSelectionScroller.setBackground(Color.white);
     if (ArtOfIllusion.APP_ICON != null)
       setIcon(ArtOfIllusion.APP_ICON);
     Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
@@ -329,6 +339,52 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     itemTree.addEventLink(SelectionChangedEvent.class, this, "treeSelectionChanged");
     new AutoScroller(itemTreeScroller, 0, 10);
   }
+    
+    /**
+     * createItemSelectionList
+     *
+     * Description: Select one of many possible objects.
+     */
+    private void createItemSelectionList()
+    {
+        itemSelectionTree = new TreeList(this);
+        itemSelectionTree.setPreferredSize(new Dimension(130, 300));
+        itemSelectionTree.addEventLink(TreeList.ElementMovedEvent.class, theScore, "rebuildList");
+        itemSelectionTree.addEventLink(TreeList.ElementDoubleClickedEvent.class, this, "editObjectCommand");
+        itemSelectionTree.setUpdateEnabled(false);
+        /*
+        for (int i = 0; i < theScene.getNumObjects(); i++)
+        {
+            ObjectInfo info = theScene.getObject(i);
+            if (info.getParent() == null)
+                //itemSelectionTree.addElement(new ObjectTreeElement(info, itemTree));
+        }
+        */
+        itemSelectionTree.setUpdateEnabled(true);
+        
+        
+        itemSelectionScroller = new BScrollPane(itemSelectionTree) {
+            public Dimension getMinimumSize()
+            {
+                return new Dimension(0, 0);
+            }
+            
+            public Dimension getPreferredSize()
+            {
+                return new Dimension(40, 15);
+            }
+        };
+        
+        
+        itemSelectionScroller.setForceWidth(true);
+        itemSelectionScroller.setForceHeight(true);
+        itemSelectionScroller.getVerticalScrollBar().setUnitIncrement(10);
+        
+        itemSelectionTree.addEventLink(SelectionChangedEvent.class, this, "treeSelectionPickerChanged");
+        //new AutoScroller(itemTreeScroller, 0, 10);
+    }
+    
+    
 
   /** Rebuild the TreeList of objects, attempting as much as possible to preserve its
       current state. */
@@ -1366,6 +1422,18 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     setSelection(which);
     updateImage();
   }
+    
+    
+    private void treeSelectionPickerChanged(){
+        Object sel[] = itemSelectionTree.getSelectedObjects();
+        int which[] = new int [sel.length];
+        for (int i = 0; i < sel.length; i++){
+            which[i] = theScene.indexOf((ObjectInfo) sel[i]);
+        }
+        setUndoRecord(new UndoRecord(this, false, UndoRecord.SET_SCENE_SELECTION, new Object [] {getSelectedIndices()}));
+        setSelection(which);
+        updateImage();
+    }
 
   private void displayModeCommand(CommandEvent ev)
   {
@@ -1481,6 +1549,20 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     itemTree.setSelected(theScene.getObject(which), false);
     theScore.rebuildList();
     updateMenus();
+  }
+    
+    /**
+     * add objects that have been clicked on the screen to the picker list.
+     */
+  public void addToSelectionPickerList(int which)
+  {
+      itemSelectionTree.addElement(new ObjectTreeElement(theScene.getObject(which), itemSelectionTree));
+      itemSelectionTree.repaint();
+  }
+    
+  public void clearSelectionPickerList(){
+    itemSelectionTree.removeAllElements();
+    itemSelectionTree.repaint();
   }
 
   private void actionPerformed(CommandEvent e)
