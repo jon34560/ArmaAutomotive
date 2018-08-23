@@ -73,7 +73,7 @@
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}"
 	classpath="${adsjar}:${regjar}:${helpjar}:${bshjar}:${pircjar}"
-	debug="on" target="1.4" source="1.4" />
+	debug="on" target="1.6" source="1.6" />
   </target>
 
   <target name="dist" depends="compile">

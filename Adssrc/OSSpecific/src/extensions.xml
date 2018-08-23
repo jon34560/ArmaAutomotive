@@ -8,6 +8,6 @@ expected on particular operating systems.
   </description>
   <comments>
   </comments>
-  <plugin class="artofillusion.osspecific.MacOSPlugin"/>
+  <plugin class="armadesignstudio.osspecific.MacOSPlugin"/>
 </extension>
 

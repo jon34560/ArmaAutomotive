@@ -24,7 +24,7 @@ package nik777.chat;
  * from the GNU project, at http://www.gnu.org.
  */
 
-import artofillusion.ui.Translate;
+import armadesignstudio.ui.Translate;
 
 import java.awt.Container;
 import java.awt.BorderLayout;

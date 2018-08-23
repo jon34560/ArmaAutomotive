@@ -22,7 +22,7 @@
 
   <target name="compile" depends="init">
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpath="${adsjar}" debug="on" target="1.5" source="1.5" />
+    <javac srcdir="${src}" destdir="${build}" classpath="${adsjar}" debug="on" target="1.6" source="1.6" />
   </target>
 
   <target name="dist" depends="compile">

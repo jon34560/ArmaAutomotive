@@ -8,9 +8,9 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.raytracer;
+package armadesignstudio.raytracer;
 
-import artofillusion.math.*;
+import armadesignstudio.math.*;
 
 /** This class represents a single photon used for photon mapping.  It stores the light intensity
     and color, position, incident direction, and a flag used for building the photon map.

@@ -69,7 +69,7 @@ import java.io.UnsupportedEncodingException;
 
 import net.sourceforge.helpgui.util.BrowserControl;
 
-import artofillusion.ui.Translate;
+import armadesignstudio.ui.Translate;
 
 /**
  * Chat Window class.

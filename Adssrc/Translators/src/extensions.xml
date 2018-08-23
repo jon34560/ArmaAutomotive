@@ -8,8 +8,8 @@ importing and exporting a variety of file formats.
   </description>
   <comments>
   </comments>
-  <plugin class="artofillusion.translators.OBJTranslator"/>
-  <plugin class="artofillusion.translators.POVTranslator"/>
-  <plugin class="artofillusion.translators.VRMLTranslator"/>
+  <plugin class="armadesignstudio.translators.OBJTranslator"/>
+  <plugin class="armadesignstudio.translators.POVTranslator"/>
+  <plugin class="armadesignstudio.translators.VRMLTranslator"/>
 </extension>
 

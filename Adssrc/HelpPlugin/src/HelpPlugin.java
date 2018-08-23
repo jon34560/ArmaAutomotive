@@ -29,10 +29,10 @@ package nik777.aoi;
  *  code written and Copyright (C) Peter Eastman.
  */
 
-import artofillusion.*;
-import artofillusion.ui.*;
-import artofillusion.keystroke.*;
-import artofillusion.util.SearchlistClassLoader;
+import armadesignstudio.*;
+import armadesignstudio.ui.*;
+import armadesignstudio.keystroke.*;
+import armadesignstudio.util.SearchlistClassLoader;
 import buoy.widget.*;
 import buoy.event.*;
 import buoyx.docking.*;
@@ -638,7 +638,7 @@ public class HelpPlugin implements Plugin
 	    Locale local = Translate.getLocale();
 	    ClassLoader loader = getClass().getClassLoader();
 
-	    PluginRegistry.invokeExportedMethod("artofillusion.SPManager.registerResource", new Object[] { "TranslateBundle", "HelpPlugin", loader, "helpplugin", local});
+	    PluginRegistry.invokeExportedMethod("armadesignstudio.SPManager.registerResource", new Object[] { "TranslateBundle", "HelpPlugin", loader, "helpplugin", local});
 
 	} catch (Exception e) {}
     }
@@ -656,7 +656,7 @@ public class HelpPlugin implements Plugin
 	    HelpFrame helpframe = new HelpFrame(docset, theme);
 
 	    try {
-		URL url = getClass().getResource("/artofillusion/Icons/appIcon.png");
+		URL url = getClass().getResource("/armadesignstudio/Icons/appIcon.png");
 		if (url != null) helpframe.setIconImage(ImageIO.read(url.openStream()));
 		else System.out.println("HelpPlugin.show: cannot find icon");
 	    } catch (Exception e) {
@@ -839,7 +839,7 @@ public class HelpPlugin implements Plugin
 	    String vname = ArmaDesignStudio.getVersion();
 
 	    int imageNumber = new Random(System.currentTimeMillis()).nextInt(8);
-	    ImageIcon image = new ImageIcon(getClass().getResource("/artofillusion/titleImages/titleImage"+imageNumber+".jpg"));
+	    ImageIcon image = new ImageIcon(getClass().getResource("/armadesignstudio/titleImages/titleImage"+imageNumber+".jpg"));
 
 	    String text = "<html><div align='center'>" +
 		"Art Of Illusion v" + vname +

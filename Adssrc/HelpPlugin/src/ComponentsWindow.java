@@ -31,8 +31,8 @@ package nik777.aoi;
  * Copyright (C) 1999,2000,2002-2004 by Peter Eastman.
  */
 
-import artofillusion.ui.Translate;
-import artofillusion.ui.UIUtilities;
+import armadesignstudio.ui.Translate;
+import armadesignstudio.ui.UIUtilities;
 
 import buoy.event.*;
 import buoy.widget.*;

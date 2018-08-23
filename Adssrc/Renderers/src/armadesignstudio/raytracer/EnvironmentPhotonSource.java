@@ -8,12 +8,12 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.raytracer;
+package armadesignstudio.raytracer;
 
-import artofillusion.*;
-import artofillusion.util.*;
-import artofillusion.math.*;
-import artofillusion.texture.*;
+import armadesignstudio.*;
+import armadesignstudio.util.*;
+import armadesignstudio.math.*;
+import armadesignstudio.texture.*;
 
 /** This is a PhotonSource corresponding to the environment sphere. */
 

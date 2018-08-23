@@ -8,11 +8,11 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.raytracer;
+package armadesignstudio.raytracer;
 
-import artofillusion.math.*;
-import artofillusion.texture.*;
-import artofillusion.util.*;
+import armadesignstudio.math.*;
+import armadesignstudio.texture.*;
+import armadesignstudio.util.*;
 
 /** This is a PhotonSource corresponding to an RTDisplacedTriangle. */
 

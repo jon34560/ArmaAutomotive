@@ -8,7 +8,7 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.raytracer;
+package armadesignstudio.raytracer;
 
 /** This class stores a list of photons which are close to a point in space, and calculates the incident
     light intensity from them.
