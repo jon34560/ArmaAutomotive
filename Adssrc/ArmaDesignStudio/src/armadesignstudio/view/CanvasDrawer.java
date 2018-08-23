@@ -8,16 +8,16 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
 PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
 import java.awt.*;
 
-import artofillusion.Camera;
-import artofillusion.RenderingMesh;
-import artofillusion.WireframeMesh;
-import artofillusion.math.Vec2;
-import artofillusion.math.Vec3;
-import artofillusion.object.*; // JDT for drawing dimensions
+import armadesignstudio.Camera;
+import armadesignstudio.RenderingMesh;
+import armadesignstudio.WireframeMesh;
+import armadesignstudio.math.Vec2;
+import armadesignstudio.math.Vec3;
+import armadesignstudio.object.*; // JDT for drawing dimensions
 
 /** This interface defines an object which renders the content of a ViewerCanvas. */
 

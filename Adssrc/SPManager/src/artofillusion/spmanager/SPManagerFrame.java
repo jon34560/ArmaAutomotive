@@ -8,10 +8,10 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
-import artofillusion.*;
-import artofillusion.ui.UIUtilities;
+import armadesignstudio.*;
+import armadesignstudio.ui.UIUtilities;
 
 import java.awt.*;
 import javax.swing.*;
@@ -27,7 +27,7 @@ import buoy.event.*;
 /**
  *  Main frame of the scripts and plugins manager.
  *
- *@author     françois guillet
+ *@author     franois guillet
  *@created    13 mars 2004
  */
 public class SPManagerFrame extends BFrame
@@ -103,7 +103,7 @@ public class SPManagerFrame extends BFrame
         LayoutInfo layout = new LayoutInfo( LayoutInfo.CENTER, LayoutInfo.NONE, new Insets( 5, 3, 3, 3 ), new Dimension( 0, 0 ) );
         ColumnContainer cc = new ColumnContainer();
         LayoutInfo headLayout = new LayoutInfo( LayoutInfo.WEST, LayoutInfo.NONE, new Insets( 3, 5, 5, 3 ), new Dimension( 0, 0 ) );
-        rc.add( new BLabel( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/gear.png" ) ) ), headLayout );
+        rc.add( new BLabel( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/gear.png" ) ) ), headLayout );
         //Icon gear.png taken from the KDE desktop environment !!!
         rc.add( SPMTranslate.bLabel( "Version", new Object[]{version} ), headLayout );
         LayoutInfo cclayout = new LayoutInfo( LayoutInfo.CENTER, LayoutInfo.BOTH, new Insets( 3, 3, 5, 3 ), new Dimension( 0, 0 ) );

@@ -204,7 +204,7 @@ public abstract class ImplicitObject extends Object3D
     {
       RenderingMesh mesh = cachedMesh;
       if (mesh == null)
-        mesh = getRenderingMesh(ArtOfIllusion.getPreferences().getInteractiveSurfaceError(), false, null);
+        mesh = getRenderingMesh(ArmaDesignStudio.getPreferences().getInteractiveSurfaceError(), false, null);
       HashSet<Point> edges = new HashSet<Point>();
       for (RenderingTriangle tri : mesh.triangle)
       {

@@ -65,7 +65,7 @@ public class ArmaDesignStudio
     String dir = System.getProperty("user.dir");
     try
       {
-        URL url = armadesignstudio.class.getResource("/armadesignstudio/ArmaDesignStudio.class");
+        URL url = ArmaDesignStudio.class.getResource("/armadesignstudio/ArmaDesignStudio.class");
         if (url.toString().startsWith("jar:"))
           {
             String furl = url.getFile();
@@ -191,8 +191,8 @@ public class ArmaDesignStudio
     PluginRegistry.registerPlugin(new OutlineFilter());
     PluginRegistry.registerPlugin(new NoiseReductionFilter());
     PluginRegistry.registerPlugin(new DepthOfFieldFilter());
-    PluginRegistry.registerResource("TranslateBundle", "armadesignstudio", armadesignstudio.class.getClassLoader(), "armadesignstudio", null);
-    PluginRegistry.registerResource("UITheme", "default", armadesignstudio.class.getClassLoader(), "armadesignstudio/Icons/defaultTheme.xml", null);
+    PluginRegistry.registerResource("TranslateBundle", "armadesignstudio", ArmaDesignStudio.class.getClassLoader(), "armadesignstudio", null);
+    PluginRegistry.registerResource("UITheme", "default", ArmaDesignStudio.class.getClassLoader(), "armadesignstudio/Icons/defaultTheme.xml", null);
     PluginRegistry.scanPlugins();
     ThemeManager.initThemes();
     preferences = new ApplicationPreferences();

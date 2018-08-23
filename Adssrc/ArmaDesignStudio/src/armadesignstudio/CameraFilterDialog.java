@@ -37,7 +37,7 @@ public class CameraFilterDialog extends BDialog implements RenderListener
   private Map savedConfiguration;
   private Thread filterThread;
 
-  private static Renderer previewRenderer = armadesignstudio.getPreferences().getTexturePreviewRenderer();
+  private static Renderer previewRenderer = ArmaDesignStudio.getPreferences().getTexturePreviewRenderer();
   private static HashMap<Renderer, Map<String, Object>> rendererConfiguration = new HashMap<Renderer, Map<String, Object>>();
 
   private static final int PREVIEW_WIDTH = 200;

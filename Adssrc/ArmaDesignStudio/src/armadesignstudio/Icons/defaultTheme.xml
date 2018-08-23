@@ -46,14 +46,14 @@
   	<dockabletitlecolor R="0" G="0" B="0"/>
   	<textcolor R="0" G="0" B="0"/>
   </colorset>
-  <button class="artofillusion.ui.DefaultToolButton">
-    <style owner="artofillusion.ui.EditingTool" notFound="toolNotFound"
+  <button class="armadesignstudio.ui.DefaultToolButton">
+    <style owner="armadesignstudio.ui.EditingTool" notFound="toolNotFound"
 	   size="32,32"
 	   raw.icon="{icon}"
 	   normal.icon="ButtonBackground; {icon}"
 	   selected.icon="selected/ButtonBackground; {icon} @(x+1,y+1)" />
 
-    <style owner="artofillusion.view.ViewerControl" notFound="toolNotFound"
+    <style owner="armadesignstudio.view.ViewerControl" notFound="toolNotFound"
 	   size="23,21"
 	   raw.icon="{icon}"
 	   normal.icon="{icon} + #(r=0.35,g=0.35,b=0.35)"

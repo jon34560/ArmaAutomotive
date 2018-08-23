@@ -29,7 +29,7 @@ public class TitleWindow extends BWindow
     int imageNumber = new Random(System.currentTimeMillis()).nextInt(8);
     ImageIcon image = new ImageIcon(getClass().getResource("/armadesignstudio/titleImages/titleImage"+imageNumber+".jpg"));
     String text = "<html><div align=\"center\">"+
-        "Art of Illusion v"+ArtOfIllusion.getVersion()+
+        "Art of Illusion v"+ArmaDesignStudio.getVersion()+
         "<br>Copyright 1999-2015 by Peter Eastman and others"+
         "<br>(See the README file for details.)"+
         "<br>This program may be freely distributed under"+

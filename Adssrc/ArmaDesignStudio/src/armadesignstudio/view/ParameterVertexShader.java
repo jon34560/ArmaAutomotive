@@ -8,11 +8,11 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.math.*;
-import artofillusion.*;
-import artofillusion.texture.*;
+import armadesignstudio.math.*;
+import armadesignstudio.*;
+import armadesignstudio.texture.*;
 
 /**
  * This is a VertexShader which colors the surface based on the value of a TextureParameter.

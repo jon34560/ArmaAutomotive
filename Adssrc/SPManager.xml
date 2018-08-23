@@ -2,10 +2,10 @@
 
 <project name="SPManager" default="dist" basedir=".">
 
-  <!-- set this to point to an appropriate ArtOfIllusion.jar -->
-  <property name="aoijar" value="ArtOfIllusion.jar" />
+  <!-- set this to point to an appropriate ArmaDesignStudio.jar -->
+  <property name="aoijar" value="ArmaDesignStudio.jar" />
 
-  <!-- set this to point to an appropriate ArtOfIllusion/lib folder-->
+  <!-- set this to point to an appropriate ArmaDesignStudio/lib folder-->
   <property name="lib" value="lib" />
   
   <!-- get the current build properties -->

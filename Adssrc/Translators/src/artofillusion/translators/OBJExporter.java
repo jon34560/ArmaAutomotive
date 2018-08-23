@@ -67,15 +67,15 @@ public class OBJExporter
 
     BFileChooser fc = new BFileChooser(BFileChooser.SAVE_FILE, Translate.text("exportToOBJ"));
     fc.setSelectedFile(new File("Untitled.obj"));
-    if (ArtOfIllusion.getCurrentDirectory() != null)
-      fc.setDirectory(new File(ArtOfIllusion.getCurrentDirectory()));
+    if (ArmaDesignStudio.getCurrentDirectory() != null)
+      fc.setDirectory(new File(ArmaDesignStudio.getCurrentDirectory()));
     if (!fc.showDialog(parent))
       return;
     File dir = fc.getDirectory();
     File f = fc.getSelectedFile();
     String name = f.getName();
     String baseName = (name.endsWith(".obj") ? name.substring(0, name.length()-4) : name);
-    ArtOfIllusion.setCurrentDirectory(dir.getAbsolutePath());
+    ArmaDesignStudio.setCurrentDirectory(dir.getAbsolutePath());
     
     // Create the output files.
 
@@ -112,7 +112,7 @@ public class OBJExporter
   {
     // Write the header information.
 
-    out.println("#Produced by Art of Illusion "+ArtOfIllusion.getVersion()+", "+(new Date()).toString());
+    out.println("#Produced by Arma Automotive - Arma Design Studio "+ArmaDesignStudio.getVersion()+", "+(new Date()).toString());
     if (mtlFilename != null)
       out.println("mtllib "+mtlFilename);
 
@@ -348,7 +348,7 @@ public class OBJExporter
     
     // Write out the .mtl file.
     
-    out.println("#Produced by Art of Illusion "+ArtOfIllusion.getVersion()+", "+(new Date()).toString());
+    out.println("#Produced by Art of Illusion "+ArmaDesignStudio.getVersion()+", "+(new Date()).toString());
     Enumeration textures = textureExporter.getTextures();
     Hashtable<String, TextureImageInfo> names = new Hashtable<String, TextureImageInfo>();
     TextureSpec spec = new TextureSpec();

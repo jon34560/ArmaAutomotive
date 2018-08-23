@@ -475,7 +475,7 @@ public class ProcedureEditor extends CustomWidget
   public void saveState(boolean redo)
   {
     ArrayList<ByteArrayOutputStream> stack = (redo ? redoStack : undoStack);
-    if (stack.size() == ArtOfIllusion.getPreferences().getUndoLevels())
+    if (stack.size() == ArmaDesignStudio.getPreferences().getUndoLevels())
       stack.remove(0);
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     DataOutputStream out = new DataOutputStream(buffer);
@@ -514,7 +514,7 @@ public class ProcedureEditor extends CustomWidget
       {
         ex.printStackTrace();
       }
-    if (redoStack.size() == ArtOfIllusion.getPreferences().getUndoLevels())
+    if (redoStack.size() == ArmaDesignStudio.getPreferences().getUndoLevels())
       redoStack.remove(0);
     undoItem.setEnabled(undoStack.size() > 0);
     selectedModule = new boolean [proc.getModules().length];
@@ -543,7 +543,7 @@ public class ProcedureEditor extends CustomWidget
       {
         ex.printStackTrace();
       }
-    if (undoStack.size() == ArtOfIllusion.getPreferences().getUndoLevels())
+    if (undoStack.size() == ArmaDesignStudio.getPreferences().getUndoLevels())
       undoStack.remove(0);
     redoItem.setEnabled(redoStack.size() > 0);
     selectedModule = new boolean [proc.getModules().length];

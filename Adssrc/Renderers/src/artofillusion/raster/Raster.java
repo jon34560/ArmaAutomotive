@@ -336,7 +336,7 @@ public class Raster implements Renderer, Runnable
     smoothing = 1.0;
     adaptive = hideBackfaces = true;
     generateHDR = false;
-    surfaceError = ArtOfIllusion.getPreferences().getInteractiveSurfaceError();
+    surfaceError = ArmaDesignStudio.getPreferences().getInteractiveSurfaceError();
     shadingMode = HYBRID;
     samplesPerPixel = subsample = 1;
     isPreview = true;

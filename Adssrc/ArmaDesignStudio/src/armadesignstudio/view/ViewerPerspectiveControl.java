@@ -8,13 +8,13 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.object.*;
+import armadesignstudio.object.*;
 import buoy.widget.*;
 import buoy.event.*;
-import artofillusion.*;
-import artofillusion.ui.*;
+import armadesignstudio.*;
+import armadesignstudio.ui.*;
 
 /**
  * This is a ViewerControl for setting whether a view uses perspective mode.

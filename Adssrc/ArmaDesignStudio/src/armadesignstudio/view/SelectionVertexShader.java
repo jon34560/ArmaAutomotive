@@ -8,10 +8,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
 PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.math.*;
-import artofillusion.texture.TextureSpec;
+import armadesignstudio.math.*;
+import armadesignstudio.texture.TextureSpec;
 
 /** This is a VertexShader which highlights selected faces.  For unselected faces, it delegates
     to another shader to select the color. */

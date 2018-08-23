@@ -8,11 +8,11 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.animation.distortion;
+package armadesignstudio.animation.distortion;
 
-import artofillusion.*;
-import artofillusion.animation.*;
-import artofillusion.object.*;
+import armadesignstudio.*;
+import armadesignstudio.animation.*;
+import armadesignstudio.object.*;
 import java.io.*;
 
 /** This class is a keyframe for a SkeletonShapeTrack. */

@@ -51,7 +51,7 @@ public class UndoStack
   
   public void addRecord(UndoRecord record)
   {
-    int levels = ArtOfIllusion.getPreferences().getUndoLevels();
+    int levels = ArmaDesignStudio.getPreferences().getUndoLevels();
     if (levels < 1)
       levels = 1;
     while (undoList.size() >= levels)

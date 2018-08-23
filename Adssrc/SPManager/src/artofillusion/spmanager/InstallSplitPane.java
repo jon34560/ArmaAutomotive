@@ -7,11 +7,11 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
-import artofillusion.*;
-import artofillusion.ui.Translate;
-import artofillusion.ui.UIUtilities;
+import armadesignstudio.*;
+import armadesignstudio.ui.Translate;
+import armadesignstudio.ui.UIUtilities;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -19,7 +19,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 import buoy.widget.*;
 import buoy.event.*;
-//import artofillusion.ModellingApp;
+//import armadesignstudio.ModellingApp;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
@@ -87,20 +87,20 @@ public class InstallSplitPane extends SPMSplitPane
 	if ( workMode == UPDATE )
 	{
 	    buttonRow.add( installAllButton = SPMTranslate.bButton( "updateAllSelected", this, "doInstallAll" ), layout );
-	    installAllButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Refresh16.gif" ) ) );
+	    installAllButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Refresh16.gif" ) ) );
 	    //buttonRow.add( installSingleButton = SPMTranslate.bButton( "updateSingle", this, "doInstallSingle" ), layout );
-	    //installSingleButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Refresh16.gif" ) ) );
+	    //installSingleButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Refresh16.gif" ) ) );
 	    buttonRow.add( selectAllButton = SPMTranslate.bButton( "selectAll", this, "doSelectAll" ), layout );
-	    //selectAllButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Refresh16.gif" ) ) );
+	    //selectAllButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Refresh16.gif" ) ) );
 	}
 	else
 	{
 	    buttonRow.add( installAllButton = SPMTranslate.bButton( "installAllSelected", this, "doInstallAll" ), layout );
-	    installAllButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Import16.gif" ) ) );
+	    installAllButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Import16.gif" ) ) );
 	    //buttonRow.add( installSingleButton = SPMTranslate.bButton( "installSingle", this, "doInstallSingle" ), layout );
-	    //installSingleButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Import16.gif" ) ) );
+	    //installSingleButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Import16.gif" ) ) );
 	    buttonRow.add( selectAllButton = SPMTranslate.bButton( "selectAll", this, "doSelectAll" ), layout );
-	    //selectAllButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Import16.gif" ) ) );
+	    //selectAllButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Import16.gif" ) ) );
 	}
 	buttonRow.add( selectCB = SPMTranslate.bCheckBox( "selected", false, this, "doSelectCB" ) );
 	//installSingleButton.setEnabled( false );

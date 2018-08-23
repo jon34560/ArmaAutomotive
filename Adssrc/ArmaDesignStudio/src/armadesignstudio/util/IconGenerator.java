@@ -1,6 +1,6 @@
 /*  IconGenerator.java  */
 
-package artofillusion.util;
+package armadesignstudio.util;
 
 /*
  * IconGenerator: provide editing and compositing features for icon images

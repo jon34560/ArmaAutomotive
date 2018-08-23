@@ -171,7 +171,7 @@ public class ProceduralTexture3D extends Texture3D implements ProcedureOwner
 
   public boolean usesImage(ImageMap image)
   {
-    Module modules[] = proc.getModules();
+    armadesignstudio.procedural.Module modules[] = proc.getModules();
 
     for (int i = 0; i < modules.length; i++)
       if (modules[i] instanceof ImageModule && ((ImageModule) modules[i]).getMap() == image)
@@ -201,7 +201,7 @@ public class ProceduralTexture3D extends Texture3D implements ProcedureOwner
   
   public TextureParameter[] getParameters()
   {
-    Module module[] = proc.getModules();
+    armadesignstudio.procedural.Module module[] = proc.getModules();
     int count = 0;
     
     for (int i = 0; i < module.length; i++)
@@ -276,7 +276,7 @@ public class ProceduralTexture3D extends Texture3D implements ProcedureOwner
       // in version 1.
       
       OutputModule output[] = proc.getOutputModules();
-      Module input[] = new Module [output.length];
+      armadesignstudio.procedural.Module input[] = new armadesignstudio.procedural.Module [output.length];
       int index[] = new int [output.length];
       for (int i = 0; i < output.length; i++)
         {

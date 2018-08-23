@@ -39,7 +39,7 @@ public class SceneViewer extends ViewerCanvas
 
   public SceneViewer(Scene s, RowContainer p, EditingWindow fr, boolean forceSoftwareRendering)
   {
-    super(ArtOfIllusion.getPreferences().getUseOpenGL() && isOpenGLAvailable() && !forceSoftwareRendering);
+    super(ArmaDesignStudio.getPreferences().getUseOpenGL() && isOpenGLAvailable() && !forceSoftwareRendering);
     theScene = s;
     parentFrame = fr;
     addEventLink(MouseClickedEvent.class, this, "mouseClicked");
@@ -47,7 +47,7 @@ public class SceneViewer extends ViewerCanvas
     cameras = new Vector<ObjectInfo>();
     buildChoices(p);
     rebuildCameraList();
-    setRenderMode(ArtOfIllusion.getPreferences().getDefaultDisplayMode());
+    setRenderMode(ArmaDesignStudio.getPreferences().getDefaultDisplayMode());
   }
 
   /** Get the EditingWindow in which this canvas is displayed. */
@@ -170,7 +170,7 @@ public class SceneViewer extends ViewerCanvas
     {
       // Re-render the image.
 
-      Renderer rend = ArtOfIllusion.getPreferences().getObjectPreviewRenderer();
+      Renderer rend = ArmaDesignStudio.getPreferences().getObjectPreviewRenderer();
       if (rend == null)
         return;
       adjustCamera(true);

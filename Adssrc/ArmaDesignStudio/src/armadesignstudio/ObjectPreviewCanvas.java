@@ -38,7 +38,7 @@ public class ObjectPreviewCanvas extends ViewerCanvas
 
   public ObjectPreviewCanvas(ObjectInfo obj, RowContainer p)
   {
-    super(ArtOfIllusion.getPreferences().getUseOpenGL() && isOpenGLAvailable());
+    super(ArmaDesignStudio.getPreferences().getUseOpenGL() && isOpenGLAvailable());
     scene = new Scene();
     if (obj != null)
     {

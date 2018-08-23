@@ -48,7 +48,7 @@ public class RenderSetupDialog
     this.theScene = theScene;
     renderers = PluginRegistry.getPlugins(Renderer.class);
     if (currentRenderer == null)
-      currentRenderer = ArtOfIllusion.getPreferences().getDefaultRenderer();
+      currentRenderer = ArmaDesignStudio.getPreferences().getDefaultRenderer();
     
     // Find all the cameras in the scene.
     
@@ -188,7 +188,7 @@ public class RenderSetupDialog
     // Render the image.
     
     if (currentRenderer == null)
-      currentRenderer = ArtOfIllusion.getPreferences().getDefaultRenderer();
+      currentRenderer = ArmaDesignStudio.getPreferences().getDefaultRenderer();
     currentRenderer.getConfigPanel();
     currentRenderer.recordConfiguration();
     loadRenderSettings(theScene);

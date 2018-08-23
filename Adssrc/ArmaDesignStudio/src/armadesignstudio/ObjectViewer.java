@@ -35,7 +35,7 @@ public abstract class ObjectViewer extends ViewerCanvas
 
   public ObjectViewer(MeshEditController controller, RowContainer p)
   {
-    super(ArtOfIllusion.getPreferences().getUseOpenGL() && isOpenGLAvailable());
+    super(ArmaDesignStudio.getPreferences().getUseOpenGL() && isOpenGLAvailable());
     this.controller = controller;
     buildChoices(p);
   }
@@ -103,7 +103,7 @@ public abstract class ObjectViewer extends ViewerCanvas
     {
       // Re-render the image.
 
-      Renderer rend = ArtOfIllusion.getPreferences().getObjectPreviewRenderer();
+      Renderer rend = ArmaDesignStudio.getPreferences().getObjectPreviewRenderer();
       if (rend == null)
         return;
       adjustCamera(true);
@@ -447,7 +447,7 @@ public abstract class ObjectViewer extends ViewerCanvas
   {
 	  //System.out.println("ObjectViewer.previewObject() ");
 
-    Renderer rend = ArtOfIllusion.getPreferences().getObjectPreviewRenderer();
+    Renderer rend = ArmaDesignStudio.getPreferences().getObjectPreviewRenderer();
     if (rend == null)
       return;
     adjustCamera(true);

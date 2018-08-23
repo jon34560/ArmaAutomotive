@@ -28,12 +28,12 @@ public class OBJImporter
   public static void importFile(BFrame parent)
   {
     BFileChooser bfc = new BFileChooser(BFileChooser.OPEN_FILE, Translate.text("importOBJ"));
-    if (ArtOfIllusion.getCurrentDirectory() != null)
-      bfc.setDirectory(new File(ArtOfIllusion.getCurrentDirectory()));
+    if (ArmaDesignStudio.getCurrentDirectory() != null)
+      bfc.setDirectory(new File(ArmaDesignStudio.getCurrentDirectory()));
     if (!bfc.showDialog(parent))
       return;
     File f = bfc.getSelectedFile();
-    ArtOfIllusion.setCurrentDirectory(bfc.getDirectory().getAbsolutePath());
+    ArmaDesignStudio.setCurrentDirectory(bfc.getDirectory().getAbsolutePath());
     String objName = f.getName();
     if (objName.lastIndexOf('.') > 0)
       objName = objName.substring(0, objName.lastIndexOf('.'));
@@ -456,7 +456,7 @@ public class OBJImporter
         new BStandardDialog("", new String [] {Translate.text("errorLoadingFile"), ex.getMessage() == null ? "" : ex.getMessage()}, BStandardDialog.ERROR).showMessageDialog(parent);
         return;
       }
-    ArtOfIllusion.newWindow(theScene);
+    ArmaDesignStudio.newWindow(theScene);
   }
   
   /** Separate a line into pieces divided by whitespace. */

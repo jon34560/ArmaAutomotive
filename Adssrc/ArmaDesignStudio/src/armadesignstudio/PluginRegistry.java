@@ -42,7 +42,7 @@ public class PluginRegistry
 
   public static void scanPlugins()
   {
-    File dir = new File(ArtOfIllusion.PLUGIN_DIRECTORY);
+    File dir = new File(ArmaDesignStudio.PLUGIN_DIRECTORY);
     if (!dir.exists())
     {
       new BStandardDialog("", UIUtilities.breakString(Translate.text("cannotLocatePlugins")), BStandardDialog.ERROR).showMessageDialog(null);
@@ -174,7 +174,7 @@ public class PluginRegistry
           URL url = new URL(uri);
           // resolve any registry-based authority
           if (url.getAuthority() != null && url.getAuthority().startsWith("$")) {
-            uri = (String) ArtOfIllusion.class.getField(url.getAuthority().substring(1)).get(null);
+            uri = (String) ArmaDesignStudio.class.getField(url.getAuthority().substring(1)).get(null);
             url = new File(uri, url.getPath()).toURI().toURL();
           }
 

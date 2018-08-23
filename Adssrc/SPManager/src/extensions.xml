@@ -4,8 +4,8 @@
    <author>Nik TJ et Francois Guillet (fpgui@users.sourceforge.net)</author>
    <date>March 2013</date>
 
-   <plugin class="artofillusion.spmanager.SPManagerPlugin" >
-      <export method="download" id="artofillusion.SPManager.download" >
+   <plugin class="armadesignstudio.spmanager.SPManagerPlugin" >
+      <export method="download" id="armadesignstudio.SPManager.download" >
 Request SPManager to download a file to the local computer.
 If the file is an AOI plugin, then it is downloaded and installed as if the
 installation were invoked by the user through SPManager. Otherwise the file
@@ -16,7 +16,7 @@ is just downloaded to the specified location.
       </export>
 
       <export method="registerResource"
-         id="artofillusion.SPManager.registerResource" >
+         id="armadesignstudio.SPManager.registerResource" >
 Request SPManager to scan the specified ClassLoader for resources that match
 the specified locale, and register the best-matching resouce found.
 

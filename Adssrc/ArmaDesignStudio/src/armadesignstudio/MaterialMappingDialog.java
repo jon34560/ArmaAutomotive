@@ -8,11 +8,11 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion;
+package armadesignstudio;
 
-import artofillusion.material.*;
-import artofillusion.object.*;
-import artofillusion.ui.*;
+import armadesignstudio.material.*;
+import armadesignstudio.object.*;
+import armadesignstudio.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 import java.awt.Insets;

@@ -151,7 +151,7 @@ public class ImageSaver
       index = (int) numberFromField.getValue();
       BFileChooser fc = new BFileChooser(BFileChooser.SAVE_FILE, Translate.text("saveImage"));
       String filename = "Untitled."+FORMAT_EXTENSION[format];
-      File file = (ArtOfIllusion.getCurrentDirectory() == null ? new File(filename) : new File(ArtOfIllusion.getCurrentDirectory(), filename));
+      File file = (ArmaDesignStudio.getCurrentDirectory() == null ? new File(filename) : new File(ArmaDesignStudio.getCurrentDirectory(), filename));
       fc.setSelectedFile(file);
       ok = fc.showDialog(parent);
       if (ok)

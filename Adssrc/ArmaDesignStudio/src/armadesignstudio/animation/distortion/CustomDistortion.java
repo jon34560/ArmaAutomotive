@@ -8,11 +8,11 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.animation.distortion;
+package armadesignstudio.animation.distortion;
 
-import artofillusion.math.*;
-import artofillusion.procedural.*;
-import artofillusion.object.*;
+import armadesignstudio.math.*;
+import armadesignstudio.procedural.*;
+import armadesignstudio.object.*;
 
 /** This is a distortion which uses a procedure to distort an object. */
 

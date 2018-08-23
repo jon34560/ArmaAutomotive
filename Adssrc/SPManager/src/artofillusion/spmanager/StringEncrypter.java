@@ -2,7 +2,7 @@
 // StringEncrypter.java
 // -----------------------------------------------------------------------------
 
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 // CIPHER / GENERATORS
 import javax.crypto.Cipher;

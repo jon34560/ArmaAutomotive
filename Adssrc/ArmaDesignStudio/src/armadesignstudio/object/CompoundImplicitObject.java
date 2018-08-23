@@ -495,7 +495,7 @@ public class CompoundImplicitObject extends ImplicitObject
       {
         for (int i = 0; i < obj.getNumObjects(); i++)
         {
-          Class cl = ArtOfIllusion.getClass(in.readUTF());
+          Class cl = ArmaDesignStudio.getClass(in.readUTF());
           Constructor con = cl.getConstructor(DataInputStream.class, Object.class);
           key.add((Keyframe) con.newInstance(in, obj.getObject(i)));
           coords.add(new CoordinateSystem(in));

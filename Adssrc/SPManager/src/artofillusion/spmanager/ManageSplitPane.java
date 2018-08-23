@@ -7,14 +7,14 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import buoy.widget.*;
 import buoy.event.*;
-//import artofillusion.ModellingApp;
+//import armadesignstudio.ModellingApp;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
@@ -41,9 +41,9 @@ public class ManageSplitPane extends SPMSplitPane
         //initialise button
         LayoutInfo layout = new LayoutInfo( LayoutInfo.CENTER, LayoutInfo.NONE, new Insets( 0, 0, 0, 0 ), new Dimension( 0, 0 ) );
         //buttonRow.add( deleteAllButton = SPMTranslate.bButton( "deleteAllSelected", this, "doDeleteAll" ), layout );
-        //deleteAllButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Delete16.gif" ) ) );
+        //deleteAllButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Delete16.gif" ) ) );
         buttonRow.add( deleteButton = SPMTranslate.bButton( "deleteFile", this, "doDelete" ), layout );
-        deleteButton.setIcon( new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/Delete16.gif" ) ) );
+        deleteButton.setIcon( new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/Delete16.gif" ) ) );
         deleteButton.setText( SPMTranslate.text( "deleteScript" ) );
         deleteButton.setEnabled( false );
         fs = new LocalSPMFileSystem();

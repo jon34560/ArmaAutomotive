@@ -8,10 +8,10 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.math.*;
-import artofillusion.texture.TextureSpec;
+import armadesignstudio.math.*;
+import armadesignstudio.texture.TextureSpec;
 
 /** This interface defines an object which selects colors for vertices.  Objects implementing
     this interface are passed to a ViewerCanvas to tell it how to render a surface interactively. */

@@ -8,17 +8,17 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion;
+package armadesignstudio;
 
-import artofillusion.animation.*;
-import artofillusion.animation.distortion.*;
-import artofillusion.image.*;
-import artofillusion.math.*;
-import artofillusion.object.*;
-import artofillusion.script.*;
-import artofillusion.texture.*;
-import artofillusion.ui.*;
-import artofillusion.keystroke.*;
+import armadesignstudio.animation.*;
+import armadesignstudio.animation.distortion.*;
+import armadesignstudio.image.*;
+import armadesignstudio.math.*;
+import armadesignstudio.object.*;
+import armadesignstudio.script.*;
+import armadesignstudio.texture.*;
+import armadesignstudio.ui.*;
+import armadesignstudio.keystroke.*;
 import buoy.event.*;
 import buoy.widget.*;
 
@@ -206,7 +206,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     tools.addTool(new CreateLabelTool(this));
       
       
-    if (ArtOfIllusion.getPreferences().getUseCompoundMeshTool())
+    if (ArmaDesignStudio.getPreferences().getUseCompoundMeshTool())
       defaultTool = compoundTool;
     tools.setDefaultTool(defaultTool);
     tools.selectTool(defaultTool);
@@ -264,7 +264,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     addEventLink(WindowClosingEvent.class, new Object() {
       void processEvent()
       {
-        ArtOfIllusion.closeWindow(LayoutWindow.this);
+        ArmaDesignStudio.closeWindow(LayoutWindow.this);
       }
     });
     itemTree.setPopupMenuManager(this);
@@ -273,8 +273,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     itemTreeScroller.setBackground(Color.white);
     itemSelectionScroller.setBackground(Color.white);
-    if (ArtOfIllusion.APP_ICON != null)
-      setIcon(ArtOfIllusion.APP_ICON);
+    if (ArmaDesignStudio.APP_ICON != null)
+      setIcon(ArmaDesignStudio.APP_ICON);
     Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
     setBounds(screenBounds);
     tools.requestFocus();
@@ -671,7 +671,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   public void rebuildScriptsMenu()
   {
     scriptMenu.removeAll();
-    addScriptsToMenu(scriptMenu, new File(ArtOfIllusion.TOOL_SCRIPT_DIRECTORY));
+    addScriptsToMenu(scriptMenu, new File(ArmaDesignStudio.TOOL_SCRIPT_DIRECTORY));
   }
 
   private void addScriptsToMenu(BMenu menu, File dir)
@@ -937,7 +937,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         popupMenuItem[11].setEnabled(sel.length > 0); // Copy
         popupMenuItem[13].setEnabled(sel.length > 0); // Clear
       }
-    popupMenuItem[12].setEnabled(ArtOfIllusion.getClipboardSize() > 0); // Paste
+    popupMenuItem[12].setEnabled(ArmaDesignStudio.getClipboardSize() > 0); // Paste
     popupMenu.show(w, x, y);
   }
 
@@ -1137,7 +1137,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     editMenuItem[1].setEnabled(undoStack.canRedo()); // Redo
     editMenuItem[2].setEnabled(numSelObjects > 0); // Cut
     editMenuItem[3].setEnabled(numSelObjects > 0); // Copy
-    editMenuItem[4].setEnabled(ArtOfIllusion.getClipboardSize() > 0); // Paste
+    editMenuItem[4].setEnabled(ArmaDesignStudio.getClipboardSize() > 0); // Paste
     editMenuItem[5].setEnabled(numSelObjects > 0); // Clear
     editMenuItem[6].setEnabled(hasChildren); // Select Children
     editMenuItem[7].setEnabled(numSelObjects > 0); // Make Live Duplicates
@@ -1597,13 +1597,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       {
         savePreferences();
         if (command.equals("new"))
-          ArtOfIllusion.newWindow();
+          ArmaDesignStudio.newWindow();
         else if (command.equals("open"))
-          ArtOfIllusion.openScene(this);
+          ArmaDesignStudio.openScene(this);
         else if (command.equals("close"))
-          ArtOfIllusion.closeWindow(this);
+          ArmaDesignStudio.closeWindow(this);
         else if (command.equals("quit"))
-          ArtOfIllusion.quit();
+          ArmaDesignStudio.quit();
       }
     else if (command.equals("import"))
      importCommand(((BMenuItem) e.getWidget()).getText());
@@ -1838,7 +1838,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     if (theScene.getName() == null)
       saveAsCommand();
     else
-      modified = !ArtOfIllusion.saveScene(theScene, this);
+      modified = !ArmaDesignStudio.saveScene(theScene, this);
   }
 
   public void saveAsCommand()
@@ -1850,8 +1850,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       fc.setSelectedFile(new File(theScene.getName()));
     if (theScene.getDirectory() != null)
       fc.setDirectory(new File(theScene.getDirectory()));
-    else if (ArtOfIllusion.getCurrentDirectory() != null)
-      fc.setDirectory(new File(ArtOfIllusion.getCurrentDirectory()));
+    else if (ArmaDesignStudio.getCurrentDirectory() != null)
+      fc.setDirectory(new File(ArmaDesignStudio.getCurrentDirectory()));
     if (!fc.showDialog(this))
       return;
     String name = fc.getSelectedFile().getName();
@@ -1868,7 +1868,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     theScene.setName(name);
     theScene.setDirectory(fc.getDirectory().getAbsolutePath());
     setTitle(name);
-    modified = !ArtOfIllusion.saveScene(theScene, this);
+    modified = !ArmaDesignStudio.saveScene(theScene, this);
   }
 
   public void undoCommand()
@@ -1906,16 +1906,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     for (int i = 0; i < sel.length; i++)
       copy[i] = theScene.getObject(sel[i]);
     copy = ObjectInfo.duplicateAll(copy);
-    ArtOfIllusion.copyToClipboard(copy, theScene);
+    ArmaDesignStudio.copyToClipboard(copy, theScene);
     updateMenus();
   }
 
   public void pasteCommand()
   {
-    int which[] = new int [ArtOfIllusion.getClipboardSize()], num = theScene.getNumObjects();
+    int which[] = new int [ArmaDesignStudio.getClipboardSize()], num = theScene.getNumObjects();
     for (int i = 0; i < which.length; i++)
       which[i] = num+i;
-    ArtOfIllusion.pasteClipboard(this);
+    ArmaDesignStudio.pasteClipboard(this);
     setSelection(which);
     rebuildItemList();
     updateImage();
@@ -1977,9 +1977,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
   public void preferencesCommand()
   {
-    Renderer previewRenderer = ArtOfIllusion.getPreferences().getObjectPreviewRenderer();
+    Renderer previewRenderer = ArmaDesignStudio.getPreferences().getObjectPreviewRenderer();
     new PreferencesWindow(this);
-    if (previewRenderer != ArtOfIllusion.getPreferences().getObjectPreviewRenderer())
+    if (previewRenderer != ArmaDesignStudio.getPreferences().getObjectPreviewRenderer())
     {
       previewRenderer.cancelRendering(theScene);
       for (ViewerCanvas view : theView)
@@ -2741,7 +2741,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     BTextField nameField = new BTextField(Translate.text("Script"));
     BComboBox scriptChoice = new BComboBox();
     scriptChoice.add(Translate.text("newScript"));
-    String files[] = new File(ArtOfIllusion.OBJECT_SCRIPT_DIRECTORY).list();
+    String files[] = new File(ArmaDesignStudio.OBJECT_SCRIPT_DIRECTORY).list();
     ArrayList<String> scriptNames = new ArrayList<String>();
     if (files != null)
       for (String file : files)
@@ -2770,8 +2770,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     {
       try
       {
-        File f = new File(ArtOfIllusion.OBJECT_SCRIPT_DIRECTORY, scriptNames.get(scriptChoice.getSelectedIndex()-1));
-        scriptText = ArtOfIllusion.loadFile(f);
+        File f = new File(ArmaDesignStudio.OBJECT_SCRIPT_DIRECTORY, scriptNames.get(scriptChoice.getSelectedIndex()-1));
+        scriptText = ArmaDesignStudio.loadFile(f);
         language = ScriptRunner.getLanguageForFilename(f.getName());
       }
       catch (IOException ex)
@@ -3091,7 +3091,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     try
     {
       language = ScriptRunner.getLanguageForFilename(f.getName());
-      scriptText = ArtOfIllusion.loadFile(f);
+      scriptText = ArmaDesignStudio.loadFile(f);
     }
     catch (IOException ex)
     {

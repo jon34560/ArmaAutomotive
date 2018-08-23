@@ -8,7 +8,7 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.util;
+package armadesignstudio.util;
 
 import java.util.concurrent.atomic.*;
 import java.util.*;

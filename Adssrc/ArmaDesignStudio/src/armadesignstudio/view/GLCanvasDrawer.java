@@ -8,11 +8,11 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
 PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.*;
-import artofillusion.math.*;
-import artofillusion.texture.TextureSpec;
+import armadesignstudio.*;
+import armadesignstudio.math.*;
+import armadesignstudio.texture.TextureSpec;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -25,7 +25,7 @@ import javax.media.opengl.*;
 
 import buoy.event.*;
 import com.sun.opengl.util.*;
-import artofillusion.object.*; // JDT for drawing dimensionobjects.
+import armadesignstudio.object.*; // JDT for drawing dimensionobjects.
 
 /** This is a CanvasDrawer which uses OpenGL to render the contents of a ViewerCanvas. */
 

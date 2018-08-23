@@ -39,7 +39,7 @@ public class SVGImage extends ImageMap
 
   public SVGImage(File file) throws IOException, InterruptedException, SVGException
   {
-    xml = ArtOfIllusion.loadFile(file).getBytes("UTF-8");
+    xml = ArmaDesignStudio.loadFile(file).getBytes("UTF-8");
     initialize();
   }
 

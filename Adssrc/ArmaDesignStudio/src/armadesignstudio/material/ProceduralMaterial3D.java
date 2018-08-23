@@ -141,7 +141,7 @@ public class ProceduralMaterial3D extends Material3D implements ProcedureOwner
 
   public boolean usesImage(ImageMap image)
   {
-    Module modules[] = proc.getModules();
+    armadesignstudio.procedural.Module modules[] = proc.getModules();
 
     for (int i = 0; i < modules.length; i++)
       if (modules[i] instanceof ImageModule && ((ImageModule) modules[i]).getMap() == image)
@@ -199,7 +199,7 @@ public class ProceduralMaterial3D extends Material3D implements ProcedureOwner
       // fix everything up to maintain backward compatibility.  First, record what each output port is attached to.
 
       OutputModule output[] = proc.getOutputModules();
-      Module fromModule[] = new Module [output.length];
+      armadesignstudio.procedural.Module fromModule[] = new armadesignstudio.procedural.Module [output.length];
       int fromIndex[] = new int [output.length];
       for (int i = 0; i < output.length; i++)
       {
@@ -239,7 +239,7 @@ public class ProceduralMaterial3D extends Material3D implements ProcedureOwner
    * need to have modules added to maintain backward compatibility.
    */
 
-  private void linkModuleToOutput(Module module, OutputModule output)
+  private void linkModuleToOutput(armadesignstudio.procedural.Module module, OutputModule output)
   {
     proc.addModule(module);
     proc.addLink(new Link(module.getOutputPorts()[0], output.getInputPorts()[0]));

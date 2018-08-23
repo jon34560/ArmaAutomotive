@@ -414,7 +414,7 @@ public class UVMappingViewer extends MeshViewer
     int amount = ev.getWheelRotation();
     if (!ev.isAltDown())
       amount *= 10;
-    if (ArtOfIllusion.getPreferences().getReverseZooming())
+    if (ArmaDesignStudio.getPreferences().getReverseZooming())
       amount *= -1;
     double factor = Math.pow(1.01, -amount);
     double midu = (minu+maxu)/2;

@@ -77,15 +77,15 @@ public class VRMLExporter
       fc.setSelectedFile(new File("Untitled.wrz"));
     else
       fc.setSelectedFile(new File("Untitled.wrl"));
-    if (ArtOfIllusion.getCurrentDirectory() != null)
-      fc.setDirectory(new File(ArtOfIllusion.getCurrentDirectory()));
+    if (ArmaDesignStudio.getCurrentDirectory() != null)
+      fc.setDirectory(new File(ArmaDesignStudio.getCurrentDirectory()));
     if (!fc.showDialog(parent))
       return;
     File dir = fc.getDirectory();
     File f = fc.getSelectedFile();
     String name = f.getName();
     String baseName = (name.endsWith(".wrl") || name.endsWith(".wrz") ? name.substring(0, name.length()-4) : name);
-    ArtOfIllusion.setCurrentDirectory(dir.getAbsolutePath());
+    ArmaDesignStudio.setCurrentDirectory(dir.getAbsolutePath());
 
     // Create the output files.
 

@@ -91,7 +91,7 @@ public abstract class ViewerCanvas extends CustomWidget
 
   public ViewerCanvas()
   {
-    this(ArtOfIllusion.getPreferences().getUseOpenGL() && openGLAvailable);
+    this(ArmaDesignStudio.getPreferences().getUseOpenGL() && openGLAvailable);
   }
 
   public ViewerCanvas(boolean useOpenGL)
@@ -204,7 +204,7 @@ public abstract class ViewerCanvas extends CustomWidget
     int amount = ev.getWheelRotation();
     if (!ev.isAltDown())
       amount *= 10;
-    if (ArtOfIllusion.getPreferences().getReverseZooming())
+    if (ArmaDesignStudio.getPreferences().getReverseZooming())
       amount *= -1;
     if (isPerspective())
     {

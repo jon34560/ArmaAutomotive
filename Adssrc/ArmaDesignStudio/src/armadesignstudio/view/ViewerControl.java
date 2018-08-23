@@ -8,16 +8,16 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.*;
+import armadesignstudio.*;
 import buoy.widget.*;
 
 /**
  * A ViewerControl defines a Widget that is added to the toolbar at the top of each
  * ViewerCanvas.  After creating a ViewerControl, invoke {@link ViewerCanvas#addViewerControl(ViewerControl)}
  * to register it.  Every time a new ViewerCanvas is then created,
- * {@link #createWidget(artofillusion.ViewerCanvas) createWidget()} will be invoked
+ * {@link #createWidget(armadesignstudio.ViewerCanvas) createWidget()} will be invoked
  * to create a control for that canvas.
  */
 

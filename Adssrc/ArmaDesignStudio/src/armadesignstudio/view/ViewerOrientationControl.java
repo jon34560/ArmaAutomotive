@@ -8,13 +8,13 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
 import buoy.widget.*;
 import buoy.event.*;
-import artofillusion.*;
-import artofillusion.object.*;
-import artofillusion.ui.*;
+import armadesignstudio.*;
+import armadesignstudio.object.*;
+import armadesignstudio.ui.*;
 
 /**
  * This is a ViewerControl for adjusting the scale of the view.

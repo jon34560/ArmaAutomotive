@@ -8,14 +8,14 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion;
+package armadesignstudio;
 
-import artofillusion.image.*;
-import artofillusion.material.*;
-import artofillusion.math.*;
-import artofillusion.object.*;
-import artofillusion.texture.*;
-import artofillusion.ui.*;
+import armadesignstudio.image.*;
+import armadesignstudio.material.*;
+import armadesignstudio.math.*;
+import armadesignstudio.object.*;
+import armadesignstudio.texture.*;
+import armadesignstudio.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;
@@ -136,7 +136,7 @@ public class MaterialPreviewer extends CustomWidget implements RenderListener
         if ((ev.getChangeFlags()&HierarchyEvent.DISPLAYABILITY_CHANGED) != 0)
           if (!getComponent().isDisplayable())
           {
-            Renderer rend = ArtOfIllusion.getPreferences().getTexturePreviewRenderer();
+            Renderer rend = ArmaDesignStudio.getPreferences().getTexturePreviewRenderer();
             if (rend != null)
               rend.cancelRendering(theScene);
           }
@@ -179,7 +179,7 @@ public class MaterialPreviewer extends CustomWidget implements RenderListener
 
   public synchronized void render()
   {
-    Renderer rend = ArtOfIllusion.getPreferences().getTexturePreviewRenderer();
+    Renderer rend = ArmaDesignStudio.getPreferences().getTexturePreviewRenderer();
     if (rend == null)
       return;
     rend.cancelRendering(theScene);
@@ -199,7 +199,7 @@ public class MaterialPreviewer extends CustomWidget implements RenderListener
   
   public synchronized void cancelRendering()
   {
-    Renderer rend = ArtOfIllusion.getPreferences().getTexturePreviewRenderer();
+    Renderer rend = ArmaDesignStudio.getPreferences().getTexturePreviewRenderer();
     if (rend != null)
       rend.cancelRendering(theScene);
   }
@@ -326,7 +326,7 @@ public class MaterialPreviewer extends CustomWidget implements RenderListener
   {
     Graphics g = getComponent().getGraphics();
     clickPoint = e.getPoint();
-    Renderer rend = ArtOfIllusion.getPreferences().getTexturePreviewRenderer();
+    Renderer rend = ArmaDesignStudio.getPreferences().getTexturePreviewRenderer();
     if (rend != null)
       rend.cancelRendering(theScene);
     dragTransform = Mat4.identity();

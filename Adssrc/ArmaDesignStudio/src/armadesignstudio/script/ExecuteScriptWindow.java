@@ -38,7 +38,7 @@ public class ExecuteScriptWindow extends BFrame
     setContent(content);
     window = win;
     if (scriptDir == null)
-      scriptDir = new File(ArtOfIllusion.TOOL_SCRIPT_DIRECTORY);
+      scriptDir = new File(ArmaDesignStudio.TOOL_SCRIPT_DIRECTORY);
     scriptText = new ScriptEditor("");
     if (lastScript != null)
       scriptText.setText(lastScript);
@@ -140,7 +140,7 @@ public class ExecuteScriptWindow extends BFrame
 
     // Update the Scripts menus in all windows.
     
-    EditingWindow allWindows[] = ArtOfIllusion.getWindows();
+    EditingWindow allWindows[] = ArmaDesignStudio.getWindows();
     for (int i = 0; i < allWindows.length; i++)
       if (allWindows[i] instanceof LayoutWindow)
         ((LayoutWindow) allWindows[i]).rebuildScriptsMenu();

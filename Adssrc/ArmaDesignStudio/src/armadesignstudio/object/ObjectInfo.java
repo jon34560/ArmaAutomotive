@@ -339,7 +339,7 @@ public class ObjectInfo
       {
         if (getPose() != null && !getPose().equals(getObject().getPoseKeyframe()))
           getObject().applyPoseKeyframe(getPose());
-        double tol = ArtOfIllusion.getPreferences().getInteractiveSurfaceError();
+        double tol = ArmaDesignStudio.getPreferences().getInteractiveSurfaceError();
         Object3D obj = getDistortedObject(tol);
         cached = obj.getRenderingMesh(tol, true, this);
         cachedMesh = new SoftReference<RenderingMesh>(cached);
@@ -363,7 +363,7 @@ public class ObjectInfo
           if (getPose() != null && !getPose().equals(getObject().getPoseKeyframe())){
               getObject().applyPoseKeyframe(getPose());
           }
-        double tol = ArtOfIllusion.getPreferences().getInteractiveSurfaceError();
+        double tol = ArmaDesignStudio.getPreferences().getInteractiveSurfaceError();
         Object3D obj = getDistortedObject(tol);
         cached = obj.getWireframeMesh();
         cachedWire = new SoftReference<WireframeMesh>(cached);
@@ -384,7 +384,7 @@ public class ObjectInfo
       {
         if (getPose() != null && !getPose().equals(getObject().getPoseKeyframe()))
           getObject().applyPoseKeyframe(getPose());
-        double tol = ArtOfIllusion.getPreferences().getInteractiveSurfaceError();
+        double tol = ArmaDesignStudio.getPreferences().getInteractiveSurfaceError();
         Object3D obj = getDistortedObject(tol);
         cachedBounds = obj.getBounds();
         Object3D realObject = getObject();

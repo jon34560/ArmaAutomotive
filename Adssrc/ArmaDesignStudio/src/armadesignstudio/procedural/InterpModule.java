@@ -8,11 +8,11 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.procedural;
+package armadesignstudio.procedural;
 
-import artofillusion.*;
-import artofillusion.ui.*;
-import artofillusion.math.*;
+import armadesignstudio.*;
+import armadesignstudio.ui.*;
+import armadesignstudio.math.*;
 import java.awt.*;
 
 /** This is a Module which interpolates between two numbers. */

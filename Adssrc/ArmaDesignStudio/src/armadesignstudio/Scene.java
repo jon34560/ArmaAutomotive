@@ -1240,7 +1240,7 @@ public class Scene
         String classname = in.readUTF();
         try
           {
-            cls = ArtOfIllusion.getClass(classname);
+            cls = ArmaDesignStudio.getClass(classname);
             if (cls == null)
               throw new IOException("Unknown class: "+classname);
             con = cls.getConstructor(DataInputStream.class);
@@ -1264,7 +1264,7 @@ public class Scene
             int len = in.readInt();
             byte bytes[] = new byte [len];
             in.readFully(bytes);
-            cls = ArtOfIllusion.getClass(classname);
+            cls = ArmaDesignStudio.getClass(classname);
             try
               {
                 if (cls == null)
@@ -1304,7 +1304,7 @@ public class Scene
             int len = in.readInt();
             byte bytes[] = new byte [len];
             in.readFully(bytes);
-            cls = ArtOfIllusion.getClass(classname);
+            cls = ArmaDesignStudio.getClass(classname);
             try
               {
                 if (cls == null)
@@ -1385,7 +1385,7 @@ public class Scene
             environTexture = textures.elementAt(texIndex);
             try
               {
-                Class mapClass = ArtOfIllusion.getClass(in.readUTF());
+                Class mapClass = ArmaDesignStudio.getClass(in.readUTF());
                 con = mapClass.getConstructor(DataInputStream.class, Object3D.class, Texture.class);
                 environMapping = (TextureMapping) con.newInstance(in, new Sphere(1.0, 1.0, 1.0), environTexture);
               }
@@ -1455,7 +1455,7 @@ public class Scene
             in.readFully(bytes);
             try
               {
-                cls = ArtOfIllusion.getClass(classname);
+                cls = ArmaDesignStudio.getClass(classname);
                 con = cls.getConstructor(DataInputStream.class, Scene.class);
                 obj = (Object3D) con.newInstance(new DataInputStream(new ByteArrayInputStream(bytes)), this);
               }
@@ -1513,7 +1513,7 @@ public class Scene
       {
         for (int i = 0; i < tracks; i++)
           {
-            cls = ArtOfIllusion.getClass(in.readUTF());
+            cls = ArmaDesignStudio.getClass(in.readUTF());
             con = cls.getConstructor(ObjectInfo.class);
             Track tr = (Track) con.newInstance(info);
             tr.initFromStream(in, this);
@@ -1534,7 +1534,7 @@ public class Scene
 
   public void writeToFile(File f) throws IOException
   {
-    int mode = (ArtOfIllusion.getPreferences().getKeepBackupFiles() ? SafeFileOutputStream.OVERWRITE+SafeFileOutputStream.KEEP_BACKUP : SafeFileOutputStream.OVERWRITE);
+    int mode = (ArmaDesignStudio.getPreferences().getKeepBackupFiles() ? SafeFileOutputStream.OVERWRITE+SafeFileOutputStream.KEEP_BACKUP : SafeFileOutputStream.OVERWRITE);
     SafeFileOutputStream safeOut = new SafeFileOutputStream(f, mode);
     BufferedOutputStream bout = new BufferedOutputStream(safeOut);
     bout.write(FILE_PREFIX);

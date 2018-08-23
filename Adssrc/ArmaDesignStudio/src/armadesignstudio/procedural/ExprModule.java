@@ -171,7 +171,7 @@ class ModuleLoader {
         Class moduleClass; 
  
         try { 
-            moduleClass = ArtOfIllusion.getClass (name);
+            moduleClass = ArmaDesignStudio.getClass (name);
         } catch (ClassNotFoundException e) { 
             debug.print ("Couldn't get class for " +  
                                 name + ": " + e); 
@@ -183,7 +183,7 @@ class ModuleLoader {
     } 
     public static boolean moduleExists (String name) { 
         try { 
-            Class moduleClass = ArtOfIllusion.getClass (name);
+            Class moduleClass = ArmaDesignStudio.getClass (name);
             return true; 
         } catch (ClassNotFoundException e) { 
             return false; 

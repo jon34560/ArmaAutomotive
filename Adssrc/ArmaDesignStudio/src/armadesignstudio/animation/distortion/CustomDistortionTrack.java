@@ -8,13 +8,13 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.animation.distortion;
+package armadesignstudio.animation.distortion;
 
-import artofillusion.*;
-import artofillusion.animation.*;
-import artofillusion.object.*;
-import artofillusion.procedural.*;
-import artofillusion.ui.*;
+import armadesignstudio.*;
+import armadesignstudio.animation.*;
+import armadesignstudio.object.*;
+import armadesignstudio.procedural.*;
+import armadesignstudio.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 import java.io.*;
@@ -255,7 +255,7 @@ public class CustomDistortionTrack extends Track implements ProcedureOwner
 
   private TextureParameter[] findParameters()
   {
-    Module module[] = proc.getModules();
+    armadesignstudio.procedural.Module module[] = proc.getModules();
     int count = 0;
     
     for (int i = 0; i < module.length; i++)

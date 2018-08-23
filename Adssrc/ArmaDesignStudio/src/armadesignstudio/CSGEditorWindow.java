@@ -121,7 +121,7 @@ public class CSGEditorWindow extends ObjectEditorWindow
     viewMenu.add(axesItem = Translate.menuItem(view.getShowAxes() ? "hideCoordinateAxes" : "showCoordinateAxes", this, "showAxesCommand"));
     viewMenu.add(templateItem = Translate.menuItem("showTemplate", this, "showTemplateCommand"));
     viewMenu.add(Translate.menuItem("setTemplate", this, "setTemplateCommand"));
-    if (armadesignstudio.getPreferences().getObjectPreviewRenderer() != null)
+    if (ArmaDesignStudio.getPreferences().getObjectPreviewRenderer() != null)
     {
       viewMenu.addSeparator();
       viewMenu.add(Translate.menuItem("renderPreview", this, "renderPreviewCommand"));
@@ -578,7 +578,7 @@ public class CSGEditorWindow extends ObjectEditorWindow
   {
     Scene sc = new Scene();
     Camera theCamera = getView().getCamera();
-    Renderer rend = armadesignstudio.getPreferences().getObjectPreviewRenderer();
+    Renderer rend = ArmaDesignStudio.getPreferences().getObjectPreviewRenderer();
 
     if (rend == null)
       return;

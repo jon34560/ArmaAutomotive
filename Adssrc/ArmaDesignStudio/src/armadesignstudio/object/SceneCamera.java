@@ -514,7 +514,7 @@ public class SceneCamera extends Object3D
       {
         for (int i = 0; i < filter.length; i++)
         {
-          Class cls = ArtOfIllusion.getClass(in.readUTF());
+          Class cls = ArmaDesignStudio.getClass(in.readUTF());
           filter[i] = (ImageFilter) cls.newInstance();
           filter[i].initFromStream(in, theScene);
         }

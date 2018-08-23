@@ -58,7 +58,7 @@
   </target>
 
   <target name="docs" depends="init">
-    <javadoc packagenames="artofillusion.*"
+    <javadoc packagenames="armadesignstudio.*"
         sourcepath="${src}"
         classpath="${lib}/*.jar"
         source="1.6"

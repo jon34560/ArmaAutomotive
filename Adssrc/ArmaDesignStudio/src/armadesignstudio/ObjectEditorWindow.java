@@ -65,8 +65,8 @@ public abstract class ObjectEditorWindow extends BFrame implements EditingWindow
   protected void initialize()
   {
     undoStack = new UndoStack();
-    if (ArtOfIllusion.APP_ICON != null)
-      setIcon(ArtOfIllusion.APP_ICON);
+    if (ArmaDesignStudio.APP_ICON != null)
+      setIcon(ArmaDesignStudio.APP_ICON);
     preferences = Preferences.userNodeForPackage(getClass()).node("ObjectEditorWindow");
     loadPreferences();
     addEventLink(WindowClosingEvent.class, new Object() {

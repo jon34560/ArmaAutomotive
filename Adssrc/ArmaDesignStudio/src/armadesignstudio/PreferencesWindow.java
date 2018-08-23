@@ -52,7 +52,7 @@ public class PreferencesWindow
           done = false;
       }
     }
-    ApplicationPreferences prefs = ArtOfIllusion.getPreferences();
+    ApplicationPreferences prefs = ArmaDesignStudio.getPreferences();
     Locale languages[] = Translate.getAvailableLocales();
     List<Renderer> renderers = PluginRegistry.getPlugins(Renderer.class);
     if (renderers.size() > 0)
@@ -100,7 +100,7 @@ public class PreferencesWindow
   {
     // Create the Widgets.
 
-    ApplicationPreferences prefs = ArtOfIllusion.getPreferences();
+    ApplicationPreferences prefs = ArmaDesignStudio.getPreferences();
     defaultRendChoice = getRendererChoice(prefs.getDefaultRenderer());
     objectRendChoice = getRendererChoice(prefs.getObjectPreviewRenderer());
     texRendChoice = getRendererChoice(prefs.getTexturePreviewRenderer());

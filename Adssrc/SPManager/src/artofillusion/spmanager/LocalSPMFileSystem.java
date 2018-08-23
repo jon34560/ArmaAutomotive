@@ -9,14 +9,14 @@
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. 
 */
 
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import buoy.widget.*;
 import buoy.event.*;
-//import artofillusion.ModellingApp;
+//import armadesignstudio.ModellingApp;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;

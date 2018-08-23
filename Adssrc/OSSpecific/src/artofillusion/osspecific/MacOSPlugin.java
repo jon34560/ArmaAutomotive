@@ -34,7 +34,7 @@ public class MacOSPlugin implements Plugin, InvocationHandler
       String os = ((String) System.getProperties().get("os.name")).toLowerCase();
       if (!os.startsWith("mac os x"))
         return;
-      ArtOfIllusion.addWindow(new MacMenuBarWindow());
+      ArmaDesignStudio.addWindow(new MacMenuBarWindow());
       UIUtilities.setDefaultFont(new Font("Application", Font.PLAIN, 11));
       UIUtilities.setStandardDialogInsets(3);
       try
@@ -138,7 +138,7 @@ public class MacOSPlugin implements Plugin, InvocationHandler
     {
       Window frontWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow();
       boolean frontIsLayoutWindow = false;
-      for (EditingWindow window : ArtOfIllusion.getWindows())
+      for (EditingWindow window : ArmaDesignStudio.getWindows())
         if (window instanceof LayoutWindow && window.getFrame().getComponent() == frontWindow)
         {
           ((LayoutWindow) window).preferencesCommand();
@@ -157,7 +157,7 @@ public class MacOSPlugin implements Plugin, InvocationHandler
     }
     else if ("handleQuit".equals(method.getName()))
     {
-      ArtOfIllusion.quit();
+      ArmaDesignStudio.quit();
       handled = false;
     }
     else if ("handleOpenFile".equals(method.getName()))
@@ -166,7 +166,7 @@ public class MacOSPlugin implements Plugin, InvocationHandler
       {
         Method getFilename = args[0].getClass().getMethod("getFilename");
         String path = (String) getFilename.invoke(args[0]);
-        ArtOfIllusion.newWindow(new Scene(new File(path), true));
+        ArmaDesignStudio.newWindow(new Scene(new File(path), true));
       }
       catch (Exception ex)
       {
@@ -283,11 +283,11 @@ public class MacOSPlugin implements Plugin, InvocationHandler
     {
       String command = ev.getActionCommand();
       if (command.equals("new"))
-        ArtOfIllusion.newWindow();
+        ArmaDesignStudio.newWindow();
       else if (command.equals("open"))
-        ArtOfIllusion.openScene(this);
+        ArmaDesignStudio.openScene(this);
       else if (command.equals("quit"))
-        ArtOfIllusion.quit();
+        ArmaDesignStudio.quit();
     }
   }
 }

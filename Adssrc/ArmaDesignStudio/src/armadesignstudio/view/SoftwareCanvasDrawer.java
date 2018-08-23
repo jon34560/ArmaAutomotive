@@ -8,18 +8,18 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.*;
-import artofillusion.texture.*;
-import artofillusion.math.*;
+import armadesignstudio.*;
+import armadesignstudio.texture.*;
+import armadesignstudio.math.*;
 import buoy.event.*;
 
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
 import java.lang.ref.*;
-import artofillusion.object.*; // JDT for drawing dimensionobjects.
+import armadesignstudio.object.*; // JDT for drawing dimensionobjects.
 
 /** This is a CanvasDrawer which implements a software renderer for generating the contents of a ViewerCanvas. */
 

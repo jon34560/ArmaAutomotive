@@ -329,7 +329,7 @@ public class ApplicationPreferences
       {
         // Clear the cached meshes for objects in all windows.
 
-        EditingWindow windows[] = armadesignstudio.getWindows();
+        EditingWindow windows[] = ArmaDesignStudio.getWindows();
         for (EditingWindow w : windows)
           {
             Scene sc = w.getScene();

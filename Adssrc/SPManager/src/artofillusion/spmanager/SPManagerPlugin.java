@@ -8,11 +8,11 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
-import artofillusion.*;
-import artofillusion.util.SearchlistClassLoader;
-import artofillusion.ui.*;
+import armadesignstudio.*;
+import armadesignstudio.util.SearchlistClassLoader;
+import armadesignstudio.ui.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -57,20 +57,20 @@ public class SPManagerPlugin implements Plugin
     {
 	// NTJ: get the AOI run-time (*not* compile-time) version
 	if (AOI_VERSION == null) {
-	    AOI_VERSION = ArtOfIllusion.getMajorVersion();
-	    System.setProperty("artofillusion.version", ArtOfIllusion.getVersion());
-	    System.setProperty("artofillusion.version.major", ArtOfIllusion.getMajorVersion());
+	    AOI_VERSION = ArmaDesignStudio.getMajorVersion();
+	    System.setProperty("armadesignstudio.version", ArmaDesignStudio.getVersion());
+	    System.setProperty("armadesignstudio.version.major", ArmaDesignStudio.getMajorVersion());
 	}
 
 	switch (message) {
 	case Plugin.APPLICATION_STARTING:
-	    SPMTranslate.setLocale(ArtOfIllusion.getPreferences().getLocale());
+	    SPMTranslate.setLocale(ArmaDesignStudio.getPreferences().getLocale());
 
-	    APP_DIRECTORY = ArtOfIllusion.APP_DIRECTORY;
-	    PLUGIN_DIRECTORY = ArtOfIllusion.PLUGIN_DIRECTORY;
-	    TOOL_SCRIPT_DIRECTORY = ArtOfIllusion.TOOL_SCRIPT_DIRECTORY;
-	    OBJECT_SCRIPT_DIRECTORY = ArtOfIllusion.OBJECT_SCRIPT_DIRECTORY;
-	    STARTUP_SCRIPT_DIRECTORY = ArtOfIllusion.STARTUP_SCRIPT_DIRECTORY;
+	    APP_DIRECTORY = ArmaDesignStudio.APP_DIRECTORY;
+	    PLUGIN_DIRECTORY = ArmaDesignStudio.PLUGIN_DIRECTORY;
+	    TOOL_SCRIPT_DIRECTORY = ArmaDesignStudio.TOOL_SCRIPT_DIRECTORY;
+	    OBJECT_SCRIPT_DIRECTORY = ArmaDesignStudio.OBJECT_SCRIPT_DIRECTORY;
+	    STARTUP_SCRIPT_DIRECTORY = ArmaDesignStudio.STARTUP_SCRIPT_DIRECTORY;
 
 	    System.out.println("SPManager starting...");
 
@@ -713,7 +713,7 @@ public class SPManagerPlugin implements Plugin
 				path = savePath.getText();
 
 			    else if (info.name != null)
-				path = ArtOfIllusion.PLUGIN_DIRECTORY + File.separatorChar + info.name + ".jar";
+				path = ArmaDesignStudio.PLUGIN_DIRECTORY + File.separatorChar + info.name + ".jar";
 
 
 			    if (path == null || path.length() == 0) {
@@ -845,7 +845,7 @@ public class SPManagerPlugin implements Plugin
 	APP_DIRECTORY = System.getProperty("user.dir");
 	try {
 	    URL url = SPManagerPlugin.class
-	    .getResource("/artofillusion/spmanager/SPManagerPlugin.class");
+	    .getResource("/armadesignstudio/spmanager/SPManagerPlugin.class");
 
 	    System.out.println("SPManager.main: url=" + url);
 

@@ -8,12 +8,12 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package artofillusion.view;
+package armadesignstudio.view;
 
-import artofillusion.*;
-import artofillusion.math.*;
-import artofillusion.object.*;
-import artofillusion.texture.*;
+import armadesignstudio.*;
+import armadesignstudio.math.*;
+import armadesignstudio.object.*;
+import armadesignstudio.texture.*;
 
 /** This is a VertexShader which renders a uniform colored mesh with smooth shading. */
 

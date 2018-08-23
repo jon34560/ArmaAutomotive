@@ -71,7 +71,7 @@ public class IRCConnector extends PircBot implements Chat.Connector
 
 	try {
 	    // call PircBot setVersion method
-	    setVersion("ArtOfIllusion IRC client v" + Chat.VERSION);
+	    setVersion("ArmaDesignStudio IRC client v" + Chat.VERSION);
 
 	    // call the PircBot setName method
 	    setName(name);

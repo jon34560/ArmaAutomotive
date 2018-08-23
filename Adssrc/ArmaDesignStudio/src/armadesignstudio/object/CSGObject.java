@@ -321,7 +321,7 @@ public class CSGObject extends Object3D
       if (cached != null)
         return cached;
     }
-    return (WireframeMesh) cacheMeshes(ArtOfIllusion.getPreferences().getInteractiveSurfaceError(), null)[1];
+    return (WireframeMesh) cacheMeshes(ArmaDesignStudio.getPreferences().getInteractiveSurfaceError(), null)[1];
   }
 
   /** Build the preview meshes and save them for later use. */
@@ -373,11 +373,11 @@ public class CSGObject extends Object3D
     try
       {
         obj1 = new ObjectInfo(null, new CoordinateSystem(in), in.readUTF());
-        Class cls = ArtOfIllusion.getClass(in.readUTF());
+        Class cls = ArmaDesignStudio.getClass(in.readUTF());
         Constructor con = cls.getConstructor(DataInputStream.class, Scene.class);
         obj1.setObject((Object3D) con.newInstance(in, theScene));
         obj2 = new ObjectInfo(null, new CoordinateSystem(in), in.readUTF());
-        cls = ArtOfIllusion.getClass(in.readUTF());
+        cls = ArmaDesignStudio.getClass(in.readUTF());
         con = cls.getConstructor(DataInputStream.class, Scene.class);
         obj2.setObject((Object3D) con.newInstance(in, theScene));
       }
@@ -674,10 +674,10 @@ public class CSGObject extends Object3D
       coords2 = new CoordinateSystem(in);
       try
       {
-        Class cl = ArtOfIllusion.getClass(in.readUTF());
+        Class cl = ArmaDesignStudio.getClass(in.readUTF());
         Constructor con = cl.getConstructor(DataInputStream.class, Object.class);
         key1 = (Keyframe) con.newInstance(in, obj.getObject1().getObject());
-        cl = ArtOfIllusion.getClass(in.readUTF());
+        cl = ArmaDesignStudio.getClass(in.readUTF());
         con = cl.getConstructor(DataInputStream.class, Object.class);
         key2 = (Keyframe) con.newInstance(in, obj.getObject2().getObject());
       }

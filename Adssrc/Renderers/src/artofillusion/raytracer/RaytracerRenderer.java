@@ -584,7 +584,7 @@ public class RaytracerRenderer implements Renderer, Runnable
     adaptive = true;
     reducedMemory = false;
     roulette = false;
-    surfaceError = ArtOfIllusion.getPreferences().getInteractiveSurfaceError();
+    surfaceError = ArmaDesignStudio.getPreferences().getInteractiveSurfaceError();
     giMode = GI_NONE;
     scatterMode = SCATTER_SINGLE;
     caustics = false;

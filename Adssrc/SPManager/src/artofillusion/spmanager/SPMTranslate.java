@@ -8,7 +8,7 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,8 +19,8 @@ import java.util.*;
 import java.util.zip.*;
 import buoy.event.*;
 import buoy.widget.*;
-//import artofillusion.ui.*;
-import artofillusion.*;
+//import armadesignstudio.ui.*;
+import armadesignstudio.*;
 import java.io.*;
 
 /**

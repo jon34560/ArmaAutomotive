@@ -9,10 +9,10 @@
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. 
 */
 
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 import java.util.Vector;
-import artofillusion.*;
+import armadesignstudio.*;
 
 public class SPMFileSystem
 {   

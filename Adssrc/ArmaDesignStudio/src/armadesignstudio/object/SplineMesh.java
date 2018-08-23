@@ -735,7 +735,7 @@ public class SplineMesh extends Object3D implements Mesh
       }
     else
       {
-        SplineMesh newmesh = subdivideMesh(this, ArtOfIllusion.getPreferences().getInteractiveSurfaceError());
+        SplineMesh newmesh = subdivideMesh(this, ArmaDesignStudio.getPreferences().getInteractiveSurfaceError());
         cachedUSize = udim = newmesh.usize;
         cachedVSize = vdim = newmesh.vsize;
         point = new Vec3 [newmesh.vertex.length];

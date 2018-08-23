@@ -22,41 +22,41 @@ import java.io.*;
 import java.util.List;
 
 /**
- * @deprecated This class is deprecated.  Use {@link ArtOfIllusion} and {@link PluginRegistry} instead.
+ * @deprecated This class is deprecated.  Use {@link ArmaDesignStudio} and {@link PluginRegistry} instead.
  */
 
 public class ModellingApp
 {
-  public static final String MAJOR_VERSION = ArtOfIllusion.getMajorVersion();
-  public static final String VERSION = ArtOfIllusion.getVersion();
+  public static final String MAJOR_VERSION = ArmaDesignStudio.getMajorVersion();
+  public static final String VERSION = ArmaDesignStudio.getVersion();
   public static final double DIST_TO_SCREEN = Camera.DEFAULT_DISTANCE_TO_SCREEN;
   public static String currentDirectory;
 
   public static void main(String args[])
   {
-    System.out.println("ModellingApp is deprecated.  Use armadesignstudio.ArtOfIllusion.main() instead.");
-    ArtOfIllusion.main(args);
+    System.out.println("ModellingApp is deprecated.  Use armadesignstudio.ArmaDesignStudio.main() instead.");
+    ArmaDesignStudio.main(args);
   }
 
   /** Get the complete version number of Art of Illusion. */
 
   public static String getVersion()
   {
-    return ArtOfIllusion.getVersion();
+    return ArmaDesignStudio.getVersion();
   }
 
   /** Get the major part of the version number of Art of Illusion. */
 
   public static String getMajorVersion()
   {
-    return ArtOfIllusion.getMajorVersion();
+    return ArmaDesignStudio.getMajorVersion();
   }
 
   /** Get the application preferences object. */
   
   public static ApplicationPreferences getPreferences()
   {
-    return ArtOfIllusion.getPreferences();
+    return ArmaDesignStudio.getPreferences();
   }
 
   /** Get a list of all available Renderers. */
@@ -227,42 +227,42 @@ public class ModellingApp
   
   public static void newWindow()
   {
-    ArtOfIllusion.newWindow();
+    ArmaDesignStudio.newWindow();
   }
   
   /** Create a new window for editing the specified scene. */
   
   public static void newWindow(Scene theScene)
   {
-    ArtOfIllusion.newWindow(theScene);
+    ArmaDesignStudio.newWindow(theScene);
   }
   
   /** Add a window to the list of open windows. */
   
   public static void addWindow(EditingWindow win)
   {
-    ArtOfIllusion.addWindow(win);
+    ArmaDesignStudio.addWindow(win);
   }
   
   /** Close a window. */
   
   public static void closeWindow(EditingWindow win)
   {
-    ArtOfIllusion.closeWindow(win);
+    ArmaDesignStudio.closeWindow(win);
   }
   
   /** Get a list of all open windows. */
   
   public static EditingWindow[] getWindows()
   {
-    return ArtOfIllusion.getWindows();
+    return ArmaDesignStudio.getWindows();
   }
   
   /** Quit Art of Illusion. */
   
   public static void quit()
   {
-    ArtOfIllusion.quit();
+    ArmaDesignStudio.quit();
   }
   
   /** Get a class specified by name.  This checks both the system classes, and all plugins.
@@ -270,14 +270,14 @@ public class ModellingApp
   
   public static Class getClass(String name) throws ClassNotFoundException
   {
-    return ArtOfIllusion.getClass(name);
+    return ArmaDesignStudio.getClass(name);
   }
   
   /** This is a utility routine which loads a file from disk. */
   
   public static String loadFile(File f) throws IOException
   {
-    return ArtOfIllusion.loadFile(f);
+    return ArmaDesignStudio.loadFile(f);
   }
   
   /** Save a scene to a file.  This method returns true if the scene is successfully saved,
@@ -285,7 +285,7 @@ public class ModellingApp
 
   public static boolean saveScene(Scene sc, LayoutWindow fr)
   {
-    return ArtOfIllusion.saveScene(sc, fr);
+    return ArmaDesignStudio.saveScene(sc, fr);
   }
   
   /** Prompt the user to select a scene file, then open a new window containing it.  The BFrame is used for
@@ -293,7 +293,7 @@ public class ModellingApp
   
   public static void openScene(BFrame fr)
   {
-    ArtOfIllusion.openScene(fr);
+    ArmaDesignStudio.openScene(fr);
   }
     
   /** Load a scene from a file, and open a new window containing it.  The BFrame is used for
@@ -301,7 +301,7 @@ public class ModellingApp
   
   public static void openScene(File f, BFrame fr)
   {
-    ArtOfIllusion.openScene(f, fr);
+    ArmaDesignStudio.openScene(f, fr);
   }
   
   /** Copy a list of objects to the clipboard, so they can be pasted into either the same scene or a
@@ -309,20 +309,20 @@ public class ModellingApp
   
   public static void copyToClipboard(ObjectInfo obj[], Scene scene)
   {
-    ArtOfIllusion.copyToClipboard(obj, scene);
+    ArmaDesignStudio.copyToClipboard(obj, scene);
   }
   
   /** Paste the contents of the clipboard into a window. */
   
   public static void pasteClipboard(LayoutWindow win)
   {
-    ArtOfIllusion.pasteClipboard(win);
+    ArmaDesignStudio.pasteClipboard(win);
   }
   
   /** Get the number of objects on the clipboard. */
   
   public static int getClipboardSize()
   {
-    return ArtOfIllusion.getClipboardSize();
+    return ArmaDesignStudio.getClipboardSize();
   }
 }

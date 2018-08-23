@@ -10,7 +10,7 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 import java.awt.*;
 import javax.swing.*;
@@ -20,8 +20,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.*;
 import java.io.*;
 import java.util.zip.*;
-import artofillusion.*;
-import artofillusion.ui.*;
+import armadesignstudio.*;
+import armadesignstudio.ui.*;
 
 /**
  *  Description of the Class

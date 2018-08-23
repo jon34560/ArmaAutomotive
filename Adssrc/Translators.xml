@@ -7,7 +7,7 @@
   <property name="build" value="Translators/build" />
   <property name="docs" value="Translators/docs" />
   <property name="dist" value="Plugins" />
-  <property name="aoijar" value="ArtOfIllusion.jar" />
+  <property name="aoijar" value="ArmaDesignStudio.jar" />
 
   <target name="init">
     <!-- Create the time stamp -->

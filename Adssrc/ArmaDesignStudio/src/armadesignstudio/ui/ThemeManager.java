@@ -294,7 +294,7 @@ public class ThemeManager {
 
                 if (name.equalsIgnoreCase("owner")) {
                     try {
-                        ownerType = ArtOfIllusion.getClass(value);
+                        ownerType = ArmaDesignStudio.getClass(value);
                     } catch (Exception e) {
                         String msg = e.getMessage();
                         System.out.println("Unable to identify ButtonStyle.owner: " + (msg != null ? msg : e.toString()));
@@ -355,7 +355,7 @@ public class ThemeManager {
         URL url = null;
         ImageIcon icon = null;
         try {
-            url = Class.forName("armadesignstudio.ArtOfIllusion").getResource("armadesignstudio/Icons/iconNotFound.png");
+            url = Class.forName("armadesignstudio.ArmaDesignStudio").getResource("armadesignstudio/Icons/iconNotFound.png");
             icon = new ImageIcon(url);
         } catch (Exception e) {
             BufferedImage image = new BufferedImage(16, 16, BufferedImage.TYPE_BYTE_INDEXED);

@@ -1,4 +1,4 @@
-package artofillusion.util;
+package armadesignstudio.util;
 
 /*
  * SearchlistClassLoader: class loader which loads classes using a searchlist

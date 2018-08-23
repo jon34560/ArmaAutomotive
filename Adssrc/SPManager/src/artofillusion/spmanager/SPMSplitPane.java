@@ -7,7 +7,7 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package artofillusion.spmanager;
+package armadesignstudio.spmanager;
 
 import java.util.*;
 import java.awt.*;
@@ -155,21 +155,21 @@ public class SPMSplitPane extends BSplitPane
 	{
 		uncheckedIcon = UIManager.getDefaults().getIcon( "Tree.leafIcon" );
 		if (uncheckedIcon == null)
-			uncheckedIcon = new ImageIcon( getClass().getResource( "/artofillusion/spmanager/icons/file.png" ) );
+			uncheckedIcon = new ImageIcon( getClass().getResource( "/armadesignstudio/spmanager/icons/file.png" ) );
 
-		checkedIcon = new OverlayIcon( uncheckedIcon, new ImageIcon(getClass().getResource( "/artofillusion/spmanager/icons/checkCircle.png")));
+		checkedIcon = new OverlayIcon( uncheckedIcon, new ImageIcon(getClass().getResource( "/armadesignstudio/spmanager/icons/checkCircle.png")));
 
-		referedIcon = new ImageIcon(getClass().getResource("/artofillusion/spmanager/icons/Import16.gif"));
+		referedIcon = new ImageIcon(getClass().getResource("/armadesignstudio/spmanager/icons/Import16.gif"));
 
-		disableIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/artofillusion/spmanager/icons/disabled.png")));
+		disableIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/armadesignstudio/spmanager/icons/disabled.png")));
 
-		infoIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/artofillusion/spmanager/icons/info.png")));
+		infoIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/armadesignstudio/spmanager/icons/info.png")));
 
-		confirmIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/artofillusion/spmanager/icons/confirm.png")));
+		confirmIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/armadesignstudio/spmanager/icons/confirm.png")));
 
-		flagIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/artofillusion/spmanager/icons/flag.png")));
+		flagIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/armadesignstudio/spmanager/icons/flag.png")));
 
-		alertIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/artofillusion/spmanager/icons/alert.png")));
+		alertIcon = new OverlayIcon(uncheckedIcon, new ImageIcon(getClass().getResource("/armadesignstudio/spmanager/icons/alert.png")));
 
 		if ( splitPaneList == null )
 		{

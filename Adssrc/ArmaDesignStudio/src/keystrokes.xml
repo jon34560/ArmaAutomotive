@@ -8,7 +8,7 @@
 }
 else if (window instanceof MeshEditorWindow)
 {
-	if (window.getToolPalette().getSelectedTool() instanceof artofillusion.animation.SkeletonTool)
+	if (window.getToolPalette().getSelectedTool() instanceof armadesignstudio.animation.SkeletonTool)
 		window.deleteJointCommand();
 	else
 		window.deleteCommand();

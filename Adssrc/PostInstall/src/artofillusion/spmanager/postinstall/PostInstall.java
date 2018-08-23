@@ -55,7 +55,7 @@ public class PostInstall implements Plugin
 		    tempDir = new File(System.getProperty("java.io.tmpdir"));
 
 		if (!tempDir.exists())
-		    tempDir = new File(ArtOfIllusion.APP_DIRECTORY, "temp");
+		    tempDir = new File(ArmaDesignStudio.APP_DIRECTORY, "temp");
 
 		if (!tempDir.exists())
 		    tempDir = new File(System.getProperty("user.dir"), "SPMtemp");
@@ -98,10 +98,10 @@ public class PostInstall implements Plugin
 		ok = new ArrayList(128);
 		err = new ArrayList(128);
 
-		cleanup(ArtOfIllusion.PLUGIN_DIRECTORY, ok, err);
-		cleanup(ArtOfIllusion.TOOL_SCRIPT_DIRECTORY, ok, err);
-		cleanup(ArtOfIllusion.OBJECT_SCRIPT_DIRECTORY, ok, err);
-		cleanup(ArtOfIllusion.STARTUP_SCRIPT_DIRECTORY, ok, err);
+		cleanup(ArmaDesignStudio.PLUGIN_DIRECTORY, ok, err);
+		cleanup(ArmaDesignStudio.TOOL_SCRIPT_DIRECTORY, ok, err);
+		cleanup(ArmaDesignStudio.OBJECT_SCRIPT_DIRECTORY, ok, err);
+		cleanup(ArmaDesignStudio.STARTUP_SCRIPT_DIRECTORY, ok, err);
 	    } catch (Exception e) {
 		System.out.println("PostInstall: exception raised - aborting: "
 				   + e.toString());

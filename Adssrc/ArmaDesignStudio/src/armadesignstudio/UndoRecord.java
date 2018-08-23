@@ -421,7 +421,7 @@ public class UndoRecord
         int c = command.get(i);
         if (c == COPY_OBJECT && theWindow.getScene() != null)
         {
-          Class cls = ArtOfIllusion.getClass(in.readUTF());
+          Class cls = ArmaDesignStudio.getClass(in.readUTF());
           Constructor con = cls.getDeclaredConstructor(DataInputStream.class, Scene.class);
           d[1] = con.newInstance(in, theWindow.getScene());
         }
