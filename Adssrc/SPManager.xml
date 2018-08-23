@@ -3,7 +3,7 @@
 <project name="SPManager" default="dist" basedir=".">
 
   <!-- set this to point to an appropriate ArmaDesignStudio.jar -->
-  <property name="aoijar" value="ArmaDesignStudio.jar" />
+  <property name="adsjar" value="ArmaDesignStudio.jar" />
 
   <!-- set this to point to an appropriate ArmaDesignStudio/lib folder-->
   <property name="lib" value="lib" />
@@ -23,7 +23,7 @@
   <property name="src-package" value="SPManager-src-${curr-version}" />
 
   <filelist id="jarlibs" dir="."
-	   files="${aoijar}, ${lib}/Buoy.jar, ${lib}/Buoyx.jar, ${lib}/beanshell.jar" />
+	   files="${adsjar}, ${lib}/Buoy.jar, ${lib}/Buoyx.jar, ${lib}/beanshell.jar" />
 	   
   <pathconvert refid="jarlibs" property="classpath" />
 

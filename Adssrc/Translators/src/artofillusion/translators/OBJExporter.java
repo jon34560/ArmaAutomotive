@@ -348,7 +348,7 @@ public class OBJExporter
     
     // Write out the .mtl file.
     
-    out.println("#Produced by Art of Illusion "+ArmaDesignStudio.getVersion()+", "+(new Date()).toString());
+    out.println("#Produced by Arma Design Studio "+ArmaDesignStudio.getVersion()+", "+(new Date()).toString());
     Enumeration textures = textureExporter.getTextures();
     Hashtable<String, TextureImageInfo> names = new Hashtable<String, TextureImageInfo>();
     TextureSpec spec = new TextureSpec();

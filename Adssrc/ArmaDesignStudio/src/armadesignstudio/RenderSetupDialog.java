@@ -47,9 +47,16 @@ public class RenderSetupDialog
     this.parent = parent;
     this.theScene = theScene;
     renderers = PluginRegistry.getPlugins(Renderer.class);
-    if (currentRenderer == null)
+    if (currentRenderer == null){
+
+      //System.out.println(" - RenderSetupDialog currentRenderer is null  - ");
+
       currentRenderer = ArmaDesignStudio.getPreferences().getDefaultRenderer();
-    
+
+      System.out.println(" - RenderSetupDialog currentRenderer is null  - " + currentRenderer);
+
+    }    
+
     // Find all the cameras in the scene.
     
     ObjectInfo obj;
@@ -105,8 +112,12 @@ public class RenderSetupDialog
     top.add(new BLabel(Translate.text("FramesPerSec")+":"), 2, 3, labelLayout);
     top.add(new BLabel(Translate.text("ImagesPerFrame")+":"), 2, 4, labelLayout);
     top.add(rendChoice = new BComboBox(), 3, 0);
-    for (Renderer renderer : renderers)
+    for (Renderer renderer : renderers){
       rendChoice.add(renderer.getName());
+    }
+
+    System.out.println(" DEBUG " + currentRenderer);
+
     rendChoice.setSelectedValue(currentRenderer.getName());
     rendChoice.addEventLink(ValueChangedEvent.class, this, "rendererChanged");
     top.add(camChoice = new BComboBox(), 3, 1);

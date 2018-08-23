@@ -34,12 +34,15 @@ public class ApplicationPreferences
 
   public ApplicationPreferences()
   {
-    File f = new File(getPreferencesDirectory(), "aoiprefs");
+    File f = new File(getPreferencesDirectory(), "adsprefs");
     if (!f.exists())
     {
       // See if it exists in the old location.
 
-      File f2 = new File(System.getProperty("user.home"), ".aoiprefs");
+      File f2 = new File(System.getProperty("user.home"), ".adsprefs");
+
+      System.out.println("  ApplicationPreferences: " + f2);
+
       if (f2.exists())
         f2.renameTo(f);
     }
@@ -103,11 +106,11 @@ public class ApplicationPreferences
 
     // Write the preferences to a file.
 
-    File f = new File(getPreferencesDirectory(), "aoiprefs");
+    File f = new File(getPreferencesDirectory(), "adsprefs");
     try
       {
         OutputStream out = new BufferedOutputStream(new FileOutputStream(f));
-        properties.store(out, "Art of Illusion Preferences File");
+        properties.store(out, "Arma Design Studio Preferences File");
         out.close();
       }
     catch (IOException ex)
@@ -123,6 +126,11 @@ public class ApplicationPreferences
     File dir = new File(System.getProperty("user.home"), ".armadesignstudio");
     if (!dir.exists())
       dir.mkdirs();
+  
+
+    System.out.println("getPreferencesDirectory: " + dir);
+
+
     return dir;
   }
 
@@ -130,9 +138,19 @@ public class ApplicationPreferences
 
   private void initDefaultPreferences()
   {
+
+    System.out.println(" initDefaultPreferences "); 
+
     List<Renderer> renderers = PluginRegistry.getPlugins(Renderer.class);
-    if (renderers.size() > 0)
+    if (renderers.size() > 0) {
       objectPreviewRenderer = texturePreviewRenderer = defaultRenderer = getNamedRenderer("Raytracer");
+      
+      System.out.println(" set default  ");
+    } else {
+
+      System.out.println(" no renderers! ");
+
+    }
     defaultDisplayMode = ViewerCanvas.RENDER_SMOOTH;
     interactiveTol = 0.05;
     undoLevels = 6;
@@ -146,6 +164,9 @@ public class ApplicationPreferences
 
   private void parsePreferences()
   {
+
+    System.out.println(" parsePreferences "); 
+
     objectPreviewRenderer = getNamedRenderer(properties.getProperty("objectPreviewRenderer"));
     texturePreviewRenderer = getNamedRenderer(properties.getProperty("texturePreviewRenderer"));
     defaultRenderer = getNamedRenderer(properties.getProperty("defaultRenderer"));

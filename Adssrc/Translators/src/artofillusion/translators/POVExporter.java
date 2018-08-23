@@ -360,7 +360,7 @@ public class POVExporter
 	}
 	else if (obj.getObject() instanceof PointLight) {
 	    write("// Point light",out,0);
-	    write("// decay is different than in Art Of Illusion",out,0);
+	    write("// decay is different than in Arma Design Studio",out,0);
 	    write("// the point light source has actually no \"radius\"",out,0);
 	    PointLight light=(PointLight) obj.getObject();
 	    ObjectInfo info=(ObjectInfo)obj.duplicate();

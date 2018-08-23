@@ -17,7 +17,7 @@
 	If you are building within a standard AOI source distribution, then
 	the standard values will all work without change.
    -->
-  <property name="aoi" value = "." />
+  <property name="ads" value = "." />
 
   <!-- this points to the directory which holds all the HelpPlugin files -->
   <property name="home" value="HelpPlugin" />
@@ -31,7 +31,7 @@
   <property name="docs" value="${home}/docs" />
   <property name="lib" value="${home}/lib" />
 
-  <property name="dist" value="${aoi}/Plugins" />
+  <property name="dist" value="${ads}/Plugins" />
 
   <property name="src-package" value="${package}-src-${version}" />
   <property name="src-build" value="${build}/${package}" />
@@ -39,8 +39,8 @@
   <property name="helpfile" value="Help/AOIHelp.zip" />
 
   <!--  these default to being in the AOI installation  -->
-  <property name="aoijar" value="${aoi}/ArtOfIllusion.jar" />
-  <property name="bshjar" value="${aoi}/beanshell.jar" />
+  <property name="adsjar" value="${ads}/ArmaDesignStudio.jar" />
+  <property name="bshjar" value="${ads}/beanshell.jar" />
 
   <!-- these are bundled with HelpPlugin -->
   <property name="helpjar"
@@ -72,7 +72,7 @@
 
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}"
-	classpath="${aoijar}:${regjar}:${helpjar}:${bshjar}:${pircjar}"
+	classpath="${adsjar}:${regjar}:${helpjar}:${bshjar}:${pircjar}"
 	debug="on" target="1.4" source="1.4" />
   </target>
 
@@ -131,7 +131,7 @@
   </target>
 
   <target name="docs" depends="init">
-    <javadoc packagenames="artofillusion.*"
+    <javadoc packagenames="armadesignstudio.*"
         sourcepath="${src}"
         defaultexcludes="yes"
         destdir="${docs}"

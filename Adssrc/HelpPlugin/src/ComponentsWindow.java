@@ -27,7 +27,7 @@ package nik777.aoi;
 
 /*
  * This is a derivative work, based (strongly) on the ComponentsDialog class
- * in Art Of Illusion, which is
+ * in Arma Design Studio, which is
  * Copyright (C) 1999,2000,2002-2004 by Peter Eastman.
  */
 

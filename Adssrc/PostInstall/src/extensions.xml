@@ -4,7 +4,7 @@
    <author>Nik TJ (Nik777@users.sf.net</author>
    <date>Feb 2008</date>
 
-  	<plugin class="artofillusion.spmanager.postinstall.PostInstall" />
+  	<plugin class="armadesignstudio.spmanager.postinstall.PostInstall" />
 
 	<resource type="TranslateBundle" id="postinstall" name="postinstall" />
    
