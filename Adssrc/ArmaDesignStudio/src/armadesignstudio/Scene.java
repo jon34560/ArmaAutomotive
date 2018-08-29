@@ -29,6 +29,9 @@ import java.beans.*;
 import armadesignstudio.object.TriangleMesh.*;
 import javax.swing.*; // For JOptionPane
 
+import buoy.event.*;
+import buoy.widget.*;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
@@ -1450,6 +1453,12 @@ public class Scene
         try
           {
             String classname = in.readUTF();
+           
+            // ** Still not working ** 
+            if(classname.contains("artofillusion.")){
+              classname = "armadesignstudio." + classname.substring(14);
+            }
+
             int len = in.readInt();
             byte bytes[] = new byte [len];
             in.readFully(bytes);
@@ -1461,6 +1470,8 @@ public class Scene
               }
             catch (Exception ex)
               {
+		System.out.println(" Scene exception: " + classname);
+
                 if (ex instanceof InvocationTargetException)
                   ((InvocationTargetException) ex).getTargetException().printStackTrace();
                 else
@@ -3472,7 +3483,42 @@ public class Scene
             }
         }
     }
-    
+   
+
+    public void runCrashSimulation( BFrame frame ){
+        ObjectInfo wall = null;
+        ObjectInfo mesh = null;
+        LayoutModeling layout = new LayoutModeling();
+        for (ObjectInfo obj : objects){
+            if(obj.selected == true){
+                //layout.setObjectStructure( obj );
+                mesh = obj;
+            }
+
+            System.out.println(" object: " + obj.getName() );
+            if( obj.getName().equals("wall") ){
+		System.out.println("found it");
+                wall = obj;
+            }     
+        }
+
+        CrashSimulation crash = new CrashSimulation(frame);
+        if (crash.clickedOk()){
+            System.out.println("Run Simulation." + wall + "  mesh: " + mesh);
+
+            // calculate mesh boundary.
+            // ... 
+
+            //Camera cam = view.getCamera();
+            Mat4 transform; 
+            transform = Mat4.translation(0, 0, 0.1);
+            wall.getCoords().transformCoordinates(transform); 
+            
+
+        }
+         
+
+    } 
     
     public void setObjectStructure(){
         LayoutModeling layout = new LayoutModeling();

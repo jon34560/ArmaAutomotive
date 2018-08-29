@@ -201,6 +201,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // Dimension Tool
     // Grid Tool
     // Snap To Tool
+    tools.addTool(new CreateDimensionLinearTool(this));
     tools.addTool(new CreateDimensionTool(this));
     tools.addTool(new CreateSnapToTool(this));
     tools.addTool(new CreateLabelTool(this));
@@ -854,6 +855,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         feaMenu = Translate.menu("FEA");
         menubar.add(feaMenu);
         feaMenuItem = new BMenuItem [13];
+
+        feaMenu.add(Translate.menuItem("Run crash simulation", this, "runCrashSimulation")); 
+        
         feaMenu.add(Translate.menuItem("Set Object Structure", this, "setObjectStructure"));
         feaMenu.addSeparator();
         feaMenu.add(Translate.menuItem("Copy Structure Objects", this, "copyStructureObjects"));
@@ -1844,9 +1848,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   public void saveAsCommand()
   {
     BFileChooser fc = new BFileChooser(BFileChooser.SAVE_FILE, Translate.text("saveScene"));
-    if (theScene.getName() == null)
-      fc.setSelectedFile(new File("Untitled.aoi"));
-    else
+    if (theScene.getName() == null){
+      //fc.setSelectedFile(new File("Untitled.aoi"));
+      fc.setSelectedFile(new File("Untitled.ads")); 
+    } else
       fc.setSelectedFile(new File(theScene.getName()));
     if (theScene.getDirectory() != null)
       fc.setDirectory(new File(theScene.getDirectory()));
@@ -1855,8 +1860,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     if (!fc.showDialog(this))
       return;
     String name = fc.getSelectedFile().getName();
-    if (!name.toLowerCase().endsWith(".aoi"))
-      name = name+".aoi";
+    if (!name.toLowerCase().endsWith(".ads"))
+      name = name+".ads";
     File file = new File(fc.getDirectory(), name);
     if (file.isFile())
     {
@@ -3275,6 +3280,17 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         if(theScene != null){
             theScene.setObjectStructure();
         }
+    }
+
+    public void runCrashSimulation(){
+        if(theScene != null){
+            theScene.runCrashSimulation(this);
+        } 
+
+        //CrashSimulation crash = new CrashSimulation(this);
+        //if (!crash.clickedOk())
+        //  return;
+
     }
     
     public void copyStructureObjects(){

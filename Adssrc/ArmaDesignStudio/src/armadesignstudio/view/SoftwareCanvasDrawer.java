@@ -630,6 +630,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
    * renderDimensionObject
    *
    * Description: Draw the dimension based on
+   *    Horizontal or vertical measurment.
    */
   public void renderDimensionObject( ObjectInfo obj, Camera theCamera ){
       //System.out.println("    software renderDimensionObject");
@@ -712,6 +713,62 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       }
        */
           
+  }
+
+  
+  // 
+  // Angled 
+  //  
+  public void renderDimensionLinearObject( ObjectInfo obj, Camera theCamera ){
+    // Calculate distance between points 0 and 1.
+      double distance = 0;
+
+      // TODO **********
+      ObjectInfo objClone = obj.duplicate();
+      LayoutModeling layout = new LayoutModeling();
+      CoordinateSystem c;
+      c = layout.getCoords(objClone);
+      double scale = 1.0;
+      Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+      Vec3 [] verts = mesh.getVertexPositions();
+
+      if(verts.length >= 2){
+          distance = verts[0].distance2(verts[1]);
+          //System.out.println("distance: " + distance);
+          //double d = dv3.vert.distance(midv1.vert);
+
+          //renderNumber(2, verts[2], theCamera);
+          double width = (Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x));
+          double height = (Math.max(verts[0].y, verts[1].y) - Math.min(verts[0].y, verts[1].y));
+          double distanceScale = width / 3; // one third
+          boolean vertical = false;
+          if(height > width){
+              vertical = true;
+              distanceScale = height / 3;
+          }
+
+          // line 1
+          Vec3 vert1 = new Vec3( verts[1].x, verts[1].y, verts[1].z); // point 2
+          Vec3 vert2 = new Vec3( verts[2].x, verts[2].y, verts[2].z); // point 3
+          renderLine(vert1, vert2, theCamera, new Color(0.2f, 0.2f, 0.2f));
+
+          // Line 2
+          double line2Width = verts[2].x - verts[1].x;
+          double line2Height = verts[2].y - verts[1].y;
+          Vec3 vert3 = new Vec3( verts[0].x, verts[0].y, verts[0].z); // point 1
+          Vec3 vert4 = new Vec3( verts[0].x + line2Width, verts[0].y + line2Height, verts[0].z); // constructed point
+          renderLine(vert3, vert4, theCamera, new Color(0.2f, 0.2f, 0.2f));
+
+          // Line 3
+          renderLine(vert2, vert4, theCamera, new Color(0.2f, 0.2f, 0.2f));
+
+          // Anotation
+          double annotationX = ( ( Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x)) / 2 ) + Math.min(verts[0].x, verts[1].x);
+          //double x = verts[0].x - verts[1].x;
+          Vec3 annotationLocation = new Vec3(annotationX, verts[2].y, verts[2].z );
+          renderDouble(distance, annotationLocation, distanceScale, theCamera);
+
+      } 
   }
     
     public void renderLabelObject(ObjectInfo obj, Camera theCamera){

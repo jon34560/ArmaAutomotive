@@ -999,6 +999,11 @@ public abstract class ViewerCanvas extends CustomWidget
   {
     drawer.renderDimensionObject(obj, theCamera);
   }
+
+  public void renderDimensionLinearObject(ObjectInfo obj, Camera theCamera)
+  {
+    drawer.renderDimensionLinearObject(obj, theCamera);
+  } 
     
   public void renderLabelObject(ObjectInfo obj, Camera theCamera)
   {

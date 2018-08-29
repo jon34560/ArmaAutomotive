@@ -94,6 +94,7 @@ public interface CanvasDrawer
     
   
   /**  JDT  **/
+  public void renderDimensionLinearObject(ObjectInfo obj, Camera theCamera);
   public void renderDimensionObject(ObjectInfo obj, Camera theCamera);
   public void renderLabelObject(ObjectInfo obj, Camera theCamera);
 

@@ -203,7 +203,7 @@ public class TexturesAndMaterialsDialog extends BDialog
     {
       if (file.isDirectory())
         rootNodes.add(new FolderTreeNode(file));
-      else if (file.getName().endsWith(".aoi"))
+      else if (file.getName().endsWith(".aoi") || file.getName().endsWith(".ads"))
         rootNodes.add(new SceneTreeNode(file));
     }
     libraryList.setModel(new SceneTreeModel());
@@ -842,7 +842,7 @@ public class TexturesAndMaterialsDialog extends BDialog
         {
           if (f.isDirectory())
             children.add(new FolderTreeNode(f));
-          else if (f.getName().endsWith(".aoi"))
+          else if (f.getName().endsWith(".aoi") || f.getName().endsWith(".ads"))
             children.add(new SceneTreeNode(f));
         }
       }

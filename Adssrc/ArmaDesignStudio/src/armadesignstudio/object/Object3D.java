@@ -465,12 +465,14 @@ public abstract class Object3D
         try
           {
             Class mapClass = ArmaDesignStudio.getClass(in.readUTF());
+		System.out.println(" -> " + mapClass);
             Constructor con = mapClass.getConstructor(new Class [] {DataInputStream.class, Object3D.class, Material.class});
             theMaterial = theScene.getMaterial(i);
             setMaterial(theMaterial, (MaterialMapping) con.newInstance(new Object [] {in, this, theMaterial}));
           }
         catch (Exception ex)
           {
+            System.out.println("  ****  ");
             throw new IOException(ex.getMessage());
           }
       }
@@ -486,6 +488,7 @@ public abstract class Object3D
           }
         catch (Exception ex)
           {
+		System.out.println("  ***  ");
             ex.printStackTrace();
             throw new IOException(ex.getMessage());
           }
@@ -493,7 +496,6 @@ public abstract class Object3D
     else
       {
         // This is a layered texture.
-
         LayeredTexture tex = new LayeredTexture(this);
         LayeredMapping map = (LayeredMapping) tex.getDefaultMapping(this);
         map.readFromFile(in, theScene);

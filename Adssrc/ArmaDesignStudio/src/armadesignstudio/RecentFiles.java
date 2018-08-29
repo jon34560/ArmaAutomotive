@@ -22,7 +22,7 @@ import java.util.prefs.*;
 
 public class RecentFiles
 {  
-  private static final int MAX_RECENT = 10;
+  private static final int MAX_RECENT = 20;
   
   /** Given a BMenu, fill it in with a list of items for recent files. */
   

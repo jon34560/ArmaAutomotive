@@ -443,7 +443,14 @@ public class ArmaDesignStudio
   }
 
   private static Class lookupClass(String name) throws ClassNotFoundException
-  {
+  { 
+    //System.out.println("lookupClass: " + name);
+    
+    // artofillusion.texture.UniformTexture
+    if(name.contains("artofillusion.")){
+      name = "armadesignstudio." + name.substring(14);	
+    }
+
     try
     {
       return Class.forName(name);
@@ -536,7 +543,9 @@ public class ArmaDesignStudio
   public static void openScene(File f, BFrame fr)
   {
     // Open the file and read the scene.
+    
     //System.out.println("Open file: " + f.getPath() + " " + f.getName());
+    //System.out.println("Open file: " + f.getPath());
 
     try
     {

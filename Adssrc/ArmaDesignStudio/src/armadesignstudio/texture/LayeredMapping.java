@@ -325,8 +325,10 @@ public class LayeredMapping extends TextureMapping
     short version = in.readShort();
     int numTextures = in.readInt();
 
-    if (version != 0)
-      throw new InvalidObjectException("");    
+    if (version != 0){
+      System.out.println(" readFromFile - unable to rear first short "); 
+      throw new InvalidObjectException("");
+    }    
     texture = new Texture [numTextures];
     mapping = new TextureMapping [numTextures];
     blendMode = new int [numTextures];
