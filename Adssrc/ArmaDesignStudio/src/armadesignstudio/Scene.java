@@ -3484,8 +3484,11 @@ public class Scene
         }
     }
    
-
-    public void runCrashSimulation( BFrame frame ){
+    /**
+    *
+    *
+    */
+    public void runCrashSimulation( BFrame frame ){ // BFrame
         ObjectInfo wall = null;
         ObjectInfo mesh = null;
         LayoutModeling layout = new LayoutModeling();
@@ -3507,14 +3510,30 @@ public class Scene
             System.out.println("Run Simulation." + wall + "  mesh: " + mesh);
 
             // calculate mesh boundary.
-            // ... 
+            // ...  
+            BoundingBox meshBound = mesh.getBounds();
+            Vec3 meshCenter = meshBound.getCenter();
+            System.out.println(" mesh:  " + meshCenter.x + " " + meshCenter.y + " " + meshCenter.z);
+            Vec3 meshSize = meshBound.getSize();
+            System.out.println(" mesh size:  " + meshSize.x + " " + meshSize.y + " " + meshSize.z);           
+ 
+            BoundingBox wallBound = wall.getBounds();
+            Vec3 wallCenter = wallBound.getCenter();
+            // Vec3 [] getCorners()  
+            System.out.println(" wall:  " + wallCenter.x + " " + wallCenter.y + " " + wallCenter.z); 
+            Vec3 wallSize = wallBound.getSize();
+            System.out.println(" wall size:  " + wallSize.x + " " + wallSize.y + " " + wallSize.z);     
+
+	//double x = mesh.
+
 
             //Camera cam = view.getCamera();
             Mat4 transform; 
             transform = Mat4.translation(0, 0, 0.1);
             wall.getCoords().transformCoordinates(transform); 
-            
-
+           
+            // ViewerCanvas view 
+            ((LayoutWindow)frame).updateImage();
         }
          
 
