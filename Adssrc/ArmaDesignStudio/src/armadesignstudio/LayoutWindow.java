@@ -590,6 +590,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     objectMenu = Translate.menu("object");
     menubar.add(objectMenu);
     objectMenuItem = new BMenuItem [12];
+    
+    objectMenu.add( Translate.menuItem("Find Object", this, "findObjectCommand"));
+ 
+    objectMenu.addSeparator(); 
     objectMenu.add(objectMenuItem[0] = Translate.menuItem("editObject", this, "editObjectCommand"));
     objectMenu.add(objectMenuItem[1] = Translate.menuItem("objectLayout", this, "objectLayoutCommand"));
     objectMenu.add(objectMenuItem[2] = Translate.menuItem("transformObject", this, "transformObjectCommand"));
@@ -2025,6 +2029,33 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         info.setObject(info.object.duplicate());
       }
     setUndoRecord(undo);
+  }
+
+
+  /**
+  * findObjectCommand
+  *
+  * Description: find objects by name
+  */
+  public void findObjectCommand(){
+    // Get search string.
+    String x = "";
+    String search = JOptionPane.showInputDialog("Seach for Object name ", x);
+    if(search != null){
+      itemSelectionTree.removeAllElements();
+
+      // Search through model for matches.
+      int count = theScene.getNumObjects();
+      for(int i = 0; i < count; i++){
+        ObjectInfo obj = theScene.getObject(i);
+        if( obj.getName().contains(search) ){
+          System.out.println(" FOUND " + obj.getName());
+          // add results to selection list
+
+          itemSelectionTree.addElement(new ObjectTreeElement(obj, itemTree));
+        }      
+      }  
+    }
   }
 
   public void editObjectCommand()
