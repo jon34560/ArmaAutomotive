@@ -3490,12 +3490,12 @@ public class Scene
     */
     public void runCrashSimulation( BFrame frame ){ // BFrame
         ObjectInfo wall = null;
-        ObjectInfo mesh = null;
+        ObjectInfo meshObj = null;
         LayoutModeling layout = new LayoutModeling();
         for (ObjectInfo obj : objects){
             if(obj.selected == true){
                 //layout.setObjectStructure( obj );
-                mesh = obj;
+                meshObj = obj;
             }
 
             System.out.println(" object: " + obj.getName() );
@@ -3505,13 +3505,18 @@ public class Scene
             }     
         }
 
+        if(meshObj == null){
+           JOptionPane.showMessageDialog(null, "Select an object to crash.",  "alert" , JOptionPane.ERROR_MESSAGE ); 
+           return;
+        }
+
         CrashSimulation crash = new CrashSimulation(frame);
         if (crash.clickedOk()){
-            System.out.println("Run Simulation." + wall + "  mesh: " + mesh);
+            System.out.println("Run Simulation." + wall + "  mesh: " + meshObj);
 
             // calculate mesh boundary.
             // ...  
-            BoundingBox meshBound = mesh.getBounds();
+            BoundingBox meshBound = meshObj.getBounds();
             Vec3 meshCenter = meshBound.getCenter();
             System.out.println(" mesh:  " + meshCenter.x + " " + meshCenter.y + " " + meshCenter.z);
             Vec3 meshSize = meshBound.getSize();
@@ -3524,21 +3529,62 @@ public class Scene
             Vec3 wallSize = wallBound.getSize();
             System.out.println(" wall size:  " + wallSize.x + " " + wallSize.y + " " + wallSize.z);     
 
-	//double x = mesh.
+	    //double x = mesh.
 
+	
+            // 
+            for( int i = 0; i < 1; i++ ){ 
+              //Camera cam = view.getCamera();
+              Mat4 transform; 
+              //transform = Mat4.translation(0, 0, -0.12);
+              //meshObj.getCoords().transformCoordinates(transform); 
+          
+              // Get geometry
+              //ObjectInfo meshClone = meshObj.duplicate();
+              Object co = (Object)meshObj.getObject();
+              if(co instanceof Mesh && meshObj.isVisible() == true){
+                Mesh meshObj3d = (Mesh)meshObj.getObject();
+                Vec3 [] verts = meshObj3d.getVertexPositions();
+                
+                //for (Vec3 vert : verts){
+                //  System.out.println(" point " + vert.x + " " + vert.y + " " + vert.z);
+                //  if( vert.z < 0 ){
+                //    vert.z = 0;
+                //  } 
+                //}
 
-            //Camera cam = view.getCamera();
-            Mat4 transform; 
-            transform = Mat4.translation(0, 0, 0.1);
-            wall.getCoords().transformCoordinates(transform); 
-           
-            // ViewerCanvas view 
-            ((LayoutWindow)frame).updateImage();
+                CoordinateSystem c;
+                c = layout.getCoords(meshObj);
+                for(int j = 0; j < verts.length; j++){
+                  Mat4 mat4 = c.duplicate().fromLocal();
+                  //mat4.transform(verts[j]);
+                  System.out.println("  x: " + verts[j].x + "   y: " + verts[j].y + "   z: " + verts[j].z);
+
+                  //verts[j].z -= 0.12; // Move Object (if Z > 0) 
+                  double z = verts[j].z;
+                  if( z < 0.0 ){
+                    System.out.print(" < ");
+                    //verts[j].z = 0;
+                  } else {
+                    System.out.print(" > ");
+                  } 
+                }
+                // update model 
+                //meshObj3d.setVertexPositions( verts ); // affects on its own
+                //meshObj.setObject( (Object3D) meshObj3d);  
+
+              }
+              // ViewerCanvas view 
+              ((LayoutWindow)frame).updateImage();
+
+              //
+              //try { Thread.sleep(250); } catch (Exception e) {} 
+              
+            }
         }
-         
-
     } 
-    
+   
+ 
     public void setObjectStructure(){
         LayoutModeling layout = new LayoutModeling();
         for (ObjectInfo obj : objects){

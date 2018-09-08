@@ -590,10 +590,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     objectMenu = Translate.menu("object");
     menubar.add(objectMenu);
     objectMenuItem = new BMenuItem [12];
-    
-    objectMenu.add( Translate.menuItem("Find Object", this, "findObjectCommand"));
  
-    objectMenu.addSeparator(); 
     objectMenu.add(objectMenuItem[0] = Translate.menuItem("editObject", this, "editObjectCommand"));
     objectMenu.add(objectMenuItem[1] = Translate.menuItem("objectLayout", this, "objectLayoutCommand"));
     objectMenu.add(objectMenuItem[2] = Translate.menuItem("transformObject", this, "transformObjectCommand"));
@@ -602,6 +599,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     objectMenu.add(objectMenuItem[5] = Translate.menuItem("renameObject", this, "renameObjectCommand"));
     objectMenu.add(objectMenuItem[6] = Translate.menuItem("convertToTriangle", this, "convertToTriangleCommand"));
     objectMenu.add(objectMenuItem[7] = Translate.menuItem("convertToActor", this, "convertToActorCommand"));
+    objectMenu.addSeparator();
+
+    objectMenu.add( Translate.menuItem("Find Object", this, "findObjectCommand"));
     objectMenu.addSeparator();
 
     objectMenu.add(  Translate.menuItem("Set Object Group", this, "setObjectGroupCommand"));
@@ -854,21 +854,23 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
       //layoutMenu.add(Translate.menuItem("Export GCode Mesh", this, "exportGCodeMesh"));
   }
-    
+   
+    /**
+    * createFEAMenu
+    *
+    */ 
     private void createFEAMenu(){
         feaMenu = Translate.menu("FEA");
         menubar.add(feaMenu);
         feaMenuItem = new BMenuItem [13];
-
         feaMenu.add(Translate.menuItem("Run crash simulation", this, "runCrashSimulation")); 
-        
+        feaMenu.addSeparator(); 
         feaMenu.add(Translate.menuItem("Set Object Structure", this, "setObjectStructure"));
         feaMenu.addSeparator();
         feaMenu.add(Translate.menuItem("Copy Structure Objects", this, "copyStructureObjects"));
         feaMenu.add(Translate.menuItem("Generate Structure Mesh", this, "generateStructureMesh"));
         feaMenu.addSeparator();
         feaMenu.add(Translate.menuItem("Even Mesh", this, "evenMesh"));
-        
         feaMenu.addSeparator();
         feaMenu.add(Translate.menuItem("BeamNG Join Selected Nodes", this, "beamNGCreateBeam"));
         feaMenu.add(Translate.menuItem("Export BeamNG Vehicle", this, "exportBeamNGVehicle"));

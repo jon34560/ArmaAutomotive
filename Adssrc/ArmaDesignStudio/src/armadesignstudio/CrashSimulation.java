@@ -91,15 +91,15 @@ public class CrashSimulation extends BDialog
     };
 
     center.add(Translate.label("Mass"), 0, 1, eastLayout);
-    center.add(fields[0] = new ValueField(0, ValueField.NONE), 1, 1);    
+    center.add(fields[0] = new ValueField(3550, ValueField.NONE), 1, 1);    
     center.add(Translate.label("kgs"), 2, 1, westLayout);
 
     center.add(Translate.label("Velocity"), 0, 2, eastLayout);
-    center.add(fields[1] = new ValueField(0, ValueField.NONE), 1, 2);
+    center.add(fields[1] = new ValueField(56, ValueField.NONE), 1, 2);
     center.add(Translate.label("kph"), 2, 2, westLayout);
 
     center.add(Translate.label("Force"), 0, 3, eastLayout);
-    center.add(fields[2] = new ValueField(0, ValueField.NONE), 1, 3); 
+    center.add(fields[2] = new ValueField(-1, ValueField.NONE), 1, 3); 
     center.add(Translate.label("kph"), 2, 3, westLayout);    
 
     center.add(Translate.label("Material"), 0, 4, eastLayout);
@@ -109,6 +109,10 @@ public class CrashSimulation extends BDialog
     //materialList.addActionListener(this);
     //center.add(materialList, 1, 4); 
  
+    center.add(Translate.label("Material Strength"), 0, 5, eastLayout);
+    center.add(fields[3] = new ValueField(-1, ValueField.NONE), 1, 5);
+    center.add(Translate.label("psi"), 2, 5, westLayout); 
+
  
     /*
     for (int i = 0; i < 9; i++)
@@ -189,5 +193,12 @@ public class CrashSimulation extends BDialog
     }
   }
 
+
+  /**
+  * process
+  */
+  //public void process(ObjectInfo obj){
+     
+  //}
 }
 
