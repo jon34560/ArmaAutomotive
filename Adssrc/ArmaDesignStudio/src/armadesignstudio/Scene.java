@@ -35,6 +35,23 @@ import buoy.widget.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
+import com.jsevy.jdxf.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
+import java.awt.geom.CubicCurve2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.QuadCurve2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
+
+
 /** The Scene class describes a collection of objects, arranged relative to each other to
     form a scene, as well as the available textures and materials, environment options, etc. */
 
@@ -2780,14 +2797,43 @@ public class Scene
     // ---
     
     
-    
+   
+    /**
+    * exportDXF
+    * Description: Only for layout view.
+    */ 
     public void exportDXF(){
         LayoutModeling layout = new LayoutModeling();
         
         //layout.setBaseDir(this.getDirectory() + System.getProperty("file.separator") + this.getName() + "_layout_data" );
+       
+        DXFDocument dxfDocument = new DXFDocument("Arma Design Studion DXF Export");
+        DXFGraphics dxfGraphics = dxfDocument.getGraphics();
         
+        dxfGraphics.setColor(Color.BLUE);
+        
+        //Line2D line = new Line2D.Double(0, 0, 1.1, 1.1);
+        //dxfGraphics.draw(line);
+
+        /*
+        dxfGraphics.setColor(Color.GREEN);
+        RoundRectangle2D roundRect = new RoundRectangle2D.Double(211.3, 400, 110, 210, 10, 20);
+        dxfGraphics.draw(roundRect);
+        roundRect = new RoundRectangle2D.Double(211.3, 400, 110, 210, 20, 30);
+        dxfGraphics.draw(roundRect);
+        roundRect = new RoundRectangle2D.Double(211.3, 400, 110, 210, 30, 40);
+        dxfGraphics.draw(roundRect);
+        roundRect = new RoundRectangle2D.Double(211.3, 400, 110, 210, 40, 60);
+        dxfGraphics.draw(roundRect);
+        roundRect = new RoundRectangle2D.Double(211.3, 400, 110, 210, 60, 80);
+        dxfGraphics.draw(roundRect);
+        */
+        //String stringOutput = dxfDocument.toDXFString();
+        //System.out.println(stringOutput);
+
+ 
         //String dir = System.getProperty("user.dir") + System.getProperty("file.separator") + "gcode";
-        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode";
+        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_dxf";
         File d = new File(dir);
         if(d.exists() == false){
             d.mkdir();
@@ -2965,8 +3011,6 @@ public class Scene
                                 }
                             }
                             
-                            
-                            
                             // Insert this polygon into the correct sorted order.
                             
                             int polyOrder = layout.getPolyOrder( "" + child.getId() );
@@ -3020,46 +3064,9 @@ public class Scene
                                 //}
                             }
                         }
-                        
-                        
                     }
-                    // Close file
-                    //writer.close();
-                    
                     
                     // Add boundary points (so you don't cut outside of the material or the clamps)
-                    gcode2 += "999\n";
-                    gcode2 += "DXF created with OpenCarProject.org AOI modeler.\n";
-                    gcode2 += "0\n";
-                    gcode2 += "SECTION\n";
-                    gcode2 += "2\n";
-                    gcode2 += "HEADER\n";
-                    gcode2 += "9\n";
-                    gcode2 += "$ACADVER\n";
-                    gcode2 += "1\n";
-                    gcode2 += "AC1006\n";
-                    gcode2 += "9\n";
-                    gcode2 += "$INSBASE\n";
-                    gcode2 += "10\n";
-                    gcode2 += "0.0\n";
-                    gcode2 += "20\n";
-                    gcode2 += "0.0\n";
-                    gcode2 += "30\n";
-                    gcode2 += "0.0\n";
-                    gcode2 += "9\n";
-                    gcode2 += "$EXTMIN\n";
-                    gcode2 += "10\n";
-                    gcode2 += "0.0\n";
-                    gcode2 += "20\n";
-                    gcode2 += "0.0\n";
-                    gcode2 += "9\n";
-                    gcode2 += "$EXTMAX\n";
-                    gcode2 += "10\n";
-                    gcode2 += "1000.0\n";
-                    gcode2 += "20\n";
-                    gcode2 += "1000.0\n";
-                    gcode2 += "0\n";
-                    gcode2 += "ENDSEC\n";
                     
                   
                     
@@ -3076,69 +3083,24 @@ public class Scene
                         Vector polygon = (Vector)polygons.elementAt(p);
                         boolean lowered = false;
                         Vec3 firstPoint = null;
-                        
-                        gcode2 += "0\n";
-                        gcode2 += "SECTION\n";
-                        gcode2 += "2\n";
-                        gcode2 += "ENTITIES\n";
-                        gcode2 += "0\n";
-                        
+                   
+			Vector<RealPoint> realPoints = new Vector<RealPoint>();    
+ 
                         for(int pt = 0; pt < polygon.size(); pt++){
                             Vec3 point = (Vec3)polygon.elementAt(pt);
-                            //System.out.println("  Point *** " + point.getX() + " " + point.getY());
                             
                             point.x = (point.x + -minX); // shift to align all geometry to 0,0
                             point.z = (point.z + -minZ); //
                             
-                            //point.z = (point.z + -minZ);
-                            
-                            gcode2 += "G1 X" +
-                            roundThree(point.x) +
-                            " Y" +
-                            roundThree(point.z) +
-                            //     " Z" +
-                            //     roundThree(point.y) +
-                            "\n"; // G90
-                            
-                            //dblPI = Atn(1) * 4
-                            //dblA1 = (2 * dblPI) / iSides
-                            //dblA = dblPI / 2
-                            //For i = 1 To iSides
-                            
-                            gcode2 += "LINE\n";
-                            gcode2 += "8\n";
-                            gcode2 += "Polygon\n";
-                            gcode2 += "10\n";
-                            gcode2 += roundThree(point.x) + "\n";
-                            gcode2 += "20\n";
-                            gcode2 += roundThree(point.z) + "\n";
-                            //dblNX = dblLen * Cos(dblA) + dblX
-                            //dblNY = dblLen * Sin(dblA) + dblY
-                            
-                            gcode2 += "11\n";
-                            gcode2 += 0; // dblNX;
-                            gcode2 += "21\n";
-                            gcode2 += 0; //dblNY;
-                            //dblX = dblNX
-                            //dblY = dblNY
-                            //dblA = dblA + dblA1
-                            
-                            //Next i
-                            
-                            
-                            
-                            //if(!lowered){
-                            //    gcode2 += "G00 Z-0.5\n"; // Lower router head for cutting.
-                            //    lowered = true;
-                            //    firstPoint = point;
-                            //}
+			    RealPoint realPoint = new RealPoint(point.x, point.y, point.z);
+                            realPoints.addElement(realPoint); 
                             
                             polygon.setElementAt(point, pt);
                         }
-                        
-                        gcode2 += "0\n";
-                        gcode2 += "ENDSEC\n";
-                        
+
+                        DXFLWPolyline polyline = new DXFLWPolyline( polygon.size(), realPoints, true, dxfGraphics); // int numVertices, Vector<RealPoint> vertices, boolean closed, Graphics2D graphics
+                        dxfDocument.addEntity(polyline);                         
+
                         
                         // Connect last point to first point
                         //if(firstPoint != null){
@@ -3147,13 +3109,7 @@ public class Scene
                             //" Y" +
                             //roundThree(firstPoint.z) + "\n"; // G90
                         //}
-                        
-                        gcode2 += "G00 Z0.5\n"; // Raise router head
                     }
-                    
-                    // End DXF file
-                    gcode2 += "0\n";
-                    gcode2 += "EOF\n";
                     
                     System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
                     System.out.println("Align: x: " + -minX + " y: " + -minZ);
@@ -3162,58 +3118,20 @@ public class Scene
                     // Write gcode to file
                     if(writeFile){
                         try {
-                            
-                            String gcodeFile = dir + System.getProperty("file.separator") + name + "";
-                            gcodeFile += ".dxf";
-                            System.out.println("Writing dxf file: " + gcodeFile);
-                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                            writer2.println(gcode2);
+                            String stringOutput = dxfDocument.toDXFString();
+ 
+                            String dxfFile = dir + System.getProperty("file.separator") + name + ".dxf";
+
+                            System.out.println("Writing dxf file: " + dxfFile);
+
+                            PrintWriter writer2 = new PrintWriter(dxfFile, "UTF-8");
+                            writer2.print(stringOutput);
                             writer2.close();
                         } catch (Exception e){
                             System.out.println("Error: " + e.toString());
                         }
-                        
-                        /*
-                        // Multi part file
-                        String gcode3 = gcode2;
-                        int lines = 0; // StringUtils.countMatches(gcode2, "\n");
-                        for(int i = 0; i < gcode3.length(); i++){
-                            if(gcode3.charAt(i) == '\n'){
-                                lines++;
-                            }
-                        }
-                        if(lines > 499){
-                            int lineNumber = 0;
-                            int fileNumber = 1;
-                            lines = 0;
-                            for(int i = 0; i < gcode3.length(); i++){
-                                if(gcode3.charAt(i) == '\n'){
-                                    lines++;
-                                    if(lines > 480){
-                                        String gCodeSection = gcode3.substring(0, i);
-                                        
-                                        String gcodeFile = dir + System.getProperty("file.separator") + name + "_" + fileNumber;
-                                        gcodeFile += ".gcode";
-                                        System.out.println("Writing g code file: " + gcodeFile);
-                                        PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                                        writer2.println(gCodeSection);
-                                        writer2.close();
-                                        
-                                        fileNumber++;
-                                        gcode3 = gcode3.substring(i+1, gcode3.length());
-                                    }
-                                }
-                            }
-                            String gcodeFile = dir + System.getProperty("file.separator") + name + "_" + fileNumber;
-                            gcodeFile += ".gcode";
-                            System.out.println("Writing g code file: " + gcodeFile);
-                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                            writer2.println(gcode3);
-                            writer2.close();
-                            System.out.println(" Lines *** " + lines);
-                        }
-                        */
-                        
+                    } else {
+                        System.out.println("No geometry supported by DXF export.");
                     }
                     
                 } catch (Exception e){
@@ -3485,7 +3403,7 @@ public class Scene
     }
    
     /**
-    *
+    * runCrashSimulation
     *
     */
     public void runCrashSimulation( BFrame frame ){ // BFrame
