@@ -2795,14 +2795,96 @@ public class Scene
         System.out.println("Export mesh done. ");
     }
     // ---
-    
-    
-   
+
     /**
     * exportDXF
-    * Description: Only for layout view.
-    */ 
+    *
+    * Description: Export all supported scene elements to DXF.
+    */    
     public void exportDXF(){
+        LayoutModeling layout = new LayoutModeling(); 
+        DXFDocument dxfDocument = new DXFDocument("Arma Design Studion DXF Export");
+        DXFGraphics dxfGraphics = dxfDocument.getGraphics();
+        dxfGraphics.setColor(Color.BLACK);
+        double scale = getScale();
+	Vector polygons = new Vector();
+        HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
+        for (ObjectInfo obj : objects){
+            String name = obj.getName();
+            ObjectInfo objClone = obj.duplicate(); 
+	    Object co = (Object)obj.getObject();
+            if(co instanceof Mesh &&
+                        obj.isVisible() == true 
+			//&& ((Mesh)obj) instanceof Curve 
+			){  // Is mesh and visible.
+                System.out.println(".");
+                Vector polygon = new Vector();
+
+                //Vec3 origin = c.getOrigin();
+                Mesh mesh = (Mesh) obj.getObject(); // Object3D
+                Vec3 [] verts = mesh.getVertexPositions();
+                for (Vec3 vert : verts){
+                  // Transform vertex points around object loc/rot.
+                  //Mat4 mat4 = c.duplicate().fromLocal();
+                  //mat4.transform(vert);
+
+                  // Apply scale
+                  vert.x = vert.x * scale;
+                  vert.y = vert.y * scale;
+                  vert.z = vert.z * scale;
+
+                  double x = vert.x; // + origin.x;  // works
+                  double y = vert.y; // + origin.y;
+                  double z = vert.z; // + origin.z;
+                  //System.out.println("         x " + x + " y: " + y + " z: " + z );
+                  //writer.println(" x " + x + " y: " + y + " z: " + z);
+                  polygon.addElement(vert);
+		}
+                polygons.addElement(polygon);
+	    } else {
+              System.out.println(" no " + name + " " + obj);
+            }
+        }
+
+        for(int p = 0; p < polygons.size(); p++){
+          Vector polygon = (Vector)polygons.elementAt(p);
+          Vector<RealPoint> realPoints = new Vector<RealPoint>();
+          for(int pt = 0; pt < polygon.size(); pt++){
+            Vec3 point = (Vec3)polygon.elementAt(pt);
+            RealPoint realPoint = new RealPoint(point.x, point.y, point.z);
+            realPoints.addElement(realPoint);
+            //polygon.setElementAt(point, pt);
+          }
+          System.out.println(" add polygon ");
+          DXFLWPolyline polyline = new DXFLWPolyline( polygon.size(), realPoints, true, dxfGraphics); // int numVertices, Vector<RealPoint> vertices, boolean closed, Graphics2D graphics
+          dxfDocument.addEntity(polyline);
+        } 
+        try {
+          String stringOutput = dxfDocument.toDXFString();
+          String projectName = getName();
+          if(projectName.indexOf(".ads") != -1){
+            projectName = projectName.substring(0, projectName.indexOf(".ads"));
+          }
+          String dxfFile = getDirectory() + System.getProperty("file.separator") + projectName + ".dxf";
+          System.out.println("Writing dxf file: " + dxfFile);
+          PrintWriter writer2 = new PrintWriter(dxfFile, "UTF-8");
+          writer2.print(stringOutput);
+          writer2.close();
+
+          // Notify dialog.
+          JOptionPane.showMessageDialog(null, "DXF export complete: " + dxfFile,  "Complete" , JOptionPane.ERROR_MESSAGE );
+
+        } catch (Exception e){
+          System.out.println("Error: " + e.toString());
+        }
+
+    }
+
+    /**
+    * exportDXF
+    * Description: Export layout geometry to DXF. 
+    */ 
+    public void exportLayoutDXF(){
         LayoutModeling layout = new LayoutModeling();
         
         //layout.setBaseDir(this.getDirectory() + System.getProperty("file.separator") + this.getName() + "_layout_data" );
@@ -2839,7 +2921,8 @@ public class Scene
             d.mkdir();
         }
         
-        double scale = 1.0;
+        double scale = getScale();
+	/*
         try {
             // Read current scale for this project.
             Properties prop = new Properties();
@@ -2871,7 +2954,7 @@ public class Scene
             System.out.println("Error " + e);
             e.printStackTrace();
         }
-        
+        */
         
         for (ObjectInfo obj : objects){
             String name = obj.getName();
@@ -3141,6 +3224,8 @@ public class Scene
             }
         }
         System.out.println("Export done. ");
+        // Notify dialog.
+        JOptionPane.showMessageDialog(null, "DXF layout export complete. ",  "Complete" , JOptionPane.ERROR_MESSAGE );
     }
     
     /**
@@ -3194,40 +3279,6 @@ public class Scene
         }
         
         double scale = getScale();
-        /*
-        double scale = 1.0;
-        try {
-            // Read current scale for this project.
-            Properties prop = new Properties();
-            InputStream input = null;
-            OutputStream output = null;
-            
-            String dir2 = getDirectory() + System.getProperty("file.separator") + getName() + "_layout_data";
-            File d2 = new File(dir2);
-            if(d2.exists() == false){
-                d2.mkdir();
-            }
-            dir2 = dir2 + System.getProperty("file.separator") + "scale.properties";
-            d2 = new File(dir2);
-            if(d2.exists() == false){
-                //(works for both Windows and Linux)
-                d2.getParentFile().mkdirs();
-                d2.createNewFile();
-            }
-            
-            input = new FileInputStream(dir2);
-            // load a properties file
-            prop.load(input);
-            
-            String v = prop.getProperty("export_scale");
-            if(v != null){
-                scale = Double.parseDouble(v);
-            }
-        } catch (Exception e){
-            System.out.println("Error " + e);
-            e.printStackTrace();
-        }
-        */
         
         // *** todo
     }

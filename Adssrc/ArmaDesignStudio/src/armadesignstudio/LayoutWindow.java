@@ -59,7 +59,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   BMenu feaMenu; // JDT
   BMenu cfdMenu; // JDT
   BMenu addTrackMenu, positionTrackMenu, rotationTrackMenu, distortionMenu;
-  BMenu layoutModelView, layoutLayView, gCodeScaleMenu, exportGCode, exportDXF, exportObj, layoutHide, exportGCodeMesh; // JDT
+  BMenu layoutModelView, layoutLayView, gCodeScaleMenu, exportGCode, exportLayoutDXF, exportObj, layoutHide, exportGCodeMesh; // JDT
   BMenuItem fileMenuItem[], editMenuItem[], objectMenuItem[], toolsMenuItem[];
   BMenuItem animationMenuItem[], sceneMenuItem[], popupMenuItem[];
   BMenuItem layoutMenuItem[]; // JDT ???
@@ -548,6 +548,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
             item.addEventLink(CommandEvent.class, this, "actionPerformed");
           }
       }
+    // Export to DXF
+    exportMenu.add(Translate.menuItem("AutoDesk AutoCAD DXF (.dxf)", this, "exportDXF"));
     // csv export - todo move to module
     exportMenu.add(Translate.menuItem("Group Points (.csv)", this, "exportObjectCSV"));
       
@@ -849,7 +851,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.addSeparator();
 	  // exportGCode
 	  layoutMenu.add(Translate.menuItem("Export GCode", this, "exportGCode"));
-      layoutMenu.add(Translate.menuItem("Export DXF", this, "exportDXF"));
+      layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
       layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
       
       //layoutMenu.add(Translate.menuItem("Export GCode Mesh", this, "exportGCodeMesh"));
@@ -3193,14 +3195,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         }
     }
     
-    public void exportDXF(){
-        System.out.println("exportDXF  ********* ");
+    public void exportLayoutDXF(){
+        System.out.println("exportLayoutDXF  ********* ");
         
         // theScene
         // private Vector<ObjectInfo> objects;
         
         if(theScene != null){
-            theScene.exportDXF();
+            theScene.exportLayoutDXF();
         }
     }
     
@@ -3357,6 +3359,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         }
     }
     
+    public void exportDXF(){
+        if(theScene != null){
+            theScene.exportDXF();
+        } 
+    }
+
     public void exportObjectCSV(){
         if(theScene != null){
             theScene.exportObjectCSV(this);
