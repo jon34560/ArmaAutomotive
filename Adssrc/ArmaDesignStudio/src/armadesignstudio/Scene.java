@@ -2817,11 +2817,15 @@ public class Scene
                         obj.isVisible() == true 
 			//&& ((Mesh)obj) instanceof Curve 
 			){  // Is mesh and visible.
-                System.out.println(".");
+                //System.out.println(".");
                 Vector polygon = new Vector();
 
-                //Vec3 origin = c.getOrigin();
-                Mesh mesh = (Mesh) obj.getObject(); // Object3D
+		CoordinateSystem c;
+                c = layout.getCoords(objClone);
+		//objClone.setCoords(c);
+
+                Vec3 origin = c.getOrigin();
+                Mesh mesh = (Mesh) objClone.getObject(); // Object3D
                 Vec3 [] verts = mesh.getVertexPositions();
                 for (Vec3 vert : verts){
                   // Transform vertex points around object loc/rot.
@@ -2881,7 +2885,7 @@ public class Scene
     }
 
     /**
-    * exportDXF
+    * exportLayoutDXF
     * Description: Export layout geometry to DXF. 
     */ 
     public void exportLayoutDXF(){
@@ -3024,7 +3028,7 @@ public class Scene
                             //System.out.println(" " + origin.x + " " + c.getOrigin().x);
                             //System.out.println("         angles:  x " + angles[0] + " y " + angles[1] + " z " + angles[2]);
                             
-                            Mesh mesh = (Mesh) childClone.getObject(); // Object3D
+                            Mesh mesh = (Mesh) obj.getObject(); // Object3D
                             Vec3 [] verts = mesh.getVertexPositions();
                             for (Vec3 vert : verts){
                                 // Transform vertex points around object loc/rot.
