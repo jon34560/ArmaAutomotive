@@ -2807,30 +2807,32 @@ public class Scene
         DXFGraphics dxfGraphics = dxfDocument.getGraphics();
         dxfGraphics.setColor(Color.BLACK);
         double scale = getScale();
-	Vector polygons = new Vector();
+        Vector polygons = new Vector();
         HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
         for (ObjectInfo obj : objects){
             String name = obj.getName();
             ObjectInfo objClone = obj.duplicate(); 
-	    Object co = (Object)obj.getObject();
+            Object co = (Object)obj.getObject();
             if(co instanceof Mesh &&
                         obj.isVisible() == true 
-			//&& ((Mesh)obj) instanceof Curve 
-			){  // Is mesh and visible.
+               //&& ((Mesh)obj) instanceof Curve
+               ){  // Is mesh and visible.
                 //System.out.println(".");
                 Vector polygon = new Vector();
 
-		CoordinateSystem c;
-                c = layout.getCoords(objClone);
-		//objClone.setCoords(c);
-
-                Vec3 origin = c.getOrigin();
+                CoordinateSystem objCoords = obj.getCoords();
+                
+                //CoordinateSystem c;
+                //c = layout.getCoords(objClone);
+                //objClone.setCoords(c);
+                //Vec3 origin = c.getOrigin();
+                
                 Mesh mesh = (Mesh) objClone.getObject(); // Object3D
                 Vec3 [] verts = mesh.getVertexPositions();
                 for (Vec3 vert : verts){
-                  // Transform vertex points around object loc/rot.
-                  //Mat4 mat4 = c.duplicate().fromLocal();
-                  //mat4.transform(vert);
+                    // Transform vertex points around object loc/rot.
+                    Mat4 mat4 = objCoords.duplicate().fromLocal(); // Apply object coordinate system (location, rotation, scale).
+                    mat4.transform(vert);
 
                   // Apply scale
                   vert.x = vert.x * scale;
@@ -2843,7 +2845,7 @@ public class Scene
                   //System.out.println("         x " + x + " y: " + y + " z: " + z );
                   //writer.println(" x " + x + " y: " + y + " z: " + z);
                   polygon.addElement(vert);
-		}
+                }
                 polygons.addElement(polygon);
 	    } else {
               System.out.println(" no " + name + " " + obj);
@@ -2926,40 +2928,6 @@ public class Scene
         }
         
         double scale = getScale();
-	/*
-        try {
-            // Read current scale for this project.
-            Properties prop = new Properties();
-            InputStream input = null;
-            OutputStream output = null;
-            
-            String dir2 = getDirectory() + System.getProperty("file.separator") + getName() + "_layout_data";
-            File d2 = new File(dir2);
-            if(d2.exists() == false){
-                d2.mkdir();
-            }
-            dir2 = dir2 + System.getProperty("file.separator") + "scale.properties";
-            d2 = new File(dir2);
-            if(d2.exists() == false){
-                //(works for both Windows and Linux)
-                d2.getParentFile().mkdirs();
-                d2.createNewFile();
-            }
-            
-            input = new FileInputStream(dir2);
-            // load a properties file
-            prop.load(input);
-            
-            String v = prop.getProperty("export_scale");
-            if(v != null){
-                scale = Double.parseDouble(v);
-            }
-        } catch (Exception e){
-            System.out.println("Error " + e);
-            e.printStackTrace();
-        }
-        */
-        
         for (ObjectInfo obj : objects){
             String name = obj.getName();
             boolean enabled = layout.isObjectEnabled(obj);
