@@ -857,7 +857,12 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             xOffset += 0.3;
         }
     }
-    
+   
+    /**
+    * renderString
+    *
+    * Description: render string to screen.
+    */ 
     public void renderString(String text, Vec3 location, double scale, Camera theCamera){
         if(text == null){
             return;
@@ -868,17 +873,18 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             char digit = text.charAt(i);
             //System.out.println(" digit " + digit);
             
-            if( Character.isDigit(digit) ){
-                int digitNumber = Character.getNumericValue(digit);
+            //if( Character.isDigit(digit) ){
+                //int digitNumber = Character.getNumericValue(digit);
                 //System.out.println("number  " + digitNumber );
                 
                 Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
-                renderNumber( digitNumber, offsetLocation, scale, theCamera);
-            } else {
-                // Decimal point
-                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
-                renderNumber( 99, offsetLocation, scale, theCamera);
-            }
+                renderLetter( digit, offsetLocation, scale, theCamera);
+            //} else {
+            //    // Decimal point
+            //    Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.3*2*scale), location.y, location.z);
+            //    renderNumber( 99, offsetLocation, scale, theCamera);
+            //}
+            // ******
             
             xOffset += 0.3;
         }
@@ -1068,7 +1074,45 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
         WireframeMesh mesh = new WireframeMesh(vert, from, to);
         renderWireframe(mesh, theCamera, new Color(0.0f, 0.0f, 0.0f));
     }
-    
+  
+    /**
+    * renderLetter
+    *
+    */ 
+    public void renderLetter(char letter, Vec3 location, double scale, Camera theCamera){
+        Vec3[] vert = new Vec3[0];
+        System.out.println("Letter " + letter);
+        if(letter == 'a'){
+            vert = new Vec3[9];
+            vert[0] = new Vec3(location.x + 0.10694793250723758, location.y + 0.02436788335607945,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.004061313892679906, location.y + 0.04332068152191902,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.09882530472187778, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.1204856454828373, location.y + -0.09476399082919786,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.06362725098531857, location.y + -0.17869781127791595,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.060919708390198626, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.09611776212675782, location.y + -0.12725450197063712,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.10153284731699772, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.1150705602925974, location.y + -0.17869781127791595,  location.z + 0.0);
+        } else if( letter == 'b' ) {
+        
+        }
+
+	if( vert.length > 0 ){
+	vert = scaleVec3(vert, scale);
+        int i, from[], to[];
+        from = new int [vert.length-1];
+        to = new int [vert.length-1];
+        for (i = 0; i < vert.length-1; i++)
+        {
+            from[i] = i;
+            to[i] = i+1;
+        }
+        WireframeMesh mesh = new WireframeMesh(vert, from, to);
+        renderWireframe(mesh, theCamera, new Color(0.0f, 0.0f, 0.0f));
+        }
+    }
+
+ 
     public Vec3[] scaleVec3(Vec3[] in, double scale){
         Vec3[] out = new Vec3[in.length];
         for(int i = 0; i < in.length; i++){
