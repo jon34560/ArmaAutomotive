@@ -1081,7 +1081,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     */ 
     public void renderLetter(char letter, Vec3 location, double scale, Camera theCamera){
         Vec3[] vert = new Vec3[0];
-        System.out.println("Letter " + letter);
+        //System.out.println("Letter " + letter);
         if(letter == 'a'){
             vert = new Vec3[9];
             vert[0] = new Vec3(location.x + 0.10694793250723758, location.y + 0.02436788335607945,  location.z + 0.0);
@@ -1093,25 +1093,356 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             vert[6] = new Vec3(location.x + 0.09611776212675782, location.y + -0.12725450197063712,  location.z + 0.0);
             vert[7] = new Vec3(location.x + 0.10153284731699772, location.y + 0.01895279816583957,  location.z + 0.0);
             vert[8] = new Vec3(location.x + 0.1150705602925974, location.y + -0.17869781127791595,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
         } else if( letter == 'b' ) {
+            vert = new Vec3[9];
+            vert[0] = new Vec3(location.x + -0.12048564548283727, location.y + 0.18411289646815585,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.12048564548283727, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.09070267693651793, location.y + -0.02436788335607945,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.014891484273159665, location.y + 0.0054150851902398794,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.08258004915115813, location.y + -0.010830170380479759,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.10424038991211765, location.y + -0.09205644823407792,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.07716496396091826, location.y + -0.16786764089743622,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.0013537712975599664, location.y + -0.1895279816583957,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + -0.12048564548283727, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera); 
+        } else if( letter == 'c' ){
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x + 0.11236301769747746, location.y + 0.0054150851902398794,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.020306569463399538, location.y + 0.04061313892679909,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.09070267693651794, location.y + 0.01624525557071964,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.11777810288771735, location.y + -0.06227347968775859,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.09611776212675784, location.y + -0.1543299279218365,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.009476399082919786, location.y + -0.18682043906327578,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.10694793250723758, location.y + -0.15162238532671657,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'd' ){
+            vert = new Vec3[8];
+            vert[0] = new Vec3(location.x + 0.11236301769747745, location.y + 0.18411289646815582,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.11236301769747745, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + 0.09070267693651796, location.y + -0.02978296854631933,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.0013537712975599664, location.y + 0.027075425951199397,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.09882530472187778, location.y + -0.0027075425951199328,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.06091970839019863, location.y + -0.17057518349255615,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.10694793250723758, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.10694793250723758, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'e' ){
+
+            vert = new Vec3[9];
+            vert[0] = new Vec3(location.x + -0.11507056029259739, location.y + -0.06768856487799847,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.10424038991211765, location.y + -0.08664136304383804,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + 0.08528759174627808, location.y + -0.005415085190239879,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.006768856487799846, location.y + 0.035198053736559196,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.08528759174627808, location.y + 0.008122627785359812,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.11236301769747746, location.y + -0.05956593709263865,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + -0.11236301769747746, location.y + -0.13808467235111688,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + -0.036551825034119176, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.09611776212675782, location.y + -0.14891484273159664,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'f' ){
         
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x + 0.08799513434139802, location.y + 0.0974715334243178,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.02030656946339954, location.y + 0.08664136304383804,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.006768856487799846, location.y + 0.02166034076095951,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.017599026868279605, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.009476399082919786, location.y + -0.0351980537365592,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.05821216579507869, location.y + -0.03249051114143927,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + -0.07174987877067837, location.y + -0.03249051114143927,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'g' ){
+            vert = new Vec3[11];
+            vert[0] = new Vec3(location.x + 0.10424038991211765, location.y + -0.008122627785359826,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.041966910224359055, location.y + 0.029782968546319316,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.07716496396091825, location.y + 0.016245255570719624,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.12319318807795722, location.y + -0.08393382044871811,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.06904233617555844, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.036551825034119176, location.y + -0.17869781127791595,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.10965547510235753, location.y + -0.08934890563895798,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.10153284731699772, location.y + -0.24097129096567454,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.05550462319995875, location.y + -0.2815844298924736,  location.z + 0.0);
+            vert[9] = new Vec3(location.x + -0.036551825034119176, location.y + -0.2788768872973537,  location.z + 0.0);
+            vert[10] = new Vec3(location.x + -0.0798725065560382, location.y + -0.25180146134615433,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'h' ){
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x + -0.12048564548283729, location.y + 0.17599026868279602,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.12319318807795722, location.y + -0.16786764089743622,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.1069479325072376, location.y + -0.04061313892679908,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.023014112058519484, location.y + 0.00812262778535982,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.05550462319995875, location.y + -0.013537712975599695,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.08799513434139801, location.y + -0.06227347968775859,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.09611776212675782, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'i' ){
+
+            vert = new Vec3[2];
+            vert[0] = new Vec3(location.x + 0.014891484273159665, location.y + 0.010830170380479759,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.014891484273159665, location.y + -0.17869781127791595,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+            vert = new Vec3[2];
+            vert[0] = new Vec3(location.x + 0.014891484273159665, location.y + 0.12996204456575708,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.012183941678039725, location.y + 0.10559416120967761,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'j' ){
+
+            vert = new Vec3[4];
+            vert[0] = new Vec3(location.x + 0.10153284731699772, location.y + 0.010830170380479759,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.09611776212675782, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + 0.060919708390198626, location.y + -0.25992408913151416,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.012183941678039725, location.y + -0.26804671691687393,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+            vert = new Vec3[2];
+            vert[0] = new Vec3(location.x + 0.10424038991211765, location.y + 0.132669587160877,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.10424038991211765, location.y + 0.10288661861455768,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'k' ){
+
+            vert = new Vec3[6];
+            vert[0] = new Vec3(location.x + -0.11507056029259739, location.y + 0.17599026868279602,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.12048564548283729, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.11777810288771735, location.y + -0.05415085190239878,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.017599026868279605, location.y + 0.027075425951199383,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.11236301769747746, location.y + -0.05415085190239878,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.03384428243899923, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'l' ){
+
+            vert = new Vec3[2];
+            vert[0] = new Vec3(location.x + -0.10965547510235753, location.y + 0.1597450131120764,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.11777810288771735, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'm' ){
+
+            vert = new Vec3[11];
+            vert[0] = new Vec3(location.x + -0.11777810288771735, location.y + 0.0,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.11507056029259739, location.y + -0.17869781127791595,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.0934102195316379, location.y + -0.01895279816583957,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.03384428243899923, location.y + -0.0027075425951199397,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.006768856487799846, location.y + -0.0351980537365592,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.006768856487799846, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + -0.014891484273159665, location.y + -0.029782968546319327,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.009476399082919786, location.y + -0.0054150851902398794,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.06362725098531856, location.y + -0.0027075425951199397,  location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.09882530472187777, location.y + -0.029782968546319327,  location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0.10965547510235753, location.y + -0.17057518349255615,  location.z + 0.0); 
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'n' ){
+
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x + -0.11777810288771735, location.y + 0.021660340760959518,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.11777810288771735, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.0798725065560382, location.y + 0.0027075425951199397,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.014891484273159665, location.y + 0.021660340760959518,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.041966910224359055, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.09611776212675782, location.y + -0.02436788335607945,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.10153284731699772, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'o' ){
+
+            vert = new Vec3[11];
+            vert[0] = new Vec3(location.x + -0.012183941678039725, location.y + 0.0,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.06904233617555844, location.y + 0.0054150851902398794,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.10424038991211763, location.y + -0.03249051114143927,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.11236301769747746, location.y + -0.06768856487799847,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.11236301769747746, location.y + -0.1191318741852773,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.060919708390198626, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.041966910224359055, location.y + -0.18682043906327578,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.09611776212675782, location.y + -0.11642433159015737,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.10153284731699772, location.y + -0.05144330930727884,  location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.060919708390198626, location.y + 0.0,  location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0.0013537712975599664, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'p' ){
+
+            vert = new Vec3[10];
+            vert[0] = new Vec3(location.x + -0.12319318807795722, location.y + 0.0054150851902398794,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.12590073067307717, location.y + -0.36551825034119173,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.12048564548283729, location.y + -0.0027075425951199328,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.041966910224359055, location.y + 0.027075425951199383,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.0527970806048388, location.y + 0.02436788335607945,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.10965547510235751, location.y + -0.027075425951199383,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.10965547510235751, location.y + -0.1191318741852773,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.05550462319995875, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + -0.052797080604838814, location.y + -0.17057518349255615,  location.z + 0.0);
+            vert[9] = new Vec3(location.x + -0.10965547510235753, location.y + -0.16245255570719633,  location.z + 0.0); 
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'q' ){
+
+            vert = new Vec3[11];
+            vert[0] = new Vec3(location.x + 0.10153284731699772, location.y + 0.0027075425951199328,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.0013537712975599664, location.y + 0.018952798165839557,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.09882530472187777, location.y + 0.008122627785359812,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.12048564548283729, location.y + -0.05144330930727884,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.09611776212675784, location.y + -0.1407922149462368,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.0013537712975599664, location.y + -0.18411289646815585,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.07716496396091826, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.10153284731699772, location.y + 0.0,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.10153284731699772, location.y + -0.265339174321754,  location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.15839124181451641, location.y + -0.24097129096567454,  location.z + 0.0);
+            vert[10] = new Vec3(location.x + 0.19358929555107562, location.y + -0.20577323722911536,  location.z + 0.0); 
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'r' ){
+
+            vert = new Vec3[5];
+            vert[0] = new Vec3(location.x + -0.12319318807795722, location.y + 0.02707542595119939,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.12860827326819707, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.0934102195316379, location.y + -0.01895279816583957,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.020306569463399538, location.y + 0.01624525557071963,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.017599026868279605, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 's' ){ 
+
+            vert = new Vec3[12];
+            vert[0] = new Vec3(location.x + 0.10424038991211765, location.y + 0.027075425951199383,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.028429197248759357, location.y + 0.040613138926799075,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.1015328473169977, location.y + 0.03519805373655921,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.12319318807795722, location.y + -0.01624525557071964,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.09611776212675784, location.y + -0.06498102228287854,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + -0.023014112058519484, location.y + -0.0703961074731184,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.039259367629239116, location.y + -0.0703961074731184,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.07716496396091826, location.y + -0.09476399082919786,  location.z + 0.0);
+            vert[8] = new Vec3(location.x + 0.0798725065560382, location.y + -0.1462073001364767,  location.z + 0.0);
+            vert[9] = new Vec3(location.x + 0.036551825034119176, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert[10] = new Vec3(location.x + -0.03384428243899923, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert[11] = new Vec3(location.x + -0.10424038991211763, location.y + -0.15162238532671657,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 't' ){ 
+
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x + -0.004061313892679906, location.y + 0.1028866186145577,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.03925936762923911, location.y + -0.11642433159015736,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.006768856487799846, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.05008953800971887, location.y + -0.0974715334243178,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.03384428243899923, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.060919708390198626, location.y + 0.0054150851902398794,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + -0.09882530472187777, location.y + 0.01624525557071963,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'u' ){ 
+
+            vert = new Vec3[8];
+            vert[0] = new Vec3(location.x + -0.10965547510235753, location.y + 0.02978296854631933,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.12860827326819707, location.y + -0.11642433159015737,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.07716496396091825, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.014891484273159665, location.y + -0.1895279816583957,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.05550462319995875, location.y + -0.1597450131120764,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.10965547510235753, location.y + 0.010830170380479745,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + 0.10694793250723758, location.y + -0.17869781127791595,  location.z + 0.0);
+            vert[7] = new Vec3(location.x + 0.1286082732681971, location.y + -0.2030656946339954,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'v' ){
+
+            vert = new Vec3[3];
+            vert[0] = new Vec3(location.x + -0.11777810288771735, location.y + 0.040613138926799075,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.004061313892679906, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + 0.10153284731699772, location.y + 0.027075425951199383,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'w' ){ 
+
+            vert = new Vec3[5];
+            vert[0] = new Vec3(location.x + -0.12590073067307717, location.y + 0.02978296854631933,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.07174987877067839, location.y + -0.17057518349255615,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.025721654653639417, location.y + -0.05956593709263865,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.04467445281947899, location.y + -0.17599026868279602,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.10424038991211765, location.y + 0.01895279816583957,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'x' ){
+
+            vert = new Vec3[5];
+            vert[0] = new Vec3(location.x + -0.11507056029259739, location.y + 0.02436788335607945,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.09341021953163789, location.y + -0.1814053538730359,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.009476399082919786, location.y + -0.08122627785359816,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.10424038991211765, location.y + 0.01624525557071964,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + -0.12319318807795722, location.y + -0.1597450131120764,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+        } else if( letter == 'y' ){ 
+
+            vert = new Vec3[7];
+            vert[0] = new Vec3(location.x + -0.11777810288771734, location.y + 0.029782968546319316,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + -0.10424038991211762, location.y + -0.09476399082919786,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.07445742136579832, location.y + -0.1543299279218365,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + -0.004061313892679906, location.y + -0.1732827260876761,  location.z + 0.0);
+            vert[4] = new Vec3(location.x + 0.06091970839019863, location.y + -0.12996204456575708,  location.z + 0.0);
+            vert[5] = new Vec3(location.x + 0.10694793250723758, location.y + 0.0027075425951199328,  location.z + 0.0);
+            vert[6] = new Vec3(location.x + -0.012183941678039725, location.y + -0.308659855843673,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == 'z' ){
+
+            vert = new Vec3[4];
+            vert[0] = new Vec3(location.x + -0.11236301769747746, location.y + 0.021660340760959518,  location.z + 0.0);
+            vert[1] = new Vec3(location.x + 0.1150705602925974, location.y + 0.01624525557071964,  location.z + 0.0);
+            vert[2] = new Vec3(location.x + -0.11507056029259739, location.y + -0.15162238532671657,  location.z + 0.0);
+            vert[3] = new Vec3(location.x + 0.10694793250723758, location.y + -0.16516009830231626,  location.z + 0.0);
+            vert = scaleVec3(vert, scale);
+            drawPoints(vert, theCamera);
+
+        } else if( letter == '.' ){ 
+
         }
 
-	if( vert.length > 0 ){
-	vert = scaleVec3(vert, scale);
-        int i, from[], to[];
-        from = new int [vert.length-1];
-        to = new int [vert.length-1];
-        for (i = 0; i < vert.length-1; i++)
-        {
-            from[i] = i;
-            to[i] = i+1;
-        }
-        WireframeMesh mesh = new WireframeMesh(vert, from, to);
-        renderWireframe(mesh, theCamera, new Color(0.0f, 0.0f, 0.0f));
-        }
     }
 
+    public void drawPoints(Vec3[] vert, Camera theCamera){
+       if( vert.length > 0 ){
+            //vert = scaleVec3(vert, scale);
+            int i, from[], to[];
+            from = new int [vert.length-1];
+            to = new int [vert.length-1];
+            for (i = 0; i < vert.length-1; i++)
+            {
+                from[i] = i;
+                to[i] = i+1;
+            }
+            WireframeMesh mesh = new WireframeMesh(vert, from, to);
+            renderWireframe(mesh, theCamera, new Color(0.0f, 0.0f, 0.0f));
+        } 
+    }
  
     public Vec3[] scaleVec3(Vec3[] in, double scale){
         Vec3[] out = new Vec3[in.length];
