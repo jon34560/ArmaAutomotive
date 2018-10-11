@@ -3262,6 +3262,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 			prop.setProperty("export_scale", "" + scale);
 			output = new FileOutputStream(d);
 			prop.store(output, null);
+            
+            // ????
+            // **** set canvasdrawer scale
+            
 		}
 	} catch (Exception e){
 		System.out.println("Error " + e);

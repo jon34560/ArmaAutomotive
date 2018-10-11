@@ -52,6 +52,8 @@ public class GLCanvasDrawer implements CanvasDrawer
   private static Color lastTextColor;
   private static int imageRenderMode = -1;
   private static boolean useTextureRectangle;
+    
+  public double sceneScale = 1.0; // JDT
 
   public GLCanvasDrawer(ViewerCanvas view)
   {
@@ -60,6 +62,10 @@ public class GLCanvasDrawer implements CanvasDrawer
     canvas.addGLEventListener(new CanvasListener());
   }
   
+  public void setScale(double scale){
+    sceneScale = scale;
+  }
+    
   /** Get the GLCanvas into which this draws. */
   
   public Component getGLCanvas()
@@ -467,6 +473,10 @@ public class GLCanvasDrawer implements CanvasDrawer
         
         // TODO **********
         
+    }
+    
+    public void renderDimensionLinearObject( ObjectInfo obj, Camera theCamera ){
+    
     }
     
     public void renderLabelObject(ObjectInfo obj, Camera theCamera) {

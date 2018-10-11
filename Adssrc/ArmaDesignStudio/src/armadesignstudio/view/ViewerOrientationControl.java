@@ -16,6 +16,8 @@ import armadesignstudio.*;
 import armadesignstudio.object.*;
 import armadesignstudio.ui.*;
 
+import java.awt.Dimension;
+
 /**
  * This is a ViewerControl for adjusting the scale of the view.
  */
@@ -46,11 +48,21 @@ public class ViewerOrientationControl implements ViewerControl
         Translate.text("Right"),
         Translate.text("Top"),
         Translate.text("Bottom"),
-        Translate.text("Other")
+        Translate.text("Other"),
+        Translate.text("Load")
       });
       this.view = view;
-      if (view instanceof SceneViewer)
+ 
+      //this.view.setMaximumSize(200);
+      Dimension d = super.getMinimumSize();
+      System.out.println(d.getWidth() + " height: " + d.getHeight());
+      d.setSize(d.getWidth(), 50);
+      //super.setMinimumSize(d);
+
+      if (view instanceof SceneViewer){
         rebuildCameraList();
+      }
+
       setSelectedIndex(0);
       view.addEventLink(ViewChangedEvent.class, this, "viewChanged");
       addEventLink(ValueChangedEvent.class, this, "valueChanged");

@@ -35,6 +35,10 @@ public class SceneViewer extends ViewerCanvas
   public SceneViewer(Scene s, RowContainer p, EditingWindow fr)
   {
     this(s, p, fr, false);
+
+    //CanvasDrawer drawer = super.drawer;
+    CanvasDrawer d = getCanvasDrawer();
+    d.setScale( s.getScale() );
   }
 
   public SceneViewer(Scene s, RowContainer p, EditingWindow fr, boolean forceSoftwareRendering)

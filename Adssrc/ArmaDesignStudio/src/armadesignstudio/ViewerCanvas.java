@@ -115,8 +115,12 @@ public abstract class ViewerCanvas extends CustomWidget
         openGLAvailable = false;
       }
     }
-    if (drawer == null)
+    if (drawer == null){
       drawer = new SoftwareCanvasDrawer(this);
+      
+      
+    }
+
     setFocusable(true);
     prefSize = new Dimension(0, 0);
     addEventLink(MousePressedEvent.class, this, "processMousePressed");

@@ -141,4 +141,7 @@ public interface CanvasDrawer
    */
 
   public void imageChanged(Image image);
+
+
+  public void setScale(double scale);
 }
