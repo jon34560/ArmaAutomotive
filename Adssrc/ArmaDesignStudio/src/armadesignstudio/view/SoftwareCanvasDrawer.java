@@ -20,6 +20,7 @@ import java.awt.image.*;
 import java.util.*;
 import java.lang.ref.*;
 import armadesignstudio.object.*; // JDT for drawing dimensionobjects.
+import java.awt.geom.Rectangle2D;
 
 // temp
 //import java.io.*; // for getScale
@@ -648,6 +649,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       
       // Calculate distance between points 0 and 1.
       double distance = 0;
+      int pixelWidth = 0;
       
       
       // renderLine(vert[from[i]], vert[to[i]], cam, color);
@@ -675,6 +677,15 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           if(height > width){
               vertical = true;
               distanceScale = height / 3;
+              
+              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+              pixelWidth = (int)Math.abs(p0.y - p1.y);
+              
+          } else {
+              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+              pixelWidth = (int)Math.abs(p0.x - p1.x);
           }
           
           // line 1
@@ -707,7 +718,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           double annotationX = ( ( Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x)) / 2 ) + Math.min(verts[0].x, verts[1].x);
           //double x = verts[0].x - verts[1].x;
           Vec3 annotationLocation = new Vec3(annotationX, verts[2].y, verts[2].z );
-          renderDouble(distance, annotationLocation, distanceScale, theCamera);
+          renderDouble(distance, annotationLocation, distanceScale, pixelWidth, theCamera);
           
       }
       /*
@@ -760,6 +771,9 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           distance = distance * sceneScale;
           // scale
           
+          int pixelWidth = 0;
+          
+          
           //System.out.println("distance: " + distance   ); // +
           //System.out.println("1: " + " x: " + verts[0].x + " y: " + verts[0].y + " z: " + verts[0].z +
           //                   "2:   "  + verts[1].x + " y: " + verts[1].y + " z: " + verts[1].z   );
@@ -774,6 +788,15 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           if(height > width){
               vertical = true;
               distanceScale = height / 3;
+              
+              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+              pixelWidth = (int)Math.abs(p0.y - p1.y);
+              
+          } else {
+              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+              pixelWidth = (int)Math.abs(p0.x - p1.x);
           }
 
           // line 1
@@ -816,7 +839,10 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             annotationLocation = new Vec3(verts[2].x - (1.0 * distanceScale), annotationY, verts[2].z);
           }
           
-          renderDouble(distance, annotationLocation, distanceScale, theCamera);
+          
+          
+          
+          renderDouble(distance, annotationLocation, distanceScale, pixelWidth, theCamera);
           
           // debug
           //Vec3 vert9 = new Vec3(annotationLocation.x, annotationLocation.y, annotationLocation.z); //
@@ -891,24 +917,37 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
      *
      * Description: draw number.
      */
-    public void renderDouble(double number, Vec3 location, double scale, Camera theCamera){
-        double xOffset = -0.62 * scale; //  (-0.1 * scale);
-        double yOffset = 0; // 0.4 * scale; // (-0.40 * scale);
-        String numberAsString = Double.toString(number);
-        for(int i = 0; i < numberAsString.length() && i < 5; i++){
-            char digit = numberAsString.charAt(i);
-            //System.out.println(" digit " + digit);
-            if( Character.isDigit(digit) ){
-                int digitNumber = Character.getNumericValue(digit);
-                //System.out.println("number  " + digitNumber );
-                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.0 * scale), location.y + yOffset + (0.0 * scale), location.z);
-                renderNumber( digitNumber, offsetLocation, scale, theCamera);
-            } else {
-                // Decimal point
-                Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.0 * scale), location.y + yOffset + (0.0 * scale), location.z);
-                renderNumber( 99, offsetLocation, scale, theCamera);
+    public void renderDouble(double number, Vec3 location, double scale, double pixelWidth, Camera theCamera){
+        String strNumber = String.format("%.2f", number);
+        int fontSize = 8;
+        if(pixelWidth > 30){ fontSize = 10; }
+        if(pixelWidth > 45){ fontSize = 12; }
+        if(pixelWidth > 60){ fontSize = 14; }
+        if(pixelWidth > 80){ fontSize = 20; }
+        if(pixelWidth > 180){ fontSize = 30; }
+        if( pixelWidth > 16 ){
+            Vec2 p = theCamera.getObjectToScreen().timesXY(location); // Mat4 . Vec3
+            drawString(strNumber, (int) p.x, (int) p.y, fontSize, new Color(0.0f, 0.0f, 0.0f));
+        } else {
+            // OLD Custom string drawing
+            double xOffset = -0.62 * scale; //  (-0.1 * scale);
+            double yOffset = 0; // 0.4 * scale; // (-0.40 * scale);
+            String numberAsString = Double.toString(number);
+            for(int i = 0; i < numberAsString.length() && i < 5; i++){
+                char digit = numberAsString.charAt(i);
+                //System.out.println(" digit " + digit);
+                if( Character.isDigit(digit) ){
+                    int digitNumber = Character.getNumericValue(digit);
+                    //System.out.println("number  " + digitNumber );
+                    Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.0 * scale), location.y + yOffset + (0.0 * scale), location.z);
+                    renderNumber( digitNumber, offsetLocation, scale, theCamera);
+                } else {
+                    // Decimal point
+                    Vec3 offsetLocation = new Vec3(location.x + xOffset - (0.0 * scale), location.y + yOffset + (0.0 * scale), location.z);
+                    renderNumber( 99, offsetLocation, scale, theCamera);
+                }
+                xOffset += 0.3 * scale;
             }
-            xOffset += 0.3 * scale;
         }
     }
    
@@ -1143,7 +1182,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             to[i] = i+1;
         }
 
-        //drawBox(location.x, location.y, 1, 1, new Color(1.0f, 1.0f, 1.0f));
+        //drawBox(10, 10, 20, 20, new Color(1.0f, 1.0f, 1.0f));
         //RenderingMesh rm =
         //VertexShader shader = new FlatVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir));
         //renderMesh(RenderingMesh mesh, VertexShader shader, Camera cam, boolean closed, boolean hideFace[]);
@@ -2485,6 +2524,32 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
   {
     imageGraphics.setColor(color);
     imageGraphics.drawString(text, x, y);
+  }
+    
+  /**
+   * drawString
+   * Description: background fill. size variable.
+   *
+   * @param text:
+   * @param x
+   * @param y
+   * @param size: font size to display using Graphics2D.
+   */
+  public void drawString(String text, int x, int y, int size, Color color)
+  {
+      imageGraphics.setFont(new Font("Courier New", Font.PLAIN, size));
+      
+      FontMetrics fm = imageGraphics.getFontMetrics();
+      Rectangle2D rect = fm.getStringBounds(text, imageGraphics);
+      
+      imageGraphics.setColor(new Color(1.0f, 1.0f, 1.0f));
+      imageGraphics.fillRect((int)(x - (rect.getWidth()/2)),
+                 y - fm.getAscent(),
+                 (int) rect.getWidth(),
+                 (int) rect.getHeight());
+      
+    imageGraphics.setColor(color);
+    imageGraphics.drawString(text, (int)(x - (rect.getWidth()/2)), y);
   }
 
   /** Draw the outline of a Shape into the canvas. */
