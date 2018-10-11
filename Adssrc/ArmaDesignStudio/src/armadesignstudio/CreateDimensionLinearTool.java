@@ -127,8 +127,10 @@ public class CreateDimensionLinearTool extends EditingTool
     else
     {
       Vec3 pos = (Vec3) clickPoint.lastElement();
-      Vec2 screenPos = view.getCamera().getWorldToScreen().timesXY(pos);
-      view.drawDraggedShape(new Line2D.Float(new Point2D.Double(screenPos.x, screenPos.y), e.getPoint()));
+      if(pos != null){
+        Vec2 screenPos = view.getCamera().getWorldToScreen().timesXY(pos);
+        view.drawDraggedShape(new Line2D.Float(new Point2D.Double(screenPos.x, screenPos.y), e.getPoint()));
+      }
     }
   }
   
