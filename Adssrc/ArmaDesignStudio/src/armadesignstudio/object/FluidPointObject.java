@@ -26,6 +26,7 @@ public class FluidPointObject extends Curve implements Mesh
     protected int smoothingMethod;
     protected WireframeMesh cachedWire;
     protected BoundingBox bounds;
+    protected int id = 0;
     
     protected Vec3[] resetLocation;
     
@@ -40,6 +41,13 @@ public class FluidPointObject extends Curve implements Mesh
                  }, Translate.text("menu.shading")),
     new Property(Translate.text("menu.closedEnds"), true)
     };
+    
+    public void setId(int id){
+        this.id = id;
+    }
+    public int getId(){
+        return id;
+    }
     
     public double getPSI(){
         return psi;

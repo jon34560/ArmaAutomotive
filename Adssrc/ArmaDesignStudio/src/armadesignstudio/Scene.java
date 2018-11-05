@@ -475,21 +475,32 @@ public class Scene
   {
     addObject(new ObjectInfo(obj, coords, name), undo);
     updateSelectionInfo();
+    //return id;
   }
 
   /** Add a new object to the scene.  If undo is not null, appropriate commands will be
       added to it to undo this operation. */
 
-  public void addObject(ObjectInfo info, UndoRecord undo)
+  public int addObjectI(ObjectInfo info, UndoRecord undo)
   {
-    addObject(info, objects.size(), undo);
+    int id = addObject(info, objects.size(), undo);
     updateSelectionInfo();
+      
+    return id;
   }
+    
+    public void addObject(ObjectInfo info, UndoRecord undo)
+    {
+        addObject(info, objects.size(), undo);
+        updateSelectionInfo();
+        
+        
+    }
 
   /** Add a new object to the scene in the specified position.  If undo is not null,
       appropriate commands will be added to it to undo this operation. */
 
-  public void addObject(ObjectInfo info, int index, UndoRecord undo)
+  public int addObject(ObjectInfo info, int index, UndoRecord undo)
   {
     info.setId(nextID++);
     if (info.getTracks() == null)
@@ -505,7 +516,20 @@ public class Scene
     if (undo != null)
       undo.addCommandAtBeginning(UndoRecord.DELETE_OBJECT, new Object [] {index});
     updateSelectionInfo();
+      
+    return info.getId();
   }
+    
+    // JDT
+    public void removeObjectL(Object3D obj){
+        for (int i = 0; i < objects.size(); i++)
+        {
+            ObjectInfo info = objects.elementAt(i);
+            if( obj == info.getObject()  ){
+                removeObject(i, null);
+            }
+        }
+    }
 
   /** Delete an object from the scene.  If undo is not null, appropriate commands will be
       added to it to undo this operation. */

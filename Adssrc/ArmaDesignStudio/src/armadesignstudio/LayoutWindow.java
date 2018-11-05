@@ -1256,7 +1256,21 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       }
     });
   }
+    
+    // JDT
+    public int addObjectL(Object3D obj){
+        return theScene.addObjectI(new ObjectInfo(obj, new CoordinateSystem(), "_"), null);
+    }
 
+    public void removeObjectL(Object3D obj){
+        // ObjectInfo info = theScene.getObject(which);
+        
+        //FluidPointObject fluidPoint = (FluidPointObject)obj;
+      
+        //theScene.removeObject(fluidPoint.getId(), null);
+        theScene.removeObjectL( obj );
+    }
+    
   /** Add a new object to the scene.  If undo is not null,
       appropriate commands will be added to it to undo this operation. */
 

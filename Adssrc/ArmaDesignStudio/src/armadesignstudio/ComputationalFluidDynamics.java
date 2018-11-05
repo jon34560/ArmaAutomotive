@@ -61,6 +61,7 @@ public class ComputationalFluidDynamics extends Thread {
         
         running = true;
         calculateBounds(objects);
+        java.util.Random random = new java.util.Random();
         
         // Expand Scale
         minx -= ((maxx - minx)/1.7);
@@ -81,9 +82,10 @@ public class ComputationalFluidDynamics extends Thread {
         double zSegmentWidth = (maxz - minz) / pointsPerLength;
         
         // place fluid points
-        for(int x = 0; x < pointsPerLength; x++){
-            for(int y = 0; y < pointsPerLength; y++){
-                for(int z = 0; z < pointsPerLength; z++){
+        for(int z = 0; z < pointsPerLength; z++){
+            for(int x = 0; x < pointsPerLength; x++){
+                for(int y = 0; y < pointsPerLength; y++){
+                
                     Vec3[] vertex = new Vec3[3];
                     Vec3 vec = new Vec3(minx + (x * xSegmentWidth), miny + (y * ySegmentWidth), minz + (z * zSegmentWidth));
                     vertex[0] = vec;
@@ -111,8 +113,9 @@ public class ComputationalFluidDynamics extends Thread {
                     
                     //
                     ObjectInfo info = new ObjectInfo(fluidPoint, new CoordinateSystem(), "" /*no name*/);
-                    UndoRecord undo = new UndoRecord(window, false);
-                    ((LayoutWindow)window).addObject(info, undo); // This is bad. don't add this way later.
+                    //UndoRecord undo = new UndoRecord(window, false);
+                    int id = ((LayoutWindow)window).addObjectL(fluidPoint); // This is bad. don't add this way later.
+                    fluidPoint.setId(id);
                     // This only reason we want it in the scene is to render we don't want it in the menu
                 }
                 window.repaint();
@@ -187,7 +190,7 @@ public class ComputationalFluidDynamics extends Thread {
                             
                             //Depth
                             if(zDiff < zSegmentWidth && distance < zSegmentWidth){
-                                fluidPoint.setPSI(fluidPoint.getPSI() + ((distance / zSegmentWidth)*0.5)  );
+                                fluidPoint.setPSI(fluidPoint.getPSI() + (( zSegmentWidth / distance  ) * 0.05)  );
                             }
                             
                             // Left
@@ -268,11 +271,12 @@ public class ComputationalFluidDynamics extends Thread {
                     // High Pressure
                     if(collide == false){
                         //System.out.println(" X " + fluidPoint.getPSI() );
-                        double psiScale = Math.log10(fluidPoint.getPSI());
+                        double psiScale = Math.log10(fluidPoint.getPSI() + 1);
                         if(psiScale <= 0){
-                            psiScale = 0.0001;
+                            psiScale = 0.001;
+                            System.out.println("psi " + fluidPoint.getPSI() + " " + Math.log10(fluidPoint.getPSI() + 1) );
                         }
-                        points[v].z -= (zStep * (1 - psiScale));
+                        points[v].z -= (zStep * (1 - psiScale)); // ???? not all ar emoving
                         //System.out.println(" fluidPoint.getPSI(): " + psiScale );
                         
                         if(pressureLeft > pressureRight){
@@ -281,6 +285,15 @@ public class ComputationalFluidDynamics extends Thread {
                         if(pressureRight > pressureLeft){
                             points[v].x -= xStep * (pressureRight-pressureLeft); // Push left from pressure on right side
                         }
+                        if(pressureLeft == pressureRight){
+                            //System.out.print(" e ");
+                            if(Math.random() > 0.5){
+                                points[v].x += xStep * (pressureLeft-pressureRight);
+                            } else {
+                                points[v].x -= xStep * (pressureLeft-pressureRight);
+                            }
+                        }
+                        
                         
                         if(pressureAbove > pressureBelow){
                             points[v].y -= yStep * (pressureAbove-pressureBelow); // Push down from pressure on upper side
@@ -291,6 +304,11 @@ public class ComputationalFluidDynamics extends Thread {
                         
                         if(pressureBelow == pressureAbove){
                             //System.out.print(" e ");
+                            if(Math.random() > 0.5){
+                                points[v].y -= yStep * (pressureAbove-pressureBelow);
+                            } else {
+                                points[v].y += yStep * (pressureBelow-pressureAbove);
+                            }
                         }
                         
                         //points[v].z -= 0.005;
@@ -342,16 +360,88 @@ public class ComputationalFluidDynamics extends Thread {
                         //fluidPoint.resetLocation();
                         //v = points.length;
                         
-                        points[v].x = fluidPoint.getResetLocation()[0].x;
-                        points[v].y = fluidPoint.getResetLocation()[0].y;
-                        points[v].z = maxz;
+                        //points[v].x = fluidPoint.getResetLocation()[0].x;
+                        //points[v].y = fluidPoint.getResetLocation()[0].y;
+                        //points[v].z = maxz;
+                        
+                        ((LayoutWindow)window).removeObjectL(fluidPoint);
+                        
+                        for(int f = 0; f < pointObjects.size(); f++){
+                            FluidPointObject fo = (FluidPointObject)pointObjects.elementAt(f);
+                            if(fluidPoint == fo){
+                                pointObjects.removeElementAt(f);
+                                f = pointObjects.size();
+                            }
+                        }
+                        
                     }
                 }
                 fluidPoint.setVertexPositions(points);
             }
             
+            // Respawn fluid point at beginning
+            for(int x = 0; x < pointsPerLength; x++){
+                for(int y = 0; y < pointsPerLength; y++){
+                    
+                    boolean spawn = true;
+                    for(int i = 0; i < pointObjects.size(); i++){
+                        FluidPointObject fluidPoint = pointObjects.elementAt(i);
+                        Vec3 location = fluidPoint.getLocation();
+                        
+                        if(
+                           location.x > (minx + (x * xSegmentWidth)) - (xSegmentWidth/2) &&
+                           location.x < (minx + (x * xSegmentWidth)) + (xSegmentWidth/2) &&
+                           location.y > (miny + (y * ySegmentWidth)) - (ySegmentWidth/2) &&
+                           location.y < (miny + (y * ySegmentWidth)) + (ySegmentWidth/2) &&
+                           location.z > (maxz - (zSegmentWidth))
+                        ){
+                            spawn = false;
+                        }
+                    }
+                    
+                    if(spawn){
+                        //System.out.println("SPAWN");
+                        Vec3[] vertex = new Vec3[3];
+                        Vec3 vec = new Vec3(minx + (x * xSegmentWidth), miny + (y * ySegmentWidth), maxz);
+                        vertex[0] = vec;
+                        vertex[1] = vec;
+                        vertex[2] = vec;
+                        float s[];
+                        s = new float[3];
+                        s[0] = 0;
+                        s[1] = 0;
+                        s[2] = 0;
+                        int smoothing = Mesh.APPROXIMATING;
+                        CoordinateSystem coords;
+                        
+                        //Vec3[] resetLocation = new Vec3[3];
+                        //Vec3 resetVec = new Vec3(minx + (x * xSegmentWidth), miny + (y * ySegmentWidth), maxz);
+                        //resetLocation[0] = resetVec;
+                        //resetLocation[1] = resetVec;
+                        //resetLocation[2] = resetVec;
+                        
+                        FluidPointObject fluidPoint = new FluidPointObject(vertex, s, smoothing, false);
+                        
+                        //fluidPoint.setResetLocation(resetLocation);
+                        
+                        pointObjects.addElement(fluidPoint);
+                        
+                        //
+                        ObjectInfo info = new ObjectInfo(fluidPoint, new CoordinateSystem(), "" /*no name*/);
+                        //UndoRecord undo = new UndoRecord(window, false);
+                        int id = ((LayoutWindow)window).addObjectL(fluidPoint); // This is bad. don't add this way later.
+                        //fluidPoint.setId(id);
+                        // This only reason we want it in the scene is to render we don't want it in the menu
+                    }
+                }
+                window.repaint();
+            }
+            
+            
             // Refresh screen
             window.repaint();
+            
+            System.out.print(".");
             
             try {
                 Thread.sleep(8);
