@@ -1259,7 +1259,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     // JDT
     public int addObjectL(Object3D obj){
-        return theScene.addObjectI(new ObjectInfo(obj, new CoordinateSystem(), "_"), null);
+        return theScene.addObjectI(new ObjectInfo(obj, new CoordinateSystem(), ""), null);
     }
 
     public void removeObjectL(Object3D obj){

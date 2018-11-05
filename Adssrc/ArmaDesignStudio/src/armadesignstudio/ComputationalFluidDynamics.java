@@ -28,7 +28,7 @@ public class ComputationalFluidDynamics extends Thread {
     private double maxx = 0;
     private double maxy = 0;
     private double maxz = 0;
-    private int pointsPerLength = 9; // 13;
+    private int pointsPerLength = 12; // 13;
     
     Vector<FluidPointObject> pointObjects = new Vector<FluidPointObject>();
     
@@ -129,29 +129,36 @@ public class ComputationalFluidDynamics extends Thread {
             
             for(int i = 0; i < pointObjects.size(); i++){
                 FluidPointObject fluidPoint = pointObjects.elementAt(i);
+                Vec3 location = fluidPoint.getLocation();
                 // MeshVertex[] getVertices()
                 // movePoint
                 //fluidPoint.movePoint(  );
                 Vec3 [] points = fluidPoint.getVertexPositions();
-                for(int v = 0; v < 1; v++ ){ //  points.length
+                int v = 0;
+                //for(int v = 0; v < 1; v++ ){ //  points.length
                     
                     // Detect collisions.
                     boolean collide = false;
                     double collideZ = 0;
                     for (ObjectInfo obj : objects){
-                        if(obj.getName().indexOf("Camera") < 0 && obj.getName().indexOf("Light") < 0 ){ //obj.selected == true  || selection == false
+                        if(obj.getName().indexOf("Camera") < 0 &&
+                           obj.getName().indexOf("Light") < 0 &&
+                           //obj.getClass() != FluidPointObject.class
+                           obj.getName().equals("") == false
+                           ){
                             //System.out.println("Object Info: ");
-                            Object3D co = (Object3D)obj.getObject();
+                            //Object3D co = (Object3D)obj.getObject();
                             //System.out.println("obj " + obj.getId() + "  " + obj.getName() );
                             // obj.getObject(); // Object3D
                             Object3D o3d = obj.getObject();
                             BoundingBox bounds = o3d.getBounds();
                             
-                            if(points[v].x > bounds.minx && points[v].x < bounds.maxx &&
-                               points[v].y > bounds.miny && points[v].y < bounds.maxy &&
-                               points[v].z > bounds.minz && points[v].z < bounds.maxz){
+                            if(location.x > bounds.minx && location.x < bounds.maxx &&
+                               location.y > bounds.miny && location.y < bounds.maxy &&
+                               location.z > bounds.minz && location.z < bounds.maxz){
                                 collide = true;
-                                collideZ = bounds.maxz;
+                           //     collideZ = bounds.maxz;
+                                //System.out.println(" c obj " +obj.getName() );
                             }
                         }
                     }
@@ -316,6 +323,7 @@ public class ComputationalFluidDynamics extends Thread {
                         //points[v].x += 0.0015; // TEST
                     } else {
                         //points[v].z = collideZ;
+                        //System.out.print("c");
                     }
                     
                     /*
@@ -370,12 +378,13 @@ public class ComputationalFluidDynamics extends Thread {
                             FluidPointObject fo = (FluidPointObject)pointObjects.elementAt(f);
                             if(fluidPoint == fo){
                                 pointObjects.removeElementAt(f);
-                                f = pointObjects.size();
+                                //f = pointObjects.size();
                             }
                         }
                         
                     }
-                }
+                //}
+                
                 fluidPoint.setVertexPositions(points);
             }
             
