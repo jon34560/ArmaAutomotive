@@ -1013,6 +1013,11 @@ public abstract class ViewerCanvas extends CustomWidget
   {
     drawer.renderLabelObject(obj, theCamera);
   }
+    
+    
+    public void renderFluidPointObject(ObjectInfo obj, Camera theCamera){
+        drawer.renderFluidPoint(obj, theCamera);
+    }
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

@@ -884,7 +884,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         menubar.add(cfdMenu);
         
         cfdMenuItem = new BMenuItem [13];
-        //cfdMenu.add(Translate.menuItem("Set Object Structure", this, "setObjectStructure"));
+        
+        cfdMenu.add(Translate.menuItem("Run", this, "runCFD"));
         cfdMenu.addSeparator();
         //cfdMenu.add(Translate.menuItem("Copy Structure Objects", this, "copyStructureObjects"));
         //cfdMenu.add(Translate.menuItem("Generate Structure Mesh", this, "generateStructureMesh"));
@@ -3360,6 +3361,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void exportBeamNGVehicle(){
         if(theScene != null){
             theScene.exportBeamNGVehicle(this);
+        }
+    }
+    
+    public void runCFD(){
+        if(theScene != null){
+            theScene.runCFD(this);
         }
     }
     

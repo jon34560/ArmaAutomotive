@@ -824,8 +824,6 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           Vec3 vert8 = new Vec3( vert2.x + (distanceScale / 6.0), vert2.y + (distanceScale / 6), vert2.z); //
           renderLine(vert7, vert8, theCamera, new Color(0.2f, 0.2f, 0.2f));
 
-          
-          
           // Anotation
           double annotationX = ( ( Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x)) / 2 ) + Math.min(verts[0].x, verts[1].x);
           //double x = verts[0].x - verts[1].x;
@@ -838,9 +836,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
               double annotationY = ( ( Math.max(verts[0].y, verts[1].y) - Math.min(verts[0].y, verts[1].y)) / 2 ) + Math.min(verts[0].y, verts[1].y);
             annotationLocation = new Vec3(verts[2].x - (1.0 * distanceScale), annotationY, verts[2].z);
           }
-          
-          
-          
+
           
           renderDouble(distance, annotationLocation, distanceScale, pixelWidth, theCamera);
           
@@ -852,9 +848,14 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       } 
   }
     
+    /**
+     * renderLabelObject
+     *
+     * Description:
+     */
     public void renderLabelObject(ObjectInfo obj, Camera theCamera){
         double distance = 0;
-        
+        int pixelWidth = 0;
         
         // renderLine(vert[from[i]], vert[to[i]], cam, color);
         
@@ -883,6 +884,10 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
                 distanceScale = height / 1.1;
             }
             
+            Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+            Vec2 p2 = theCamera.getObjectToScreen().timesXY(verts[2]);
+            pixelWidth = (int)Math.abs(p1.x - p2.x);
+            
             // line 1
             Vec3 vert3 = new Vec3( verts[0].x, verts[0].y, verts[0].z); // point 1
             Vec3 vert1 = new Vec3( verts[1].x, verts[1].y, verts[1].z); // point 2
@@ -907,7 +912,22 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             double annotationX = ( ( Math.max(verts[1].x, verts[2].x) - Math.min(verts[1].x, verts[2].x)) / 2 ) + Math.min(verts[0].x, verts[1].x);
             //double x = verts[0].x - verts[1].x;
             Vec3 annotationLocation = new Vec3(annotationX, verts[2].y, verts[2].z );
-            renderString( labelObject.labelText , annotationLocation, distanceScale, theCamera);
+            //renderString( labelObject.labelText , annotationLocation, distanceScale, theCamera);
+            
+            
+            // pixelWidth
+            int fontSize = 8;
+            if(pixelWidth > 30){ fontSize = 10; }
+            if(pixelWidth > 45){ fontSize = 12; }
+            if(pixelWidth > 60){ fontSize = 14; }
+            if(pixelWidth > 80){ fontSize = 18; }
+            if(pixelWidth > 180){ fontSize = 22; }
+            
+            //System.out.println(" width " + pixelWidth);
+            if( pixelWidth > 16 ){
+                Vec2 p = theCamera.getObjectToScreen().timesXY( annotationLocation ); // Mat4 . Vec3
+                drawString(labelObject.labelText, (int) p.x, (int) p.y, fontSize, new Color(0.0f, 0.0f, 0.0f));
+            }
             
         }
     }
@@ -1570,6 +1590,97 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
         return out;
     }
     
+    
+  /**
+   *
+   * TODO: colour and size.
+   */
+  public void renderFluidPoint(ObjectInfo obj, Camera theCamera){
+      double distance = 0;
+      
+      Object3D o3d = obj.getObject();
+      FluidPointObject fluidPoint = (FluidPointObject)o3d;
+      
+      Color color = new Color( 0.0f , 0.0f, 0.0f);
+      double psiScale = fluidPoint.getPSI() / 2.0; //  Math.log(fluidPoint.getPSI());
+      if(psiScale > 1.0){ // high pressure
+          
+          psiScale -= 1;
+          
+          if(psiScale > 1.0){
+              psiScale = 1.0;
+          }
+          
+          color = new Color((float)psiScale, 0.0f, 0.0f);
+      } else if(psiScale < 0.9){
+          
+          color = new Color( 0.0f, 0.0f, 0.7f);
+      }
+      
+      ObjectInfo objClone = obj.duplicate();
+      LayoutModeling layout = new LayoutModeling();
+      CoordinateSystem c;
+      c = layout.getCoords(objClone);
+      double scale = 1.0;
+      Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+      Vec3 [] verts = mesh.getVertexPositions();
+      
+      
+          //distance = verts[0].distance2(verts[1]);
+          //distance = verts[0].distance(verts[1]);
+          //distance = distance * sceneScale;
+          // scale
+          
+          int pixelWidth = 0;
+          
+          
+          //System.out.println("distance: " + distance   ); // +
+          //System.out.println("1: " + " x: " + verts[0].x + " y: " + verts[0].y + " z: " + verts[0].z +
+          //                   "2:   "  + verts[1].x + " y: " + verts[1].y + " z: " + verts[1].z   );
+          
+          //double d = dv3.vert.distance(midv1.vert);
+          
+          //renderNumber(2, verts[2], theCamera);
+            /*
+          double width = (Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x));
+          double height = (Math.max(verts[0].y, verts[1].y) - Math.min(verts[0].y, verts[1].y));
+          double distanceScale = width / 3; // one third
+          boolean vertical = false;
+          if(height > width){
+              vertical = true;
+              distanceScale = height / 3;
+              
+              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+              pixelWidth = (int)Math.abs(p0.y - p1.y);
+              
+          } else {
+              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+              pixelWidth = (int)Math.abs(p0.x - p1.x);
+          }
+             */
+          
+          // line 1 (vertical)
+          Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + 0.05, verts[0].z); // point 2
+          Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - 0.05, verts[0].z); // point 3
+          renderLine(vert1, vert2, theCamera, color);
+          
+          // Line 2 (horizontal)
+          //double line2Width = verts[2].x - verts[1].x;
+          //double line2Height = verts[2].y - verts[1].y;
+          Vec3 vert3 = new Vec3( verts[0].x - 0.05, verts[0].y, verts[0].z); // point 1
+          Vec3 vert4 = new Vec3( verts[0].x + 0.05, verts[0].y, verts[0].z); // constructed point
+          renderLine(vert3, vert4, theCamera, color);
+          
+          // Line 3 (horizontal depth)
+          Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - 0.05); // point 1
+          Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + 0.05); // constructed point
+          renderLine(vert5, vert6, theCamera, color);
+      
+      //}
+      
+  }
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
 

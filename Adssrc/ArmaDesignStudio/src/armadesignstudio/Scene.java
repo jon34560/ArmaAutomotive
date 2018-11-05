@@ -83,6 +83,8 @@ public class Scene
 
   private static final byte FILE_PREFIX[] = {'A', 'o', 'I', 'S', 'c', 'e', 'n', 'e'};
 
+  ComputationalFluidDynamics cfd;
+    
   public Scene()
   {
     UniformTexture defTex = new UniformTexture();
@@ -4179,6 +4181,111 @@ public class Scene
         
     }
     
+    public void runCFD(LayoutWindow window){
+        cfd = new ComputationalFluidDynamics();
+        cfd.setObjects(objects);
+        cfd.setLayoutWindow(window);
+        //cfd.run();
+        if(cfd.isRunning() == false){
+            cfd.start();
+        } else {
+            cfd.stopCFD();
+        }
+        
+        /*
+        // Calculate bounds
+        for (ObjectInfo obj : objects){
+            if(obj.selected == true || selection == false){
+                //System.out.println("Object Info: ");
+                Object co = (Object)obj.getObject();
+                System.out.println("Curve " + obj.getId() + "  "  );
+                
+                // obj.getObject(); // Object3D
+                Object3D o3d = obj.getObject();
+                BoundingBox bounds = o3d.getBounds();
+                
+                System.out.println("  " + bounds.minx + " " + maxx );
+                
+            }
+        }
+         */
+        
+        // 1 add grid of air particles in region space.
+        
+        /*
+                 for (ObjectInfo obj : objects){
+                 if(obj.selected == true || selection == false){
+                 System.out.println("Object Info: ");
+                 Object co = (Object)obj.getObject();
+                 if((co instanceof Curve) == true){
+                 //info = this.getObject(sel[i]);
+                 String group = layout.getObjectGroup(obj.getId() + "");
+         
+                 System.out.println("Curve " + obj.getId() + " group: " + group );
+         
+                 CoordinateSystem cs = ((ObjectInfo)obj).getCoords();
+                 Vec3 origin = cs.getOrigin();
+         
+         
+         
+                 Mesh mesh = (Mesh) obj.getObject(); // Object3D
+                 //System.out.println(" m esh " +   obj.getId() );
+                 //Vec3 [] verts = mesh.getVertexPositions();
+                 //for (Vec3 vert : verts){
+                 //    System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                 //}
+         
+                 if(group.length() > 0){
+                 String objectFile = dir + System.getProperty("file.separator") + group + ".txt";
+         
+                 System.out.println("Export CSV file: " + objectFile);
+                 try {
+                 PrintWriter writer = new PrintWriter(new FileOutputStream(new File(objectFile),true ));
+        
+                writer.println ("# " + obj.getName());
+                Vec3 [] verts = mesh.getVertexPositions();
+                for (Vec3 vert : verts){
+                    
+                    Mat4 mat4 = cs.duplicate().fromLocal();
+                    mat4.transform(vert);
+                    
+                    //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                    //double x = vert.x + origin.x;
+                    //double y = vert.y + origin.y;
+                    //double z = vert.z + origin.z;
+                    
+                    double x = vert.x * scale;
+                    double y = vert.y * scale;
+                    double z = vert.z * scale;
+                    
+                    writer.println ("" + x + "," + y + "," + z);
+                    //writer.println ("- " + origin.x + "," + origin.y + "," + origin.z);
+                    
+                }
+        
+                writer.close();
+        
+            } catch(Exception ex){
+                //System.out.println("Error: " + dir);
+                System.out.println("Error: " + ex);
+            }
+        }
+
+        //if(verts.length > maxPoints){
+        //maxPoints = verts.length;
+        //}
+
+        }
+
+        if((co instanceof Mesh) == true){
+        // TODO
+
+        }
+        }
+        }
+         
+         */
+    }
     
     public void setObjectGroup(){
         LayoutModeling layout = new LayoutModeling();

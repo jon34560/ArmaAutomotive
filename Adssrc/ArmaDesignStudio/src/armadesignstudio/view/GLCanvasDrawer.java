@@ -483,6 +483,11 @@ public class GLCanvasDrawer implements CanvasDrawer
     
     }
     
+    
+    public void renderFluidPoint(ObjectInfo obj, Camera theCamera){
+        
+    }
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

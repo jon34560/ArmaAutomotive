@@ -97,6 +97,8 @@ public interface CanvasDrawer
   public void renderDimensionLinearObject(ObjectInfo obj, Camera theCamera);
   public void renderDimensionObject(ObjectInfo obj, Camera theCamera);
   public void renderLabelObject(ObjectInfo obj, Camera theCamera);
+    
+  public void renderFluidPoint(ObjectInfo obj, Camera theCamera);
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

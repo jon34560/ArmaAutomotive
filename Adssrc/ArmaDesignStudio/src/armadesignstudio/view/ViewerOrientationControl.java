@@ -55,7 +55,7 @@ public class ViewerOrientationControl implements ViewerControl
  
       //this.view.setMaximumSize(200);
       Dimension d = super.getMinimumSize();
-      System.out.println(d.getWidth() + " height: " + d.getHeight());
+      //System.out.println(d.getWidth() + " height: " + d.getHeight());
       d.setSize(d.getWidth(), 50);
       //super.setMinimumSize(d);
 
