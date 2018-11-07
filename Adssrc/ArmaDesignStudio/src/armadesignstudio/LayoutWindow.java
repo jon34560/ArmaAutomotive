@@ -873,9 +873,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         feaMenu.add(Translate.menuItem("Generate Structure Mesh", this, "generateStructureMesh"));
         feaMenu.addSeparator();
         feaMenu.add(Translate.menuItem("Even Mesh", this, "evenMesh"));
-        feaMenu.addSeparator();
-        feaMenu.add(Translate.menuItem("BeamNG Join Selected Nodes", this, "beamNGCreateBeam"));
-        feaMenu.add(Translate.menuItem("Export BeamNG Vehicle", this, "exportBeamNGVehicle"));
+        //feaMenu.addSeparator();
+        //feaMenu.add(Translate.menuItem("BeamNG Join Selected Nodes", this, "beamNGCreateBeam"));
+        //feaMenu.add(Translate.menuItem("Export BeamNG Vehicle", this, "exportBeamNGVehicle"));
     }
     
     
@@ -886,13 +886,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         cfdMenuItem = new BMenuItem [13];
         
         cfdMenu.add(Translate.menuItem("Run", this, "runCFD"));
-        cfdMenu.addSeparator();
+        //cfdMenu.addSeparator();
         //cfdMenu.add(Translate.menuItem("Copy Structure Objects", this, "copyStructureObjects"));
         //cfdMenu.add(Translate.menuItem("Generate Structure Mesh", this, "generateStructureMesh"));
         //cfdMenu.addSeparator();
         //cfdMenu.add(Translate.menuItem("Even Mesh", this, "evenMesh"));
         
-        cfdMenu.addSeparator();
+        //cfdMenu.addSeparator();
         //cfdMenu.add(Translate.menuItem("BeamNG Join Selected Nodes", this, "beamNGCreateBeam"));
         //cfdMenu.add(Translate.menuItem("Export BeamNG Vehicle", this, "exportBeamNGVehicle"));
     }

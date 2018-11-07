@@ -523,6 +523,8 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       }
   }
 
+    
+    
   /** Clip a triangle to the region in front of the z clipping plane. */
 
   private Vec2 [] clipTriangle(Vec3 v1, Vec3 v2, Vec3 v3, double z1, double z2, double z3, Camera cam, double newz[])
@@ -1592,7 +1594,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     
     
   /**
-   *
+   * renderFluidPoint
    * TODO: colour and size.
    */
   public void renderFluidPoint(ObjectInfo obj, Camera theCamera){
@@ -1601,20 +1603,23 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       Object3D o3d = obj.getObject();
       FluidPointObject fluidPoint = (FluidPointObject)o3d;
       
-      Color color = new Color( 0.0f , 0.0f, 0.0f);
+      Color color = new Color( 0.0f , 0.0f, 0.0f, 0.4f /*alpha*/);
       double psiScale = fluidPoint.getPSI() / 2.0; //  Math.log(fluidPoint.getPSI());
       if(psiScale > 1.0){ // high pressure
-          
           psiScale -= 1;
-          
           if(psiScale > 1.0){
               psiScale = 1.0;
           }
+          color = new Color((float)psiScale, 0.0f, 0.0f, 0.6f /*alpha*/);
+      } else if(psiScale < 0.95){
           
-          color = new Color((float)psiScale, 0.0f, 0.0f);
-      } else if(psiScale < 0.9){
-          
-          color = new Color( 0.0f, 0.0f, 0.7f);
+          color = new Color( 0.0f, 0.0f, 0.4f, 0.5f /*alpha*/);
+      } else if(psiScale < 0.85){
+          color = new Color( 0.0f, 0.0f, 0.6f, 0.5f /*alpha*/);
+      } else if(psiScale < 0.55){
+          color = new Color( 0.0f, 0.0f, 0.7f, 0.5f /*alpha*/);
+      } else if(psiScale < 0.45){
+          color = new Color( 0.0f, 0.0f, 0.8f, 0.5f /*alpha*/);
       }
       
       ObjectInfo objClone = obj.duplicate();
@@ -1625,60 +1630,24 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       Mesh mesh = (Mesh) objClone.getObject(); // Object3D
       Vec3 [] verts = mesh.getVertexPositions();
       
+      int pixelWidth = 0;
+          
       
-          //distance = verts[0].distance2(verts[1]);
-          //distance = verts[0].distance(verts[1]);
-          //distance = distance * sceneScale;
-          // scale
           
-          int pixelWidth = 0;
-          
-          
-          //System.out.println("distance: " + distance   ); // +
-          //System.out.println("1: " + " x: " + verts[0].x + " y: " + verts[0].y + " z: " + verts[0].z +
-          //                   "2:   "  + verts[1].x + " y: " + verts[1].y + " z: " + verts[1].z   );
-          
-          //double d = dv3.vert.distance(midv1.vert);
-          
-          //renderNumber(2, verts[2], theCamera);
-            /*
-          double width = (Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x));
-          double height = (Math.max(verts[0].y, verts[1].y) - Math.min(verts[0].y, verts[1].y));
-          double distanceScale = width / 3; // one third
-          boolean vertical = false;
-          if(height > width){
-              vertical = true;
-              distanceScale = height / 3;
-              
-              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
-              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
-              pixelWidth = (int)Math.abs(p0.y - p1.y);
-              
-          } else {
-              Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
-              Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
-              pixelWidth = (int)Math.abs(p0.x - p1.x);
-          }
-             */
-          
-          // line 1 (vertical)
-          Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + 0.05, verts[0].z); // point 2
-          Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - 0.05, verts[0].z); // point 3
-          renderLine(vert1, vert2, theCamera, color);
-          
-          // Line 2 (horizontal)
-          //double line2Width = verts[2].x - verts[1].x;
-          //double line2Height = verts[2].y - verts[1].y;
-          Vec3 vert3 = new Vec3( verts[0].x - 0.05, verts[0].y, verts[0].z); // point 1
-          Vec3 vert4 = new Vec3( verts[0].x + 0.05, verts[0].y, verts[0].z); // constructed point
-          renderLine(vert3, vert4, theCamera, color);
-          
-          // Line 3 (horizontal depth)
-          Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - 0.05); // point 1
-          Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + 0.05); // constructed point
-          renderLine(vert5, vert6, theCamera, color);
+      // line 1 (vertical)
+      Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + 0.05, verts[0].z); // point 2
+      Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - 0.05, verts[0].z); // point 3
+      renderLine(vert1, vert2, theCamera, color);
       
-      //}
+      // Line 2 (horizontal)
+      Vec3 vert3 = new Vec3( verts[0].x - 0.05, verts[0].y, verts[0].z); // point 1
+      Vec3 vert4 = new Vec3( verts[0].x + 0.05, verts[0].y, verts[0].z); // constructed point
+      renderLine(vert3, vert4, theCamera, color);
+      
+      // Line 3 (horizontal depth)
+      Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - 0.05); // point 1
+      Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + 0.05); // constructed point
+      renderLine(vert5, vert6, theCamera, color);
       
   }
 

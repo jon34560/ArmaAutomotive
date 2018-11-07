@@ -28,7 +28,7 @@ public class ComputationalFluidDynamics extends Thread {
     private double maxx = 0;
     private double maxy = 0;
     private double maxz = 0;
-    private int pointsPerLength = 12; // 13;
+    private int pointsPerLength = 10; // 13;
     
     Vector<FluidPointObject> pointObjects = new Vector<FluidPointObject>();
     
@@ -183,6 +183,9 @@ public class ComputationalFluidDynamics extends Thread {
                             FluidPointObject compareFluidPoint = pointObjects.elementAt(f);
                             double distance = fluidPoint.getLocation().distance(compareFluidPoint.getLocation());
                             
+                            if(distance > zSegmentWidth * 3){
+                                //break;
+                            }
                             //System.out.println(" dist " + distance + " " + zSegmentWidth);
                             
                             double zDiff = Math.abs(fluidPoint.getLocation().z - compareFluidPoint.getLocation().z);
@@ -326,26 +329,26 @@ public class ComputationalFluidDynamics extends Thread {
                         //System.out.print("c");
                     }
                     
-                    /*
+                /*
                     // Low Pressure
                     if(vacumeLeft > 0.0 || vacumeRight > 0.0 || vacumeAbove > 0.0 || vacumeBelow > 0.0){
                         
                         if(vacumeLeft > 0.0 && points[v].x > minx){ // move left
-                            points[v].x -= 0.009; // * (pressureRight-pressureLeft); // Push left from pressure on right side
+                            points[v].x -= 0.005; // * (pressureRight-pressureLeft); // Push left from pressure on right side
                         }
                         if(vacumeRight > 0.0 && points[v].x < maxx){
-                            //points[v].x += 0.006;
+                            points[v].x += 0.005;
                         }
                         if(vacumeAbove > 0.0 && points[v].y < maxy){ // move up
-                            points[v].y += 0.009;
+                            points[v].y += 0.005;
                         }
                         if(vacumeBelow > 0.0 && points[v].y < miny){ // move down
-                            points[v].y -= 0.009;
+                            points[v].y -= 0.005;
                         }
                         
                         fluidPoint.setPSI( 0.2 ); // render as blue
                     }
-                     */
+                */
                     
                     /*
                     // Bounds check
