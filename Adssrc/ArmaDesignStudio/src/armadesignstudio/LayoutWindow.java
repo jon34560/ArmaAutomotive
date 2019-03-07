@@ -838,6 +838,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.add(Translate.menuItem("Modeling View", this, "setModelingView"));
 	  //layoutMenu.add(layoutLayView = Translate.menu("Layout View"));
 	  layoutMenu.add(Translate.menuItem("Layout View", this, "setLayoutView"));
+      
+      layoutMenu.add(Translate.menuItem("Reset Layout View", this, "resetLayoutView"));
+      
       //layoutMenu.add(Translate.menuItem("Tube Layout View", this, "setTubeLayoutView"));
       //layoutMenu.add(Translate.menuItem("DEBUG", this, "debug"));
       
@@ -3209,6 +3212,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         }
     }
     
+    public void resetLayoutView(){
+        //layoutModelingView = false;
+        if(theScene != null){
+            theScene.resetLayoutView();
+            itemTree.repaint(); // reload tree
+            updateImage();
+        }
+    }
+    
+    // DEPRICATE
     public void setTubeLayoutView(){
         System.out.println("setTubeLayoutView  ********* ");
         layoutModelingView = false;

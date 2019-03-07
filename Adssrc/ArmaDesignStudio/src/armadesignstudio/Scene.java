@@ -2411,7 +2411,7 @@ public class Scene
     public void exportTubeGCode(){
         LayoutModeling layout = new LayoutModeling();
         
-        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode";
+        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode_t";
         File d = new File(dir);
         if(d.exists() == false){
             d.mkdir();
@@ -2448,6 +2448,80 @@ public class Scene
         } catch (Exception e){
             System.out.println("Error " + e);
             e.printStackTrace();
+        }
+        
+        // Calculate bounds of object to calculate centre for unrolling points around tube circumfrance.
+        
+        
+        for (ObjectInfo obj : objects){
+            boolean enabled = layout.isObjectEnabled(obj);
+            ObjectInfo[] children = obj.getChildren();
+            if(children.length > 0 && enabled){
+                //System.out.println("   --- Group: " + name + " count: " + children.length);
+                
+                double centreX = 0;
+                double centreY = 0;
+                double centreZ = 0;
+                
+                double boundsMinX = 9999;
+                double boundsMaxX = -9999;
+                double boundsMinY = 9999;
+                double boundsMaxY = -9999;
+                double boundsMinZ = 9999;
+                double boundsMaxZ = -9999;
+                
+                BoundingBox bounds = obj.getBounds();
+                System.out.println(" bounds: " +
+                                   " x: " + bounds.minx + " x " + bounds.maxx +
+                                   " y" + bounds.miny + " maxy: " + bounds.maxy +
+                                   " minz: " + bounds.minz + " maxz: " + bounds.maxz );
+                
+                ObjectInfo objClone = obj.duplicate();
+                objClone.setLayoutView(false);
+                Object co = (Object)objClone.getObject();
+                if(co instanceof Mesh && objClone.isVisible() == true){ // && child_enabled
+                
+                    CoordinateSystem c;
+                    c = layout.getCoords(objClone); // Read cutting coord from file
+                    objClone.setCoords(c);
+                    
+                    Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+                    Vec3 [] verts = mesh.getVertexPositions();
+                    for (Vec3 vert : verts){
+                        // Transform vertex points around object loc/rot.
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vert);
+                    
+                        if(vert.x > boundsMaxX){
+                            boundsMaxX = vert.x;
+                        }
+                        if(vert.x < boundsMinX){
+                            boundsMinX = vert.x;
+                        }
+                        if(vert.y > boundsMaxY){
+                            boundsMaxY = vert.y;
+                        }
+                        if(vert.y < boundsMinY){
+                            boundsMinY = vert.y;
+                        }
+                        if(vert.z > boundsMaxZ){
+                            boundsMaxZ = vert.z;
+                        }
+                        if(vert.z < boundsMinZ){
+                            boundsMinZ = vert.z;
+                        }
+                    }
+                }
+                
+                System.out.println("* " + obj.getName() +
+                                   " X : " + (boundsMaxX - boundsMinX) +
+                                   " Y height: " + (boundsMaxY - boundsMinY) +
+                                   " Z depth: " + (boundsMaxZ - boundsMinZ));
+                System.out.println("   Xcenter " + (boundsMinX + ((boundsMaxX - boundsMinX)/2)) +
+                                   "   Ycenter " + (boundsMinY + ((boundsMaxY - boundsMinY)/2)) +
+                                   "   Zcentre " + (boundsMinZ + ((boundsMaxZ - boundsMinZ)/2)) );
+                
+            }
         }
         
         
@@ -3747,6 +3821,35 @@ public class Scene
 		}
 	}
     
+    /**
+     * resetLayoutView
+     *
+     * Description:
+     */
+    public void resetLayoutView(){
+        String dir = System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
+        File d = new File(dir);
+        if(d.exists() == false){
+            d.mkdir();
+        }
+        //
+        String name = this.getName();
+        dir = dir + System.getProperty("file.separator") + name;
+        d = new File(dir);
+        if(d.exists() == false){
+            d.mkdir();
+        }
+        for (ObjectInfo obj : objects){
+            if(obj.selected == true){
+                // TODO: remove layout file for object id
+                //
+                //
+                
+            }
+        }
+    }
+    
+    // DEPRICATE
     public void setLayoutViewTube(){
         //System.out.println("setLayoutViewTube");
         String dir = System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
