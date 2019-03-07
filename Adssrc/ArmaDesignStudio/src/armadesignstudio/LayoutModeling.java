@@ -58,14 +58,15 @@ public class LayoutModeling {
     /**
      * getCoords
      *
-     * Description:
+     * Description: Called by ObjectInfo if state is tubeLayoutViewModel == true || layoutViewModel == false
      */
 	public CoordinateSystem getCoords(ObjectInfo info){
 		CoordinateSystem cx = info.getCoords();
 		CoordinateSystem c = new CoordinateSystem();
-		cx.copyCoords(c);
+		//cx.copyCoords(c);
+        //c.copyCoords(cx);
 
-		if(info.getLayoutView() == false){
+		if(info.getLayoutView() == false || info.getTubeLayoutView() == true){ // Plate or Tube layout mode
 
 			// Layout file
 			String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
@@ -89,19 +90,26 @@ public class LayoutModeling {
 			dir = dir + System.getProperty("file.separator") + info.getName();
 			d = new File(dir);
 
-
-            if(d2.exists() == false && d.exists() == true){
+            if(d2.exists() == false && d.exists() == true){ // Migrate old data
                 try {
                     copyFile(d, d2);
                 } catch(Exception e){
                 }
             }
 
-
 			if(d2.exists() == false){
 
+                //System.out.println("******************************* " + info.getName());
+                // Set c to object (info) coordinate system
+                //c.copyCoords(cx);
+                //c.setOrigin(new Vec3(-3.0, -1.0, 0.0));
+                //System.out.println("LayoutModeling.getCoords: * x " +
+                //                   cx.getOrigin().x + " y " + cx.getOrigin().y + " z " + cx.getOrigin().z);
 				// Save coordSystem to layout coord file for construction.
-				saveLayout(info, c);
+				//saveLayout(info, cx);
+                //saveLayout(info, c);
+                
+                return null;
 
 			} else {
 				// Read from file
@@ -132,7 +140,6 @@ public class LayoutModeling {
 					zDir.x =  Double.parseDouble(prop.getProperty("zDir.x"));
 					zDir.y =  Double.parseDouble(prop.getProperty("zDir.y"));
 					zDir.z =  Double.parseDouble(prop.getProperty("zDir.z"));
-
 					Vec3 upDir = new Vec3();
 					upDir.x =  Double.parseDouble(prop.getProperty("upDir.x"));
 					upDir.y =  Double.parseDouble(prop.getProperty("upDir.y"));
@@ -148,6 +155,7 @@ public class LayoutModeling {
 				catch(IOException ex){
 					  //fLogger.log(Level.SEVERE, "Cannot perform input.", ex);
 				} catch(Exception e){
+                    
 				}
 			}
 		}
@@ -155,10 +163,16 @@ public class LayoutModeling {
 	}
 
 
+    /**
+     * saveLayout
+     *
+     * Description: Save alternate coordicate data for object in seperate file.
+     *  Can be used for layout view to temporary reposition.
+     */
 	public void saveLayout(ObjectInfo info, CoordinateSystem c){
 		//CoordinateSystem c = info.getCoords();
 
-		if(info.getLayoutView() == false){
+		//if(info.getLayoutView() == false || info.getTubeLayoutView() == true){ // Plate or Tube layout mode
 
 			// Layout file
 			String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
@@ -186,8 +200,6 @@ public class LayoutModeling {
 			//if(d.exists() == true){
 			//	d.delete();
 			//}
-
-
 
 			//if(d.exists() == false){
 				//d.mkdir();
@@ -248,7 +260,7 @@ public class LayoutModeling {
 				//writer.close();
 				// DataOutputStream out
 			//}
-		}
+		//}
 	}
 
 

@@ -47,6 +47,9 @@ public class ObjectTreeElement extends TreeElement
 	  if(this.info.getLayoutView() == false){
 			labelName = labelName + " * ";
 	  }
+          if(this.info.getTubeLayoutView() == true){
+			labelName = labelName + " t ";	
+          }
     return labelName;
   }
 

@@ -47,6 +47,7 @@ public class ObjectInfo
   private BoundingBox cachedBounds;
   private boolean lastPreviewWasWireframe;
   private boolean layoutViewModel = true;
+  private boolean tubeLayoutViewModel = false;
 
   /** Create a new ObjectInfo. */
 
@@ -446,6 +447,41 @@ public class ObjectInfo
 
 
 	  // JDT return layout or modeling coords...
+      
+      if(tubeLayoutViewModel == true){
+          // Load transform from parent.
+          // work in progress
+          //System.out.println(" object tubeLayoutViewModel ");
+          
+          // Read cutting layout coords.
+          if(coords_layout == null){
+              //System.out.println("read object coords.");
+              coords_layout = new CoordinateSystem();
+              coords_layout = layout.getCoords(this);
+              
+              
+              // coords_layout = coords_layout * coords
+              
+              // transformAxes
+              // transformOrigin
+              // transformCoordinates
+              
+              // rotMatrix = Mat4.translation(origin.x, origin.y, origin.z).times(Mat4.axisRotation(rotAxis, angle)).times(Mat4.translation(-origin.x, -origin.y, -origin.z));
+              
+              //c.transformCoordinates(Mat4.translation(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z));
+              //coords_layout.transformCoordinates( coords.fromLocal() );
+              
+              //CoordinateSystem coords_temp = coords.duplicate();
+              //coords_temp.transformCoordinates( coords_layout.fromLocal() );
+              //coords_layout = coords_temp;
+              
+              //CoordinateSystem coords_temp = coords.duplicate();
+              //coords_temp.transformCoordinates( coords_layout.toLocal() );
+              //coords_layout = coords_temp;
+              
+          }
+          return coords_layout;
+      }
 	if( layoutViewModel == false){ // Layout view
 
 		//System.out.println("layout base dir: " + layout.getBaseDir());
@@ -469,7 +505,7 @@ public class ObjectInfo
 			coords_layout = layout.getCoords(this);
 		}
 		return coords_layout;
-
+        
 	} else {	// Modeling view
 		coords_layout = null;
 	    return coords;
@@ -588,15 +624,50 @@ public class ObjectInfo
   }
 
 
-
-
+    /**
+     * setLayoutView - rename to mode?
+     *
+     * Description:
+     */
 	public void setLayoutView(boolean layout){
-		//System.out.println("setLayoutView");
 		layoutViewModel = layout;
+        
+        // JDT initalize layout
+        if( layout == false ){ // Set to layout view
+            //System.out.println("Object setLayoutView . ");
+            LayoutModeling layoutModeling = new LayoutModeling();
+            CoordinateSystem layoutCoords = layoutModeling.getCoords(this);
+            if(layoutCoords == null){
+                //System.out.println("Object setLayoutView SAVE DEFAULT ");
+                //CoordinateSystem cx = coords; // this.getCoords();
+                layoutModeling.saveLayout(this, coords);
+            }
+        }
 	}
 
 	public boolean getLayoutView(){
 		return layoutViewModel;
 	}
+    
+    public void setTubeLayoutView(boolean layout){
+        tubeLayoutViewModel = layout;
+        
+        // ***
+        // Initalize if not set
+        //LayoutModeling layoutModeling = new LayoutModeling();
+        //CoordinateSystem c = layoutModeling.getCoords(this);
+        //CoordinateSystem cx = this.getCoords();
+        
+        //System.out.println("ObjectInfo "+this.getName()+"  x " + c.getOrigin().x );
+        
+        if(tubeLayoutViewModel == true || layoutViewModel == true){
+            
+        }
+        
+    }
+    
+    public boolean getTubeLayoutView(){
+        return tubeLayoutViewModel;
+    }
 
 }

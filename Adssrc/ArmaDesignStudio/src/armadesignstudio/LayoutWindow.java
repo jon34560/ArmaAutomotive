@@ -835,9 +835,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
 	  layoutMenuItem = new BMenuItem [13];
 	  //layoutMenu.add(layoutModelView = Translate.menu("Modling View", this, "setModelingView"));
-	  layoutMenu.add(Translate.menuItem("Modling View", this, "setModelingView"));
+	  layoutMenu.add(Translate.menuItem("Modeling View", this, "setModelingView"));
 	  //layoutMenu.add(layoutLayView = Translate.menu("Layout View"));
 	  layoutMenu.add(Translate.menuItem("Layout View", this, "setLayoutView"));
+      //layoutMenu.add(Translate.menuItem("Tube Layout View", this, "setTubeLayoutView"));
+      //layoutMenu.add(Translate.menuItem("DEBUG", this, "debug"));
+      
 	  layoutMenu.addSeparator();
 	  layoutMenu.add(Translate.menuItem("Enable Poly", this, "setGCodeEnablePoly"));
 	  layoutMenu.add(Translate.menuItem("Disable Poly", this, "setGCodeDisablePoly"));
@@ -851,6 +854,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.addSeparator();
 	  // exportGCode
 	  layoutMenu.add(Translate.menuItem("Export GCode", this, "exportGCode"));
+      layoutMenu.add(Translate.menuItem("Export Tube GCode", this, "exportTubeGCode"));
       layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
       layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
       
@@ -2316,6 +2320,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 			layout.saveLayout(info, coords);
 			info.resetLayoutCoords(coords);
 		}
+        if(info.getTubeLayoutView() == true){
+            layout.saveLayout(info, coords);
+            info.resetLayoutCoords(coords);
+        }
     }
 
     for (i = 0; i < sel.length; i++)
@@ -3167,26 +3175,55 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   }
 
 
-  public void setModelingView(){
-  	  System.out.println("setModelingView  ********* ");
+    /**
+     * setModelingView
+     *
+     * Description: Set selected object view corrdinate mode to default modeling.
+     */
+    public void setModelingView(){
         layoutModelingView = true;
-
-        // Selected object?
         if(theScene != null){
-			theScene.setLayoutViewModeling();
-			itemTree.repaint(); // reload tree
-			updateImage();
-		}
-  }
-  public void setLayoutView(){
-	  System.out.println("setLayoutView  ********* ");
-      layoutModelingView = false;
-      if(theScene != null){
-			theScene.setLayoutViewCutting();
-			itemTree.repaint(); // reload tree
-			updateImage();
-	}
-  }
+            theScene.setLayoutViewModeling();
+            itemTree.repaint(); // reload tree
+            updateImage();
+        }
+    }
+    
+    /**
+     * setLayoutView
+     *
+     * Description: Set selected object view corrdinate mode to alternate file based coords.
+     *
+     *    LayoutWindow.setLayoutView()
+     *    Scene.setLayoutViewCutting()
+     *    Scene.setChildObjectViewMode(obj, false)
+     *    ObjectInfo.setLayoutView(layout)
+     *    LayoutModeling.saveLayout(obj, coords)
+     */
+    public void setLayoutView(){
+        layoutModelingView = false;
+        if(theScene != null){
+            theScene.setLayoutViewCutting();
+            itemTree.repaint(); // reload tree
+            updateImage();
+        }
+    }
+    
+    public void setTubeLayoutView(){
+        System.out.println("setTubeLayoutView  ********* ");
+        layoutModelingView = false;
+        if(theScene != null){
+            theScene.setLayoutViewTube();
+            itemTree.repaint(); // reload tree
+            updateImage();
+        }
+    }
+    
+    public void debug(){
+        if(theScene != null){
+            theScene.debug();
+        }
+    }
 
   public void exportGCode(){
   	  System.out.println("exportGCode  ********* ");
@@ -3198,6 +3235,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 			theScene.exportGCode();
 		}
   }
+    
+    public void exportTubeGCode(){
+        System.out.println("exportTubeGCode");
+        if(theScene != null){
+            theScene.exportTubeGCode();
+        }
+    }
     
     public void exportGCodeMesh(){
         System.out.println("exportGCodeMesh  ********* ");

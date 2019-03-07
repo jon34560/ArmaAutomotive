@@ -136,8 +136,11 @@ public class MoveObjectTool extends EditingTool
         c = info.getCoords();
         // JDT
         if(info.getLayoutView() == false){
-			c = layout.getCoords(info); // Read cutting coord from file
-		}
+		c = layout.getCoords(info); // Read cutting coord from file
+	}
+	if(info.getTubeLayoutView() == true){
+		c = layout.getCoords(info); // Read cutting coord from file 	
+	}
 
         c.setOrigin(objectPos[i].plus(v));
 
@@ -148,7 +151,10 @@ public class MoveObjectTool extends EditingTool
 			layout.saveLayout(info, c);
 			info.resetLayoutCoords(c);
 		}
-
+		if(info.getTubeLayoutView() == true){
+			layout.saveLayout(info, c);
+                        info.resetLayoutCoords(c);	
+		}
       }
     theWindow.setModified();
     theWindow.updateImage();
@@ -247,11 +253,14 @@ public class MoveObjectTool extends EditingTool
       toMove.addElement(theScene.getObject(sel[i]));
     for (i = 0; i < toMove.size(); i++)
     {
-		ObjectInfo info = toMove.elementAt(i);
-		c = info.getCoords();
+	ObjectInfo info = toMove.elementAt(i);
+	c = info.getCoords();
       	if(info.getLayoutView() == false){ // JDT
-			c = layout.getCoords(info); // Read cutting coord from file
-		}
+		c = layout.getCoords(info); // Read cutting coord from file
+	}
+	if(info.getTubeLayoutView() == true){
+                c = layout.getCoords(info); // Read cutting coord from file
+        }
 
       undo.addCommand(UndoRecord.COPY_COORDS, new Object [] {c, c.duplicate()});
 
@@ -261,6 +270,10 @@ public class MoveObjectTool extends EditingTool
 		if(info.getLayoutView() == false){
 	  		layout.saveLayout(info, c);
 	  		info.resetLayoutCoords(c);
+		}
+		if(info.getTubeLayoutView() == true){
+			layout.saveLayout(info, c);
+                        info.resetLayoutCoords(c);
 		}
 		// getWindow().getScene().objectModified(objects.get(i).getObject());
 
