@@ -2411,6 +2411,9 @@ public class Scene
     public void exportTubeGCode(){
         LayoutModeling layout = new LayoutModeling();
         
+        int fastRate = 1200;
+        int slowRate = 50;
+        
         String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode_t";
         File d = new File(dir);
         if(d.exists() == false){
@@ -2457,74 +2460,359 @@ public class Scene
             boolean enabled = layout.isObjectEnabled(obj);
             ObjectInfo[] children = obj.getChildren();
             if(children.length > 0 && enabled){
-                //System.out.println("   --- Group: " + name + " count: " + children.length);
                 
-                double centreX = 0;
-                double centreY = 0;
-                double centreZ = 0;
-                
-                double boundsMinX = 9999;
-                double boundsMaxX = -9999;
-                double boundsMinY = 9999;
-                double boundsMaxY = -9999;
-                double boundsMinZ = 9999;
-                double boundsMaxZ = -9999;
-                
-                BoundingBox bounds = obj.getBounds();
-                System.out.println(" bounds: " +
-                                   " x: " + bounds.minx + " x " + bounds.maxx +
-                                   " y" + bounds.miny + " maxy: " + bounds.maxy +
-                                   " minz: " + bounds.minz + " maxz: " + bounds.maxz );
-                
-                ObjectInfo objClone = obj.duplicate();
-                objClone.setLayoutView(false);
-                Object co = (Object)objClone.getObject();
-                if(co instanceof Mesh && objClone.isVisible() == true){ // && child_enabled
-                
-                    CoordinateSystem c;
-                    c = layout.getCoords(objClone); // Read cutting coord from file
-                    objClone.setCoords(c);
+                System.out.println("   --- Object: " + obj.getName() + " count: " + children.length);
+                try {
+                    boolean writeFile = false;
+                    String gcode2 = "";
+                    gcode2 += "; Arma Automotive\n";
+                    gcode2 += "; Part: " + obj.getName() + "\n";
+                    gcode2 += "G1\n";
+                    Vector polygons = new Vector();
                     
-                    Mesh mesh = (Mesh) objClone.getObject(); // Object3D
-                    Vec3 [] verts = mesh.getVertexPositions();
-                    for (Vec3 vert : verts){
-                        // Transform vertex points around object loc/rot.
-                        Mat4 mat4 = c.duplicate().fromLocal();
-                        mat4.transform(vert);
+                    double centreX = 0;
+                    double centreY = 0;
+                    double centreZ = 0;
                     
-                        if(vert.x > boundsMaxX){
-                            boundsMaxX = vert.x;
-                        }
-                        if(vert.x < boundsMinX){
-                            boundsMinX = vert.x;
-                        }
-                        if(vert.y > boundsMaxY){
-                            boundsMaxY = vert.y;
-                        }
-                        if(vert.y < boundsMinY){
-                            boundsMinY = vert.y;
-                        }
-                        if(vert.z > boundsMaxZ){
-                            boundsMaxZ = vert.z;
-                        }
-                        if(vert.z < boundsMinZ){
-                            boundsMinZ = vert.z;
+                    double boundsMinX = 9999;
+                    double boundsMaxX = -9999;
+                    double boundsMinY = 9999;
+                    double boundsMaxY = -9999;
+                    double boundsMinZ = 9999;
+                    double boundsMaxZ = -9999;
+                    
+                    double minX = 9999;
+                    double minY = 9999;
+                    double minZ = 9999;
+                    double maxX = -9999;
+                    double maxY = -9999;
+                    double maxZ = -9999;
+                    
+                    HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
+                    
+                    //BoundingBox bounds = obj.getBounds();
+                    //System.out.println(" bounds: " +
+                    //                   " x: " + bounds.minx + " x " + bounds.maxx +
+                    //                   " y" + bounds.miny + " maxy: " + bounds.maxy +
+                    //                   " minz: " + bounds.minz + " maxz: " + bounds.maxz );
+                    
+                    ObjectInfo objClone = obj.duplicate();
+                    objClone.setLayoutView(false);
+                    Object co = (Object)objClone.getObject();
+                    if(co instanceof Mesh && objClone.isVisible() == true){ // && child_enabled
+                        CoordinateSystem c;
+                        c = layout.getCoords(objClone); // Read cutting coord from file
+                        objClone.setCoords(c);
+                        Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+                        Vec3 [] verts = mesh.getVertexPositions();
+                        for (Vec3 vert : verts){
+                            // Transform vertex points around object loc/rot.
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            mat4.transform(vert);
+                            
+                            if(vert.x > boundsMaxX){
+                                boundsMaxX = vert.x;
+                            }
+                            if(vert.x < boundsMinX){
+                                boundsMinX = vert.x;
+                            }
+                            if(vert.y > boundsMaxY){
+                                boundsMaxY = vert.y;
+                            }
+                            if(vert.y < boundsMinY){
+                                boundsMinY = vert.y;
+                            }
+                            if(vert.z > boundsMaxZ){
+                                boundsMaxZ = vert.z;
+                            }
+                            if(vert.z < boundsMinZ){
+                                boundsMinZ = vert.z;
+                            }
                         }
                     }
+                    
+                    centreY = (boundsMinY + ((boundsMaxY - boundsMinY)/2));
+                    centreZ = (boundsMinZ + ((boundsMaxZ - boundsMinZ)/2));
+                    
+                    double radius = ((boundsMaxZ - boundsMinZ)/2);
+                    double circumference = Math.PI * 2 * radius;
+                    
+                    for (ObjectInfo child : children){
+                        ObjectInfo childClone = child.duplicate();
+                        childClone.setLayoutView(false);
+                        co = (Object)childClone.getObject();
+                        boolean child_enabled = layout.isObjectEnabled(child);
+                        if(co instanceof Mesh && child.isVisible() == true &&
+                           co instanceof Curve && child_enabled){
+                            
+                            writeFile = true;
+                            Vector polygon = new Vector();
+                            CoordinateSystem c;
+                            c = layout.getCoords(childClone); // Read cutting coord from file
+                            childClone.setCoords(c);
+                            
+                            Mesh mesh = (Mesh) childClone.getObject(); // Object3D
+                            Vec3 [] verts = mesh.getVertexPositions();
+                            
+                            double previousAngle = -1;
+                            for (Vec3 vert : verts){
+                                // Transform vertex points around object loc/rot.
+                                Mat4 mat4 = c.duplicate().fromLocal();
+                                mat4.transform(vert);
+                                
+                                //
+                                // Transform unroll around circumfrance.
+                                //
+                                double angle = getAngle(vert.z - centreZ, vert.y - centreY);
+                                vert.z = ((angle / 360) * circumference);
+                                
+                                //if( child.getName().equals("Polygon 1") ||
+                                //    child.getName().equals("Polygon 2") ||
+                                //   child.getName().equals("Polygon 3") ||
+                                //   child.getName().equals("Polygon 4")
+                                //   ){
+                                    //System.out.println(" poly angle " + child.getName() + "    " + angle);
+                                    //System.out.println("     vert.z " + vert.z + " centreZ " + centreZ + " vert.y " + vert.y + " cY " + centreY);
+                                //}
+                                
+                                // If two verticies cross 360 - 0 degrees insert a raise cutter operation.
+                                //if(previousAngle > 0 && Math.abs(previousAngle - angle) >      ){
+                                    
+                                //}
+                                previousAngle = angle;
+                                
+                                // Apply scale
+                                vert.x = vert.x * scale;
+                                vert.y = vert.y * scale;
+                                vert.z = vert.z * scale;
+                                
+                                double x = vert.x; // + origin.x;
+                                double y = vert.y; // + origin.y;
+                                double z = vert.z; // + origin.z;
+                                polygon.addElement(vert);
+                                
+                                if(x < minX){
+                                    minX = x;
+                                }
+                                if(x > maxX){
+                                    maxX = x;
+                                }
+                                
+                                if(y < minY){
+                                    minY = y;
+                                }
+                                if(y > maxY){
+                                    maxY = y;
+                                }
+                                
+                                if(z < minZ){
+                                    minZ = z;
+                                }
+                                if(z > maxZ){
+                                    maxZ = z;
+                                }
+                            }
+                            // Reverse order
+                            if(layout.getReverseOrder(child.getId() + "") == 1){
+                                Collections.reverse(polygon);
+                            }
+                            
+                            //polygons.addElement(polygon);
+                            // Cycle polygon start.
+                            // Allows cutting faccit deteail before long lines.
+                            // polygons (Vector)
+                            int start_offset = layout.getPointOffset(child.getId() + "");
+                            //System.out.println(" *** start_offset: " + start_offset);
+                            //for(int pt = 0; pt < polygon.size(); pt++){
+                            //}
+                            while(start_offset > polygon.size() - 1){
+                                start_offset = start_offset - polygon.size();
+                            }
+                            while(start_offset < 0){
+                                start_offset = start_offset + polygon.size();
+                            }
+                            if(start_offset != 0 && polygon.size() > 0){
+                                for(int i = 0; i < start_offset; i++){
+                                    Vec3 vert = (Vec3)polygon.elementAt(0);
+                                    polygon.remove(0);
+                                    polygon.add(vert);
+                                }
+                            }
+                            
+                            // Insert this polygon into the correct sorted order.
+                            
+                            int polyOrder = layout.getPolyOrder( "" + child.getId() );
+                            polygonOrder.put(polygon, polyOrder);
+                            //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
+                            
+                            int insertAtPos = 0;
+                            boolean insertAtEnd = false;
+                            
+                            for(int pos = 0; pos < polygons.size(); pos++){
+                                Vector poly = (Vector)polygons.elementAt(pos);
+                                if(poly != null && polygonOrder != null){
+                                    Object currPolyPos =  (Object)polygonOrder.get(poly);
+                                    if(currPolyPos != null){
+                                        int currPolyPosInt = ((Integer)currPolyPos).intValue();
+                                        
+                                        // If current poly order is less than the current in the existing list insert it before
+                                        if( polyOrder < currPolyPosInt ){
+                                            insertAtPos = pos - 0;
+                                            pos = polygons.size() + 1; // break
+                                            //break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if(polygons.size() > 0){
+                                Vector lastPoly = (Vector)polygons.elementAt(polygons.size()-1);
+                                Object lastPolyPos =  (Object)polygonOrder.get(lastPoly);
+                                if(lastPolyPos != null){
+                                    int lastPolyPosInt = ((Integer)lastPolyPos).intValue();
+                                    if(polyOrder > lastPolyPosInt){
+                                        insertAtEnd = true;
+                                    }
+                                }
+                            }
+                            
+                            //System.out.println("  **** !!!!!!!!  " + child.getId() + "  insertAtPos: " + insertAtPos );
+                            
+                            if(insertAtEnd){
+                                polygons.addElement(polygon);
+                            } else {
+                                //if(insertAtPos > 0){
+                                //    System.out.println("insert at " + insertAtPos);
+                                polygons.insertElementAt(polygon, insertAtPos);
+                                //} else {
+                                //    System.out.println("add element");
+                                //    polygons.addElement(polygon);
+                                //}
+                            }
+                            
+                        }
+                    }
+                    
+                    
+                    for(int p = 0; p < polygons.size(); p++){
+                        //System.out.println(" POLYGON ***");
+                        gcode2 += "; Polygon \n";
+                        
+                        Vector polygon = (Vector)polygons.elementAt(p);
+                        boolean lowered = false;
+                        Vec3 firstPoint = null;
+                        for(int pt = 0; pt < polygon.size(); pt++){
+                            Vec3 point = (Vec3)polygon.elementAt(pt);
+                            //System.out.println("  Point *** " + point.getX() + " " + point.getY());
+                            
+                            point.x = (point.x + -minX); // shift to align all geometry to 0,0   boundsMinX
+                            point.z = (point.z + -minZ); //
+                            //point.z = (point.z + -minZ);
+                            
+                            gcode2 += "G1 X" +
+                            roundThree(point.x) +
+                            " Y" +
+                            roundThree(point.z);
+                            //     " Z" +
+                            //     roundThree(point.y) +
+                            
+                            if(pt == 0){
+                                gcode2 += " F"+fastRate+""; // Fast travel to polygon.
+                            } else {
+                                gcode2 += " F"+slowRate+""; // Slow cut polygon.
+                            }
+                            
+                            gcode2 += ";\n"; // End line
+                            
+                            if(!lowered){
+                                gcode2 += "G00 Z-0.5 F"+slowRate+";\n"; // Lower router head for cutting.
+                                lowered = true;
+                                firstPoint = point;
+                            }
+                            
+                            polygon.setElementAt(point, pt);
+                        }
+                        
+                        // Connect last point to first point
+                        if(firstPoint != null){
+                            gcode2 += "G1 X" +
+                            roundThree(firstPoint.x) +
+                            " Y" +
+                            roundThree(firstPoint.z) + "\n"; // G90
+                        }
+                        
+                        gcode2 += "G00 Z0.5 F"+fastRate+" ; \n"; // Raise router head
+                    }
+                    
+                    System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
+                    System.out.println("Align: x: " + -minX + " y: " + -minZ);
+                    
+                    
+                    // Write gcode to file
+                    if(writeFile){
+                        try {
+                            String gcodeFile = dir + System.getProperty("file.separator") + obj.getName() + ".gcode";
+                            //gcodeFile += ".gcode";
+                            System.out.println("Writing g code file: " + gcodeFile);
+                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                            writer2.println(gcode2);
+                            writer2.close();
+                        } catch (Exception e){
+                            System.out.println("Error: " + e.toString());
+                        }
+                        
+                        // Multi part file
+                        /*
+                        String gcode3 = gcode2;
+                        int lines = 0; // StringUtils.countMatches(gcode2, "\n");
+                        for(int i = 0; i < gcode3.length(); i++){
+                            if(gcode3.charAt(i) == '\n'){
+                                lines++;
+                            }
+                        }
+                        if(lines > 499){
+                            int lineNumber = 0;
+                            int fileNumber = 1;
+                            lines = 0;
+                            for(int i = 0; i < gcode3.length(); i++){
+                                if(gcode3.charAt(i) == '\n'){
+                                    lines++;
+                                    if(lines > 480){
+                                        String gCodeSection = gcode3.substring(0, i);
+                                        
+                                        String gcodeFile = dir + System.getProperty("file.separator") + obj.getName() + "_" + fileNumber;
+                                        gcodeFile += ".gcode";
+                                        System.out.println("Writing g code file: " + gcodeFile);
+                                        PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                                        writer2.println(gCodeSection);
+                                        writer2.close();
+                                        
+                                        fileNumber++;
+                                        gcode3 = gcode3.substring(i+1, gcode3.length());
+                                    }
+                                }
+                            }
+                            String gcodeFile = dir + System.getProperty("file.separator") + obj.getName() + "_" + fileNumber;
+                            gcodeFile += ".gcode";
+                            System.out.println("Writing g code file: " + gcodeFile);
+                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                            writer2.println(gcode3);
+                            writer2.close();
+                            System.out.println(" Lines *** " + lines);
+                        }
+                         */
+                    }
+                
+                } catch (Exception e){
+                    System.out.println("Error: " + e);
+                    e.printStackTrace();
                 }
-                
-                System.out.println("* " + obj.getName() +
-                                   " X : " + (boundsMaxX - boundsMinX) +
-                                   " Y height: " + (boundsMaxY - boundsMinY) +
-                                   " Z depth: " + (boundsMaxZ - boundsMinZ));
-                System.out.println("   Xcenter " + (boundsMinX + ((boundsMaxX - boundsMinX)/2)) +
-                                   "   Ycenter " + (boundsMinY + ((boundsMaxY - boundsMinY)/2)) +
-                                   "   Zcentre " + (boundsMinZ + ((boundsMaxZ - boundsMinZ)/2)) );
-                
+    
             }
         }
         
         
+        /*
         for (ObjectInfo obj : objects){
             String name = obj.getName();
             boolean enabled = layout.isObjectEnabled(obj);
@@ -2725,14 +3013,7 @@ public class Scene
                     //writer.close();
                     
                     // Add boundary points (so you don't cut outside of the material or the clamps)
-                    /*
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1\n";
-                    */
+         
                     // Sort polygons by order attribute
                     
                     //
@@ -2847,8 +3128,17 @@ public class Scene
                 
             }
         }
+        */
     }
     
+    
+    public float getAngle(double x, double y) {
+        float angle = (float) Math.toDegrees(Math.atan2(y, x));
+        if(angle < 0){
+            angle += 360;
+        }
+        return angle;
+    }
     
     // ---
     public void exportGCodeMesh(){
