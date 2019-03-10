@@ -544,6 +544,44 @@ public class LayoutModeling {
 		//}
 	}
     
+    /**
+     * getPolyDepth
+     *
+     */
+    public double getPolyDepth(ObjectInfo info){
+        double depth = 0;
+        String dir = baseDir;
+        File d = new File(dir);
+        if(d.exists() == false){
+            d.mkdir();
+        }
+        
+        String dir2 = dir;
+        dir2 = dir2 + System.getProperty("file.separator") + info.getId();
+        File d2 = new File(dir2);
+        
+        Properties prop = new Properties();
+        OutputStream output = null;
+        InputStream input = null;
+        try {
+            input = new FileInputStream(d2);
+            prop.load(input);
+            
+            String value = prop.getProperty("cut_depth");
+            if(value == null){
+                value = "0";
+            }
+            
+            depth = Double.parseDouble(value);
+            
+        } catch(IOException ex){
+            //fLogger.log(Level.SEVERE, "Cannot perform output.", ex);
+            System.out.println("Error: " + dir);
+            System.out.println("Error: " + ex);
+        }
+        return depth;
+    }
+    
     public void setGCodeReverseOrder(ObjectInfo info){
         // Layout file
         String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
