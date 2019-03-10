@@ -17,6 +17,7 @@ import java.io.*;
 public class Vec3
 {
   public double x, y, z;
+  public int f;
 
   /** Create a new Vec3 whose x, y, and z components are all equal to 0.0. */
 
@@ -32,6 +33,14 @@ public class Vec3
     y = yval;
     z = zval;
   }
+
+  public Vec3(double xval, double yval, double zval, int fval){
+    x = xval;
+    y = yval;
+    z = zval;
+    f = fval; 
+  }
+
   
   /** Create a new Vec3 identical to another one. */
 
@@ -40,6 +49,7 @@ public class Vec3
     x = v.x;
     y = v.y;
     z = v.z;
+    f = v.f;
   }
   
   /** Set the x, y, and z components of this Vec3. */

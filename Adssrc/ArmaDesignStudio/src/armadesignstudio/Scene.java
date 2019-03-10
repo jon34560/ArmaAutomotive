@@ -2454,8 +2454,6 @@ public class Scene
         }
         
         // Calculate bounds of object to calculate centre for unrolling points around tube circumfrance.
-        
-        
         for (ObjectInfo obj : objects){
             boolean enabled = layout.isObjectEnabled(obj);
             ObjectInfo[] children = obj.getChildren();
@@ -2604,6 +2602,10 @@ public class Scene
                                 vert.x = vert.x * scale;
                                 vert.y = vert.y * scale;
                                 vert.z = vert.z * scale;
+                                vert.f = slowRate;
+                                if(v == 0 ){ // || v == 1
+                                    vert.f = fastRate;
+                                }
                                 
                                 //System.out.println(".");
                                 
@@ -2623,11 +2625,13 @@ public class Scene
                                         splitPoly = true;
                                         //
                                         Vec3 vertInsert = new Vec3( previousVert.x, previousVert.y + drillLowerDistance, previousVert.z); // raise drill
+                                        vertInsert.f = fastRate;
                                         polygon.addElement(vertInsert);
                                         
                                         drillLowered = false;
                                         drillLowerDistance = 0.5;
                                         Vec3 vertInsertUp = new Vec3( vert.x, vert.y + drillLowerDistance, vert.z); //
+                                        vertInsertUp.f = fastRate;
                                         polygon.addElement(vertInsertUp);
                                         
                                         drillLowered = true;
@@ -2644,6 +2648,7 @@ public class Scene
                                     drillLowerDistance = 0.0;
                                     double y = cutDepth * scale; // recalculate y
                                     Vec3 vertInsert = new Vec3( vert.x, y + drillLowerDistance, vert.z); // lower drill
+                                    vertInsert.f = slowRate;
                                     polygon.addElement(vertInsert);
                                     
                                     vec0 = vert;
@@ -2657,7 +2662,7 @@ public class Scene
                                     // Connect poly
                                     //Vec3 vertConnect = polygon.elementAt(1);
                                     //polygon.addElement(vertConnect);
-                                    polygon.addElement( new Vec3( vec1.x, vec1.y, vec1.z) );
+                                    polygon.addElement( new Vec3( vec1.x, vec1.y, vec1.z, slowRate) );
                                     
                                     // Connect poly raise
                                     //drillLowered = false;
@@ -2666,7 +2671,7 @@ public class Scene
                                     //Vec3 vertConnectRaise = polygon.elementAt(0); // new Vec3( vertConnect.x, vertConnect.y + drillLowerDistance, vertConnect.z); // raise drill
                                     //polygon.addElement(vertConnectRaise);
                                     
-                                    polygon.addElement( new Vec3( vec0.x, vec0.y, vec0.z) );
+                                    polygon.addElement( new Vec3( vec0.x, vec0.y, vec0.z, fastRate) );
                                 }
                                 
                                 double x = vert.x; // + origin.x;
@@ -2799,13 +2804,7 @@ public class Scene
                             roundThree(point.z) +
                             " Z" +
                             roundThree(point.y);
-                            
-                            if(pt == 0){
-                                gcode2 += " F"+fastRate+""; // Fast travel to polygon.
-                            } else {
-                                gcode2 += " F"+slowRate+""; // Slow cut polygon.
-                            }
-                            
+                            gcode2 += " F"+point.f+"";
                             gcode2 += ";\n"; // End line
                             
                             if(!lowered){
@@ -2816,16 +2815,6 @@ public class Scene
                             
                             polygon.setElementAt(point, pt);
                         }
-                        
-                        // Connect last point to first point
-                        //if(firstPoint != null){
-                        //    gcode2 += "G1 X" +
-                        //    roundThree(firstPoint.x) +
-                        //    " Y" +
-                        //    roundThree(firstPoint.z) + "\n"; // G90
-                        //}
-                        
-                        //gcode2 += "G00 Z0.5 F"+fastRate+" ; \n"; // Raise router head
                     }
                     
                     System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
@@ -2894,325 +2883,6 @@ public class Scene
     
             }
         }
-        
-        
-        /*
-        for (ObjectInfo obj : objects){
-            String name = obj.getName();
-            boolean enabled = layout.isObjectEnabled(obj);
-            //System.out.println("   - name: " + name);
-            ObjectInfo[] children = obj.getChildren();
-            if(children.length > 0 && enabled){
-                System.out.println("   - Group: " + name + " count: " + children.length);
-                
-                try {
-                    // Create gcode file for group.
-                    String gCodeFile = dir + System.getProperty("file.separator") + name + ".gcode";
-                    //PrintWriter writer = new PrintWriter(gCodeFile, "UTF-8");
-                    System.out.println("      File: " + gCodeFile);
-                    
-                    Vector polygons = new Vector();
-                    // gcode
-                    String gcode = "G1\n";
-                    String gcode2 = "G1\n";
-                    
-                    double minX = 9999;
-                    double minY = 9999;
-                    double maxX = -9999;
-                    double maxY = -9999;
-                    double width = 0;
-                    double depth = 0;
-                    
-                    double minZ = 9999;
-                    double maxZ = -9999;
-                    
-                    boolean writeFile = false;
-                    
-                    HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
-                    
-                    for (ObjectInfo child : children){
-                        ObjectInfo childClone = child.duplicate();
-                        childClone.setLayoutView(false);
-                        
-                        String child_name = child.getName();
-                        //System.out.println("      - child name: " + child_name);
-                        Object co = (Object)child.getObject();
-                        boolean child_enabled = layout.isObjectEnabled(child);
-                        
-                        
-                        //
-                        // Polygon Flat (2d)
-                        //
-                        if(co instanceof Mesh &&
-                           child.isVisible() == true &&
-                           co instanceof Curve &&
-                           child_enabled){  // Is mesh and visible.
-                            
-                            //System.out.println("      - Poly " + child_name);
-                            writeFile = true;
-                            //writer.println("# " + child_name );
-                            Vector polygon = new Vector();
-                            
-                            // Apply layout coordinates
-                            CoordinateSystem c;
-                            //c = child.getCoords();
-                            c = layout.getCoords(childClone); // Read cutting coord from file
-                            //System.out.println(" coords " + c.getOrigin().x);
-                            childClone.setCoords(c);
-                            //c.setOrigin( );
-                            
-                            Vec3 origin = c.getOrigin(); // childClone.getCoords().getOrigin();
-                            double angles[] = c.getRotationAngles(); //  childClone.getCoords().getRotationAngles();
-                            //System.out.println(" " + origin.x + " " + c.getOrigin().x);
-                            //System.out.println("         angles:  x " + angles[0] + " y " + angles[1] + " z " + angles[2]);
-                            
-                            Mesh mesh = (Mesh) childClone.getObject(); // Object3D
-                            Vec3 [] verts = mesh.getVertexPositions();
-                            for (Vec3 vert : verts){
-                                // Transform vertex points around object loc/rot.
-                                Mat4 mat4 = c.duplicate().fromLocal();
-                                mat4.transform(vert);
-                                
-                                // Apply scale
-                                vert.x = vert.x * scale;
-                                vert.y = vert.y * scale;
-                                vert.z = vert.z * scale;
-                                
-                                double x = vert.x; // + origin.x;  // works
-                                double y = vert.y; // + origin.y;
-                                double z = vert.z; // + origin.z;
-                                
-                                //System.out.println("         x " + x + " y: " + y + " z: " + z );
-                                
-                                //writer.println(" x " + x + " y: " + y + " z: " + z);
-                                
-                                polygon.addElement(vert);
-                                
-                                if(x < minX){
-                                    minX = x;
-                                }
-                                if(x > maxX){
-                                    maxX = x;
-                                }
-                                
-                                if(y < minY){
-                                    minY = y;
-                                }
-                                if(y > maxY){
-                                    maxY = y;
-                                }
-                                
-                                if(z < minZ){
-                                    minZ = z;
-                                }
-                                if(z > maxZ){
-                                    maxZ = z;
-                                }
-                            }
-                            
-                            // Reverse order
-                            if(layout.getReverseOrder(child.getId() + "") == 1){
-                                Collections.reverse(polygon);
-                            }
-                            
-                            // Cycle polygon start.
-                            // Allows cutting faccit deteail before long lines.
-                            // polygons (Vector)
-                            int start_offset = layout.getPointOffset(child.getId() + "");
-                            //System.out.println(" *** start_offset: " + start_offset);
-                            //for(int pt = 0; pt < polygon.size(); pt++){
-                            //}
-                            while(start_offset > polygon.size() - 1){
-                                start_offset = start_offset - polygon.size();
-                            }
-                            while(start_offset < 0){
-                                start_offset = start_offset + polygon.size();
-                            }
-                            if(start_offset != 0 && polygon.size() > 0){
-                                for(int i = 0; i < start_offset; i++){
-                                    Vec3 vert = (Vec3)polygon.elementAt(0);
-                                    polygon.remove(0);
-                                    polygon.add(vert);
-                                }
-                            }
-                            
-                            
-                            
-                            // Insert this polygon into the correct sorted order.
-                            
-                            int polyOrder = layout.getPolyOrder( "" + child.getId() );
-                            polygonOrder.put(polygon, polyOrder);
-                            //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
-                            
-                            int insertAtPos = 0;
-                            boolean insertAtEnd = false;
-                            //if(name.equals("Door")){
-                            
-                            
-                            for(int pos = 0; pos < polygons.size(); pos++){
-                                Vector poly = (Vector)polygons.elementAt(pos);
-                                if(poly != null && polygonOrder != null){
-                                    Object currPolyPos =  (Object)polygonOrder.get(poly);
-                                    if(currPolyPos != null){
-                                        int currPolyPosInt = ((Integer)currPolyPos).intValue();
-                                        
-                                        // If current poly order is less than the current in the existing list insert it before
-                                        if( polyOrder < currPolyPosInt ){
-                                            insertAtPos = pos - 0;
-                                            pos = polygons.size() + 1; // break
-                                            //break;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if(polygons.size() > 0){
-                                Vector lastPoly = (Vector)polygons.elementAt(polygons.size()-1);
-                                Object lastPolyPos =  (Object)polygonOrder.get(lastPoly);
-                                if(lastPolyPos != null){
-                                    int lastPolyPosInt = ((Integer)lastPolyPos).intValue();
-                                    if(polyOrder > lastPolyPosInt){
-                                        insertAtEnd = true;
-                                    }
-                                }
-                            }
-                            
-                            //System.out.println("  **** !!!!!!!!  " + child.getId() + "  insertAtPos: " + insertAtPos );
-                            
-                            if(insertAtEnd){
-                                polygons.addElement(polygon);
-                            } else {
-                                //if(insertAtPos > 0){
-                                //    System.out.println("insert at " + insertAtPos);
-                                polygons.insertElementAt(polygon, insertAtPos);
-                                //} else {
-                                //    System.out.println("add element");
-                                //    polygons.addElement(polygon);
-                                //}
-                            }
-                        }
-                        
-                    }
-                    // Close file
-                    //writer.close();
-                    
-                    // Add boundary points (so you don't cut outside of the material or the clamps)
-         
-                    // Sort polygons by order attribute
-                    
-                    //
-                    // Write gcode file
-                    // Iterate data
-                    for(int p = 0; p < polygons.size(); p++){
-                        //System.out.println(" POLYGON ***");
-                        
-                        Vector polygon = (Vector)polygons.elementAt(p);
-                        boolean lowered = false;
-                        Vec3 firstPoint = null;
-                        for(int pt = 0; pt < polygon.size(); pt++){
-                            Vec3 point = (Vec3)polygon.elementAt(pt);
-                            //System.out.println("  Point *** " + point.getX() + " " + point.getY());
-                            
-                            
-                            point.x = (point.x + -minX); // shift to align all geometry to 0,0
-                            point.z = (point.z + -minZ); //
-                            
-                            //point.z = (point.z + -minZ);
-                            
-                            gcode2 += "G1 X" +
-                            roundThree(point.x) +
-                            " Y" +
-                            roundThree(point.z) +
-                            //     " Z" +
-                            //     roundThree(point.y) +
-                            "\n"; // G90
-                            if(!lowered){
-                                gcode2 += "G00 Z-0.5\n"; // Lower router head for cutting.
-                                lowered = true;
-                                firstPoint = point;
-                            }
-                            
-                            polygon.setElementAt(point, pt);
-                        }
-                        
-                        // Connect last point to first point
-                        if(firstPoint != null){
-                            gcode2 += "G1 X" +
-                            roundThree(firstPoint.x) +
-                            " Y" +
-                            roundThree(firstPoint.z) + "\n"; // G90
-                        }
-                        
-                        gcode2 += "G00 Z0.5\n"; // Raise router head
-                    }
-                    
-                    System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
-                    System.out.println("Align: x: " + -minX + " y: " + -minZ);
-                    
-                    
-                    // Write gcode to file
-                    if(writeFile){
-                        try {
-                            
-                            String gcodeFile = dir + System.getProperty("file.separator") + name + "";
-                            gcodeFile += ".gcode";
-                            System.out.println("Writing g code file: " + gcodeFile);
-                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                            writer2.println(gcode2);
-                            writer2.close();
-                        } catch (Exception e){
-                            System.out.println("Error: " + e.toString());
-                        }
-                        
-                        // Multi part file
-                        String gcode3 = gcode2;
-                        int lines = 0; // StringUtils.countMatches(gcode2, "\n");
-                        for(int i = 0; i < gcode3.length(); i++){
-                            if(gcode3.charAt(i) == '\n'){
-                                lines++;
-                            }
-                        }
-                        if(lines > 499){
-                            int lineNumber = 0;
-                            int fileNumber = 1;
-                            lines = 0;
-                            for(int i = 0; i < gcode3.length(); i++){
-                                if(gcode3.charAt(i) == '\n'){
-                                    lines++;
-                                    if(lines > 480){
-                                        String gCodeSection = gcode3.substring(0, i);
-                                        
-                                        String gcodeFile = dir + System.getProperty("file.separator") + name + "_" + fileNumber;
-                                        gcodeFile += ".gcode";
-                                        System.out.println("Writing g code file: " + gcodeFile);
-                                        PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                                        writer2.println(gCodeSection);
-                                        writer2.close();
-                                        
-                                        fileNumber++;
-                                        gcode3 = gcode3.substring(i+1, gcode3.length());
-                                    }
-                                }
-                            }
-                            String gcodeFile = dir + System.getProperty("file.separator") + name + "_" + fileNumber;
-                            gcodeFile += ".gcode";
-                            System.out.println("Writing g code file: " + gcodeFile);
-                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                            writer2.println(gcode3);
-                            writer2.close();
-                            System.out.println(" Lines *** " + lines);
-                        }
-                        
-                    }
-                    
-                } catch (Exception e){
-                    System.out.println("Error: " + e);
-                    e.printStackTrace();
-                }
-                
-            }
-        }
-        */
     }
     
     
