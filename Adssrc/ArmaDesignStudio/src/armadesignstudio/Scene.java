@@ -2817,8 +2817,8 @@ public class Scene
                         }
                     }
                     
-                    System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
-                    System.out.println("Align: x: " + -minX + " y: " + -minZ);
+                    //System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
+                    //System.out.println("Align: x: " + -minX + " y: " + -minZ);
                     
                     
                     // Write gcode to file
@@ -3871,6 +3871,8 @@ public class Scene
      * Description:
      */
     public void resetLayoutView(){
+        LayoutModeling layoutModeling = new LayoutModeling();
+        
         String dir = System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
         File d = new File(dir);
         if(d.exists() == false){
@@ -3888,6 +3890,18 @@ public class Scene
                 // TODO: remove layout file for object id
                 //
                 //
+                System.out.println(" reset " + obj.getId() );
+                layoutModeling.deleteLayout(obj);
+                
+                // Recrse through child objects
+                ObjectInfo[] children = obj.getChildren();
+                if(children.length > 0){
+                    for(ObjectInfo child : children){
+                        
+                        layoutModeling.deleteLayout(child);
+                        
+                    }
+                }
                 
             }
         }

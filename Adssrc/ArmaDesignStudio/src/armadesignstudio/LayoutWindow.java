@@ -840,7 +840,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.add(Translate.menuItem("Layout View", this, "setLayoutView"));
       
       layoutMenu.addSeparator();
-      layoutMenu.add(Translate.menuItem("Reset Layout View", this, "resetLayoutView"));
+      layoutMenu.add(Translate.menuItem("Reset Object Layout", this, "resetLayoutView"));
       
       //layoutMenu.add(Translate.menuItem("Tube Layout View", this, "setTubeLayoutView"));
       //layoutMenu.add(Translate.menuItem("DEBUG", this, "debug"));

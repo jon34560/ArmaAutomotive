@@ -262,6 +262,29 @@ public class LayoutModeling {
 			//}
 		//}
 	}
+    
+    
+    /**
+     * deleteLayout
+     *
+     * Description: Delete layout file. Used to reset object and child positioning.
+     */
+    public void deleteLayout(ObjectInfo info){
+        try {
+            String dir = baseDir;
+            File d = new File(dir);
+            if(d.exists() == true){
+                String dir2 = dir + System.getProperty("file.separator") + info.getId();
+                File d2 = new File(dir2);
+                if(d2.exists() == true){
+                    d2.delete();
+                }
+            }
+        } catch(Exception ex){
+            //System.out.println("Error: " + dir);
+            System.out.println("Error: " + ex);
+        }
+    }
 
 
 	public void disableObject(ObjectInfo info){
