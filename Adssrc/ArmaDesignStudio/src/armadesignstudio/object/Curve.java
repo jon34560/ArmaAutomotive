@@ -17,6 +17,8 @@ import armadesignstudio.math.*;
 import armadesignstudio.ui.*;
 import buoy.widget.*;
 import java.io.*;
+import java.awt.*; // Color
+import buoy.event.*; // WidgetMouseEvent
 
 /** The Curve class represents a continuous curve defined by a series of control vertices. 
     It may be either open or closed, and may either interpolate or approximate the control
@@ -53,11 +55,52 @@ public class Curve extends Object3D implements Mesh
     /**
      * drawEditObject
      *
+     * Description: If enabled, Draw vertex markers to allow for modification from main view.
      * JDT work in progress. Allow editing verticies from the main canvas.
      */
-    public void drawEditObject(){
-        
+    public void drawEditObject(ViewerCanvas canvas){
+        Camera theCamera = canvas.getCamera();
+        MeshVertex v[] = ((Mesh) this).getVertices();
+        Color col = col = new Color(0, 255, 0);
+        int HANDLE_SIZE = 5;
+        boolean isSelected = false;
+        int sel[];
+        sel = canvas.getScene().getSelection();
+        for (int i = 0; i < sel.length; i++)
+        {
+            ObjectInfo info = canvas.getScene().getObject(sel[i]);
+            
+            if(info.getObject() == this){
+                isSelected = true;
+            }
+        }
+        for (int i = 0; i < v.length; i++){
+            //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
+            //{
+            if(isSelected){
+                Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
+                double z = theCamera.getObjectToView().timesZ(v[i].r);
+                
+                canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+            }
+        }
     }
+    
+    /**
+     * mousePressed
+     * Description: Main view vertex editing.
+     */
+    public void mousePressed(WidgetMouseEvent e, Camera theCamera){ //  theCamera
+        MeshVertex v[] = ((Mesh) this).getVertices();
+        
+        for (int i = 0; i < v.length; i++)
+        {
+            //pos = theCamera.getObjectToScreen().timesXY(v[i].r);
+        
+        
+        }
+    }
+    
 
   public Object3D duplicate()
   {

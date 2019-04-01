@@ -336,6 +336,12 @@ public class SceneViewer extends ViewerCanvas
     if (!allowSelectionChange && !wantHandleClicks)
       return;
 
+    // JDT:
+    // Send click event to Object to check if verticies are being modified.
+      // Use: CurveViewer.mousePressed(w) or add function to Curve
+      //theCamera
+      
+      
     // See whether the click was on a currently selected object.
     
     p = e.getPoint();
@@ -350,7 +356,7 @@ public class SceneViewer extends ViewerCanvas
         clickedObject = info;
           
           // JDT we may now want to forward the event to the object to handle main window editing.
-          // *** 
+          // ***
           
         break;
       }
