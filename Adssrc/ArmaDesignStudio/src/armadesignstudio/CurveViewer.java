@@ -46,7 +46,10 @@ public class CurveViewer extends MeshViewer
           double z = theCamera.getObjectToView().timesZ(v[i].r);
           renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, lineColor);
         }
+      
+    // Draw edit points ***
     Color col = (currentTool.hilightSelection() ? highlightColor : lineColor);
+      //col = new Color(0, 255, 0);
     for (int i = 0; i < v.length; i++)
       if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
         {

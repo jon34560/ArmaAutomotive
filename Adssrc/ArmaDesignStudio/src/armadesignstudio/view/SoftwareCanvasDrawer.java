@@ -400,6 +400,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
 
   public void renderLine(Vec2 p1, double zf1, Vec2 p2, double zf2, Camera cam, Color color)
   {
+      //System.out.println(" renderLine ");
     int x1, y1, z1, x2, y2, z2;
     int x, y, z, dx, dy, dz, end, index, edge;
     int clip = (int) (cam.isPerspective() ? cam.getClipDistance()*65535.0 : Integer.MIN_VALUE);
@@ -1595,6 +1596,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     
   /**
    * renderFluidPoint
+   * Description: CFD.
    * TODO: colour and size.
    */
   public void renderFluidPoint(ObjectInfo obj, Camera theCamera){
@@ -1711,8 +1713,9 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       }
   }
 
-  /** Render a mesh to the canvas. */
-
+  /** Render a mesh to the canvas.
+   * - Not curve (Object3D)
+   */
   public void renderMesh(RenderingMesh mesh, VertexShader shader, Camera cam, boolean closed, boolean hideFace[])
   {
     Vec3 vert[] = mesh.vert;

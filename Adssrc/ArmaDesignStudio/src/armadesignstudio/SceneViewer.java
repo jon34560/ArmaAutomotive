@@ -274,8 +274,9 @@ public class SceneViewer extends ViewerCanvas
           boxes.add(new Rectangle(bounds.x+bounds.width-hsize+1, bounds.y+(bounds.height-hsize)/2, hsize, hsize));
         }
       }
-      drawBoxes(selectedBoxes, handleColor);
-      drawBoxes(parentSelectedBoxes, highlightColor);
+      
+      drawBoxes(selectedBoxes, handleColor); // red main window, non edit. outline  drawBoxes(selectedBoxes, new Color(0, 255, 0) ); //
+      drawBoxes(parentSelectedBoxes, highlightColor); // ???
     }
     
     // Finish up.
@@ -347,6 +348,10 @@ public class SceneViewer extends ViewerCanvas
       if (!info.isLocked() && bounds != null && pointInRectangle(p, bounds))
       {
         clickedObject = info;
+          
+          // JDT we may now want to forward the event to the object to handle main window editing.
+          // *** 
+          
         break;
       }
     }

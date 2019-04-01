@@ -2085,6 +2085,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     }
   }
 
+    /**
+     * editObjectCommand
+     * - obj.edit(this)
+     */
   public void editObjectCommand()
   {
     int sel[] = getSelectedIndices();

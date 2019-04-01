@@ -931,21 +931,30 @@ public abstract class ViewerCanvas extends CustomWidget
   
   public void drawBox(int x, int y, int width, int height, Color color)
   {
+    //System.out.println("*** drawBox " + color.getRed() + " " + color.getGreen() + " " + color.getBlue() );
+      
     drawer.drawBox(x, y, width, height, color);
   }
 
-  /** Draw a set of filled boxes in the rendered image. */
-
+  /** Draw a set of filled boxes in the rendered image.
+   * - Only used in main view, not edit window.
+   */
   public void drawBoxes(java.util.List<Rectangle> box, Color color)
   {
+    //System.out.println("*** drawBoxes " + color.getRed() + " " + color.getGreen() + " " + color.getBlue() );
+      
     if (box.size() > 0)
       drawer.drawBoxes(box, color);
   }
 
-  /** Render a filled box at a specified depth in the rendered image. */
-  
+  /** Render a filled box at a specified depth in the rendered image.
+   * Description: Used by editor window
+   */
   public void renderBox(int x, int y, int width, int height, double depth, Color color)
   {
+      
+    //System.out.println("*** renderBox " + color.getRed() + " " + color.getGreen() + " " + color.getBlue() );
+      
     drawer.renderBox(x, y, width, height, depth, color);
   }
 

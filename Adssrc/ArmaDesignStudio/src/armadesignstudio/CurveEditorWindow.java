@@ -310,7 +310,8 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
   }
 
   /** Extend the selection outward by one edge. */
-
+    // JDT
+    // How is this called???
   public void extendSelectionCommand()
   {
     int oldDist = tensionDistance;

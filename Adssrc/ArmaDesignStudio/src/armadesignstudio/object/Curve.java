@@ -49,6 +49,15 @@ public class Curve extends Object3D implements Mesh
     this.smoothingMethod = smoothingMethod;
     closed = isClosed;
   }
+    
+    /**
+     * drawEditObject
+     *
+     * JDT work in progress. Allow editing verticies from the main canvas.
+     */
+    public void drawEditObject(){
+        
+    }
 
   public Object3D duplicate()
   {
@@ -618,10 +627,12 @@ public class Curve extends Object3D implements Mesh
     ed.setVisible(true);
   }
 
-  /** Get a MeshViewer which can be used for viewing this mesh. */
-  
+  /** Get a MeshViewer which can be used for viewing this mesh.
+   * - Called when edit object called ***
+   */
   public MeshViewer createMeshViewer(MeshEditController controller, RowContainer options)
   {
+      //System.out.println("Curve.createMeshViewer");
     return new CurveViewer(controller, options);
   }
 

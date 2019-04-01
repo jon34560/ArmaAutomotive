@@ -67,10 +67,12 @@ public abstract class MeshEditorWindow extends ObjectEditorWindow implements Mes
    * This is invoked to create each of the ViewerCanvases in the window.
    * @param index      the index of the canvas to create (from 0 to 3)
    * @param controls   the contain to which the canvas should add its controls
+   *
+   * - edit object 
    */
-
   protected ViewerCanvas createViewerCanvas(int index, RowContainer controls)
   {
+      //System.out.println("MeshEditorWindow.createViewerCanvas");
     MeshViewer view = ((Mesh) objInfo.getObject()).createMeshViewer(this, controls);
     view.setRenderMode(lastRenderMode[index]);
     view.setMeshVisible(lastShowMesh[index]);

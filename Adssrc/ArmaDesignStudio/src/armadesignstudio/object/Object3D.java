@@ -20,6 +20,7 @@ import armadesignstudio.ui.*;
 import buoy.widget.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.awt.*; // Color
 
 /** Object3D is the abstract superclass of any object which can be placed into a Scene. */
 
@@ -403,8 +404,54 @@ public abstract class Object3D
         canvas.renderMesh(mesh, shader, theCamera, obj.getObject().isClosed(), null);
       }
     }
-    else
+    else {
       canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
+        
+        // TEMP ***
+        
+        // If obj.object is Curve
+        if(obj.object instanceof Curve){
+            // Want to use CurveViewer here to edit curves
+            // SceneViewer gets mousePressed
+            
+            // ((Curve)obj.object).drawEditObject();
+            // scene.
+            
+            
+            // System.out.println("*");
+            // and editing enabled in main view
+            // draw vertecies
+            MeshVertex v[] = ((Mesh) obj.object).getVertices();
+            Color col = col = new Color(0, 255, 0);
+            int HANDLE_SIZE = 5;
+            
+            boolean isSelected = false;
+            int sel[];
+            sel = canvas.getScene().getSelection();
+            for (int i = 0; i < sel.length; i++)
+            {
+                ObjectInfo info = canvas.getScene().getObject(sel[i]);
+                
+                if(info.getObject() == this){
+                    isSelected = true;
+                }
+            }
+            
+            for (int i = 0; i < v.length; i++){
+                //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
+                //{
+                if(isSelected){
+                    Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
+                    double z = theCamera.getObjectToView().timesZ(v[i].r);
+                
+                    canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+                }
+            }
+        
+        }
+        
+ 
+    }
   }
 
   /** The following method writes the object's data to an output stream.  Subclasses should
