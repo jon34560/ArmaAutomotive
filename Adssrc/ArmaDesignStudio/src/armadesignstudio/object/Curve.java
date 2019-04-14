@@ -88,7 +88,7 @@ public class Curve extends Object3D implements Mesh
     
     /**
      * mousePressed
-     * Description: Main view vertex editing.
+     * Description: Main view vertex editing. Called by SceneViewer.
      */
     public void mousePressed(WidgetMouseEvent e, Camera theCamera){ //  theCamera
         MeshVertex v[] = ((Mesh) this).getVertices();

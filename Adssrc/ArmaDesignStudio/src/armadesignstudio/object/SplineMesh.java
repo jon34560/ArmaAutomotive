@@ -20,6 +20,7 @@ import buoy.widget.*;
 import java.io.*;
 import java.lang.ref.*;
 import java.util.*;
+import java.awt.*; // Color
 
 /** The SplineMesh class represents a parametric surface defined as a tensor product of
     spline curves.  Depending on the selected smoothing method, the surface may either 
@@ -99,7 +100,45 @@ public class SplineMesh extends Object3D implements Mesh
     vclosed = mesh.vclosed;
     copyTextureAndMaterial(obj);
   }
+    
+    
+    /**
+     * drawEditObject
+     *
+     * Description: If enabled, Draw vertex markers to allow for modification from main view.
+     * JDT work in progress. Allow editing verticies from the main canvas.
+     */
+    public void drawEditObject(ViewerCanvas canvas){
+        Camera theCamera = canvas.getCamera();
+        MeshVertex v[] = ((Mesh) this).getVertices();
+        Color col = col = new Color(0, 255, 0);
+        int HANDLE_SIZE = 5;
+        boolean isSelected = false;
+        int sel[];
+        sel = canvas.getScene().getSelection();
+        for (int i = 0; i < sel.length; i++)
+        {
+            ObjectInfo info = canvas.getScene().getObject(sel[i]);
+            
+            if(info.getObject() == this){
+                isSelected = true;
+            }
+        }
+        for (int i = 0; i < v.length; i++){
+            //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
+            //{
+            if(isSelected){
+                Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
+                double z = theCamera.getObjectToView().timesZ(v[i].r);
+                
+                canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+            }
+        }
+    
+    }
 
+    
+    
   /** Calculate the (approximate) bounding box for the mesh. */
 
   void findBounds()

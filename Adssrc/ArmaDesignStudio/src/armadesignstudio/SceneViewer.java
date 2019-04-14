@@ -340,6 +340,36 @@ public class SceneViewer extends ViewerCanvas
     // Send click event to Object to check if verticies are being modified.
       // Use: CurveViewer.mousePressed(w) or add function to Curve
       //theCamera
+      //
+
+      p = e.getPoint();
+      int HANDLE_SIZE = 5;
+      sel = theScene.getSelection();
+      for (i = 0; i < sel.length; i++)
+      {
+          info = theScene.getObject(sel[i]);
+          if(info.getObject() instanceof Curve){
+              System.out.println(" curve click check for vertex ");
+              theCamera.setObjectTransform(info.getCoords().fromLocal());
+              MeshVertex v[] = ((Mesh) info.getObject()).getVertices();
+              Vec2 pos;
+              for (int iv = 0; iv < v.length; iv++)
+              {
+                  
+                  pos = theCamera.getObjectToScreen().timesXY(v[iv].r);
+                  int x = (int) pos.x;
+                  int y = (int) pos.y;
+                  //System.out.println(" x " + x + " y " + y);
+                  if (x >= p.x-HANDLE_SIZE/2 && x <= p.x+HANDLE_SIZE/2 && y >= p.y-HANDLE_SIZE/2 && y <= p.y+HANDLE_SIZE/2)
+                  {
+                      System.out.println(" *** " );
+                  }
+              }
+          }
+          
+      }
+      // todo:
+      // If vertex selected, break so the selection can't be cleared.
       
       
     // See whether the click was on a currently selected object.
