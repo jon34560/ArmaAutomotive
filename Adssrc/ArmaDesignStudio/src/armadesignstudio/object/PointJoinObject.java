@@ -19,6 +19,10 @@ import armadesignstudio.texture.*;
 
 public class PointJoinObject
 {
+    public int objectA;
+    public int objectB;
+    public int objectAPoint;
+    public int objectBPoint;
     protected MeshVertex vertex[];  // 3 vertex max???
     protected float smoothness[];
     protected boolean closed;
@@ -28,13 +32,16 @@ public class PointJoinObject
     
     public PointJoinObject()
     {
-        
+        objectA = 0;
+        objectB = 0;
+        objectAPoint = 0;
+        objectBPoint = 0;
     }
     
     public void movePoint(int which, Vec3 pos)
     {
         vertex[which].r = pos;
-        clearCachedMesh();
+        //clearCachedMesh();
     }
     
     public Vec3 [] getVertexPositions()
@@ -49,7 +56,7 @@ public class PointJoinObject
     {
         for (int i = 0; i < v.length; i++)
             vertex[i].r = v[i];
-        clearCachedMesh();
+        //clearCachedMesh();
     }
     
     
@@ -64,10 +71,11 @@ public class PointJoinObject
     /**
      * writeToFile
      *
-     * Description: 
+     * Description:
      */
     public void writeToFile(DataOutputStream out, Scene theScene) throws IOException
     {
+        /*
         super.writeToFile(out, theScene);
         
         //System.out.println("  DimensionObject writeToFile ( outstream, scene ) ");
@@ -83,6 +91,7 @@ public class PointJoinObject
         }
         out.writeBoolean(closed);
         out.writeInt(smoothingMethod); // maybe use this method ID as a designation for dimension object
+         */
     }
     
     

@@ -31,7 +31,9 @@ public class SceneViewer extends ViewerCanvas
   Point clickPoint, dragPoint;
   ObjectInfo clickedObject;
   int deselect;
-  
+    
+  PointJoinObject pointJoin = new PointJoinObject();
+    
   public SceneViewer(Scene s, RowContainer p, EditingWindow fr)
   {
     this(s, p, fr, false);
@@ -349,7 +351,7 @@ public class SceneViewer extends ViewerCanvas
       {
           info = theScene.getObject(sel[i]);
           if(info.getObject() instanceof Curve){
-              System.out.println(" curve click check for vertex ");
+              //System.out.println(" curve click check for vertex ");
               theCamera.setObjectTransform(info.getCoords().fromLocal());
               MeshVertex v[] = ((Mesh) info.getObject()).getVertices();
               Vec2 pos;
@@ -362,7 +364,25 @@ public class SceneViewer extends ViewerCanvas
                   //System.out.println(" x " + x + " y " + y);
                   if (x >= p.x-HANDLE_SIZE/2 && x <= p.x+HANDLE_SIZE/2 && y >= p.y-HANDLE_SIZE/2 && y <= p.y+HANDLE_SIZE/2)
                   {
-                      System.out.println(" *** " );
+                      
+                      
+                      if( e.isShiftDown() ){
+                          if(pointJoin.objectA <= 0){
+                              pointJoin.objectA = info.getId();
+                              pointJoin.objectAPoint = iv;
+                          } else {
+                              pointJoin.objectB = info.getId();
+                              pointJoin.objectBPoint = iv;
+                          }
+                      } else {
+                          pointJoin.objectA = 0;
+                          pointJoin.objectB = 0;
+                      }
+                      
+                      
+                      System.out.println(" *** Click  Object: " + info.getName() + " point: " + iv + " *** " );
+                      System.out.println("    A: " + pointJoin.objectA + " point: " + pointJoin.objectAPoint  + " " );
+                      System.out.println("    B: " + pointJoin.objectB + " point: " + pointJoin.objectBPoint + " " );
                   }
               }
           }
@@ -387,6 +407,7 @@ public class SceneViewer extends ViewerCanvas
           
           // JDT we may now want to forward the event to the object to handle main window editing.
           // ***
+          
           
         break;
       }
