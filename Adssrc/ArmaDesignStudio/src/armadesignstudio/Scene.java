@@ -84,6 +84,7 @@ public class Scene
   private static final byte FILE_PREFIX[] = {'A', 'o', 'I', 'S', 'c', 'e', 'n', 'e'};
 
   ComputationalFluidDynamics cfd;
+  public PointJoinObject createPointJoin;
     
   public Scene()
   {
@@ -116,7 +117,22 @@ public class Scene
     showGrid = snapToGrid = false;
     gridSpacing = 1.0;
     gridSubdivisions = 10;
+      
+      createPointJoin = new PointJoinObject();
   }
+    
+    /**
+     * getCreatePointJoinObject
+     *
+     * Description: This object is used to store data while connecting two curve/mesh points.
+     *   shared between SceneViewer for click and Curve for drawing.
+     */
+    public PointJoinObject getCreatePointJoinObject(){
+        if(createPointJoin == null){
+            this.createPointJoin = new PointJoinObject();
+        }
+        return this.createPointJoin;
+    }
 
   /** Get the name of this scene. */
 

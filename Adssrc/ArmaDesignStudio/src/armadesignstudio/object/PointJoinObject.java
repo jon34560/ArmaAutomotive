@@ -17,19 +17,40 @@ import java.io.*;
 import armadesignstudio.view.*;
 import armadesignstudio.texture.*;
 
-public class PointJoinObject
+public class PointJoinObject // extends Curve implements Mesh
 {
     public int objectA;
     public int objectB;
     public int objectAPoint;
     public int objectBPoint;
-    protected MeshVertex vertex[];  // 3 vertex max???
+    protected MeshVertex vertex[];  // 2 vertex max
     protected float smoothness[];
     protected boolean closed;
     protected int smoothingMethod;
     //protected WireframeMesh cachedWire; // ???
     protected BoundingBox bounds;
     
+    /*
+    public PointJoinObject(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
+    {
+        super(v, smoothness, smoothingMethod, isClosed);
+        
+        int i;
+        
+        vertex = new MeshVertex [v.length];
+        for (i = 0; i < v.length; i++)
+            vertex[i] = new MeshVertex(v[i]);
+        this.smoothness = smoothness;
+        this.smoothingMethod = smoothingMethod;
+        closed = isClosed;
+        
+        objectA = 0;
+        objectB = 0;
+        objectAPoint = 0;
+        objectBPoint = 0;
+    }
+     */
+    /*
     public PointJoinObject()
     {
         objectA = 0;
@@ -37,6 +58,7 @@ public class PointJoinObject
         objectAPoint = 0;
         objectBPoint = 0;
     }
+     */
     
     public void movePoint(int which, Vec3 pos)
     {
@@ -91,7 +113,7 @@ public class PointJoinObject
         }
         out.writeBoolean(closed);
         out.writeInt(smoothingMethod); // maybe use this method ID as a designation for dimension object
-         */
+        */
     }
     
     

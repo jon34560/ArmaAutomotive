@@ -2064,9 +2064,23 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   }
 
     
+    /**
+     * joinObjectVerticesCommand
+     *
+     * Description:
+     */
     public void joinObjectVerticesCommand(){
-        
         System.out.println("Feature not implemented. ");
+        
+        PointJoinObject createPointJoin = theScene.getCreatePointJoinObject();
+        
+        System.out.println(" *** JOIN *** " );
+        System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint  + " " );
+        System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
+        
+        // Save pointJoin object to project file.
+        
+        
     }
 
   /**

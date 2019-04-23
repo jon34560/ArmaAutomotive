@@ -32,7 +32,7 @@ public class SceneViewer extends ViewerCanvas
   ObjectInfo clickedObject;
   int deselect;
     
-  PointJoinObject pointJoin = new PointJoinObject();
+  //PointJoinObject pointJoin = new PointJoinObject();
     
   public SceneViewer(Scene s, RowContainer p, EditingWindow fr)
   {
@@ -343,10 +343,13 @@ public class SceneViewer extends ViewerCanvas
       // Use: CurveViewer.mousePressed(w) or add function to Curve
       //theCamera
       //
+      
+      PointJoinObject createPointJoin = theScene.getCreatePointJoinObject();
 
       p = e.getPoint();
       int HANDLE_SIZE = 5;
       sel = theScene.getSelection();
+      boolean pointClicked = false;
       for (i = 0; i < sel.length; i++)
       {
           info = theScene.getObject(sel[i]);
@@ -357,37 +360,40 @@ public class SceneViewer extends ViewerCanvas
               Vec2 pos;
               for (int iv = 0; iv < v.length; iv++)
               {
-                  
                   pos = theCamera.getObjectToScreen().timesXY(v[iv].r);
                   int x = (int) pos.x;
                   int y = (int) pos.y;
                   //System.out.println(" x " + x + " y " + y);
                   if (x >= p.x-HANDLE_SIZE/2 && x <= p.x+HANDLE_SIZE/2 && y >= p.y-HANDLE_SIZE/2 && y <= p.y+HANDLE_SIZE/2)
                   {
+                      pointClicked = true;
                       
-                      
-                      if( e.isShiftDown() ){
-                          if(pointJoin.objectA <= 0){
-                              pointJoin.objectA = info.getId();
-                              pointJoin.objectAPoint = iv;
-                          } else {
-                              pointJoin.objectB = info.getId();
-                              pointJoin.objectBPoint = iv;
-                          }
-                      } else {
-                          pointJoin.objectA = 0;
-                          pointJoin.objectB = 0;
+                      // Second point selection
+                      if( e.isShiftDown() && createPointJoin.objectA > 0){
+                          createPointJoin.objectB = info.getId();
+                          createPointJoin.objectBPoint = iv;
                       }
                       
+                      // First point selection
+                      if(e.isShiftDown() == false || createPointJoin.objectA <= 0){
+                          createPointJoin.objectA = info.getId();
+                          createPointJoin.objectAPoint = iv;
+                      }
                       
-                      System.out.println(" *** Click  Object: " + info.getName() + " point: " + iv + " *** " );
-                      System.out.println("    A: " + pointJoin.objectA + " point: " + pointJoin.objectAPoint  + " " );
-                      System.out.println("    B: " + pointJoin.objectB + " point: " + pointJoin.objectBPoint + " " );
+                      //System.out.println(" *** Click  Object: " + info.getName() + " point: " + iv + " *** " );
+                      //System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint  + " " );
+                      //System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
                   }
               }
           }
-          
       }
+      // Deselect points
+      if(pointClicked == false && e.isShiftDown() == false){
+          createPointJoin.objectA = 0;
+          createPointJoin.objectB = 0;
+          //System.out.println(" clear point selection ");
+      }
+      
       // todo:
       // If vertex selected, break so the selection can't be cleared.
       

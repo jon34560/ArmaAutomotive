@@ -57,11 +57,15 @@ public class Curve extends Object3D implements Mesh
      *
      * Description: If enabled, Draw vertex markers to allow for modification from main view.
      * JDT work in progress. Allow editing verticies from the main canvas.
+     *
+     * point selection is currently in SceneViewer.pointJoin
      */
     public void drawEditObject(ViewerCanvas canvas){
         Camera theCamera = canvas.getCamera();
         MeshVertex v[] = ((Mesh) this).getVertices();
-        Color col = col = new Color(0, 255, 0);
+        Color col = new Color(0, 255, 0);
+        Color selected_col = new Color(180, 80, 80);
+        Color unselected_col = new Color(0, 255, 0);
         int HANDLE_SIZE = 5;
         boolean isSelected = false;
         int sel[];
@@ -69,19 +73,50 @@ public class Curve extends Object3D implements Mesh
         for (int i = 0; i < sel.length; i++)
         {
             ObjectInfo info = canvas.getScene().getObject(sel[i]);
-            
             if(info.getObject() == this){
                 isSelected = true;
             }
         }
+        
+        PointJoinObject createPointJoin = canvas.getScene().getCreatePointJoinObject();
+        
+        boolean isObjectA = false;
+        boolean isObjectB = false;
+        for(int i = 0; i < canvas.getScene().getNumObjects(); i++){
+            ObjectInfo info = canvas.getScene().getObject(i);
+            if(info.getObject() == this){
+                //System.out.println(" objects " + i + " " + info.getName());
+                if(createPointJoin.objectA == i+1){
+                    isObjectA = true;
+                    //System.out.println(" is A " + i);
+                }
+                if(createPointJoin.objectB == i+1){
+                    isObjectB = true;
+                    //System.out.println(" is B " + i);
+                }
+            }
+        }
+        
+        // Iterate through curve vertecies.
         for (int i = 0; i < v.length; i++){
             //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
             //{
-            if(isSelected){
+            if(isSelected || isObjectA || isObjectB){ // if object selected or point in object selected.
                 Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
                 double z = theCamera.getObjectToView().timesZ(v[i].r);
                 
+                // if point selected, use different color.
+                //
+                if(isObjectA && i == createPointJoin.objectAPoint){
+                    col = selected_col;
+                }
+                if(isObjectB && i == createPointJoin.objectBPoint){
+                    col = selected_col;
+                }
+                
                 canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+                
+                col = unselected_col;
             }
         }
     }
