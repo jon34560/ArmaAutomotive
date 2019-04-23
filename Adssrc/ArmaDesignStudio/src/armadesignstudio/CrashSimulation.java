@@ -42,7 +42,7 @@ public class CrashSimulation extends BDialog
 
   public CrashSimulation(BFrame parent)
   {
-    super(parent, "Crash Simulation", true);
+    super(parent, "FEA Crash Simulation", true);
 
 
     fields = new ValueField [9];

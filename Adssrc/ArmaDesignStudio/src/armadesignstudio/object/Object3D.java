@@ -406,9 +406,9 @@ public abstract class Object3D
         
       
       // JDT Draw mesh edit points
-        if(obj.object instanceof SplineMesh){
-            ((SplineMesh)obj.object).drawEditObject(canvas);
-        }
+      if(obj.object instanceof SplineMesh){
+        ((SplineMesh)obj.object).drawEditObject(canvas);
+      }
         
     }
     else {
@@ -425,41 +425,7 @@ public abstract class Object3D
             // Tell Curve object to draw edit verticies markers if enabled.
             ((Curve)obj.object).drawEditObject(canvas);
             
-            
-            
-            // System.out.println("*");
-            // and editing enabled in main view
-            // draw vertecies
-            /*
-            MeshVertex v[] = ((Mesh) obj.object).getVertices();
-            Color col = col = new Color(0, 255, 0);
-            int HANDLE_SIZE = 5;
-            
-            boolean isSelected = false;
-            int sel[];
-            sel = canvas.getScene().getSelection();
-            for (int i = 0; i < sel.length; i++)
-            {
-                ObjectInfo info = canvas.getScene().getObject(sel[i]);
-                
-                if(info.getObject() == this){
-                    isSelected = true;
-                }
-            }
-            for (int i = 0; i < v.length; i++){
-                //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
-                //{
-                if(isSelected){
-                    Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
-                    double z = theCamera.getObjectToView().timesZ(v[i].r);
-                
-                    canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
-                }
-            }
-             */
         }
-        
- 
     }
   }
 

@@ -603,6 +603,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     objectMenu.add(objectMenuItem[7] = Translate.menuItem("convertToActor", this, "convertToActorCommand"));
     objectMenu.addSeparator();
 
+      objectMenu.add( Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
+      
+    objectMenu.addSeparator();
     objectMenu.add( Translate.menuItem("Find Object", this, "findObjectCommand"));
     objectMenu.addSeparator();
 
@@ -873,7 +876,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         feaMenu = Translate.menu("FEA");
         menubar.add(feaMenu);
         feaMenuItem = new BMenuItem [13];
-        feaMenu.add(Translate.menuItem("Run crash simulation", this, "runCrashSimulation")); 
+        feaMenu.add(Translate.menuItem("Run simulation", this, "runCrashSimulation"));
         feaMenu.addSeparator(); 
         feaMenu.add(Translate.menuItem("Set Object Structure", this, "setObjectStructure"));
         feaMenu.addSeparator();
@@ -894,6 +897,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         cfdMenuItem = new BMenuItem [13];
         
         cfdMenu.add(Translate.menuItem("Run", this, "runCFD"));
+        cfdMenu.add(Translate.menuItem("Stop", this, "stopCFD"));
+        
         //cfdMenu.addSeparator();
         //cfdMenu.add(Translate.menuItem("Copy Structure Objects", this, "copyStructureObjects"));
         //cfdMenu.add(Translate.menuItem("Generate Structure Mesh", this, "generateStructureMesh"));
@@ -2058,6 +2063,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     setUndoRecord(undo);
   }
 
+    
+    public void joinObjectVerticesCommand(){
+        
+        System.out.println("Feature not implemented. ");
+    }
 
   /**
   * findObjectCommand
@@ -3443,6 +3453,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void runCFD(){
         if(theScene != null){
             theScene.runCFD(this);
+        }
+    }
+    
+    public void stopCFD(){
+        if(theScene != null){
+            theScene.stopCFD(this);
         }
     }
     

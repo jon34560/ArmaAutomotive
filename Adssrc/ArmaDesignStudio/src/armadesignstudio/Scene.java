@@ -4809,7 +4809,9 @@ public class Scene
     }
     
     public void runCFD(LayoutWindow window){
-        cfd = new ComputationalFluidDynamics();
+        if(cfd == null){
+            cfd = new ComputationalFluidDynamics();
+        }
         cfd.setObjects(objects);
         cfd.setLayoutWindow(window);
         //cfd.run();
@@ -4817,6 +4819,7 @@ public class Scene
             cfd.start();
         } else {
             cfd.stopCFD();
+            //cfd = null;
         }
         
         /*
@@ -4912,6 +4915,20 @@ public class Scene
         }
          
          */
+    }
+    
+    /**
+     * stopCFD
+     *
+     */
+    public void stopCFD(LayoutWindow window){
+        if(cfd != null){
+            if(cfd.isRunning() == false){
+           
+            } else {
+                cfd.stopCFD();
+            }
+        }
     }
     
     public void setObjectGroup(){
