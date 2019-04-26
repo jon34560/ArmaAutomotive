@@ -2078,8 +2078,40 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint  + " " );
         System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
         
+        
+        Vec3 v[] = new Vec3[2];
+        v[0] = new Vec3(0.0, 0.0, 0.0);
+        v[1] = new Vec3(0.0, 0.0, 0.0);
+        createPointJoin.setVertex(v);
+        
         // Save pointJoin object to project file.
         
+        // copy AddToScene function from DimensionTool
+        
+        int counter = 0;
+        
+        CoordinateSystem coords;
+        Vec3 vertex[], orig, ydir, zdir;
+        orig = new Vec3();
+        
+        ViewerCanvas view = theView[currentView]; // ***********
+        EditingWindow theWindow = null;
+        
+        UndoRecord undo = new UndoRecord(theWindow, false);
+        
+        Camera cam = view.getCamera();
+        ydir = cam.getViewToWorld().timesDirection(Vec3.vy());
+        zdir = cam.getViewToWorld().timesDirection(new Vec3(0.0, 0.0, -1.0));
+        coords = new CoordinateSystem(orig, zdir, ydir);
+        
+        
+        ObjectInfo info = new ObjectInfo(createPointJoin, coords, "PointJoin "+(counter++));
+        info.addTrack(new PositionTrack(info), 0);
+        info.addTrack(new RotationTrack(info), 1);
+        
+        ((LayoutWindow)this).addObject(info, undo);
+        
+        //((LayoutWindow) theWindow).setSelection(theWindow.getScene().getNumObjects()-1);
         
     }
 
