@@ -332,20 +332,19 @@ public class MoveObjectTool extends EditingTool
                     vr[pointJoin.objectAPoint] = new Vec3(vec.x + v.x, vec.y + v.y, vec.z + v.z);
                     
                     // Update object
-                    o3d.setVertexPositions( vr ); // clears cache mesh
+                    o3d.setVertexPositions(vr); // clears cache mesh
                     obj.setObject((Object3D)o3d);
+                    obj.clearCachedMeshes();
                     
                     if(o3d instanceof Curve){
-                        System.out.println(" XXXXXX ");
-                        ((Curve)o3d).getBounds(); // force recalculate.
-                        
-                        //((Curve)o3d)
+                        //System.out.println(" XXXXXX ");
+                        //((Curve)o3d).getBounds(); // force recalculate.
                     }
                     
                     // Refresh *** NOT WORKING
                     //theScene
                     // LayoutWindow.updateImage();
-                    theWindow.updateImage();
+                    //theWindow.updateImage();
                     
                 }
             }
