@@ -22,17 +22,22 @@ import armadesignstudio.texture.*;
 
 // Curve extends Object3D
 
-public class PointJoinObject extends Object3D // extends Curve implements Mesh
+public class PointJoinObject extends Object3D implements Mesh // extends Curve implements Mesh
 {
-    public int objectA;
+    Scene theScene;
+    public int objectA;         // Object ID
     public int objectB;
     public int objectAPoint;
     public int objectBPoint;
+    
+    //public int ObjectAID;
+    //public int ObjectBID;
+    
     protected MeshVertex vertex[];  // 2 vertex max
     protected float smoothness[];
     protected boolean closed;
     protected int smoothingMethod;
-    protected WireframeMesh cachedWire; // ???
+    protected WireframeMesh cachedWire;
     protected BoundingBox bounds;
     double halfx, halfy, halfz;
     
@@ -53,7 +58,7 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
         //super(v, smoothness, smoothingMethod, isClosed);
         
         int i;
-        
+        theScene = null;
         
         vertex = new MeshVertex [v.length];
         for (i = 0; i < v.length; i++)
@@ -62,20 +67,35 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
         this.smoothingMethod = smoothingMethod;
         closed = isClosed;
         
-        
+        //ObjectAID = 0;
+        //ObjectBID = 0;
         objectA = 0;
         objectB = 0;
         objectAPoint = 0;
         objectBPoint = 0;
+        System.out.println(" constructor ");
     }
     
     
     public PointJoinObject()
     {
+        theScene = null;
+        //ObjectAID = 0;
+        //ObjectBID = 0;
         objectA = 0;
         objectB = 0;
         objectAPoint = 0;
         objectBPoint = 0;
+        System.out.println(" constructor ");
+    }
+    
+    /**
+     * setScene
+     *
+     * Description: This object needs a reference to the scene in order to access the other objects this point connects.
+     */
+    public void setScene(Scene scene){
+        this.theScene = scene;
     }
     
     public void setVertex(Vec3 v[])
@@ -113,42 +133,10 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
         }
         smoothingMethod = cv.smoothingMethod;
         setClosed(cv.closed);
-        //clearCachedMesh();
+        clearCachedMesh();
     }
     
-    /*
-    protected void findBounds()
-    {
-        double minx, miny, minz, maxx, maxy, maxz;
-        Vec3 v, points[];
-        int i;
-        
-        //getWireframeMesh();
-        points = cachedWire.vert;
-        minx = maxx = points[0].x;
-        miny = maxy = points[0].y;
-        minz = maxz = points[0].z;
-        for (i = 1; i < points.length; i++)
-        {
-            v = points[i];
-            if (v.x < minx) minx = v.x;
-            if (v.x > maxx) maxx = v.x;
-            if (v.y < miny) miny = v.y;
-            if (v.y > maxy) maxy = v.y;
-            if (v.z < minz) minz = v.z;
-            if (v.z > maxz) maxz = v.z;
-        }
-        bounds = new BoundingBox(minx, maxx, miny, maxy, minz, maxz);
-    }
-     
     
-    public BoundingBox getBounds()
-    {
-        if (bounds == null)
-            findBounds();
-        return bounds;
-    }
-     */
     
     public MeshVertex[] getVertices()
     {
@@ -166,7 +154,7 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
     public void movePoint(int which, Vec3 pos)
     {
         vertex[which].r = pos;
-        //clearCachedMesh();
+        clearCachedMesh();
     }
     
     public Vec3 [] getVertexPositions()
@@ -177,19 +165,128 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
         return v;
     }
     
+    // DEPRICATE ???
     public void setVertexPositions(Vec3 v[])
     {
         for (int i = 0; i < v.length; i++)
             vertex[i].r = v[i];
+        
+        clearCachedMesh();
+    }
+    
+    /**
+     * setVertexPositions
+     * Description: Set vertex positions based on other objects.
+     */
+    public void setVertexPositions()
+    {
+        if(theScene == null){
+            System.out.println(" SCENE is null ");
+            return;
+        }
+        
+        Vec3 v[] = new Vec3[2];
+        v[0] = new Vec3(0.0, 0.0, 0.0);
+        v[1] = new Vec3(0.0, 0.0, 0.0);
+        
+        int count = theScene.getNumObjects();
+        for(int i = 0; i < count; i++){
+            ObjectInfo obj = theScene.getObject(i);
+            if( obj.getId() == this.objectA ){
+                System.out.println(" FOUND A " + obj.getName());
+                Mesh o3d = (Mesh)obj.getObject();
+                MeshVertex[] verts = o3d.getVertices();
+                if(this.objectAPoint < verts.length){
+                    MeshVertex vm = verts[this.objectAPoint];
+                    Vec3 vec = vm.r;
+                    v[0] = new Vec3(vec.x, vec.y, vec.z);
+                }
+            }
+            if( obj.getId() == this.objectB ){
+                System.out.println(" FOUND B " + obj.getName());
+                Mesh o3d = (Mesh)obj.getObject();
+                MeshVertex[] verts = o3d.getVertices();
+                if(this.objectAPoint < verts.length){
+                    MeshVertex vm = verts[this.objectBPoint];
+                    Vec3 vec = vm.r;
+                    v[1] = new Vec3(vec.x, vec.y, vec.z);
+                }
+            }
+        }
+        
+        System.out.println(" Objects in scene: " + count);
+        System.out.println(" objectA: " + objectA);
+        System.out.println(" objectB: " + objectB);
+        
+        System.out.println("    A: " + v[0].x + " " + v[0].y  + " " + v[0].z );
+        System.out.println("    B: " + v[1].x + " " + v[1].y  + " " + v[1].z );
+        setVertex(v);
+        
         //clearCachedMesh();
     }
     
     
+    /**
+     * renderObject
+     *
+     * Description:
+     */
     public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
     {
-        
-        
-        // canvas.renderDimensionObject( obj, theCamera );
+        if (!obj.isVisible())
+            return;
+        Camera theCamera = canvas.getCamera();
+        if (theCamera.visibility(obj.getBounds()) == Camera.NOT_VISIBLE)
+            return;
+        int renderMode = canvas.getRenderMode();
+        if (renderMode == ViewerCanvas.RENDER_WIREFRAME)
+        {
+            //System.out.println(" RENDER_WIREFRAME ");
+            canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
+            return;
+        }
+        RenderingMesh mesh = obj.getPreviewMesh();
+        if (mesh != null)
+        {
+            
+            if (parametersChanged)
+            {
+                TexturedVertexShader.clearCachedShaders(mesh);
+                parametersChanged = false;
+            }
+            VertexShader shader;
+            if (renderMode == ViewerCanvas.RENDER_TRANSPARENT)
+            {
+                //System.out.println(" RENDER_TRANSPARENT ");
+                shader = new ConstantVertexShader(ViewerCanvas.transparentColor);
+                canvas.renderMeshTransparent(mesh, shader, theCamera, obj.getCoords().toLocal().timesDirection(viewDir), null);
+            }
+            else
+            {
+                //System.out.println(" RENDER_MESH ");
+                double time = 0.0;
+                if (canvas.getScene() != null)
+                    time = canvas.getScene().getTime();
+                if (renderMode == ViewerCanvas.RENDER_FLAT)
+                    shader = new FlatVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir));
+                else if (renderMode == ViewerCanvas.RENDER_SMOOTH)
+                    shader = new SmoothVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir));
+                else
+                    shader = new TexturedVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir)).optimize();
+                
+                canvas.renderMesh(mesh, shader, theCamera, obj.getObject().isClosed(), null);
+            }
+        }
+        else {
+            //System.out.println(" wireframe ");
+            // always Call
+            
+            //Draw curve
+            //canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
+            
+            // Draw JoinPoint.
+            canvas.renderPointJoinObject( obj, theCamera );
+        }
     }
     
     public void setShape(Vec3 v[], float smoothness[])
@@ -199,13 +296,13 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
         for (int i = 0; i < v.length; i++)
             vertex[i] = new MeshVertex(v[i]);
         this.smoothness = smoothness;
-        //clearCachedMesh();
+        clearCachedMesh();
     }
     
     public void setClosed(boolean isClosed)
     {
         closed = isClosed;
-        //clearCachedMesh();
+        clearCachedMesh();
     }
     
     public boolean isClosed()
@@ -213,63 +310,42 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
         return closed;
     }
     
-    /*
-    public void setSize(double xsize, double ysize, double zsize)
-    {
-        Vec3 size = getBounds().getSize();
-        double xscale, yscale, zscale;
-        
-        if (size.x == 0.0)
-            xscale = 1.0;
-        else
-            xscale = xsize / size.x;
-        if (size.y == 0.0)
-            yscale = 1.0;
-        else
-            yscale = ysize / size.y;
-        if (size.z == 0.0)
-            zscale = 1.0;
-        else
-            zscale = zsize / size.z;
-        for (int i = 0; i < vertex.length; i++)
-        {
-            vertex[i].r.x *= xscale;
-            vertex[i].r.y *= yscale;
-            vertex[i].r.z *= zscale;
-        }
-        clearCachedMesh();
-    }
-     */
-    
-   
     
     
     /**
      * writeToFile
      *
-     * Description:
+     * Description: write pointObject to file.
      */
     public void writeToFile(DataOutputStream out, Scene theScene) throws IOException
     {
+        this.theScene = theScene;
         super.writeToFile(out, theScene);
         
         //System.out.println("  DimensionObject writeToFile ( outstream, scene ) ");
         
+        System.out.println(" writeToFile  A: " + objectA + " B: " + objectB);
+        
         int i;
         
         out.writeShort(0); // is this a delimiter or object id
-        out.writeInt(vertex.length); // should always be 3
-        for (i = 0; i < vertex.length; i++)
-        {
-            vertex[i].r.writeToFile(out);
+        //out.writeInt(vertex.length); // should always be 3
+        
+        //out.writeString(objectAID);
+        //out.writeString(objectBID);
+        out.writeInt(objectA);
+        out.writeInt(objectB);
+        out.writeInt(objectAPoint);
+        out.writeInt(objectBPoint);
+        
+        //for (i = 0; i < vertex.length; i++)
+        //{
+            //vertex[i].r.writeToFile(out);
             //out.writeFloat(smoothness[i]);
-        }
-        out.writeBoolean(closed);
-        out.writeInt(smoothingMethod); // maybe use this method ID as a designation for dimension object
-        
-        
+        //}
+        //out.writeBoolean(closed);
+        //out.writeInt(smoothingMethod); // maybe use this method ID as a designation for dimension object
     }
-    
     
     /**
      * PointJoinObject
@@ -279,25 +355,46 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
     public PointJoinObject(DataInputStream in, Scene theScene) throws IOException, InvalidObjectException
     {
         super(in, theScene);
-        
+        this.theScene = theScene;
         //System.out.println("  PointJoinObject( instream, scene ) ");
-        
         int i;
         short version = in.readShort();
         
         if (version != 0){
             throw new InvalidObjectException("");
         }
-        vertex = new MeshVertex [in.readInt()];
+        
+        // Temporary. Actual values will be calculated by the render function when all file objects have been loaded.
+        Vec3 v[] = new Vec3[2];
+        v[0] = new Vec3(0.0, 0.0, 0.0);
+        v[1] = new Vec3(0.0, 0.5, 0.0);
+        setVertex(v);
+        
+        //objectAID = in.readString();
+        //objectBID = in.readString();
+        objectA = in.readInt();
+        objectB = in.readInt();
+        objectAPoint = in.readInt();
+        objectBPoint = in.readInt();
+        
+        System.out.println(" read joint " + objectA + " " + objectB + " " + objectAPoint + " " + objectBPoint);
+        
+        
+        
+        setVertexPositions();
+        
+        //vertex = new MeshVertex [in.readInt()];
         //smoothness = new float [vertex.length];
-        for (i = 0; i < vertex.length; i++)
-        {
-            vertex[i] = new MeshVertex(new Vec3(in));
+        //for (i = 0; i < vertex.length; i++)
+        //{
+            //vertex[i] = new MeshVertex(new Vec3(in));
             //smoothness[i] = in.readFloat();
-        }
-        closed = in.readBoolean();
-        smoothingMethod = in.readInt();
+        //}
+        //closed = in.readBoolean();
+        //smoothingMethod = in.readInt();
     }
+    
+   
     
     
     
@@ -317,6 +414,11 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
     
     public WireframeMesh getWireframeMesh()
     {
+        System.out.println(" getWireframeMesh "  );
+        
+        // Calculate actual coordinates between the object points that are connected.
+        setVertexPositions();
+        
         
         int i, from[], to[];
         PointJoinObject subdiv;
@@ -550,6 +652,28 @@ public class PointJoinObject extends Object3D // extends Curve implements Mesh
     }
     
     
-   
+    public MeshViewer createMeshViewer(MeshEditController controller, RowContainer options)
+    {
+        return new CurveViewer(controller, options);
+    }
+    
+    public void setSkeleton(Skeleton s)
+    {
+    }
+    
+    public Vec3 [] getNormals()
+    {
+        Vec3 norm[] = new Vec3[vertex.length];
+        for (int i = 0; i < norm.length; i++)
+            norm[i] = Vec3.vz();
+        return norm;
+    }
+    
+    /** Get the skeleton for this pose (or null if it doesn't have one). */
+    
+    public Skeleton getSkeleton()
+    {
+        return null;
+    }
     
 }

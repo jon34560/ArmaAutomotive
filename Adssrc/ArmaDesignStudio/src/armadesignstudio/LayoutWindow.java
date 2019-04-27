@@ -2070,18 +2070,44 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
      * Description:
      */
     public void joinObjectVerticesCommand(){
-        System.out.println("Feature not implemented. ");
-        
         PointJoinObject createPointJoin = theScene.getCreatePointJoinObject();
+        createPointJoin.setScene(theScene);
         
-        System.out.println(" *** JOIN *** " );
-        System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint  + " " );
+        System.out.println(" *** JOIN *** ");
+        System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint + " " );
         System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
-        
         
         Vec3 v[] = new Vec3[2];
         v[0] = new Vec3(0.0, 0.0, 0.0);
         v[1] = new Vec3(0.0, 0.0, 0.0);
+        
+        int count = theScene.getNumObjects();
+        for(int i = 0; i < count; i++){
+            ObjectInfo obj = theScene.getObject(i);
+            if( obj.getId() == createPointJoin.objectA ){
+                //System.out.println(" FOUND A " + obj.getName());
+                Mesh o3d = (Mesh)obj.getObject();
+                MeshVertex[] verts = o3d.getVertices();
+                if(createPointJoin.objectAPoint < verts.length){
+                    MeshVertex vm = verts[createPointJoin.objectAPoint];
+                    Vec3 vec = vm.r;
+                    v[0] = new Vec3(vec.x, vec.y, vec.z);
+                }
+            }
+            if( obj.getId() == createPointJoin.objectB ){
+                //System.out.println(" FOUND B " + obj.getName());
+                Mesh o3d = (Mesh)obj.getObject();
+                MeshVertex[] verts = o3d.getVertices();
+                if(createPointJoin.objectAPoint < verts.length){
+                    MeshVertex vm = verts[createPointJoin.objectBPoint];
+                    Vec3 vec = vm.r;
+                    v[1] = new Vec3(vec.x, vec.y, vec.z);
+                }
+            }
+        }
+        
+        //System.out.println("    A: " + v[0].x + " " + v[0].y  + " " + v[0].z );
+        //System.out.println("    B: " + v[1].x + " " + v[1].y  + " " + v[1].z );
         createPointJoin.setVertex(v);
         
         // Save pointJoin object to project file.
@@ -2104,15 +2130,20 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         zdir = cam.getViewToWorld().timesDirection(new Vec3(0.0, 0.0, -1.0));
         coords = new CoordinateSystem(orig, zdir, ydir);
         
-        
         ObjectInfo info = new ObjectInfo(createPointJoin, coords, "PointJoin "+(counter++));
         info.addTrack(new PositionTrack(info), 0);
         info.addTrack(new RotationTrack(info), 1);
         
         ((LayoutWindow)this).addObject(info, undo);
         
+        // Reset the new pointjoin object
+        PointJoinObject resetPointJoin = new PointJoinObject();
+        theScene.setPointJoinObject(resetPointJoin);
+        
         //((LayoutWindow) theWindow).setSelection(theWindow.getScene().getNumObjects()-1);
         
+        // Reload screen
+        // TODO
     }
 
   /**

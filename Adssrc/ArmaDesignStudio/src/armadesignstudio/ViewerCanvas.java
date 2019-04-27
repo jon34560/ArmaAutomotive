@@ -1023,6 +1023,10 @@ public abstract class ViewerCanvas extends CustomWidget
     drawer.renderLabelObject(obj, theCamera);
   }
     
+    public void renderPointJoinObject(ObjectInfo obj, Camera theCamera)
+    {
+        drawer.renderPointJoinObject(obj, theCamera);
+    }
     
     public void renderFluidPointObject(ObjectInfo obj, Camera theCamera){
         drawer.renderFluidPoint(obj, theCamera);

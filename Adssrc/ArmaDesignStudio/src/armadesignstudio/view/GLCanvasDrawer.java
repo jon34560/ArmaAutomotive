@@ -479,6 +479,10 @@ public class GLCanvasDrawer implements CanvasDrawer
     
     }
     
+    public void renderPointJoinObject( ObjectInfo obj, Camera theCamera ){
+        
+    }
+    
     public void renderLabelObject(ObjectInfo obj, Camera theCamera) {
     
     }

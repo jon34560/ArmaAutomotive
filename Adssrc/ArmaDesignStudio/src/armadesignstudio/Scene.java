@@ -133,6 +133,10 @@ public class Scene
         }
         return this.createPointJoin;
     }
+    
+    public void setPointJoinObject(PointJoinObject pointJoinObject){
+        this.createPointJoin = pointJoinObject;
+    }
 
   /** Get the name of this scene. */
 
