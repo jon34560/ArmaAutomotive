@@ -319,6 +319,8 @@ public class Curve extends Object3D implements Mesh
 
   public WireframeMesh getWireframeMesh()
   {
+    System.out.println("Curve.getWireframeMesh()");
+      
     int i, from[], to[];
     Curve subdiv;
     Vec3 vert[];

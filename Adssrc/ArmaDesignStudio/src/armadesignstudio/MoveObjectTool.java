@@ -298,8 +298,8 @@ public class MoveObjectTool extends EditingTool
     PointJoinObject pointJoin = theScene.getCreatePointJoinObject();
     
     if(pointJoin.objectA > 0){
-        System.out.println(" objectA " + pointJoin.objectA );
-        //theScene
+        //System.out.println(" objectA " + pointJoin.objectA );
+        
         int count = theScene.getNumObjects();
         for( i = 0; i < count; i++){
             ObjectInfo obj = theScene.getObject(i);
@@ -307,13 +307,47 @@ public class MoveObjectTool extends EditingTool
                 Mesh o3d = (Mesh)obj.getObject();
                 MeshVertex[] verts = o3d.getVertices();
                 if(pointJoin.objectAPoint < verts.length){
+                    
+                    if(v == null){
+                        Vec3 origin = obj.getCoords().getOrigin();
+                        if (Math.abs(origin.minus(cameraCoords.getOrigin()).dot(cameraCoords.getZDirection())) < 1e-10)
+                        {
+                            // The object being moved is in the plane of the camera, so use a slightly
+                            // different point to avoid dividing by zero.
+                            
+                            origin = origin.plus(cameraCoords.getZDirection().times(cam.getClipDistance()));
+                        }
+                        v = cam.findDragVector(origin, dx, dy);
+                    }
+                    
+                    Vec3 vr[] = new Vec3[verts.length];
+                    for(int vrx = 0; vrx < verts.length; vrx++){
+                        vr[vrx] = verts[vrx].r;
+                    }
+                    
                     MeshVertex vm = verts[pointJoin.objectAPoint];
                     Vec3 vec = vm.r;
+                    //Vec3 vx[] = new Vec3[1];
                     
-                    Vec3 vx[] = new Vec3[1];
-                    vx[0] = new Vec3(vec.x, vec.y, vec.z);
+                    vr[pointJoin.objectAPoint] = new Vec3(vec.x + v.x, vec.y + v.y, vec.z + v.z);
+                    
+                    // Update object
+                    o3d.setVertexPositions( vr ); // clears cache mesh
+                    obj.setObject((Object3D)o3d);
+                    
+                    if(o3d instanceof Curve){
+                        System.out.println(" XXXXXX ");
+                        ((Curve)o3d).getBounds(); // force recalculate.
+                        
+                        //((Curve)o3d)
+                    }
+                    
+                    // Refresh *** NOT WORKING
+                    //theScene
+                    // LayoutWindow.updateImage();
+                    theWindow.updateImage();
+                    
                 }
-                
             }
         }
         

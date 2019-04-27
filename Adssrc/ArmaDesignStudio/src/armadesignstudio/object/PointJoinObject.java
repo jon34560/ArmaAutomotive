@@ -165,9 +165,10 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         return v;
     }
     
-    // DEPRICATE ???
+    //
     public void setVertexPositions(Vec3 v[])
     {
+        //System.out.println("setVertexPositions");
         for (int i = 0; i < v.length; i++)
             vertex[i].r = v[i];
         
