@@ -73,7 +73,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         objectB = 0;
         objectAPoint = 0;
         objectBPoint = 0;
-        System.out.println(" constructor ");
+        //System.out.println(" constructor ");
     }
     
     
@@ -86,7 +86,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         objectB = 0;
         objectAPoint = 0;
         objectBPoint = 0;
-        System.out.println(" constructor ");
+        //System.out.println(" constructor ");
     }
     
     /**
@@ -181,7 +181,6 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     public void setVertexPositions()
     {
         if(theScene == null){
-            System.out.println(" SCENE is null ");
             return;
         }
         
@@ -193,7 +192,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         for(int i = 0; i < count; i++){
             ObjectInfo obj = theScene.getObject(i);
             if( obj.getId() == this.objectA ){
-                System.out.println(" FOUND A " + obj.getName());
+                //System.out.println(" FOUND A " + obj.getName());
                 Mesh o3d = (Mesh)obj.getObject();
                 MeshVertex[] verts = o3d.getVertices();
                 if(this.objectAPoint < verts.length){
@@ -203,7 +202,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                 }
             }
             if( obj.getId() == this.objectB ){
-                System.out.println(" FOUND B " + obj.getName());
+                //System.out.println(" FOUND B " + obj.getName());
                 Mesh o3d = (Mesh)obj.getObject();
                 MeshVertex[] verts = o3d.getVertices();
                 if(this.objectAPoint < verts.length){
@@ -214,15 +213,15 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
             }
         }
         
-        System.out.println(" Objects in scene: " + count);
-        System.out.println(" objectA: " + objectA);
-        System.out.println(" objectB: " + objectB);
+        //System.out.println(" Objects in scene: " + count);
+        //System.out.println(" objectA: " + objectA);
+        //System.out.println(" objectB: " + objectB);
         
-        System.out.println("    A: " + v[0].x + " " + v[0].y  + " " + v[0].z );
-        System.out.println("    B: " + v[1].x + " " + v[1].y  + " " + v[1].z );
+        //System.out.println("    A: " + v[0].x + " " + v[0].y  + " " + v[0].z );
+        //System.out.println("    B: " + v[1].x + " " + v[1].y  + " " + v[1].z );
         setVertex(v);
         
-        //clearCachedMesh();
+        clearCachedMesh();
     }
     
     
@@ -414,7 +413,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     
     public WireframeMesh getWireframeMesh()
     {
-        System.out.println(" getWireframeMesh "  );
+        //System.out.println(" getWireframeMesh "  );
         
         // Calculate actual coordinates between the object points that are connected.
         setVertexPositions();

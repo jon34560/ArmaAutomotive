@@ -325,10 +325,12 @@ public class Curve extends Object3D implements Mesh
     
     if (cachedWire != null)
       return cachedWire;
-    if (smoothingMethod == NO_SMOOTHING)
-      subdiv = this;
-    else
-      subdiv = subdivideCurve().subdivideCurve();
+      if (smoothingMethod == NO_SMOOTHING){
+        subdiv = this;
+      } else {
+        //subdiv = subdivideCurve().subdivideCurve();
+          subdiv = subdivideCurve().subdivideCurve().subdivideCurve();
+      }
     vert = new Vec3 [subdiv.vertex.length];
     for (i = 0; i < vert.length; i++)
       vert[i] = subdiv.vertex[i].r;

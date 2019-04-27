@@ -174,9 +174,13 @@ public class MoveObjectTool extends EditingTool
     theWindow.updateImage();
   }
 
+    /**
+     * keyPressed
+     *
+     * Description:
+     */
   public void keyPressed(KeyPressedEvent e, ViewerCanvas view)
   {
-    //System.out.println("MoveObjectTool.keyPressed()"); // JDT
 	LayoutModeling layout = new LayoutModeling();
     Scene theScene = theWindow.getScene();
     //layout.setBaseDir(theScene.getDirectory() + "\\" + theScene.getName() + "_layout_data" );
@@ -185,11 +189,16 @@ public class MoveObjectTool extends EditingTool
     UndoRecord undo;
     int i, sel[];
     double dx, dy;
-    Vec3 v;
+    Vec3 v = null;
     int key = e.getKeyCode();
+      
+    //System.out.println("MoveObjectTool.keyPressed() " + key);
 
     // Pressing an arrow key is equivalent to dragging the first selected object by one pixel.
 
+      dx = 0;
+      dy = 0;
+      
     if (key == KeyPressedEvent.VK_UP)
     {
       dx = 0;
@@ -210,15 +219,18 @@ public class MoveObjectTool extends EditingTool
       dx = 1;
       dy = 0;
     }
-    else
+    else {
+        
       return;
+    }
     e.consume();
     if (applyToChildren)
       sel = theScene.getSelectionWithChildren();
     else
       sel = theScene.getSelection();
-    if (sel.length == 0)
-      return;  // No objects are selected.
+      if (sel.length == 0){
+          //return;  // No objects are selected.
+      }
     if (view.getSnapToGrid())
     {
       double scale = view.getGridSpacing()*view.getScale();
@@ -233,9 +245,9 @@ public class MoveObjectTool extends EditingTool
       dy *= 10;
     }
     CoordinateSystem cameraCoords = cam.getCameraCoordinates();
-    if (e.isControlDown())
+    if (e.isControlDown()) {
       v = cameraCoords.getZDirection().times(-dy*0.01);
-    else
+    } else if( sel.length > 0 )
     {
       Vec3 origin = theScene.getObject(sel[0]).getCoords().getOrigin();
       if (Math.abs(origin.minus(cameraCoords.getOrigin()).dot(cameraCoords.getZDirection())) < 1e-10)
@@ -249,38 +261,87 @@ public class MoveObjectTool extends EditingTool
     }
     theWindow.setUndoRecord(undo = new UndoRecord(theWindow, false));
     toMove = new Vector<ObjectInfo>();
-    for (i = 0; i < sel.length; i++)
+    for (i = 0; i < sel.length; i++){
       toMove.addElement(theScene.getObject(sel[i]));
+    }
+      
+      
     for (i = 0; i < toMove.size(); i++)
     {
-	ObjectInfo info = toMove.elementAt(i);
-	c = info.getCoords();
-      	if(info.getLayoutView() == false){ // JDT
-		c = layout.getCoords(info); // Read cutting coord from file
-	}
-	if(info.getTubeLayoutView() == true){
-                c = layout.getCoords(info); // Read cutting coord from file
-        }
+      ObjectInfo info = toMove.elementAt(i);
+      c = info.getCoords();
+      if(info.getLayoutView() == false){ // JDT
+        c = layout.getCoords(info); // Read cutting coord from file
+      }
+      if(info.getTubeLayoutView() == true){
+        c = layout.getCoords(info); // Read cutting coord from file
+      }
 
       undo.addCommand(UndoRecord.COPY_COORDS, new Object [] {c, c.duplicate()});
 
       c.setOrigin(c.getOrigin().plus(v));
 
       // JDT
-		if(info.getLayoutView() == false){
-	  		layout.saveLayout(info, c);
-	  		info.resetLayoutCoords(c);
-		}
-		if(info.getTubeLayoutView() == true){
-			layout.saveLayout(info, c);
-                        info.resetLayoutCoords(c);
-		}
-		// getWindow().getScene().objectModified(objects.get(i).getObject());
+      if(info.getLayoutView() == false){
+        layout.saveLayout(info, c);
+        info.resetLayoutCoords(c);
+      }
+      if(info.getTubeLayoutView() == true){
+        layout.saveLayout(info, c);
+        info.resetLayoutCoords(c);
+      }
+      // getWindow().getScene().objectModified(objects.get(i).getObject());
 
     }
+      
+    // If an object vertex is selected, apply move transform.
+    PointJoinObject pointJoin = theScene.getCreatePointJoinObject();
+    
+    if(pointJoin.objectA > 0){
+        System.out.println(" objectA " + pointJoin.objectA );
+        //theScene
+        int count = theScene.getNumObjects();
+        for( i = 0; i < count; i++){
+            ObjectInfo obj = theScene.getObject(i);
+            if( obj.getId() == pointJoin.objectA ){
+                Mesh o3d = (Mesh)obj.getObject();
+                MeshVertex[] verts = o3d.getVertices();
+                if(pointJoin.objectAPoint < verts.length){
+                    MeshVertex vm = verts[pointJoin.objectAPoint];
+                    Vec3 vec = vm.r;
+                    
+                    Vec3 vx[] = new Vec3[1];
+                    vx[0] = new Vec3(vec.x, vec.y, vec.z);
+                }
+                
+            }
+        }
+        
+        
+        
+    }
+      if(pointJoin.objectB > 0){
+          System.out.println(" objectB " + pointJoin.objectB );
+          
+      }
+      
+      
     theWindow.getScene().applyTracksAfterModification(toMove);
     theWindow.updateImage();
   }
+    
+    
+    public void moveVertex(int objectId){
+        Scene theScene = theWindow.getScene();
+        
+        int count = theScene.getNumObjects();
+        for(int i = 0; i < count; i++){
+            ObjectInfo obj = theScene.getObject(i);
+            //if( obj.getId() == this.objectA ){
+                
+            //}
+        }
+    }
 
   /* Allow the user to set options. */
 

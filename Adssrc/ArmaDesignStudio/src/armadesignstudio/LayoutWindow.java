@@ -2067,15 +2067,15 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     /**
      * joinObjectVerticesCommand
      *
-     * Description:
+     * Description: Join two selected object verticies using a JoinPointObject.
      */
     public void joinObjectVerticesCommand(){
         PointJoinObject createPointJoin = theScene.getCreatePointJoinObject();
         createPointJoin.setScene(theScene);
         
-        System.out.println(" *** JOIN *** ");
-        System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint + " " );
-        System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
+        //System.out.println(" *** JOIN *** ");
+        //System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint + " " );
+        //System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
         
         Vec3 v[] = new Vec3[2];
         v[0] = new Vec3(0.0, 0.0, 0.0);
@@ -2120,7 +2120,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         Vec3 vertex[], orig, ydir, zdir;
         orig = new Vec3();
         
-        ViewerCanvas view = theView[currentView]; // ***********
+        ViewerCanvas view = theView[currentView];
         EditingWindow theWindow = null;
         
         UndoRecord undo = new UndoRecord(theWindow, false);
