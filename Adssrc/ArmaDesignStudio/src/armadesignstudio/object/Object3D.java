@@ -353,6 +353,18 @@ public abstract class Object3D
       in other rendering modes. */
 
   public abstract WireframeMesh getWireframeMesh();
+    
+    
+    /**
+     * getSubdividedVertices
+     *
+     * Description: Optional function to overide. allows retrieval of subdivided mesh object for
+     * rendering PointJoin objects seperate from drawing subdivided points. Drawing wireframe mesh can be
+     * subdivided more times. Point Join requires the first level of subdivision.
+     */
+    public Vec3[] getSubdividedVertices(){
+        return null;
+    }
 
   /**
    * Render this object into a ViewerCanvas.  The default implementation is sufficient for most

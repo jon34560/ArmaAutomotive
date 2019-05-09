@@ -84,6 +84,7 @@ public class TexturesAndMaterialsDialog extends BDialog
     theScene.addTextureListener(listListener);
 
     mainFolder = new File(ArmaDesignStudio.APP_DIRECTORY, "Textures and Materials");
+    //System.out.println(" TexturesAndMaterialsDialog " + mainFolder);
 
     BorderContainer content = new BorderContainer();
     setContent(BOutline.createEmptyBorder(content, UIUtilities.getStandardDialogInsets()));
@@ -199,6 +200,7 @@ public class TexturesAndMaterialsDialog extends BDialog
     showTextures = true;
     showMaterials = true;
     rootNodes.add(new SceneTreeNode(null, theScene));
+
     for (File file : mainFolder.listFiles())
     {
       if (file.isDirectory())
@@ -904,6 +906,8 @@ public class TexturesAndMaterialsDialog extends BDialog
       SceneTreeNode node = (SceneTreeNode) o;
       node.ensureChildrenValid();
       int count = 0;
+      //System.out.println(" - " + showTextures + " node.textures " + node.textures);
+        
       if (showTextures)
         count += node.textures.size();
       if (showMaterials)

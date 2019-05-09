@@ -32,6 +32,7 @@ public class Curve extends Object3D implements Mesh
   protected int smoothingMethod;
   protected WireframeMesh cachedWire;
   protected BoundingBox bounds;
+  protected Vec3[] cachedSubdividedVertices;
 
   private static final Property PROPERTIES[] = new Property [] {
     new Property(Translate.text("menu.smoothingMethod"), new Object[] {
@@ -43,13 +44,14 @@ public class Curve extends Object3D implements Mesh
   public Curve(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
   {
     int i;
-    
+
     vertex = new MeshVertex [v.length];
     for (i = 0; i < v.length; i++)
       vertex[i] = new MeshVertex(v[i]);
     this.smoothness = smoothness;
     this.smoothingMethod = smoothingMethod;
     closed = isClosed;
+    cachedSubdividedVertices = null;
   }
     
     /**
@@ -317,6 +319,13 @@ public class Curve extends Object3D implements Mesh
     bounds = null;
   }
 
+    
+  /**
+   * getWireframeMesh()
+   *
+   * Description: subdivide points into global variable cachedWire.
+   * TODO: RE: PointJoin, cache single iteration subdivide points in another variable. For rendering points.
+   */
   public WireframeMesh getWireframeMesh()
   {
     //System.out.println("Curve.getWireframeMesh()");
@@ -353,8 +362,24 @@ public class Curve extends Object3D implements Mesh
         from[i] = i;
         to[i] = i+1;
       }
+      
+      cachedSubdividedVertices = vert;
+      
     return (cachedWire = new WireframeMesh(vert, from, to));
   }
+    
+    /**
+     * getSubdividedPoints
+     *
+     * Description: return vertex data for the subdivided points.
+     */
+    public Vec3[] getSubdividedVertices(){
+        if(cachedSubdividedVertices == null){
+            
+        }
+        
+        return cachedSubdividedVertices;
+    }
   
   /** Return a new Curve object which has been subdivided once to give a finer approximation of the curve shape. */
   
