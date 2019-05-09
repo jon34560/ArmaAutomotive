@@ -121,6 +121,27 @@ public class Curve extends Object3D implements Mesh
                 col = unselected_col;
             }
         }
+        
+        // Draw non movable subdivided verticies.
+        // Subdivided verticies can be attached to by other object points.
+        Vec3[] subdividedVerticies = getSubdividedVertices();
+        if(subdividedVerticies != null && isSelected){
+            //System.out.println("SUCCESS");
+            for (int j = 0; j < subdividedVerticies.length; j++){
+                Vec3 vec = subdividedVerticies[j];
+                
+                Vec2 p = theCamera.getObjectToScreen().timesXY(vec);
+                double z = theCamera.getObjectToView().timesZ(vec);
+                
+                //canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+                
+                canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // bot
+                canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // left
+                canvas.drawLine(new Point((int)p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // right
+                canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // top
+                
+            }
+        }
     }
     
     /**
@@ -375,9 +396,8 @@ public class Curve extends Object3D implements Mesh
      */
     public Vec3[] getSubdividedVertices(){
         if(cachedSubdividedVertices == null){
-            
+            getWireframeMesh();
         }
-        
         return cachedSubdividedVertices;
     }
   
