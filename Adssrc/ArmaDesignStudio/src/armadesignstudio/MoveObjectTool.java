@@ -295,18 +295,22 @@ public class MoveObjectTool extends EditingTool
     }
       
     // If an object vertex is selected, apply move transform.
-    PointJoinObject pointJoin = theScene.getCreatePointJoinObject();
+    PointJoinObject pointJoin = theScene.getCreatePointJoinObject(); // This is used as the point selection variable.
+      
+    // If one vertex point is selected it will be stored in the objectA structure.
+    int selectedObject = pointJoin.objectA;
     
-    if(pointJoin.objectA > 0){
+      
+    if(selectedObject > 0){
         //System.out.println(" objectA " + pointJoin.objectA );
         
         int count = theScene.getNumObjects();
-        for( i = 0; i < count; i++){
+        for(i = 0; i < count; i++){                         // Each object in the scene
             ObjectInfo obj = theScene.getObject(i);
-            if( obj.getId() == pointJoin.objectA ){
+            if(obj.getId() == pointJoin.objectA){           // object in scene matches the selection.
                 Mesh o3d = (Mesh)obj.getObject();
                 MeshVertex[] verts = o3d.getVertices();
-                if(pointJoin.objectAPoint < verts.length){
+                if(pointJoin.objectAPoint < verts.length){  // if selected vertex is in bounds.
                     
                     if(v == null){
                         Vec3 origin = obj.getCoords().getOrigin();
@@ -336,26 +340,93 @@ public class MoveObjectTool extends EditingTool
                     obj.setObject((Object3D)o3d);
                     obj.clearCachedMeshes();
                     
-                    System.out.println(" XXXXXX ");
-                    
-                    if(o3d instanceof Curve){
-                        //System.out.println(" XXXXXX ");
-                        //((Curve)o3d).getBounds(); // force recalculate.
-                    }
+                    System.out.println("move selected point in object.");
                     
                     // Update any other object verticies connected to this object using a PointJoinObject.
-                    /*
-                    for(int c = 0; c < count && c != i; c++){
-                        ObjectInfo obj = theScene.getObject(c);
-                        if(obj instanceof PointJoinObject){
-                            PointJoinObject join = (PointJoinObject)obj;
-                            
-                            
-                            
+                    
+                    //System.out.println("count: " + count);
+                    for(int ci = 0; ci < count; ci++){ // && ci != i
+                        if(ci != i){                                // dont ...
+                            ObjectInfo c_obj = theScene.getObject(ci);
+                            //System.out.println("obj " + c_obj.getObject().getClass().getName() );
+                            if(c_obj.getObject() instanceof PointJoinObject){
+                                //System.out.println(" PJ " + c_obj.getId() );
+                                PointJoinObject join = (PointJoinObject)c_obj.getObject();
+                                
+                                if(join.objectA == selectedObject && pointJoin.objectAPoint == join.objectAPoint){
+                                    System.out.println(" FOUND POINT JOIN A");
+                                    
+                                    ObjectInfo joinedObject = theScene.getObjectById(join.objectB);
+                                    if(joinedObject != null && joinedObject.getObject() instanceof Curve){
+                                        
+                                        Mesh joinedO3d = (Mesh)joinedObject.getObject();
+                                        MeshVertex[] joinedVerts = joinedO3d.getVertices();
+                                        if(join.objectBPoint < joinedVerts.length){
+                                            System.out.println(" FOUND joined object "+ join.objectB +
+                                                               " " + joinedObject.getName() +
+                                                               " and point " + join.objectBPoint );
+                                            
+                                            Vec3 jvr[] = new Vec3[joinedVerts.length];
+                                            for(int vrx = 0; vrx < joinedVerts.length; vrx++){
+                                                jvr[vrx] = joinedVerts[vrx].r;
+                                            }
+                                            
+                                            MeshVertex jvm = joinedVerts[join.objectBPoint];
+                                            vec = jvm.r;
+                                            //Vec3 vx[] = new Vec3[1];
+                                            
+                                            jvr[join.objectBPoint] = new Vec3(vec.x + v.x, vec.y + v.y, vec.z + v.z);
+                                            
+                                            // Update joined object
+                                            joinedO3d.setVertexPositions(jvr); // clears cache mesh
+                                            joinedObject.setObject((Object3D)o3d);
+                                            joinedObject.clearCachedMeshes();
+                                            
+                                            // Tell the point join object to update its verticies with the new modified objects.
+                                            join.setVertexPositions();
+                                        }
+                                    }
+                                }
+                                if(join.objectB == selectedObject && pointJoin.objectAPoint == join.objectBPoint){
+                                    
+                                    System.out.println(" FOUND POINT JOIN B");
+                                    // Find object A and it's vertex to move along with this point.
+                                    
+                                    ObjectInfo joinedObject = theScene.getObjectById(join.objectA);
+                                    if(joinedObject != null && joinedObject.getObject() instanceof Curve){
+                                        
+                                        Mesh joinedO3d = (Mesh)joinedObject.getObject();
+                                        MeshVertex[] joinedVerts = joinedO3d.getVertices();
+                                        if(join.objectAPoint < joinedVerts.length){
+                                            System.out.println(" FOUND joined object "+ join.objectA +
+                                                               " " + joinedObject.getName() +
+                                                               " and point " + join.objectAPoint );
+                                            
+                                            Vec3 jvr[] = new Vec3[joinedVerts.length];
+                                            for(int vrx = 0; vrx < joinedVerts.length; vrx++){
+                                                jvr[vrx] = joinedVerts[vrx].r;
+                                            }
+                                            
+                                            MeshVertex jvm = joinedVerts[join.objectAPoint];
+                                            vec = jvm.r;
+                                            //Vec3 vx[] = new Vec3[1];
+                                            
+                                            jvr[join.objectAPoint] = new Vec3(vec.x + v.x, vec.y + v.y, vec.z + v.z);
+                                            
+                                            // Update joined object
+                                            joinedO3d.setVertexPositions(jvr); // clears cache mesh
+                                            joinedObject.setObject((Object3D)o3d);
+                                            joinedObject.clearCachedMeshes();
+                                            
+                                            // Tell the point join object to update its verticies with the new modified objects.
+                                            join.setVertexPositions();
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        
                     }
-                    */
+                    
                     
                   
                     // LayoutWindow.updateImage();
@@ -364,22 +435,21 @@ public class MoveObjectTool extends EditingTool
                 }
             }
             
-            
-        }
-        
-        
+          }
         
         }
-      // Object B
-      if(pointJoin.objectB > 0){
-          System.out.println(" objectB " + pointJoin.objectB );
-          
-      }
       
+      // TODO: If vertex point selected, break and don't move any selected objects.
+      // ***
+      
+      // Object B *** DEPRICATE
+      //if(pointJoin.objectB > 0){
+      //    System.out.println(" objectB " + pointJoin.objectB );
+          
+      //}
       
     theWindow.getScene().applyTracksAfterModification(toMove);
     theWindow.updateImage();
-      
   }
     
     
