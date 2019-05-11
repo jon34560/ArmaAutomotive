@@ -851,7 +851,11 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       } 
   }
     
-    
+    /**
+     * renderPointJoinObject
+     *
+     * Description: draw to the screen the joint line between two connected object verticies.
+     */
     public void renderPointJoinObject(ObjectInfo obj, Camera theCamera){
         ObjectInfo objClone = obj.duplicate();
         LayoutModeling layout = new LayoutModeling();
@@ -870,11 +874,12 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             //boolean vertical = false;
             
                 
-                //Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
-                //Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
-                //pixelWidth = (int)Math.abs(p0.y - p1.y);
+            //Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
+            //Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
+            //pixelWidth = (int)Math.abs(p0.y - p1.y);
             
-            // line 1
+            
+            // line connecting point verticies.
             Vec3 vert1 = new Vec3( verts[0].x, verts[0].y, verts[0].z); // point 2
             Vec3 vert2 = new Vec3( verts[1].x, verts[1].y, verts[1].z); // point 3
             renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));

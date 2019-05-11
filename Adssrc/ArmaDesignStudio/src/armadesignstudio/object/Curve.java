@@ -1,4 +1,5 @@
 /* Copyright (C) 1999-2008 by Peter Eastman
+                 2019 Jon Taylor - Arma Automotive
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -126,20 +127,15 @@ public class Curve extends Object3D implements Mesh
         // Subdivided verticies can be attached to by other object points.
         Vec3[] subdividedVerticies = getSubdividedVertices();
         if(subdividedVerticies != null && isSelected){
-            //System.out.println("SUCCESS");
             for (int j = 0; j < subdividedVerticies.length; j++){
                 Vec3 vec = subdividedVerticies[j];
-                
                 Vec2 p = theCamera.getObjectToScreen().timesXY(vec);
                 double z = theCamera.getObjectToView().timesZ(vec);
-                
                 //canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
-                
                 canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // bot
                 canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // left
                 canvas.drawLine(new Point((int)p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // right
                 canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // top
-                
             }
         }
     }

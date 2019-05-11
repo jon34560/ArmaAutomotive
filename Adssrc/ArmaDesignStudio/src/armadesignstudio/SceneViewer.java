@@ -385,6 +385,9 @@ public class SceneViewer extends ViewerCanvas
                       //System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
                   }
               }
+              
+              // subdivided verticies
+              
           }
       }
       // Deselect points

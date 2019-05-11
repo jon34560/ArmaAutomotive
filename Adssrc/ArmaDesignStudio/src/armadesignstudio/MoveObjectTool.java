@@ -336,23 +336,41 @@ public class MoveObjectTool extends EditingTool
                     obj.setObject((Object3D)o3d);
                     obj.clearCachedMeshes();
                     
+                    System.out.println(" XXXXXX ");
+                    
                     if(o3d instanceof Curve){
                         //System.out.println(" XXXXXX ");
                         //((Curve)o3d).getBounds(); // force recalculate.
                     }
                     
-                    // Refresh *** NOT WORKING
-                    //theScene
+                    // Update any other object verticies connected to this object using a PointJoinObject.
+                    /*
+                    for(int c = 0; c < count && c != i; c++){
+                        ObjectInfo obj = theScene.getObject(c);
+                        if(obj instanceof PointJoinObject){
+                            PointJoinObject join = (PointJoinObject)obj;
+                            
+                            
+                            
+                        }
+                        
+                    }
+                    */
+                    
+                  
                     // LayoutWindow.updateImage();
                     //theWindow.updateImage();
                     
                 }
             }
+            
+            
         }
         
         
         
-    }
+        }
+      // Object B
       if(pointJoin.objectB > 0){
           System.out.println(" objectB " + pointJoin.objectB );
           
@@ -361,6 +379,7 @@ public class MoveObjectTool extends EditingTool
       
     theWindow.getScene().applyTracksAfterModification(toMove);
     theWindow.updateImage();
+      
   }
     
     

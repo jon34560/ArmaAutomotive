@@ -1,7 +1,14 @@
 /**
- * PointJoinObject
- *
- *
+ Copyright (C) 2019 by Jon Taylor
+ PointJoinObject
+ 
+ This program is free software; you can redistribute it and/or modify it under the
+ terms of the GNU General Public License as published by the Free Software
+ Foundation; either version 2 of the License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
 
 package armadesignstudio.object;
@@ -27,11 +34,10 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     Scene theScene;
     public int objectA;         // Object ID
     public int objectB;
-    public int objectAPoint;
+    public int objectAPoint;    // Point Vertex in object.
     public int objectBPoint;
-    
-    //public int ObjectAID;
-    //public int ObjectBID;
+    public int objectASubPoint; // point of subdivided object.
+    public int objectBSubPoint;
     
     protected MeshVertex vertex[];  // 2 vertex max
     protected float smoothness[];
@@ -40,7 +46,6 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     protected WireframeMesh cachedWire;
     protected BoundingBox bounds;
     double halfx, halfy, halfz;
-    
     
     private static final Property PROPERTIES[] = new Property [] {
     new Property(Translate.text("menu.smoothingMethod"),
@@ -71,8 +76,10 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         //ObjectBID = 0;
         objectA = 0;
         objectB = 0;
-        objectAPoint = 0;
-        objectBPoint = 0;
+        objectAPoint = -1;
+        objectBPoint = -1;
+        objectASubPoint = -1;
+        objectBSubPoint = -1;
         //System.out.println(" constructor ");
     }
     
@@ -84,8 +91,10 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         //ObjectBID = 0;
         objectA = 0;
         objectB = 0;
-        objectAPoint = 0;
-        objectBPoint = 0;
+        objectAPoint = -1;
+        objectBPoint = -1;
+        objectASubPoint = -1;
+        objectBSubPoint = -1;
         //System.out.println(" constructor ");
     }
     
@@ -185,6 +194,8 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
             return;
         }
         
+        LayoutModeling layout = new LayoutModeling();
+        
         Vec3 v[] = new Vec3[2];
         v[0] = new Vec3(0.0, 0.0, 0.0);
         v[1] = new Vec3(0.0, 0.0, 0.0);
@@ -192,24 +203,63 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         int count = theScene.getNumObjects();
         for(int i = 0; i < count; i++){
             ObjectInfo obj = theScene.getObject(i);
-            if( obj.getId() == this.objectA ){
+            if(obj.getId() == this.objectA){
                 //System.out.println(" FOUND A " + obj.getName());
                 Mesh o3d = (Mesh)obj.getObject();
                 MeshVertex[] verts = o3d.getVertices();
-                if(this.objectAPoint < verts.length){
+                if(this.objectAPoint < verts.length && this.objectAPoint >= 0){
+                    
                     MeshVertex vm = verts[this.objectAPoint];
                     Vec3 vec = vm.r;
                     v[0] = new Vec3(vec.x, vec.y, vec.z);
+                    
+                    if(obj.getObject() instanceof Curve){
+                    
+                        // update location
+                        ObjectInfo childClone = obj.duplicate();
+                        childClone.setLayoutView(false);
+                        CoordinateSystem c;
+                        c = layout.getCoords(childClone);
+                        
+                        Vec3 origin = c.getOrigin();
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform( v[0] );
+                    }
                 }
+                
+                // if point not set but subpoint is.
+                
+                if(  obj.getObject() instanceof Curve ){
+                    //System.out.println(" CURVE " );
+                    Curve curve = (Curve)obj.getObject();
+                    Vec3[] subdividedPoints = curve.getSubdividedVertices();
+                    
+                    //if(this.objectASubPoint >= 0 &&   ){
+                        
+                    //}
+                }
+                
             }
-            if( obj.getId() == this.objectB ){
+            if(obj.getId() == this.objectB){
                 //System.out.println(" FOUND B " + obj.getName());
                 Mesh o3d = (Mesh)obj.getObject();
                 MeshVertex[] verts = o3d.getVertices();
-                if(this.objectAPoint < verts.length){
+                if(this.objectBPoint < verts.length && this.objectBPoint >= 0){
                     MeshVertex vm = verts[this.objectBPoint];
                     Vec3 vec = vm.r;
                     v[1] = new Vec3(vec.x, vec.y, vec.z);
+                    
+                    if(obj.getObject() instanceof Curve){
+                        // update location
+                        ObjectInfo childClone = obj.duplicate();
+                        childClone.setLayoutView(false);
+                        CoordinateSystem c;
+                        c = layout.getCoords(childClone);
+                        
+                        Vec3 origin = c.getOrigin();
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform( v[1] );
+                    }
                 }
             }
         }
@@ -321,22 +371,20 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     {
         this.theScene = theScene;
         super.writeToFile(out, theScene);
-        
         //System.out.println("  DimensionObject writeToFile ( outstream, scene ) ");
-        
-        System.out.println(" writeToFile  A: " + objectA + " B: " + objectB);
+        //System.out.println(" writeToFile  A: " + objectA + " B: " + objectB);
         
         int i;
         
         out.writeShort(0); // is this a delimiter or object id
         //out.writeInt(vertex.length); // should always be 3
         
-        //out.writeString(objectAID);
-        //out.writeString(objectBID);
         out.writeInt(objectA);
         out.writeInt(objectB);
         out.writeInt(objectAPoint);
         out.writeInt(objectBPoint);
+        out.writeInt(objectASubPoint);
+        out.writeInt(objectBSubPoint);
         
         //for (i = 0; i < vertex.length; i++)
         //{
@@ -370,16 +418,14 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         v[1] = new Vec3(0.0, 0.5, 0.0);
         setVertex(v);
         
-        //objectAID = in.readString();
-        //objectBID = in.readString();
         objectA = in.readInt();
         objectB = in.readInt();
         objectAPoint = in.readInt();
         objectBPoint = in.readInt();
+        objectASubPoint = in.readInt();
+        objectBSubPoint = in.readInt();
         
-        System.out.println(" read joint " + objectA + " " + objectB + " " + objectAPoint + " " + objectBPoint);
-        
-        
+        //System.out.println(" read joint " + objectA + " " + objectB + " " + objectAPoint + " " + objectBPoint);
         
         setVertexPositions();
         
