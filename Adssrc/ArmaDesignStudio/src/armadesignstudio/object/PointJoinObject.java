@@ -9,6 +9,14 @@
  This program is distributed in the hope that it will be useful, but WITHOUT ANY
  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ 
+ Relevent sections:
+ - Create: SceneViewer.mousePressed()
+ - Draw: SoftwareCanvasDrawer.renderPointJoinObject()
+ - Draw Joined Objects: Curve.drawEditObject()
+ 
+ - Move: MoveObjectTool.keyPressed()
+ 
  */
 
 package armadesignstudio.object;

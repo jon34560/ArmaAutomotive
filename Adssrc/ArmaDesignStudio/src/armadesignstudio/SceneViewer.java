@@ -380,13 +380,17 @@ public class SceneViewer extends ViewerCanvas
                           createPointJoin.objectAPoint = iv;
                       }
                       
-                      //System.out.println(" *** Click  Object: " + info.getName() + " point: " + iv + " *** " );
+                      System.out.println(" *** Click  Object: " + info.getName() + " point: " + iv + " *** " );
                       //System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint  + " " );
                       //System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
                   }
               }
               
               // subdivided verticies
+              
+          }
+          if(info.getObject() instanceof SplineMesh){
+              System.out.println(" *** Click  Spline mesh: ");
               
           }
       }

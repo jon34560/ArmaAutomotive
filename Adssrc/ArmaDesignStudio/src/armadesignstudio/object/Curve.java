@@ -78,10 +78,12 @@ public class Curve extends Object3D implements Mesh
             ObjectInfo info = canvas.getScene().getObject(sel[i]);
             if(info.getObject() == this){
                 isSelected = true;
+                //System.out.println(" Selected " + info.getName() );
             }
         }
         
-        PointJoinObject createPointJoin = canvas.getScene().getCreatePointJoinObject();
+        PointJoinObject createPointJoin = canvas.getScene().getCreatePointJoinObject(); // pointA is currently selected
+        //System.out.println(" createPointJoin " + createPointJoin.objectA );
         
         boolean isObjectA = false;
         boolean isObjectB = false;
@@ -89,53 +91,58 @@ public class Curve extends Object3D implements Mesh
             ObjectInfo info = canvas.getScene().getObject(i);
             if(info.getObject() == this){
                 //System.out.println(" objects " + i + " " + info.getName());
-                if(createPointJoin.objectA == i+1){
+                
+                if(createPointJoin.objectA == info.getId()){ // ; == i+1
                     isObjectA = true;
-                    //System.out.println(" is A " + i);
+                    //System.out.println(" is A " + i + " " + info.getName() );
                 }
-                if(createPointJoin.objectB == i+1){
+                if(createPointJoin.objectB == info.getId() ){ // i+1
                     isObjectB = true;
-                    //System.out.println(" is B " + i);
+                    //System.out.println(" is B " + i + " " + info.getName());
                 }
             }
         }
         
-        // Iterate through curve vertecies.
-        for (int i = 0; i < v.length; i++){
-            //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
-            //{
-            if(isSelected || isObjectA || isObjectB){ // if object selected or point in object selected.
-                Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
-                double z = theCamera.getObjectToView().timesZ(v[i].r);
-                
-                // if point selected, use different color.
-                //
-                if(isObjectA && i == createPointJoin.objectAPoint){
-                    col = selected_col;
-                }
-                if(isObjectB && i == createPointJoin.objectBPoint){
-                    col = selected_col;
-                }
-                
-                canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
-                
-                col = unselected_col;
-            }
-        }
+        if(isSelected || isObjectA || isObjectB){ // If selected object
         
-        // Draw non movable subdivided verticies.
-        // Subdivided verticies can be attached to by other object points.
-        Vec3[] subdividedVerticies = getSubdividedVertices();
-        if(subdividedVerticies != null && isSelected){
-            for (int j = 0; j < subdividedVerticies.length; j++){
-                Vec3 vec = subdividedVerticies[j];
-                Vec2 p = theCamera.getObjectToScreen().timesXY(vec);
-                double z = theCamera.getObjectToView().timesZ(vec);
-                //canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
-                canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // bot
-                canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // left
-                canvas.drawLine(new Point((int)p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // right
-                canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // top
+            // Iterate through curve vertecies.
+            for (int i = 0; i < v.length ; i++){
+                //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
+                //{
+                if(isSelected || isObjectA || isObjectB){ // if object selected or point in object selected.
+                    Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
+                    double z = theCamera.getObjectToView().timesZ(v[i].r);
+                    
+                    // if point selected, use different color.
+                    //
+                    if(isObjectA && i == createPointJoin.objectAPoint){
+                        col = selected_col;
+                    }
+                    if(isObjectB && i == createPointJoin.objectBPoint){
+                        col = selected_col;
+                    }
+                    
+                    canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+                    
+                    col = unselected_col;
+                }
+            }
+        
+            // Draw non movable subdivided verticies.
+            // Subdivided verticies can be attached to by other object points.
+            Vec3[] subdividedVerticies = getSubdividedVertices();
+            if(subdividedVerticies != null && isSelected){
+                //System.out.println( " draw "  );
+                for (int j = 0; j < subdividedVerticies.length; j++){
+                    Vec3 vec = subdividedVerticies[j];
+                    Vec2 p = theCamera.getObjectToScreen().timesXY(vec);
+                    double z = theCamera.getObjectToView().timesZ(vec);
+                    //canvas.renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+                    canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // bot
+                    canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), new Point((int) p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // left
+                    canvas.drawLine(new Point((int)p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y - HANDLE_SIZE/2), unselected_col); // right
+                    canvas.drawLine(new Point((int)p.x - HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), new Point((int) p.x + HANDLE_SIZE/2, (int)p.y + HANDLE_SIZE/2), unselected_col); // top
+                }
             }
         }
     }

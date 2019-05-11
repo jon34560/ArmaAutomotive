@@ -109,9 +109,15 @@ public class SplineMesh extends Object3D implements Mesh
      * JDT work in progress. Allow editing verticies from the main canvas.
      */
     public void drawEditObject(ViewerCanvas canvas){
+        
         Camera theCamera = canvas.getCamera();
         MeshVertex v[] = ((Mesh) this).getVertices();
-        Color col = col = new Color(0, 255, 0);
+        Color col = new Color(0, 255, 0);
+        Color selected_col = new Color(180, 80, 80);
+        Color unselected_col = new Color(0, 255, 0);
+        
+        col = unselected_col;
+        
         int HANDLE_SIZE = 5;
         boolean isSelected = false;
         int sel[];
@@ -119,15 +125,20 @@ public class SplineMesh extends Object3D implements Mesh
         for (int i = 0; i < sel.length; i++)
         {
             ObjectInfo info = canvas.getScene().getObject(sel[i]);
-            
+            //System.out.println("    info.getObject() : " + info.getObject() + " = " + this );
             if(info.getObject() == this){
                 isSelected = true;
+                
+                //System.out.println(" SPLINE MESH selected ");
             }
         }
         for (int i = 0; i < v.length; i++){
             //if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
             //{
             if(isSelected){
+                
+                //System.out.println(" SPLINE MESH ");
+                
                 Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
                 double z = theCamera.getObjectToView().timesZ(v[i].r);
                 

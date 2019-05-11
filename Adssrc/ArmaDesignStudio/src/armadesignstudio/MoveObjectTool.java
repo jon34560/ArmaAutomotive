@@ -299,7 +299,7 @@ public class MoveObjectTool extends EditingTool
       
     // If one vertex point is selected it will be stored in the objectA structure.
     int selectedObject = pointJoin.objectA;
-    
+    int selectedObjectPoint = pointJoin.objectAPoint;
       
     if(selectedObject > 0){
         //System.out.println(" objectA " + pointJoin.objectA );
@@ -340,7 +340,7 @@ public class MoveObjectTool extends EditingTool
                     obj.setObject((Object3D)o3d);
                     obj.clearCachedMeshes();
                     
-                    System.out.println("move selected point in object.");
+                    //System.out.println("move selected point in object.");
                     
                     // Update any other object verticies connected to this object using a PointJoinObject.
                     
@@ -366,6 +366,7 @@ public class MoveObjectTool extends EditingTool
                                                                " " + joinedObject.getName() +
                                                                " and point " + join.objectBPoint );
                                             
+                                            
                                             Vec3 jvr[] = new Vec3[joinedVerts.length];
                                             for(int vrx = 0; vrx < joinedVerts.length; vrx++){
                                                 jvr[vrx] = joinedVerts[vrx].r;
@@ -379,11 +380,13 @@ public class MoveObjectTool extends EditingTool
                                             
                                             // Update joined object
                                             joinedO3d.setVertexPositions(jvr); // clears cache mesh
-                                            joinedObject.setObject((Object3D)o3d);
+                                            joinedObject.setObject((Object3D)joinedO3d);
                                             joinedObject.clearCachedMeshes();
                                             
                                             // Tell the point join object to update its verticies with the new modified objects.
                                             join.setVertexPositions();
+                                            
+                                            // TODO: now that point can have other joins to more objects...
                                         }
                                     }
                                 }
@@ -415,11 +418,13 @@ public class MoveObjectTool extends EditingTool
                                             
                                             // Update joined object
                                             joinedO3d.setVertexPositions(jvr); // clears cache mesh
-                                            joinedObject.setObject((Object3D)o3d);
+                                            joinedObject.setObject((Object3D)joinedO3d);
                                             joinedObject.clearCachedMeshes();
                                             
                                             // Tell the point join object to update its verticies with the new modified objects.
                                             join.setVertexPositions();
+                                            
+                                            // TODO: now that point can have other joins to more objects...
                                         }
                                     }
                                 }
