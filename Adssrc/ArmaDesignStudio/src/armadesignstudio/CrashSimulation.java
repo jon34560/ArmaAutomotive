@@ -25,7 +25,12 @@ import javax.swing.JComboBox;
     orientation, and size of an object.  The initial values are passed to the constructor
     in values[].  If this argument is omitted, all of the fields will initially be blank.
     If transformLabels is true, the rows will be labelled "Move", "Rotate", and "Scale".
-    If it is false, they will be labelled "Position", "Orientation", and "Size". */
+    If it is false, they will be labelled "Position", "Orientation", and "Size".
+ 
+ 
+  Scene.runCrashSimulation()
+ 
+ */
 
 public class CrashSimulation extends BDialog
 {

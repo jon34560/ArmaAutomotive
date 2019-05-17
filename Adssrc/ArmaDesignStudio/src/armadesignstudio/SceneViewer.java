@@ -369,15 +369,17 @@ public class SceneViewer extends ViewerCanvas
                       pointClicked = true;
                       
                       // Second point selection
-                      if( e.isShiftDown() && createPointJoin.objectA > 0){
+                      if(e.isShiftDown() && createPointJoin.objectA > 0){
                           createPointJoin.objectB = info.getId();
                           createPointJoin.objectBPoint = iv;
+                          createPointJoin.objectBSubPoint = -1;
                       }
                       
                       // First point selection
                       if(e.isShiftDown() == false || createPointJoin.objectA <= 0){
                           createPointJoin.objectA = info.getId();
                           createPointJoin.objectAPoint = iv;
+                          createPointJoin.objectASubPoint = -1;
                       }
                       
                       System.out.println(" *** Click  Object: " + info.getName() + " point: " + iv + " *** " );
@@ -387,10 +389,68 @@ public class SceneViewer extends ViewerCanvas
               }
               
               // subdivided verticies
-              
+              Curve curve = (Curve)info.getObject();
+              Vec3[] subdividedPoints = curve.getSubdividedVertices();
+              //System.out.println(" sub points: "+ subdividedPoints.length );
+              for(int iv = 0; iv < subdividedPoints.length; iv++){
+                  Vec3 vec = subdividedPoints[iv];
+                  pos = theCamera.getObjectToScreen().timesXY(vec);
+                  int x = (int) pos.x;
+                  int y = (int) pos.y;
+                  if (x >= p.x-HANDLE_SIZE/2 && x <= p.x+HANDLE_SIZE/2 && y >= p.y-HANDLE_SIZE/2 && y <= p.y+HANDLE_SIZE/2)
+                  {
+                      System.out.println(" click on subdivided point. " );
+                      pointClicked = true;
+                      
+                      // Second point selection
+                      if(e.isShiftDown() && createPointJoin.objectA > 0){
+                          createPointJoin.objectB = info.getId();
+                          createPointJoin.objectBSubPoint = iv;
+                          createPointJoin.objectBPoint = -1;
+                      }
+                      // First point selection
+                      if(e.isShiftDown() == false || createPointJoin.objectA <= 0){
+                          createPointJoin.objectA = info.getId();
+                          createPointJoin.objectASubPoint = iv;
+                          createPointJoin.objectAPoint = -1;
+                      }
+                  }
+                  
+              }
           }
           if(info.getObject() instanceof SplineMesh){
-              System.out.println(" *** Click  Spline mesh: ");
+              //System.out.println(" *** Click  Spline mesh: ");
+              
+              theCamera.setObjectTransform(info.getCoords().fromLocal());
+              MeshVertex v[] = ((Mesh) info.getObject()).getVertices();
+              Vec2 pos;
+              for (int iv = 0; iv < v.length; iv++)
+              {
+                  
+                  pos = theCamera.getObjectToScreen().timesXY(v[iv].r);
+                  int x = (int) pos.x;
+                  int y = (int) pos.y;
+                  //System.out.println(" x " + x + " y " + y);
+                  if (x >= p.x-HANDLE_SIZE/2 && x <= p.x+HANDLE_SIZE/2 && y >= p.y-HANDLE_SIZE/2 && y <= p.y+HANDLE_SIZE/2)
+                  {
+                      System.out.println("Mesh point click x ");
+                      pointClicked = true;
+                      
+                      // Second point selection
+                      if(e.isShiftDown() && createPointJoin.objectA > 0){
+                          createPointJoin.objectB = info.getId();
+                          createPointJoin.objectBPoint = iv;
+                          createPointJoin.objectBSubPoint = -1;
+                      }
+                      
+                      // First point selection
+                      if(e.isShiftDown() == false || createPointJoin.objectA <= 0){
+                          createPointJoin.objectA = info.getId();
+                          createPointJoin.objectAPoint = iv;
+                          createPointJoin.objectASubPoint = -1;
+                      }
+                  }
+              }
               
           }
       }

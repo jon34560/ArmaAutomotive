@@ -14,7 +14,7 @@
  - Create: SceneViewer.mousePressed()
  - Draw: SoftwareCanvasDrawer.renderPointJoinObject()
  - Draw Joined Objects: Curve.drawEditObject()
- 
+   Draw mesh points?
  - Move: MoveObjectTool.keyPressed()
  
  */
@@ -221,7 +221,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                     Vec3 vec = vm.r;
                     v[0] = new Vec3(vec.x, vec.y, vec.z);
                     
-                    if(obj.getObject() instanceof Curve){
+                    if(obj.getObject() instanceof Curve || obj.getObject() instanceof SplineMesh){
                     
                         // update location
                         ObjectInfo childClone = obj.duplicate();
@@ -233,6 +233,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                         Mat4 mat4 = c.duplicate().fromLocal();
                         mat4.transform( v[0] );
                     }
+                    
                 }
                 
                 // if point not set but subpoint is.
@@ -257,7 +258,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                     Vec3 vec = vm.r;
                     v[1] = new Vec3(vec.x, vec.y, vec.z);
                     
-                    if(obj.getObject() instanceof Curve){
+                    if(obj.getObject() instanceof Curve || obj.getObject() instanceof SplineMesh){
                         // update location
                         ObjectInfo childClone = obj.duplicate();
                         childClone.setLayoutView(false);

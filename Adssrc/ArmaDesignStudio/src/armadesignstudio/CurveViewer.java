@@ -30,6 +30,11 @@ public class CurveViewer extends MeshViewer
     super(window, p);
   }
 
+    /**
+     * drawObject
+     *
+     * Description: Draw curve in editor window.
+     */
   protected void drawObject()
   {
     if (!showMesh)
@@ -39,6 +44,7 @@ public class CurveViewer extends MeshViewer
     WireframeMesh wireframe = getController().getObject().getObject().getWireframeMesh();
     for (int i = 0; i < wireframe.from.length; i++)
       renderLine(wireframe.vert[wireframe.from[i]], wireframe.vert[wireframe.to[i]], theCamera, lineColor);
+    
     for (int i = 0; i < v.length; i++)
       if (!selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
         {
@@ -59,6 +65,7 @@ public class CurveViewer extends MeshViewer
           double z = theCamera.getObjectToView().timesZ(v[i].r);
           renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
         }
+      
   }
 
   /** When the user presses the mouse, forward events to the current tool as appropriate.

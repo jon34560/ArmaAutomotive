@@ -415,18 +415,14 @@ public abstract class Object3D
           shader = new TexturedVertexShader(mesh, obj.getObject(), time, obj.getCoords().toLocal().timesDirection(viewDir)).optimize();
         canvas.renderMesh(mesh, shader, theCamera, obj.getObject().isClosed(), null);
       }
-        
       
       // JDT Draw mesh edit points
       if(obj.object instanceof SplineMesh){
         ((SplineMesh)obj.object).drawEditObject(canvas);
       }
-        
     }
     else {
       canvas.renderWireframe(obj.getWireframePreview(), theCamera, ViewerCanvas.lineColor);
-        
-        
         //System.out.println(" obj " + obj.object.getClass() );
         
         // If obj.object is Curve
@@ -436,7 +432,6 @@ public abstract class Object3D
             
             // Tell Curve object to draw edit verticies markers if enabled.
             ((Curve)obj.object).drawEditObject(canvas);
-            
         }
     }
   }

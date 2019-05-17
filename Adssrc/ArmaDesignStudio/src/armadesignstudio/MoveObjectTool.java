@@ -17,6 +17,7 @@ import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;
 import java.util.Vector;
+import java.util.HashMap;
 
 import armadesignstudio.LayoutModeling; // JDT
 
@@ -280,6 +281,50 @@ public class MoveObjectTool extends EditingTool
       undo.addCommand(UndoRecord.COPY_COORDS, new Object [] {c, c.duplicate()});
 
       c.setOrigin(c.getOrigin().plus(v));
+        
+        // If object (info) has points connected with PointJoinObject then update the object they connect with.
+        int count = theScene.getNumObjects();
+        HashMap<Integer, ObjectInfo> attachedObjectInfos = new HashMap<Integer, ObjectInfo>(); // Track attached objects.
+        for(i = 0; i < count; i++){                         // Each object in the scene
+            ObjectInfo obj = theScene.getObject(i);
+            if(obj.getObject() instanceof PointJoinObject){
+                PointJoinObject pointJoin = (PointJoinObject)obj.getObject();
+                // Find object point that is connected.
+                if(pointJoin.objectA == info.getId()   ){
+                    // Get Object B and move it too
+                    int objId = pointJoin.objectB;
+                    ObjectInfo joinedObject = theScene.getObjectById(objId);
+                    if(joinedObject != null && (joinedObject.getObject() instanceof Curve ||
+                                                joinedObject.getObject() instanceof SplineMesh) &&
+                       !attachedObjectInfos.containsKey(objId)){
+                        // update B
+                        CoordinateSystem cc;
+                        cc = joinedObject.getCoords();
+                        cc.setOrigin(cc.getOrigin().plus(v));
+                        //System.out.println(" B ");
+                        
+                        attachedObjectInfos.put(objId, joinedObject);
+                    }
+                } else if(pointJoin.objectB == info.getId()){
+                    // Get Object A
+                    int objId = pointJoin.objectA;
+                    ObjectInfo joinedObject = theScene.getObjectById(objId);
+                    if(joinedObject != null && (joinedObject.getObject() instanceof Curve ||
+                                                joinedObject.getObject() instanceof SplineMesh) &&
+                       !attachedObjectInfos.containsKey(objId)){
+                        // update A
+                        CoordinateSystem cc;
+                        cc = joinedObject.getCoords();
+                        cc.setOrigin(cc.getOrigin().plus(v));
+                        //System.out.println(" A ");
+                        
+                        attachedObjectInfos.put(objId, joinedObject);
+                    }
+                }
+                // Update pointJoin location.
+                pointJoin.setVertexPositions(); // This isnt working. ***
+            }
+        }
 
       // JDT
       if(info.getLayoutView() == false){
@@ -357,7 +402,11 @@ public class MoveObjectTool extends EditingTool
                                     System.out.println(" FOUND POINT JOIN A");
                                     
                                     ObjectInfo joinedObject = theScene.getObjectById(join.objectB);
-                                    if(joinedObject != null && joinedObject.getObject() instanceof Curve){
+                                    if(joinedObject != null && (
+                                                            joinedObject.getObject() instanceof Curve ||
+                                                                joinedObject.getObject() instanceof SplineMesh
+                                                                )
+                                       ){
                                         
                                         Mesh joinedO3d = (Mesh)joinedObject.getObject();
                                         MeshVertex[] joinedVerts = joinedO3d.getVertices();
@@ -391,12 +440,13 @@ public class MoveObjectTool extends EditingTool
                                     }
                                 }
                                 if(join.objectB == selectedObject && pointJoin.objectAPoint == join.objectBPoint){
-                                    
                                     System.out.println(" FOUND POINT JOIN B");
                                     // Find object A and it's vertex to move along with this point.
                                     
                                     ObjectInfo joinedObject = theScene.getObjectById(join.objectA);
-                                    if(joinedObject != null && joinedObject.getObject() instanceof Curve){
+                                    if(joinedObject != null &&
+                                        (joinedObject.getObject() instanceof Curve ||
+                                         joinedObject.getObject() instanceof SplineMesh)){
                                         
                                         Mesh joinedO3d = (Mesh)joinedObject.getObject();
                                         MeshVertex[] joinedVerts = joinedO3d.getVertices();
@@ -431,17 +481,13 @@ public class MoveObjectTool extends EditingTool
                             }
                         }
                     }
-                    
-                    
                   
                     // LayoutWindow.updateImage();
                     //theWindow.updateImage();
                     
                 }
             }
-            
           }
-        
         }
       
       // TODO: If vertex point selected, break and don't move any selected objects.

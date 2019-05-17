@@ -2074,8 +2074,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         createPointJoin.setScene(theScene);
         
         //System.out.println(" *** JOIN *** ");
-        //System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint + " " );
-        //System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
+        System.out.println("    A: " + createPointJoin.objectA + " point: " + createPointJoin.objectAPoint + " " );
+        System.out.println("    B: " + createPointJoin.objectB + " point: " + createPointJoin.objectBPoint + " " );
+        
+        if(createPointJoin.objectA <= 0 || createPointJoin.objectB <= 0){
+            // exit
+            System.out.println("No points selected.");
+        }
         
         Vec3 v[] = new Vec3[2];
         v[0] = new Vec3(0.0, 0.0, 0.0);

@@ -2818,6 +2818,10 @@ public class Scene
                             point.z = (point.z + -minZ); //
                             //point.z = (point.z + -minZ);
                             
+                            // start spindle
+                            // M3 S4000     ; start spindle
+                            // M5           ; stop spindle
+                            
                             gcode2 += "G1 X" +
                             roundThree(point.x) +
                             " Y" +
@@ -4077,6 +4081,7 @@ public class Scene
     /**
     * runCrashSimulation
     *
+    * Description.
     */
     public void runCrashSimulation( BFrame frame ){ // BFrame
         ObjectInfo wall = null;
@@ -4090,9 +4095,21 @@ public class Scene
 
             System.out.println(" object: " + obj.getName() );
             if( obj.getName().equals("wall") ){
-		System.out.println("found it");
+                System.out.println("found it");
                 wall = obj;
             }     
+        }
+        
+        // We may need meshObj in TriangleMesh
+        //
+        Object3D triangleMesh = null;
+        if(meshObj.getObject().canConvertToTriangleMesh() == Object3D.CANT_CONVERT){
+            System.out.println(" can't ");
+        } else {
+            System.out.println(" can ");
+            triangleMesh = meshObj.getObject().convertToTriangleMesh(0.0);
+            
+            System.out.println(" tmesh " + triangleMesh.getClass().getName() );
         }
 
         if(meshObj == null){
@@ -4112,6 +4129,7 @@ public class Scene
             Vec3 meshSize = meshBound.getSize();
             System.out.println(" mesh size:  " + meshSize.x + " " + meshSize.y + " " + meshSize.z);           
  
+            
             BoundingBox wallBound = wall.getBounds();
             Vec3 wallCenter = wallBound.getCenter();
             // Vec3 [] getCorners()  
@@ -4135,6 +4153,9 @@ public class Scene
               if(co instanceof Mesh && meshObj.isVisible() == true){
                 Mesh meshObj3d = (Mesh)meshObj.getObject();
                 Vec3 [] verts = meshObj3d.getVertexPositions();
+                Vec3 [] normals = meshObj3d.getNormals();
+                  
+                  System.out.println(" verts: " + verts.length + " normals " + normals.length);
                 
                 //for (Vec3 vert : verts){
                 //  System.out.println(" point " + vert.x + " " + vert.y + " " + vert.z);
@@ -4148,7 +4169,8 @@ public class Scene
                 for(int j = 0; j < verts.length; j++){
                   Mat4 mat4 = c.duplicate().fromLocal();
                   //mat4.transform(verts[j]);
-                  System.out.println("  x: " + verts[j].x + "   y: " + verts[j].y + "   z: " + verts[j].z);
+                  System.out.print("  x: " + verts[j].x + "   y: " + verts[j].y + "   z: " + verts[j].z + "    " +
+                                   " n " + normals[j].x + " " + normals[j].y + " " + normals[j].z);
 
                   //verts[j].z -= 0.12; // Move Object (if Z > 0) 
                   double z = verts[j].z;
@@ -4157,7 +4179,9 @@ public class Scene
                     //verts[j].z = 0;
                   } else {
                     System.out.print(" > ");
-                  } 
+                  }
+                    
+                  System.out.println("");
                 }
                 // update model 
                 //meshObj3d.setVertexPositions( verts ); // affects on its own

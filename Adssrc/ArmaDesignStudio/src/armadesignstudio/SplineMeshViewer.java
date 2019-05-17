@@ -62,6 +62,11 @@ public class SplineMeshViewer extends MeshViewer
     super.updateImage();
   }
 
+    /**
+     * drawObject
+     *
+     * Editor window.
+     */
   protected void drawObject()
   {
     SplineMesh mesh = (SplineMesh) getController().getObject().getObject();
@@ -103,6 +108,23 @@ public class SplineMeshViewer extends MeshViewer
     if (currentTool instanceof SkeletonTool)
       if (showSkeleton && mesh.getSkeleton() != null)
         mesh.getSkeleton().draw(this, true);
+      
+      
+      //
+      // Draw edit points ***
+      //
+      /*
+      Color col = (currentTool.hilightSelection() ? highlightColor : lineColor);
+      MeshVertex v[] = mesh.getVertices(); //  ((Mesh) getController().getObject().getObject()).getVertices();
+      boolean selected[] = controller.getSelection();
+      for (int i = 0; i < v.length; i++)
+          if (selected[i] && theCamera.getObjectToView().timesZ(v[i].r) > theCamera.getClipDistance())
+          {
+              Vec2 p = theCamera.getObjectToScreen().timesXY(v[i].r);
+              double z = theCamera.getObjectToView().timesZ(v[i].r);
+              renderBox(((int) p.x) - HANDLE_SIZE/2, ((int) p.y) - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE, z, col);
+          }
+      */
   }
 
   /** Draw the surface of the object. */
