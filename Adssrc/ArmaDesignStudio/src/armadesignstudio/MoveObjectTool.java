@@ -267,6 +267,7 @@ public class MoveObjectTool extends EditingTool
     }
       
       
+      //System.out.println(" to move " + toMove.size());
     for (i = 0; i < toMove.size(); i++)
     {
       ObjectInfo info = toMove.elementAt(i);
@@ -282,11 +283,12 @@ public class MoveObjectTool extends EditingTool
 
       c.setOrigin(c.getOrigin().plus(v));
         
+        
         // If object (info) has points connected with PointJoinObject then update the object they connect with.
         int count = theScene.getNumObjects();
         HashMap<Integer, ObjectInfo> attachedObjectInfos = new HashMap<Integer, ObjectInfo>(); // Track attached objects.
-        for(i = 0; i < count; i++){                         // Each object in the scene
-            ObjectInfo obj = theScene.getObject(i);
+        for(int ii = 0; ii < count; ii++){                         // Each object in the scene
+            ObjectInfo obj = theScene.getObject(ii);
             if(obj.getObject() instanceof PointJoinObject){
                 PointJoinObject pointJoin = (PointJoinObject)obj.getObject();
                 // Find object point that is connected.
@@ -302,7 +304,6 @@ public class MoveObjectTool extends EditingTool
                         cc = joinedObject.getCoords();
                         cc.setOrigin(cc.getOrigin().plus(v));
                         //System.out.println(" B ");
-                        
                         attachedObjectInfos.put(objId, joinedObject);
                     }
                 } else if(pointJoin.objectB == info.getId()){
@@ -317,14 +318,15 @@ public class MoveObjectTool extends EditingTool
                         cc = joinedObject.getCoords();
                         cc.setOrigin(cc.getOrigin().plus(v));
                         //System.out.println(" A ");
-                        
                         attachedObjectInfos.put(objId, joinedObject);
                     }
                 }
                 // Update pointJoin location.
                 pointJoin.setVertexPositions(); // This isnt working. ***
+                
             }
         }
+        
 
       // JDT
       if(info.getLayoutView() == false){

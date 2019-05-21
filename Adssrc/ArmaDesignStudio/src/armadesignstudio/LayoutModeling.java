@@ -64,7 +64,10 @@ public class LayoutModeling {
 		CoordinateSystem cx = info.getCoords();
 		CoordinateSystem c = new CoordinateSystem();
 		//cx.copyCoords(c);
-        //c.copyCoords(cx);
+        
+        if(cx != null){
+            c.copyCoords(cx);
+        }
 
 		if(info.getLayoutView() == false || info.getTubeLayoutView() == true){ // Plate or Tube layout mode
 

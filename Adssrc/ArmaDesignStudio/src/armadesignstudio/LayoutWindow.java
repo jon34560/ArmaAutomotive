@@ -860,8 +860,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.add(Translate.menuItem("Set Scale", this, "setGCodeExportScale"));
 	  layoutMenu.addSeparator();
 	  // exportGCode
-	  layoutMenu.add(Translate.menuItem("Export GCode", this, "exportGCode"));
-      layoutMenu.add(Translate.menuItem("Export Tube GCode", this, "exportTubeGCode"));
+	  layoutMenu.add(Translate.menuItem("Export Table GCode", this, "exportGCode"));
+      layoutMenu.add(Translate.menuItem("Export Tube Notch GCode", this, "exportTubeGCode"));
+      layoutMenu.add(Translate.menuItem("Export Tube Bend GCode", this, "exportTubeBendGCode"));
       layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
       layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
       
@@ -3335,6 +3336,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         }
     }
 
+    /**
+     *
+     * Table
+     */
   public void exportGCode(){
   	  System.out.println("exportGCode  ********* ");
 
@@ -3350,6 +3355,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         System.out.println("exportTubeGCode");
         if(theScene != null){
             theScene.exportTubeGCode();
+        }
+    }
+    
+    public void exportTubeBendGCode(){
+        if(theScene != null){
+            theScene.exportTubeBendGCode();
         }
     }
     

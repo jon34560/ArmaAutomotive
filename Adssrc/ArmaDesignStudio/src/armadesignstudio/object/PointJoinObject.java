@@ -199,6 +199,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     public void setVertexPositions()
     {
         if(theScene == null){
+            System.out.println("PointJoinObject no scene. ");
             return;
         }
         

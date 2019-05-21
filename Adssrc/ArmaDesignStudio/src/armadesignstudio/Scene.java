@@ -2485,6 +2485,7 @@ public class Scene
                     boolean writeFile = false;
                     String gcode2 = "";
                     gcode2 += "; Arma Automotive\n";
+                    gcode2 += "; Tube Notcher\n";
                     gcode2 += "; Part: " + obj.getName() + "\n";
                     gcode2 += "G1\n";
                     Vector polygons = new Vector();
@@ -2905,6 +2906,132 @@ public class Scene
                     e.printStackTrace();
                 }
     
+            }
+        }
+    }
+    
+    /**
+     * exportTubeBendGCode
+     *
+     * Description: Generate GCode that operates a bending machine.
+     *  The bend profile is defined by a Curve object. Segment angles and the distance between them
+     *  are used to create feed and press commends.
+     */
+    public void exportTubeBendGCode(){
+        System.out.println("Export Tube Bend GCode.");
+        
+        LayoutModeling layout = new LayoutModeling();
+        
+        int fastRate = 1200;
+        int slowRate = 50;
+        
+        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode_t";
+        File d = new File(dir);
+        if(d.exists() == false){
+            d.mkdir();
+        }
+        
+        double scale = getScale();
+        
+        
+        // Calculate bounds of object to calculate centre for unrolling points around tube circumfrance.
+        for (ObjectInfo obj : objects){
+            boolean enabled = layout.isObjectEnabled(obj);
+            ObjectInfo[] children = obj.getChildren();
+            
+            if(children.length > 0 && enabled){
+                
+                //System.out.println("   --- Object: " + obj.getName() + " count: " + children.length);
+                //
+                try {
+                    boolean writeFile = false;
+                    String gcode2 = "";
+                    gcode2 += "; Arma Automotive\n";
+                    gcode2 += "; Tube Bend\n";
+                    gcode2 += "; Part: " + obj.getName() + "\n";
+                    gcode2 += "G1\n";
+                    Vector polygons = new Vector();
+                    
+                    double centreX = 0;
+                    double centreY = 0;
+                    double centreZ = 0;
+                    
+                    double boundsMinX = 9999;
+                    double boundsMaxX = -9999;
+                    double boundsMinY = 9999;
+                    double boundsMaxY = -9999;
+                    double boundsMinZ = 9999;
+                    double boundsMaxZ = -9999;
+                    
+                    double minX = 9999;
+                    double minY = 9999;
+                    double minZ = 9999;
+                    double maxX = -9999;
+                    double maxY = -9999;
+                    double maxZ = -9999;
+                    
+                    HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
+                    
+                    //BoundingBox bounds = obj.getBounds();
+                    //System.out.println(" bounds: " +
+                    //                   " x: " + bounds.minx + " x " + bounds.maxx +
+                    //                   " y" + bounds.miny + " maxy: " + bounds.maxy +
+                    //                   " minz: " + bounds.minz + " maxz: " + bounds.maxz );
+                    
+                    ObjectInfo objClone = obj.duplicate();
+                    objClone.setLayoutView(false);
+                    Object co = (Object)objClone.getObject();
+                    if(co instanceof Curve && objClone.isVisible() == true){ // && child_enabled
+                        CoordinateSystem c;
+                        c = layout.getCoords(objClone); // Read cutting coord from file
+                        objClone.setCoords(c);
+                        Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+                        Vec3 [] verts = mesh.getVertexPositions();
+                        for (Vec3 vert : verts){
+                            // Transform vertex points around object loc/rot.
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            mat4.transform(vert);
+                            
+                            if(vert.x > boundsMaxX){
+                                boundsMaxX = vert.x;
+                            }
+                            if(vert.x < boundsMinX){
+                                boundsMinX = vert.x;
+                            }
+                            if(vert.y > boundsMaxY){
+                                boundsMaxY = vert.y;
+                            }
+                            if(vert.y < boundsMinY){
+                                boundsMinY = vert.y;
+                            }
+                            if(vert.z > boundsMaxZ){
+                                boundsMaxZ = vert.z;
+                            }
+                            if(vert.z < boundsMinZ){
+                                boundsMinZ = vert.z;
+                            }
+                        }
+                        
+                        for (int i = 0; i < verts.length - 2; i++ ){
+                            Vec3 vert = verts[i];
+                            Vec3 vert2 = verts[i+1];
+                            Vec3 vert3 = verts[i+2];
+                            
+                            float angle = 0;
+                            
+                            
+                        }
+                    
+                        System.out.println("Bend   --- Object: " + obj.getName() + " count: " + children.length);
+                        
+                        
+                    }
+                    
+                    
+                } catch (Exception e){
+                    System.out.println("Error: " + e);
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -4118,28 +4245,24 @@ public class Scene
         }
 
         CrashSimulation crash = new CrashSimulation(frame);
-        if (crash.clickedOk()){
+        if (crash.clickedOk() && triangleMesh != null){
             System.out.println("Run Simulation." + wall + "  mesh: " + meshObj);
 
             // calculate mesh boundary.
             // ...  
             BoundingBox meshBound = meshObj.getBounds();
             Vec3 meshCenter = meshBound.getCenter();
-            System.out.println(" mesh:  " + meshCenter.x + " " + meshCenter.y + " " + meshCenter.z);
+            System.out.println(" mesh centre:  " + meshCenter.x + " " + meshCenter.y + " " + meshCenter.z);
             Vec3 meshSize = meshBound.getSize();
             System.out.println(" mesh size:  " + meshSize.x + " " + meshSize.y + " " + meshSize.z);           
  
             
-            BoundingBox wallBound = wall.getBounds();
-            Vec3 wallCenter = wallBound.getCenter();
-            // Vec3 [] getCorners()  
-            System.out.println(" wall:  " + wallCenter.x + " " + wallCenter.y + " " + wallCenter.z); 
-            Vec3 wallSize = wallBound.getSize();
-            System.out.println(" wall size:  " + wallSize.x + " " + wallSize.y + " " + wallSize.z);     
+            //BoundingBox wallBound = wall.getBounds();
+            //Vec3 wallCenter = wallBound.getCenter();
+            //System.out.println(" wall:  " + wallCenter.x + " " + wallCenter.y + " " + wallCenter.z);
+            //Vec3 wallSize = wallBound.getSize();
+            //System.out.println(" wall size:  " + wallSize.x + " " + wallSize.y + " " + wallSize.z);
 
-	    //double x = mesh.
-
-	
             // 
             for( int i = 0; i < 1; i++ ){ 
               //Camera cam = view.getCamera();
@@ -4147,6 +4270,11 @@ public class Scene
               //transform = Mat4.translation(0, 0, -0.12);
               //meshObj.getCoords().transformCoordinates(transform); 
           
+                // triangleMesh
+                
+                
+                
+                
               // Get geometry
               //ObjectInfo meshClone = meshObj.duplicate();
               Object co = (Object)meshObj.getObject();
@@ -4166,19 +4294,28 @@ public class Scene
 
                 CoordinateSystem c;
                 c = layout.getCoords(meshObj);
+                Vec3 origin = c.getOrigin();
+                  
+                  
                 for(int j = 0; j < verts.length; j++){
-                  Mat4 mat4 = c.duplicate().fromLocal();
-                  //mat4.transform(verts[j]);
-                  System.out.print("  x: " + verts[j].x + "   y: " + verts[j].y + "   z: " + verts[j].z + "    " +
+                    Vec3 vert = verts[j];
+                    
+                    Mat4 mat4 = c.duplicate().fromLocal();
+                    mat4.transform(verts[j]);
+                    
+                    mat4.transform(vert);
+                  
+                    System.out.print("  x: " + vert.x + "   y: " + vert.y + "   z: " + vert.z + "    " +
+                                     " " +  origin.x + "   " +
                                    " n " + normals[j].x + " " + normals[j].y + " " + normals[j].z);
 
                   //verts[j].z -= 0.12; // Move Object (if Z > 0) 
                   double z = verts[j].z;
                   if( z < 0.0 ){
-                    System.out.print(" < ");
+                    //System.out.print(" < ");
                     //verts[j].z = 0;
                   } else {
-                    System.out.print(" > ");
+                    //System.out.print(" > ");
                   }
                     
                   System.out.println("");
