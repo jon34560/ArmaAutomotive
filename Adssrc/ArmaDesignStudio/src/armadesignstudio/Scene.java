@@ -2427,6 +2427,8 @@ public class Scene
      * exportTubeGCode
      *
      * Description: export gcode for tube notcher.
+     *  Straight tubes notch detail will be modeled around a mesh object but tubes to be
+     *  bent will be modeled around a Curve.
      */
     public void exportTubeGCode(){
         LayoutModeling layout = new LayoutModeling();
@@ -2440,7 +2442,8 @@ public class Scene
             d.mkdir();
         }
         
-        double scale = 1.0;
+        double scale = getScale();
+        /*
         try {
             // Read current scale for this project.
             Properties prop = new Properties();
@@ -2472,6 +2475,7 @@ public class Scene
             System.out.println("Error " + e);
             e.printStackTrace();
         }
+         */
         
         // Calculate bounds of object to calculate centre for unrolling points around tube circumfrance.
         for (ObjectInfo obj : objects){
@@ -2549,260 +2553,276 @@ public class Scene
                                 boundsMinZ = vert.z;
                             }
                         }
-                    }
                     
-                    centreY = (boundsMinY + ((boundsMaxY - boundsMinY)/2));
-                    centreZ = (boundsMinZ + ((boundsMaxZ - boundsMinZ)/2));
-                    
-                    double radius = ((boundsMaxZ - boundsMinZ)/2);
-                    double circumference = Math.PI * 2 * radius;
-                    
-                    for (ObjectInfo child : children){
-                        ObjectInfo childClone = child.duplicate();
-                        childClone.setLayoutView(false);
-                        co = (Object)childClone.getObject();
-                        boolean child_enabled = layout.isObjectEnabled(child);
-                        if(co instanceof Mesh && child.isVisible() == true &&
-                           co instanceof Curve && child_enabled){
-                            
-                            writeFile = true;
-                            Vector<Vec3> polygon = new Vector<Vec3>();
-                            CoordinateSystem c;
-                            c = layout.getCoords(childClone); // Read cutting coord from file
-                            childClone.setCoords(c);
-                            
-                            double cutDepth = layout.getPolyDepth(child);
-                            //
-                            
-                            Mesh mesh = (Mesh) childClone.getObject(); // Object3D
-                            Vec3 [] verts = mesh.getVertexPositions();
-                            
-                            // Calculate distance between vertecies in 3d space.
-                            double [] vertDistances = new double[verts.length];
-                            for(int v = 0; v < verts.length - 1; v++){
-                                Vec3 vertA = verts[v];
-                                Vec3 vertB = verts[v + 1];
-                                double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
-                                vertDistances[v] = distance;
-                            }
-                            
-                            boolean drillLowered = false;
-                            double drillLowerDistance = 0.0;
-                            
-                            //System.out.println("POLY");
+                        centreY = (boundsMinY + ((boundsMaxY - boundsMinY)/2));
+                        centreZ = (boundsMinZ + ((boundsMaxZ - boundsMinZ)/2));
+                        
+                        double radius = ((boundsMaxZ - boundsMinZ)/2);
+                        double circumference = Math.PI * 2 * radius;
+                        
+                        for (ObjectInfo child : children){
+                            ObjectInfo childClone = child.duplicate();
+                            childClone.setLayoutView(false);
+                            co = (Object)childClone.getObject();
+                            boolean child_enabled = layout.isObjectEnabled(child);
+                            if(co instanceof Mesh && child.isVisible() == true &&
+                               co instanceof Curve && child_enabled){
+                                
+                                writeFile = true;
+                                Vector<Vec3> polygon = new Vector<Vec3>();
+                                CoordinateSystem c;
+                                c = layout.getCoords(childClone); // Read cutting coord from file
+                                childClone.setCoords(c);
+                                
+                                double cutDepth = layout.getPolyDepth(child);
+                                //
+                                
+                                Mesh mesh = (Mesh) childClone.getObject(); // Object3D
+                                Vec3 [] verts = mesh.getVertexPositions();
+                                
+                                // Calculate distance between vertecies in 3d space.
+                                double [] vertDistances = new double[verts.length];
+                                for(int v = 0; v < verts.length - 1; v++){
+                                    Vec3 vertA = verts[v];
+                                    Vec3 vertB = verts[v + 1];
+                                    double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
+                                    vertDistances[v] = distance;
+                                }
+                                
+                                boolean drillLowered = false;
+                                double drillLowerDistance = 0.0;
+                                
+                                //System.out.println("POLY");
 
-                            Vec3 vec0 = null;
-                            Vec3 vec1 = null;
-                            
-                            int v = 0;
-                            //double previousAngle = -1;
-                            for (Vec3 vert : verts){
-                                // Transform vertex points around object loc/rot.
-                                Mat4 mat4 = c.duplicate().fromLocal();
-                                mat4.transform(vert);
+                                Vec3 vec0 = null;
+                                Vec3 vec1 = null;
                                 
-                                //
-                                // Transform verticies to unroll them around the part circumfrance.
-                                //
-                                double angle = getAngle(vert.z - centreZ, vert.y - centreY);
-                                vert.z = ((angle / 360) * circumference);
-                                vert.y = cutDepth;
-                                if(drillLowered == false){ // Drill is up
-                                    //vert.y = vert.y + drillLowerDistance;
-                                    drillLowerDistance = 0.5;
-                                }
-                                if(v == 0){
-                                    //System.out.println("XXXXXXXXX");
-                                    drillLowerDistance = 0.5;
-                                    vert.y += drillLowerDistance; // First point is positioning above cut surface.
-                                    //drillLowered = true; // next point is lowered.
-                                    //drillLowerDistance = 0.0;
-                                }
-                                
-                                // Apply scale
-                                vert.x = vert.x * scale;
-                                vert.y = vert.y * scale;
-                                vert.z = vert.z * scale;
-                                vert.f = slowRate;
-                                if(v == 0 ){ // || v == 1
-                                    vert.f = fastRate;
-                                }
-                                
-                                //System.out.println(".");
-                                
-                                // If two verticies cross 360 - 0 degrees insert a raise cutter operation.
-                                boolean splitPoly = false;
-                                if(v > 0 ){ // && v < verts.length - 1
-                                    Vec3 previousVert = verts[v - 1];
-                                    Vec3 currVert = verts[v];
-                                    double distance = Math.sqrt(Math.pow(currVert.x - previousVert.x, 2) + Math.pow(currVert.y - previousVert.y, 2) + Math.pow(currVert.z - previousVert.z, 2));
-                                    double unrolledDistance = vertDistances[v - 1];
-                                    //System.out.println(" udist " + unrolledDistance + " d: " + distance + "     " + Math.abs( unrolledDistance - distance) );
-                                    if(distance > unrolledDistance * 4){
-                                        //System.out.println(" raise !!!!!!!!!!! *** ");
-                                        drillLowered = false;
+                                int v = 0;
+                                //double previousAngle = -1;
+                                for (Vec3 vert : verts){
+                                    // Transform vertex points around object loc/rot.
+                                    Mat4 mat4 = c.duplicate().fromLocal();
+                                    mat4.transform(vert);
+                                    
+                                    //
+                                    // Transform verticies to unroll them around the part circumfrance.
+                                    //
+                                    double angle = getAngle(vert.z - centreZ, vert.y - centreY);
+                                    vert.z = ((angle / 360) * circumference);
+                                    vert.y = cutDepth;
+                                    if(drillLowered == false){ // Drill is up
+                                        //vert.y = vert.y + drillLowerDistance;
                                         drillLowerDistance = 0.5;
-                                        //System.out.println(" Lift ");
-                                        splitPoly = true;
-                                        //
-                                        Vec3 vertInsert = new Vec3( previousVert.x, previousVert.y + drillLowerDistance, previousVert.z); // raise drill
-                                        vertInsert.f = fastRate;
-                                        polygon.addElement(vertInsert);
-                                        
-                                        drillLowered = false;
+                                    }
+                                    if(v == 0){
+                                        //System.out.println("XXXXXXXXX");
                                         drillLowerDistance = 0.5;
-                                        Vec3 vertInsertUp = new Vec3( vert.x, vert.y + drillLowerDistance, vert.z); //
-                                        vertInsertUp.f = fastRate;
-                                        polygon.addElement(vertInsertUp);
-                                        
+                                        vert.y += drillLowerDistance; // First point is positioning above cut surface.
+                                        //drillLowered = true; // next point is lowered.
+                                        //drillLowerDistance = 0.0;
+                                    }
+                                    
+                                    // Apply scale
+                                    vert.x = vert.x * scale;
+                                    vert.y = vert.y * scale;
+                                    vert.z = vert.z * scale;
+                                    vert.f = slowRate;
+                                    if(v == 0 ){ // || v == 1
+                                        vert.f = fastRate;
+                                    }
+                                    
+                                    //System.out.println(".");
+                                    
+                                    // If two verticies cross 360 - 0 degrees insert a raise cutter operation.
+                                    boolean splitPoly = false;
+                                    if(v > 0 ){ // && v < verts.length - 1
+                                        Vec3 previousVert = verts[v - 1];
+                                        Vec3 currVert = verts[v];
+                                        double distance = Math.sqrt(Math.pow(currVert.x - previousVert.x, 2) + Math.pow(currVert.y - previousVert.y, 2) + Math.pow(currVert.z - previousVert.z, 2));
+                                        double unrolledDistance = vertDistances[v - 1];
+                                        //System.out.println(" udist " + unrolledDistance + " d: " + distance + "     " + Math.abs( unrolledDistance - distance) );
+                                        if(distance > unrolledDistance * 4){
+                                            //System.out.println(" raise !!!!!!!!!!! *** ");
+                                            drillLowered = false;
+                                            drillLowerDistance = 0.5;
+                                            //System.out.println(" Lift ");
+                                            splitPoly = true;
+                                            //
+                                            Vec3 vertInsert = new Vec3( previousVert.x, previousVert.y + drillLowerDistance, previousVert.z); // raise drill
+                                            vertInsert.f = fastRate;
+                                            polygon.addElement(vertInsert);
+                                            
+                                            drillLowered = false;
+                                            drillLowerDistance = 0.5;
+                                            Vec3 vertInsertUp = new Vec3( vert.x, vert.y + drillLowerDistance, vert.z); //
+                                            vertInsertUp.f = fastRate;
+                                            polygon.addElement(vertInsertUp);
+                                            
+                                            drillLowered = true;
+                                            drillLowerDistance = 0.0;
+                                        }
+                                    }
+                                    
+                                    polygon.addElement(vert);
+                                    
+                                    // Lower drill (start of part or after split raise)
+                                    if(v == 0 ){ // || (drillLowered == false && v > 0)
+                                        //System.out.println(" Lower !!!!!!!!!!! ");
                                         drillLowered = true;
                                         drillLowerDistance = 0.0;
+                                        double y = cutDepth * scale; // recalculate y
+                                        Vec3 vertInsert = new Vec3( vert.x, y + drillLowerDistance, vert.z); // lower drill
+                                        vertInsert.f = slowRate;
+                                        polygon.addElement(vertInsert);
+                                        
+                                        vec0 = vert;
+                                        vec1 = vertInsert;
+                                    }
+                                    
+                                    // Raise drill (end of part)
+                                    if(v == verts.length - 1){
+                                        //System.out.println(" RAISE !!!!!!!!!!!X ");
+                                        
+                                        // Connect poly
+                                        //Vec3 vertConnect = polygon.elementAt(1);
+                                        //polygon.addElement(vertConnect);
+                                        polygon.addElement( new Vec3( vec1.x, vec1.y, vec1.z, slowRate) );
+                                        
+                                        // Connect poly raise
+                                        //drillLowered = false;
+                                        //drillLowerDistance = 0.5;
+                                        //double y = cutDepth * scale; // recalculate y
+                                        //Vec3 vertConnectRaise = polygon.elementAt(0); // new Vec3( vertConnect.x, vertConnect.y + drillLowerDistance, vertConnect.z); // raise drill
+                                        //polygon.addElement(vertConnectRaise);
+                                        
+                                        polygon.addElement( new Vec3( vec0.x, vec0.y, vec0.z, fastRate) );
+                                    }
+                                    
+                                    double x = vert.x; // + origin.x;
+                                    double y = vert.y; // + origin.y;
+                                    double z = vert.z; // + origin.z;
+                                    if(x < minX){
+                                        minX = x;
+                                    }
+                                    if(x > maxX){
+                                        maxX = x;
+                                    }
+                                    
+                                    if(y < minY){
+                                        minY = y;
+                                    }
+                                    if(y > maxY){
+                                        maxY = y;
+                                    }
+                                    
+                                    if(z < minZ){
+                                        minZ = z;
+                                    }
+                                    if(z > maxZ){
+                                        maxZ = z;
+                                    }
+                                    
+                                    v++;
+                                }
+                                // Reverse order
+                                if(layout.getReverseOrder(child.getId() + "") == 1){
+                                    Collections.reverse(polygon);
+                                }
+                                
+                                //polygons.addElement(polygon);
+                                
+                                // Cycle polygon start.
+                                // Allows cutting faccit deteail before long lines.
+                                // polygons (Vector)
+                                int start_offset = layout.getPointOffset(child.getId() + "");
+                                //System.out.println(" *** start_offset: " + start_offset);
+                                //for(int pt = 0; pt < polygon.size(); pt++){
+                                //}
+                                while(start_offset > polygon.size() - 1){
+                                    start_offset = start_offset - polygon.size();
+                                }
+                                while(start_offset < 0){
+                                    start_offset = start_offset + polygon.size();
+                                }
+                                if(start_offset != 0 && polygon.size() > 0){
+                                    for(int i = 0; i < start_offset; i++){
+                                        Vec3 vert = (Vec3)polygon.elementAt(0);
+                                        polygon.remove(0);
+                                        polygon.add(vert);
                                     }
                                 }
                                 
-                                polygon.addElement(vert);
+                                // Insert this polygon into the correct sorted order.
                                 
-                                // Lower drill (start of part or after split raise)
-                                if(v == 0 ){ // || (drillLowered == false && v > 0)
-                                    //System.out.println(" Lower !!!!!!!!!!! ");
-                                    drillLowered = true;
-                                    drillLowerDistance = 0.0;
-                                    double y = cutDepth * scale; // recalculate y
-                                    Vec3 vertInsert = new Vec3( vert.x, y + drillLowerDistance, vert.z); // lower drill
-                                    vertInsert.f = slowRate;
-                                    polygon.addElement(vertInsert);
-                                    
-                                    vec0 = vert;
-                                    vec1 = vertInsert;
-                                }
+                                int polyOrder = layout.getPolyOrder( "" + child.getId() );
+                                polygonOrder.put(polygon, polyOrder);
+                                //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
                                 
-                                // Raise drill (end of part)
-                                if(v == verts.length - 1){
-                                    //System.out.println(" RAISE !!!!!!!!!!!X ");
-                                    
-                                    // Connect poly
-                                    //Vec3 vertConnect = polygon.elementAt(1);
-                                    //polygon.addElement(vertConnect);
-                                    polygon.addElement( new Vec3( vec1.x, vec1.y, vec1.z, slowRate) );
-                                    
-                                    // Connect poly raise
-                                    //drillLowered = false;
-                                    //drillLowerDistance = 0.5;
-                                    //double y = cutDepth * scale; // recalculate y
-                                    //Vec3 vertConnectRaise = polygon.elementAt(0); // new Vec3( vertConnect.x, vertConnect.y + drillLowerDistance, vertConnect.z); // raise drill
-                                    //polygon.addElement(vertConnectRaise);
-                                    
-                                    polygon.addElement( new Vec3( vec0.x, vec0.y, vec0.z, fastRate) );
-                                }
+                                int insertAtPos = 0;
+                                boolean insertAtEnd = false;
                                 
-                                double x = vert.x; // + origin.x;
-                                double y = vert.y; // + origin.y;
-                                double z = vert.z; // + origin.z;
-                                if(x < minX){
-                                    minX = x;
-                                }
-                                if(x > maxX){
-                                    maxX = x;
-                                }
-                                
-                                if(y < minY){
-                                    minY = y;
-                                }
-                                if(y > maxY){
-                                    maxY = y;
-                                }
-                                
-                                if(z < minZ){
-                                    minZ = z;
-                                }
-                                if(z > maxZ){
-                                    maxZ = z;
-                                }
-                                
-                                v++;
-                            }
-                            // Reverse order
-                            if(layout.getReverseOrder(child.getId() + "") == 1){
-                                Collections.reverse(polygon);
-                            }
-                            
-                            //polygons.addElement(polygon);
-                            
-                            // Cycle polygon start.
-                            // Allows cutting faccit deteail before long lines.
-                            // polygons (Vector)
-                            int start_offset = layout.getPointOffset(child.getId() + "");
-                            //System.out.println(" *** start_offset: " + start_offset);
-                            //for(int pt = 0; pt < polygon.size(); pt++){
-                            //}
-                            while(start_offset > polygon.size() - 1){
-                                start_offset = start_offset - polygon.size();
-                            }
-                            while(start_offset < 0){
-                                start_offset = start_offset + polygon.size();
-                            }
-                            if(start_offset != 0 && polygon.size() > 0){
-                                for(int i = 0; i < start_offset; i++){
-                                    Vec3 vert = (Vec3)polygon.elementAt(0);
-                                    polygon.remove(0);
-                                    polygon.add(vert);
-                                }
-                            }
-                            
-                            // Insert this polygon into the correct sorted order.
-                            
-                            int polyOrder = layout.getPolyOrder( "" + child.getId() );
-                            polygonOrder.put(polygon, polyOrder);
-                            //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
-                            
-                            int insertAtPos = 0;
-                            boolean insertAtEnd = false;
-                            
-                            for(int pos = 0; pos < polygons.size(); pos++){
-                                Vector poly = (Vector)polygons.elementAt(pos);
-                                if(poly != null && polygonOrder != null){
-                                    Object currPolyPos =  (Object)polygonOrder.get(poly);
-                                    if(currPolyPos != null){
-                                        int currPolyPosInt = ((Integer)currPolyPos).intValue();
-                                        
-                                        // If current poly order is less than the current in the existing list insert it before
-                                        if( polyOrder < currPolyPosInt ){
-                                            insertAtPos = pos - 0;
-                                            pos = polygons.size() + 1; // break
-                                            //break;
+                                for(int pos = 0; pos < polygons.size(); pos++){
+                                    Vector poly = (Vector)polygons.elementAt(pos);
+                                    if(poly != null && polygonOrder != null){
+                                        Object currPolyPos =  (Object)polygonOrder.get(poly);
+                                        if(currPolyPos != null){
+                                            int currPolyPosInt = ((Integer)currPolyPos).intValue();
+                                            
+                                            // If current poly order is less than the current in the existing list insert it before
+                                            if( polyOrder < currPolyPosInt ){
+                                                insertAtPos = pos - 0;
+                                                pos = polygons.size() + 1; // break
+                                                //break;
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            
-                            if(polygons.size() > 0){
-                                Vector lastPoly = (Vector)polygons.elementAt(polygons.size()-1);
-                                Object lastPolyPos =  (Object)polygonOrder.get(lastPoly);
-                                if(lastPolyPos != null){
-                                    int lastPolyPosInt = ((Integer)lastPolyPos).intValue();
-                                    if(polyOrder > lastPolyPosInt){
-                                        insertAtEnd = true;
+                                
+                                if(polygons.size() > 0){
+                                    Vector lastPoly = (Vector)polygons.elementAt(polygons.size()-1);
+                                    Object lastPolyPos =  (Object)polygonOrder.get(lastPoly);
+                                    if(lastPolyPos != null){
+                                        int lastPolyPosInt = ((Integer)lastPolyPos).intValue();
+                                        if(polyOrder > lastPolyPosInt){
+                                            insertAtEnd = true;
+                                        }
                                     }
                                 }
+                                
+                                //System.out.println("  **** !!!!!!!!  " + child.getId() + "  insertAtPos: " + insertAtPos );
+                                
+                                if(insertAtEnd){
+                                    polygons.addElement(polygon);
+                                } else {
+                                    //if(insertAtPos > 0){
+                                    //    System.out.println("insert at " + insertAtPos);
+                                    polygons.insertElementAt(polygon, insertAtPos);
+                                    //} else {
+                                    //    System.out.println("add element");
+                                    //    polygons.addElement(polygon);
+                                    //}
+                                }
+                                
                             }
-                            
-                            //System.out.println("  **** !!!!!!!!  " + child.getId() + "  insertAtPos: " + insertAtPos );
-                            
-                            if(insertAtEnd){
-                                polygons.addElement(polygon);
-                            } else {
-                                //if(insertAtPos > 0){
-                                //    System.out.println("insert at " + insertAtPos);
-                                polygons.insertElementAt(polygon, insertAtPos);
-                                //} else {
-                                //    System.out.println("add element");
-                                //    polygons.addElement(polygon);
-                                //}
-                            }
+                        }
+                    } // end if mesh and visible
+                    
+                    if(co instanceof Curve && objClone.isVisible() == true ){ // Bent tube.
+                        
+                        CoordinateSystem c;
+                        c = layout.getCoords(objClone); // Read cutting coord from file
+                        objClone.setCoords(c);
+                        
+                        Curve curve = (Curve) objClone.getObject(); // Object3D
+                        Vec3 [] verts = curve.getVertexPositions();
+                        for (Vec3 vert : verts){
                             
                         }
+                        
+                        // TODO: Bend child objects (notches) around curve of tube vertecies.
+                        
+                        
                     }
-                    
                     
                     for(int p = 0; p < polygons.size(); p++){
                         //System.out.println(" POLYGON ***");
@@ -2925,14 +2945,13 @@ public class Scene
         int fastRate = 1200;
         int slowRate = 50;
         
-        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode_t";
+        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_gCode_tb";
         File d = new File(dir);
         if(d.exists() == false){
             d.mkdir();
         }
         
         double scale = getScale();
-        
         
         // Calculate bounds of object to calculate centre for unrolling points around tube circumfrance.
         for (ObjectInfo obj : objects){
@@ -3011,22 +3030,66 @@ public class Scene
                                 boundsMinZ = vert.z;
                             }
                         }
+                        double partLength = 0;
                         
+                        String partGCode = "";
                         for (int i = 0; i < verts.length - 2; i++ ){
                             Vec3 vert = verts[i];
                             Vec3 vert2 = verts[i+1];
                             Vec3 vert3 = verts[i+2];
                             
-                            float angle = 0;
+                            float firstPair = getAngle( vert.x - vert2.x, vert.z - vert2.z );
+                            float secondPair = getAngle( vert2.x - vert3.x, vert2.z - vert3.z );
+                            float angle = Math.abs(secondPair - firstPair);
                             
+                            double distance = Math.sqrt(Math.pow(vert.x - vert2.x, 2) + Math.pow(vert.y - vert2.y, 2) + Math.pow(vert.z - vert2.z, 2));
+                            distance = distance * scale;
                             
+                            double bendDistance = angle; // TODO: calculate this based on bender geometry.
+                            // As the bend angle increases the distance is non linear becuase the bend arc is circular and the
+                            // actuator is likely linear.
+                            
+                            //System.out.println(" " + i + " f " + firstPair + " -> " + secondPair);
+                            //System.out.println(" " + i + " d: " + distance + "  angle: " + angle  );
+                            
+                            partGCode += "G1 X" +
+                            roundThree(distance) +
+                            " Y" +
+                            roundThree(bendDistance) +
+                            " Z" +
+                            roundThree(0.0);
+                            partGCode += " F"+10+"";
+                            partGCode += ";\n"; // End line
+                            
+                            partLength += distance;
                         }
-                    
-                        System.out.println("Bend   --- Object: " + obj.getName() + " count: " + children.length);
                         
                         
+                        if(verts.length > 2){
+                            Vec3 vert = verts[verts.length - 2];
+                            Vec3 vert2 = verts[verts.length - 1];
+                            double distance = Math.sqrt(Math.pow(vert.x - vert2.x, 2) + Math.pow(vert.y - vert2.y, 2) + Math.pow(vert.z - vert2.z, 2));
+                            distance = distance * scale;
+                            partLength += distance;
+                        }
+                        
+                        //System.out.println("Bend   --- Object: " + obj.getName() + " count: " + children.length + " length: "+ partLength  );
+                        gcode2 += "; Tube Length: " + roundThree(partLength) + "\n";
+                        
+                        gcode2 += partGCode;
                     }
                     
+                    
+                    try {
+                        String gcodeFile = dir + System.getProperty("file.separator") + obj.getName() + ".gcode";
+                        //gcodeFile += ".gcode";
+                        System.out.println("Writing g code file: " + gcodeFile);
+                        PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                        writer2.println(gcode2);
+                        writer2.close();
+                    } catch (Exception e){
+                        System.out.println("Error: " + e.toString());
+                    }
                     
                 } catch (Exception e){
                     System.out.println("Error: " + e);
