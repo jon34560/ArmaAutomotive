@@ -392,7 +392,7 @@ public class SceneViewer extends ViewerCanvas
               Curve curve = (Curve)info.getObject();
               Vec3[] subdividedPoints = curve.getSubdividedVertices();
               //System.out.println(" sub points: "+ subdividedPoints.length );
-              for(int iv = 0; iv < subdividedPoints.length; iv++){
+              for(int iv = 0; subdividedPoints != null && iv < subdividedPoints.length; iv++){
                   Vec3 vec = subdividedPoints[iv];
                   pos = theCamera.getObjectToScreen().timesXY(vec);
                   int x = (int) pos.x;

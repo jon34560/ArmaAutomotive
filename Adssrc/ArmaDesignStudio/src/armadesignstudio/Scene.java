@@ -2570,15 +2570,15 @@ public class Scene
                                 
                                 writeFile = true;
                                 Vector<Vec3> polygon = new Vector<Vec3>();
-                                CoordinateSystem c;
+                                //CoordinateSystem c;
                                 c = layout.getCoords(childClone); // Read cutting coord from file
                                 childClone.setCoords(c);
                                 
                                 double cutDepth = layout.getPolyDepth(child);
                                 //
                                 
-                                Mesh mesh = (Mesh) childClone.getObject(); // Object3D
-                                Vec3 [] verts = mesh.getVertexPositions();
+                                mesh = (Mesh) childClone.getObject(); // Object3D
+                                verts = mesh.getVertexPositions(); // Vec3 [] 
                                 
                                 // Calculate distance between vertecies in 3d space.
                                 double [] vertDistances = new double[verts.length];
@@ -2820,7 +2820,23 @@ public class Scene
                         }
                         
                         // TODO: Bend child objects (notches) around curve of tube vertecies.
-                        
+                        for (int i = 0; i < verts.length - 2; i++ ){
+                            Vec3 vert = verts[i];
+                            Vec3 vert2 = verts[i+1];
+                            Vec3 vert3 = verts[i+2];
+                            
+                            float firstPair = getAngle( vert.x - vert2.x, vert.z - vert2.z );
+                            float secondPair = getAngle( vert2.x - vert3.x, vert2.z - vert3.z );
+                            float angle = Math.abs(secondPair - firstPair);
+                            
+                            double distance = Math.sqrt(Math.pow(vert.x - vert2.x, 2) + Math.pow(vert.y - vert2.y, 2) + Math.pow(vert.z - vert2.z, 2));
+                            distance = distance * scale;
+                            
+                            System.out.println(" " + i + " d: " + distance + " a: " + angle );
+                            
+                            
+                            
+                        }
                         
                     }
                     
