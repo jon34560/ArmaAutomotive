@@ -4306,27 +4306,141 @@ public class Scene
             }     
         }
         
-        // We may need meshObj in TriangleMesh
-        //
-        Object3D triangleMesh = null;
-        if(meshObj.getObject().canConvertToTriangleMesh() == Object3D.CANT_CONVERT){
-            System.out.println(" can't ");
-        } else {
-            System.out.println(" can ");
-            triangleMesh = meshObj.getObject().convertToTriangleMesh(0.0);
-            
-            System.out.println(" tmesh " + triangleMesh.getClass().getName() );
-        }
-
+    
         if(meshObj == null){
            JOptionPane.showMessageDialog(null, "Select an object to crash.",  "alert" , JOptionPane.ERROR_MESSAGE ); 
            return;
         }
 
         CrashSimulation crash = new CrashSimulation(frame);
-        if (crash.clickedOk() && triangleMesh != null){
+        if (crash.clickedOk()){
             System.out.println("Run Simulation." + wall + "  mesh: " + meshObj);
 
+            
+            // We may need meshObj in TriangleMesh
+            //
+            Object3D triangleMesh = null; // && triangleMesh != null
+            if(meshObj.getObject().canConvertToTriangleMesh() == Object3D.CANT_CONVERT){
+                //System.out.println(" can't ");
+            } else {
+                //System.out.println(" can ");
+                triangleMesh = meshObj.getObject().convertToTriangleMesh(0.0);
+                //System.out.println(" tmesh " + triangleMesh.getClass().getName() );
+                if( triangleMesh instanceof TriangleMesh ){     // selected object to impact is TriangleMesh
+                    TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                    MeshVertex[] verts = ((TriangleMesh)triangleMesh).getVertices();
+                    
+                    CoordinateSystem c;
+                    c = layout.getCoords(meshObj);
+                    Vec3 origin = c.getOrigin();
+                    
+                    // Find Left most vertex to start the impact calculation process.
+                    int firstVecId = -1;
+                    double firstVecX = 99999;
+                    for(int i = 0; i < verts.length; i++){
+                        Vec3 vertex1 = verts[i].r;
+                        
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vertex1);
+                        
+                        if(vertex1.x < firstVecX){
+                            firstVecX = vertex1.x;
+                            firstVecId = i;
+                        }
+                    }
+                    System.out.println("firstVecId: " + firstVecId);
+                    
+                    // Traverse mesh, left to right. (Impact is from Left axis.)
+                    HashMap traveredPoint = new HashMap(); // Vec
+                    HashMap traveredEdge = new HashMap();
+                    Vector orderedVec = new Vector();
+                    
+                    Vector processQueueVecs = new Vector();
+                    
+                    boolean done = false;
+                    int currVecId = -1;
+                    int counter = 0;
+                    
+                    while(!done ){ // && currVecId >= 0
+                        if(currVecId == -1){
+                            currVecId = firstVecId;
+                            orderedVec.addElement( firstVecId );
+                            traveredPoint.put(firstVecId, 1);
+                        } else if(processQueueVecs.size() > 0) {
+                            currVecId = ((Integer)processQueueVecs.remove(0)).intValue();
+                        } else {
+                            currVecId = -1;
+                        }
+                        
+                        Vec3 vec = verts[currVecId].r;
+                        
+                        // Get list of all verts connected to the currVec by edges.
+                        for(int i = 0; i < edges.length; i++){
+                            Edge edge = edges[i];
+                            
+                            if(currVecId == edge.v1){
+                                if(traveredPoint.containsKey(edge.v2) == false){
+                                    orderedVec.addElement(edge.v2);
+                                    processQueueVecs.addElement(edge.v2);
+                                }
+                                traveredPoint.put(edge.v2, 1);
+                                traveredEdge.put(i, 1);
+                                
+                            }
+                            if(currVecId == edge.v2){
+                                if(traveredPoint.containsKey(edge.v1) == false){
+                                    orderedVec.addElement(edge.v1);
+                                    processQueueVecs.addElement(edge.v1);
+                                }
+                                traveredPoint.put(edge.v1, 1);
+                                traveredEdge.put(i, 1);
+                            }
+                        }
+                        
+                        //counter++;
+                        if( processQueueVecs.size() == 0 ){
+                            done = true;
+                        }
+                    }
+                    
+                    
+                    
+                    // Print ordered object points
+                    for(int i = 0; i < orderedVec.size(); i++){
+                        Vec3 vec = verts[((Integer)orderedVec.get(i)).intValue()].r;
+                        
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        //mat4.transform(verts[i]);
+                        mat4.transform(vec);
+                        
+                        System.out.println(" vec " + i + " " + orderedVec.get(i) + " " + vec.x);
+                        
+                        // Calculate vert (and edge connected verts) angle delta from horizontal impact.
+                        // TODO.
+                        
+                        
+                    }
+                    
+                    /*
+                    for(int i = 0; i < edges.length; i++){
+                        //System.out.println(" edge " + i );
+                        Edge edge = edges[i];
+                        
+                        Vec3 vertex1 = verts[edge.v1].r;
+                        Vec3 vertex2 = verts[edge.v2].r;
+                        System.out.println(" edge v1: " + edge.v1 + " v2: " + edge.v2 +
+                                           " : " + vertex1.x + " " + vertex1.y + " " + vertex1.z  + " - " +
+                                           vertex2.x + " " + vertex2.y + " " + vertex2.z); // Vec3
+                        
+                        
+                    }
+                     */
+                    
+                }
+            }
+            
+            
+            
             // calculate mesh boundary.
             // ...  
             BoundingBox meshBound = meshObj.getBounds();
@@ -4362,7 +4476,7 @@ public class Scene
                 Vec3 [] verts = meshObj3d.getVertexPositions();
                 Vec3 [] normals = meshObj3d.getNormals();
                   
-                  System.out.println(" verts: " + verts.length + " normals " + normals.length);
+                //System.out.println(" verts: " + verts.length + " normals " + normals.length);
                 
                 //for (Vec3 vert : verts){
                 //  System.out.println(" point " + vert.x + " " + vert.y + " " + vert.z);
@@ -4384,9 +4498,9 @@ public class Scene
                     
                     mat4.transform(vert);
                   
-                    System.out.print("  x: " + vert.x + "   y: " + vert.y + "   z: " + vert.z + "    " +
-                                     " " +  origin.x + "   " +
-                                   " n " + normals[j].x + " " + normals[j].y + " " + normals[j].z);
+                    //System.out.print("  x: " + vert.x + "   y: " + vert.y + "   z: " + vert.z + "    " +
+                    //                 " " +  origin.x + "   " +
+                    //               " n " + normals[j].x + " " + normals[j].y + " " + normals[j].z);
 
                   //verts[j].z -= 0.12; // Move Object (if Z > 0) 
                   double z = verts[j].z;
@@ -4397,7 +4511,7 @@ public class Scene
                     //System.out.print(" > ");
                   }
                     
-                  System.out.println("");
+                  //System.out.println("");
                 }
                 // update model 
                 //meshObj3d.setVertexPositions( verts ); // affects on its own
@@ -4412,7 +4526,13 @@ public class Scene
               
             }
         }
-    } 
+    }
+    
+    
+    public Vector traverseObject( MeshVertex[] verts   ){
+        Vector result = new Vector();
+        return result;
+    }
    
  
     public void setObjectStructure(){
