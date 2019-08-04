@@ -5124,6 +5124,7 @@ public class Scene
             if(cfd.isRunning() == false){
            
             } else {
+                System.out.println("stop cfd");
                 cfd.stopCFD();
             }
         }

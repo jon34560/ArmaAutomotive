@@ -697,7 +697,7 @@ public class TriangleMesh extends Object3D implements FacetedMesh
     
   public TriangleMesh convertToTriangleMesh(double tol)
   {
-    System.out.println(" triangleMesh convert ");
+    //System.out.println(" triangleMesh convert ");
     boolean split[];
 
     if (smoothingMethod == INTERPOLATING || smoothingMethod == APPROXIMATING)

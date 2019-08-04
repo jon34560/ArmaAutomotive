@@ -30,6 +30,8 @@ public class FluidPointObject extends Curve implements Mesh
     
     protected Vec3[] resetLocation;
     
+    public Vec3[] previousPoints = new Vec3[12];
+    
     protected double psi = 1.0;
     
     private static final Property PROPERTIES[] = new Property [] {
@@ -92,6 +94,10 @@ public class FluidPointObject extends Curve implements Mesh
         this.smoothness = smoothness;
         this.smoothingMethod = smoothingMethod;
         closed = isClosed;
+        
+        for(int j = 0; j < previousPoints.length; j++){
+            previousPoints[j] = new Vec3(0,0,0);
+        }
     }
     
     public Object3D duplicate()
@@ -1087,6 +1093,25 @@ public class FluidPointObject extends Curve implements Mesh
             }
         }
     }
+    
+    
+    /**
+     * updatePreviousPoints
+     *
+     * Description: Shift previous points down the array queue.
+     */
+    public void updatePreviousPoints(){
+        Vec3 location = getLocation();
+        for(int j = previousPoints.length - 1; j > 0; j--){
+            if(previousPoints[j].x != previousPoints[j -1].x || previousPoints[j].y != previousPoints[j -1].y || previousPoints[j].z != previousPoints[j -1].z){
+                previousPoints[j] = new Vec3(previousPoints[j -1].x, previousPoints[j -1].y, previousPoints[j -1].z);
+            }
+        }
+        if(previousPoints[0].x != location.x || previousPoints[0].y != location.y || previousPoints[0].z != location.z){
+            previousPoints[0] = new Vec3(location.x, location.y, location.z);
+        }
+    }
+    
 }
 
 

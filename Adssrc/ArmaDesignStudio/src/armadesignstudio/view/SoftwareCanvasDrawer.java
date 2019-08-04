@@ -1637,6 +1637,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
    */
   public void renderFluidPoint(ObjectInfo obj, Camera theCamera){
       double distance = 0;
+      double markerSize = 0.02;
       
       Object3D o3d = obj.getObject();
       FluidPointObject fluidPoint = (FluidPointObject)o3d;
@@ -1673,19 +1674,30 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       
           
       // line 1 (vertical)
-      Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + 0.05, verts[0].z); // point 2
-      Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - 0.05, verts[0].z); // point 3
+      Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + markerSize, verts[0].z); // point 2
+      Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - markerSize, verts[0].z); // point 3
       renderLine(vert1, vert2, theCamera, color);
       
       // Line 2 (horizontal)
-      Vec3 vert3 = new Vec3( verts[0].x - 0.05, verts[0].y, verts[0].z); // point 1
-      Vec3 vert4 = new Vec3( verts[0].x + 0.05, verts[0].y, verts[0].z); // constructed point
+      Vec3 vert3 = new Vec3( verts[0].x - markerSize, verts[0].y, verts[0].z); // point 1
+      Vec3 vert4 = new Vec3( verts[0].x + markerSize, verts[0].y, verts[0].z); // constructed point
       renderLine(vert3, vert4, theCamera, color);
       
       // Line 3 (horizontal depth)
-      Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - 0.05); // point 1
-      Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + 0.05); // constructed point
+      Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - markerSize); // point 1
+      Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + markerSize); // constructed point
       renderLine(vert5, vert6, theCamera, color);
+      
+      // Draw tail
+      for(int j = fluidPoint.previousPoints.length - 1; j > 0; j--){
+          if(fluidPoint.previousPoints[j].x != 0){
+              renderLine(fluidPoint.previousPoints[j], fluidPoint.previousPoints[j -1], theCamera, color);
+          }
+      }
+      if(fluidPoint.previousPoints[0].x != 0){
+          renderLine(verts[0], fluidPoint.previousPoints[0], theCamera, color);
+      }
+      
       
   }
 
