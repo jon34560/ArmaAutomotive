@@ -1651,15 +1651,22 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
           }
           color = new Color((float)psiScale, 0.0f, 0.0f, 0.6f /*alpha*/);
       } else if(psiScale < 0.95){
-          
-          color = new Color( 0.0f, 0.0f, 0.4f, 0.5f /*alpha*/);
+          color = new Color( 0.0f, 0.0f, 0.4f, 0.55f /*alpha*/);
       } else if(psiScale < 0.85){
           color = new Color( 0.0f, 0.0f, 0.6f, 0.5f /*alpha*/);
+      } else if(psiScale < 0.75){
+          color = new Color( 0.0f, 0.0f, 0.64f, 0.4f /*alpha*/);
+      } else if(psiScale < 0.65){
+          color = new Color( 0.0f, 0.0f, 0.68f, 0.3f /*alpha*/);
       } else if(psiScale < 0.55){
-          color = new Color( 0.0f, 0.0f, 0.7f, 0.5f /*alpha*/);
+          color = new Color( 0.0f, 0.0f, 0.72f, 0.2f /*alpha*/);
       } else if(psiScale < 0.45){
-          color = new Color( 0.0f, 0.0f, 0.8f, 0.5f /*alpha*/);
+          color = new Color( 0.0f, 0.0f, 0.8f, 0.1f /*alpha*/);
+      } else if(psiScale < 0.25){
+          color = new Color( 0.0f, 0.0f, 0.9f, 0.05f /*alpha*/);
       }
+      
+      //System.out.println("" + psiScale);
       
       ObjectInfo objClone = obj.duplicate();
       LayoutModeling layout = new LayoutModeling();
@@ -1671,34 +1678,34 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       
       int pixelWidth = 0;
           
-      
+      //if(psiScale > 0.25){ // This doesn't work. Points in vacume are not drawn. Want straight moving points hidden.
           
-      // line 1 (vertical)
-      Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + markerSize, verts[0].z); // point 2
-      Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - markerSize, verts[0].z); // point 3
-      renderLine(vert1, vert2, theCamera, color);
-      
-      // Line 2 (horizontal)
-      Vec3 vert3 = new Vec3( verts[0].x - markerSize, verts[0].y, verts[0].z); // point 1
-      Vec3 vert4 = new Vec3( verts[0].x + markerSize, verts[0].y, verts[0].z); // constructed point
-      renderLine(vert3, vert4, theCamera, color);
-      
-      // Line 3 (horizontal depth)
-      Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - markerSize); // point 1
-      Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + markerSize); // constructed point
-      renderLine(vert5, vert6, theCamera, color);
-      
-      // Draw tail
-      for(int j = fluidPoint.previousPoints.length - 1; j > 0; j--){
-          if(fluidPoint.previousPoints[j].x != 0){
-              renderLine(fluidPoint.previousPoints[j], fluidPoint.previousPoints[j -1], theCamera, color);
+          // line 1 (vertical)
+          Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + markerSize, verts[0].z); // point 2
+          Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - markerSize, verts[0].z); // point 3
+          renderLine(vert1, vert2, theCamera, color);
+          
+          // Line 2 (horizontal)
+          Vec3 vert3 = new Vec3( verts[0].x - markerSize, verts[0].y, verts[0].z); // point 1
+          Vec3 vert4 = new Vec3( verts[0].x + markerSize, verts[0].y, verts[0].z); // constructed point
+          renderLine(vert3, vert4, theCamera, color);
+          
+          // Line 3 (horizontal depth)
+          Vec3 vert5 = new Vec3( verts[0].x, verts[0].y, verts[0].z - markerSize); // point 1
+          Vec3 vert6 = new Vec3( verts[0].x, verts[0].y, verts[0].z + markerSize); // constructed point
+          renderLine(vert5, vert6, theCamera, color);
+          
+          // Draw tail
+          for(int j = fluidPoint.previousPoints.length - 1; j > 0; j--){
+              if(fluidPoint.previousPoints[j].x != 0){
+                  renderLine(fluidPoint.previousPoints[j], fluidPoint.previousPoints[j -1], theCamera, color);
+              }
           }
-      }
-      if(fluidPoint.previousPoints[0].x != 0){
-          renderLine(verts[0], fluidPoint.previousPoints[0], theCamera, color);
-      }
+          if(fluidPoint.previousPoints[0].x != 0){
+              renderLine(verts[0], fluidPoint.previousPoints[0], theCamera, color);
+          }
       
-      
+      //}
   }
 
   /** Render an object with flat shading in subtractive (transparent) mode. */

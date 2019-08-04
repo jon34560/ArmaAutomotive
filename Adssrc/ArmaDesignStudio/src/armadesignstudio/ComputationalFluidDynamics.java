@@ -386,9 +386,14 @@ public class ComputationalFluidDynamics extends Thread {
                         }
                     }
                     
-                    double zStep = 0.054;
+                    double zStep = 0.054;  //
                     double xStep = 0.0003;
                     double yStep = 0.0005;
+                
+                    double zStepMove = 0.0; // rename step -> Tick,  cycle
+                    double zStepSlow = 0.0;
+                    double xStepMove = 0.0;
+                    double yStepMove = 0.0;
                 
                     // High Pressure
                     if(collide == false){
@@ -398,39 +403,56 @@ public class ComputationalFluidDynamics extends Thread {
                             psiScale = 0.001;
                             System.out.println("psi " + fluidPoint.getPSI() + " " + Math.log10(fluidPoint.getPSI() + 1) );
                         }
-                        points[v].z -= (zStep * (1 - psiScale)); // ???? not all ar emoving
+                        zStepMove = (zStep * (1 - psiScale));
+                        //points[v].z -= zStepMove; // ???? not all ar emoving
                         //System.out.println(" fluidPoint.getPSI(): " + psiScale );
                         
                         if(pressureLeft > pressureRight){
-                            points[v].x += xStep * (pressureLeft-pressureRight); // Push right from pressure on left side
+                            //points[v].x += xStep * (pressureLeft-pressureRight);  // Push right from pressure on left side
+                            xStepMove += xStep * (pressureLeft-pressureRight);      // Push right from pressure on left side
+                            
+                            //cod += (pressureLeft-pressureRight);
                         }
                         if(pressureRight > pressureLeft){
-                            points[v].x -= xStep * (pressureRight-pressureLeft); // Push left from pressure on right side
+                            //points[v].x -= xStep * (pressureRight-pressureLeft);    // Push left from pressure on right side
+                            xStepMove -= xStep * (pressureRight-pressureLeft);      // Push left from pressure on right side
+                            
+                            //cod += (pressureRight-pressureLeft);
                         }
                         if(pressureLeft == pressureRight){
                             //System.out.print(" e ");
                             if(Math.random() > 0.5){
-                                points[v].x += xStep * (pressureLeft-pressureRight);
+                                //points[v].x += xStep * (pressureLeft-pressureRight);
+                                xStepMove += xStep * (pressureLeft-pressureRight);
                             } else {
-                                points[v].x -= xStep * (pressureLeft-pressureRight);
+                                //points[v].x -= xStep * (pressureLeft-pressureRight);
+                                xStepMove -= xStep * (pressureLeft-pressureRight);
                             }
+                            //cod += (pressureLeft);
                         }
                         
                         
                         if(pressureAbove > pressureBelow){
-                            points[v].y -= yStep * (pressureAbove-pressureBelow); // Push down from pressure on upper side
+                            //points[v].y -= yStep * (pressureAbove-pressureBelow); // Push down from pressure on upper side
+                            yStepMove -= yStep * (pressureAbove-pressureBelow); // Push down from pressure on upper side
+                            //cod += (pressureAbove-pressureBelow);
                         }
                         if(pressureBelow > pressureAbove){
-                            points[v].y += yStep * (pressureBelow-pressureAbove); // Push left from pressure on right side
+                            //points[v].y += yStep * (pressureBelow-pressureAbove); // Push left from pressure on right side
+                            yStepMove += yStep * (pressureBelow-pressureAbove); // Push left from pressure on right side
+                            //cod += (pressureBelow-pressureAbove);
                         }
                         
                         if(pressureBelow == pressureAbove){
                             //System.out.print(" e ");
                             if(Math.random() > 0.5){
-                                points[v].y -= yStep * (pressureAbove-pressureBelow);
+                                //points[v].y -= yStep * (pressureAbove-pressureBelow);
+                                yStepMove -= yStep * (pressureAbove-pressureBelow);
                             } else {
-                                points[v].y += yStep * (pressureBelow-pressureAbove);
+                                //points[v].y += yStep * (pressureBelow-pressureAbove);
+                                yStepMove += yStep * (pressureBelow-pressureAbove);
                             }
+                            //cod += (pressureBelow);
                         }
                         
                         //points[v].z -= 0.005;
@@ -446,18 +468,30 @@ public class ComputationalFluidDynamics extends Thread {
                     if(vacumeLeft > 0.0 || vacumeRight > 0.0 || vacumeAbove > 0.0 || vacumeBelow > 0.0){
                         
                         if(vacumeLeft > 0.0 && points[v].x > minx){ // move left
-                            points[v].x -= 0.005; // * (pressureRight-pressureLeft); // Push left from pressure on right side
+                            //points[v].x -= 0.010; // * (pressureRight-pressureLeft); // Push left from pressure on right side
+                            xStepMove -= 0.010;
+                            zStepSlow += (zStepMove / 3);
+                            zStepMove -= (zStepMove / 3); // Slow down to fill in vacume
                         }
                         if(vacumeRight > 0.0 && points[v].x < maxx){
-                            points[v].x += 0.005;
+                            //points[v].x += 0.010;
+                            xStepMove += 0.010;
+                            zStepSlow += (zStepMove / 3);
+                            zStepMove -= (zStepMove / 3); // Slow down to fill in vacume space.
                         }
                         if(vacumeAbove > 0.0 && points[v].y < maxy){ // vacume above and in bounds -> move up
-                            points[v].y += 0.015;
+                            //points[v].y += 0.010;
+                            yStepMove += 0.010;
                             //System.out.print("+");
+                            zStepSlow += (zStepMove / 3);
+                            zStepMove -= (zStepMove / 3); // Slow down to fill in vacume
                         }
                         if(vacumeBelow > 0.0 && points[v].y > miny){ // vacume below and in bounds -> move down
-                            points[v].y -= 0.015;
+                            //points[v].y -= 0.010;
+                            yStepMove -= 0.010;
                             //System.out.print("-");
+                            zStepSlow += (zStepMove / 3);
+                            zStepMove -= (zStepMove / 3); // Slow down to fill in vacume
                         }
                         
                         fluidPoint.setPSI( 0.2 ); // render as blue
@@ -479,6 +513,19 @@ public class ComputationalFluidDynamics extends Thread {
                         points[v].y = maxy;
                     }
                      */
+                
+                    //
+                    // Update drag coreffecient based on distance particles have to move divided by volume area.
+                    //
+                    cod += zStepSlow + xStepMove + yStepMove;
+                
+                    //
+                    // Move fluid point based on calculated direction
+                    //
+                    points[v].z -= zStepMove;
+                    points[v].x += xStepMove;
+                    points[v].y += yStepMove;
+                
                     
                     // Reset fluid location
                     if(points[v].z < minz){
@@ -563,7 +610,7 @@ public class ComputationalFluidDynamics extends Thread {
                 window.repaint();
             }
             
-            //System.out.println("coefficient of drag: " + cod);
+            System.out.println("coefficient of drag: " + cod);
             
             // Refresh screen
             window.repaint();
