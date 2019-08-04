@@ -128,14 +128,11 @@ public class CrashSimulation extends BDialog
         /*
         for (int i = 0; i < 9; i++)
         {
-
           center.add(
         fields[i] =
             new ValueField(
                 0, ValueField.NONE), (i%3)+1, (i/3)+1);
-
           fields[i].addEventLink(ValueChangedEvent.class, listener);
-
         }
         */
         /*
@@ -175,13 +172,14 @@ public class CrashSimulation extends BDialog
         addAsListener(this);
     }
 
-
     private void doOk()
     {
+        ValueField velocityField = fields[1];
+        //velocityField.get
+        
         ok = true;
         dispose();
     }
-
 
     private void keyPressed(KeyPressedEvent ev)
     {
@@ -239,16 +237,20 @@ public class CrashSimulation extends BDialog
     
     
     /**
-    * impact
-    *
-    * Description:
-    */
+     * impact
+     *
+     * Description:
+     *
+     *
+     * TODO: Break inerta into descrete values for each vertex as it transfers through the object.
+     * TODO: Trasform coordinate points
+     */
     public void impact(ObjectInfo meshObj){
         System.out.println("Run Simulation." + "  mesh: " + meshObj);
         
         LayoutModeling layout = new LayoutModeling();
 
-        //double inerta = 1.0;
+        
 
         // We may need meshObj in TriangleMesh
         //
@@ -275,6 +277,7 @@ public class CrashSimulation extends BDialog
                 // Find Left most vertex to start the impact calculation process.
                 int firstVecId = -1;
                 double firstVecX = 99999;
+                double lastVecX = -99999;
                 for(int i = 0; i < verts.length; i++){
                     Vec3 vertex1 = verts[i].r;
                     
@@ -284,6 +287,9 @@ public class CrashSimulation extends BDialog
                     if(vertex1.x < firstVecX){
                         firstVecX = vertex1.x;
                         firstVecId = i;
+                    }
+                    if(vertex1.x > lastVecX){
+                        lastVecX = vertex1.x;
                     }
                 }
                 System.out.println("firstVecId: " + firstVecId);
@@ -299,7 +305,7 @@ public class CrashSimulation extends BDialog
                 int currVecId = -1;
                 int counter = 0;
                 
-                while(!done ){ // && currVecId >= 0
+                while(!done){ // && currVecId >= 0
                     if(currVecId == -1){
                         currVecId = firstVecId;
                         orderedVec.addElement( firstVecId );
@@ -340,7 +346,11 @@ public class CrashSimulation extends BDialog
                     }
                 }
                 
-                // Print ordered object points
+                //
+                // iterate ordered object points moving left to right based on inerta and geometry.
+                //
+                HashMap movedPoint = new HashMap();
+                
                 for(int i = 0; i < orderedVec.size(); i++){
                     int vertId = ((Integer)orderedVec.get(i)).intValue();
                     Vec3 vec = verts[vertId].r;
@@ -367,7 +377,7 @@ public class CrashSimulation extends BDialog
                         if(vertId == edge.v2){
                             vecCompare = verts[edge.v1].r;
                         }
-                        if(vecCompare != null && vecCompare.x > vec.x) {
+                        if(vecCompare != null && vecCompare.x >= vec.x) { // ****
                             double angle = getAngle3(vec, vecCompare);
                             System.out.println("     comp- x: " + vecCompare.x + " " + vecCompare.y + " " + vecCompare.z + "  a: " + angle);
                             
@@ -393,7 +403,7 @@ public class CrashSimulation extends BDialog
                     // object3D set vec3 data
                     
                     //meshObj.getObject().
-                    
+                    // Update vertex location
                     Vec3 moved = vecPoints[ vertId ];
                     moved.x = moved.x + movement ;
                     vecPoints[ vertId ] = moved;
@@ -409,9 +419,7 @@ public class CrashSimulation extends BDialog
                 
                 
                 ((Mesh)meshObj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
-                
                 meshObj.clearCachedMeshes();
-                
                 ((LayoutWindow)window).setModified();
                 ((LayoutWindow)window).updateImage();
                 
