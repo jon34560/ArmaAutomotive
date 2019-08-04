@@ -137,6 +137,8 @@ public class ComputationalFluidDynamics extends Thread {
         // Move fluid points through region around objects calculating diflections.
         while(running){
             
+            double cod = 0; // Coeficient of drag.
+            
             for(int i = 0; i < pointObjects.size(); i++){
                 FluidPointObject fluidPoint = pointObjects.elementAt(i);
                 Vec3 location = fluidPoint.getLocation();
@@ -166,17 +168,22 @@ public class ComputationalFluidDynamics extends Thread {
                             //System.out.println("obj " + obj.getId() + "  " + obj.getName() );
                             // obj.getObject(); // Object3D
                             Object3D o3d = obj.getObject();
-                            BoundingBox bounds = o3d.getBounds(); // INCORRECT does not include location
-                            //bounds.minx += o3d.getLocation().x; bounds.maxx += o3d.getLocation().x;
-                            //bounds.miny += obj.getLocation().y; bounds.maxy += obj.getLocation().y;
-                            //bounds.minz += obj.getLocation().z; bounds.maxz += obj.getLocation().z;
-                            
-                            
-                            //System.out.println(" obj bounds " +  bounds.miny + " " + bounds.maxy);
                             
                             CoordinateSystem c;
                             c = layout.getCoords(obj);
-                            //Vec3 origin = c.getOrigin();
+                            Vec3 objOrigin = c.getOrigin();
+                            //System.out.println(" obj origin " + objOrigin.x + " " + objOrigin.y + " " + objOrigin.z );
+                            
+                            
+                            BoundingBox bounds = o3d.getBounds(); // does not include location
+                            
+                            bounds = new BoundingBox(bounds); // clone bounds 
+                            
+                            bounds.minx += objOrigin.x; bounds.maxx += objOrigin.x;
+                            bounds.miny += objOrigin.y; bounds.maxy += objOrigin.y;
+                            bounds.minz += objOrigin.z; bounds.maxz += objOrigin.z;
+                            
+                            //System.out.println(" obj bounds    x: " + bounds.minx + " " + bounds.maxx + " y: " +   bounds.miny + " " + bounds.maxy);
                             
                             // If object is TriangleMesh, create bounds from reach face coordinates. Not accurate but better than object bounds.
                             if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
@@ -224,7 +231,6 @@ public class ComputationalFluidDynamics extends Thread {
                                    location.y > bounds.miny && location.y < bounds.maxy &&
                                    location.z > bounds.minz && location.z < bounds.maxz){
                                     collide = true;
-                                    //     collideZ = bounds.maxz;
                                     //System.out.println(" c obj " +obj.getName() );
                                 }
                                 
@@ -553,6 +559,7 @@ public class ComputationalFluidDynamics extends Thread {
                 window.repaint();
             }
             
+            //System.out.println("coefficient of drag: " + cod);
             
             // Refresh screen
             window.repaint();
@@ -574,6 +581,7 @@ public class ComputationalFluidDynamics extends Thread {
      *  relative size larger than the bounds of scene objects.
      */
     public void calculateBounds(Vector<ObjectInfo> objects){
+        LayoutModeling layout = new LayoutModeling();
         // Calculate bounds
         for (ObjectInfo obj : objects){
             if(obj.getName().indexOf("Camera") < 0 &&
@@ -587,6 +595,15 @@ public class ComputationalFluidDynamics extends Thread {
                 // obj.getObject(); // Object3D
                 Object3D o3d = obj.getObject();
                 BoundingBox bounds = o3d.getBounds();
+                
+                // Include object location in bounds values.
+                CoordinateSystem c;
+                c = layout.getCoords(obj);
+                Vec3 objOrigin = c.getOrigin();
+                bounds.minx += objOrigin.x; bounds.maxx += objOrigin.x;
+                bounds.miny += objOrigin.y; bounds.maxy += objOrigin.y;
+                bounds.minz += objOrigin.z; bounds.maxz += objOrigin.z;
+                
                 
                 //System.out.println("  " + bounds.minx + " " + bounds.maxx );
                 if(bounds.minx < this.minx){
