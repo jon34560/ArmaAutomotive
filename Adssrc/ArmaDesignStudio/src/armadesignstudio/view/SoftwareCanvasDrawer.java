@@ -397,7 +397,6 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       @param cam    the camera from which to draw the line
       @param color  the line color
   */
-
   public void renderLine(Vec2 p1, double zf1, Vec2 p2, double zf2, Camera cam, Color color)
   {
       //System.out.println(" renderLine ");
@@ -405,6 +404,16 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     int x, y, z, dx, dy, dz, end, index, edge;
     int clip = (int) (cam.isPerspective() ? cam.getClipDistance()*65535.0 : Integer.MIN_VALUE);
     int rgb = color.getRGB();
+      
+      // JDT incorporate alpha value.
+    int alpha = color.getAlpha(); //  0-255
+      int red = color.getRed();
+      int green = color.getGreen();
+      int blue = color.getBlue();
+      
+      //alpha = 15;
+      
+      //System.out.println(" alpha: " + alpha);
 
     x1 = (int) p1.x;
     y1 = (int) p1.y;
@@ -468,7 +477,23 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
                 index = bounds.width*(y>>16)+x;
                 if (z <= zbuffer[index])
                   {
-                    pixel[index] = rgb;
+                      
+                      if(alpha > 254){
+                          pixel[index] = rgb;
+                      } else {
+                          // Alpha blend
+                          Color existingPixel = new Color(pixel[index]);
+                          int existingRed = existingPixel.getRed();
+                          int existingGreen = existingPixel.getGreen();
+                          int existingBlue = existingPixel.getBlue();
+                          
+                          int r = (red * alpha + existingRed * (255 - alpha)) / 255;
+                          int g = (green * alpha + existingGreen * (255 - alpha)) / 255;
+                          int b = (blue * alpha + existingBlue * (255 - alpha)) / 255;
+                          
+                          pixel[index] = new Color( r,  g,  b).getRGB();
+                      }
+                      
                     zbuffer[index] = z;
                   }
               }
@@ -513,7 +538,25 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
                 index = y*bounds.width+(x>>16);
                 if (z <= zbuffer[index])
                   {
-                    pixel[index] = rgb;
+                    //pixel[index] = rgb;
+                      
+                      if(alpha > 254){
+                          pixel[index] = rgb;
+                      } else {
+                          // Alpha blend
+                          Color existingPixel = new Color(pixel[index]);
+                          int existingRed = existingPixel.getRed();
+                          int existingGreen = existingPixel.getGreen();
+                          int existingBlue = existingPixel.getBlue();
+                          
+                          int r = (red * alpha + existingRed * (255 - alpha)) / 255;
+                          int g = (green * alpha + existingGreen * (255 - alpha)) / 255;
+                          int b = (blue * alpha + existingBlue * (255 - alpha)) / 255;
+                          
+                          pixel[index] = new Color( r,  g,  b).getRGB();
+                      }
+                      
+                      
                     zbuffer[index] = z;
                   }
               }
@@ -1642,32 +1685,6 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       Object3D o3d = obj.getObject();
       FluidPointObject fluidPoint = (FluidPointObject)o3d;
       
-      Color color = new Color( 0.0f , 0.0f, 0.0f, 0.4f /*alpha*/);
-      double psiScale = fluidPoint.getPSI() / 2.0; //  Math.log(fluidPoint.getPSI());
-      if(psiScale > 1.0){ // high pressure
-          psiScale -= 1;
-          if(psiScale > 1.0){
-              psiScale = 1.0;
-          }
-          color = new Color((float)psiScale, 0.0f, 0.0f, 0.6f /*alpha*/);
-      } else if(psiScale < 0.95){
-          color = new Color( 0.0f, 0.0f, 0.4f, 0.55f /*alpha*/);
-      } else if(psiScale < 0.85){
-          color = new Color( 0.0f, 0.0f, 0.6f, 0.5f /*alpha*/);
-      } else if(psiScale < 0.75){
-          color = new Color( 0.0f, 0.0f, 0.64f, 0.4f /*alpha*/);
-      } else if(psiScale < 0.65){
-          color = new Color( 0.0f, 0.0f, 0.68f, 0.3f /*alpha*/);
-      } else if(psiScale < 0.55){
-          color = new Color( 0.0f, 0.0f, 0.72f, 0.2f /*alpha*/);
-      } else if(psiScale < 0.45){
-          color = new Color( 0.0f, 0.0f, 0.8f, 0.1f /*alpha*/);
-      } else if(psiScale < 0.25){
-          color = new Color( 0.0f, 0.0f, 0.9f, 0.05f /*alpha*/);
-      }
-      
-      //System.out.println("" + psiScale);
-      
       ObjectInfo objClone = obj.duplicate();
       LayoutModeling layout = new LayoutModeling();
       CoordinateSystem c;
@@ -1677,9 +1694,60 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       Vec3 [] verts = mesh.getVertexPositions();
       
       int pixelWidth = 0;
+      double psiScale = fluidPoint.getPSI() / 2.0; //  Math.log(fluidPoint.getPSI());
+      
+      // rename is moving.
+      boolean isVisible = false; // Visible if line changing direction.
+      for(int j = fluidPoint.previousPoints.length - 1; j > 0; j--){
+          if( difference( fluidPoint.previousPoints[j].x, fluidPoint.previousPoints[j-1].x) > 0.01 ||
+             difference( fluidPoint.previousPoints[j].y, fluidPoint.previousPoints[j-1].y) > 0.01 ){
+              isVisible = true;
+          }
+      }
+      if(difference(fluidPoint.previousPoints[0].x, verts[0].x) > 0.01 ||
+         difference(fluidPoint.previousPoints[0].y, verts[0].y) > 0.01){
+          isVisible = true;
+      }
+      //isVisible = true;
+      if(isVisible){
+          psiScale = 1.0; // If moving set pressure so that it draws with high alpha
+      }
+      
+      
+      Color color = new Color( 0.0f , 0.0f, 0.0f, 0.4f /*alpha*/);
+      
+      if(psiScale > 1.0){               // high pressure, draw visible and red
+          psiScale -= 1;
+          if(psiScale > 1.0){
+              psiScale = 1.0;
+          }
+          color = new Color((float)psiScale, 0.0f, 0.0f, 0.7f /*alpha*/);  // visible red
+      
+      } else if(psiScale < 0.25  ){
+        color = new Color( 0.0f, 0.0f, 0.9f, 0.065f /*alpha*/);
+      } else if(psiScale < 0.45  ){
+          color = new Color( 0.0f, 0.0f, 0.8f, 0.08f /*alpha*/);
+      } else if(psiScale < 0.55  ){
+          color = new Color( 0.0f, 0.0f, 0.72f, 0.12f /*alpha*/);
+      } else if(psiScale < 0.65 ){
+          color = new Color( 0.0f, 0.0f, 0.68f, 0.15f /*alpha*/);
+      } else if(psiScale < 0.75 ){
+          color = new Color( 0.0f, 0.0f, 0.64f, 0.20f /*alpha*/);
+      } else if(psiScale < 0.85   ){
+          color = new Color( 0.0f, 0.0f, 0.6f, 0.27f /*alpha*/);
+      } else if(psiScale <= 1.0   ){
+          color = new Color( 0.0f, 0.0f, 0.2f, 0.50f /*alpha*/); // also moving points
+      }
+      
+      //System.out.println("psi " + psiScale + "  alpha: " + color.getAlpha() ); // alpha is always 89 ?????
+      
+      
+      
+      
           
       //if(psiScale > 0.25){ // This doesn't work. Points in vacume are not drawn. Want straight moving points hidden.
-          
+      //if(isVisible){
+      
           // line 1 (vertical)
           Vec3 vert1 = new Vec3( verts[0].x, verts[0].y + markerSize, verts[0].z); // point 2
           Vec3 vert2 = new Vec3( verts[0].x, verts[0].y - markerSize, verts[0].z); // point 3
@@ -1707,6 +1775,15 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       
       //}
   }
+    
+    /**
+     *
+     */
+    public double difference(double a, double b){
+        double diff = 0;
+        diff = Math.max(a,b) - Math.min(a,b);
+        return diff;
+    }
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
 

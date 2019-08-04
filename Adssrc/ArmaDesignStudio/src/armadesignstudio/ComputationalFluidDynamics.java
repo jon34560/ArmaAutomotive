@@ -28,7 +28,10 @@ public class ComputationalFluidDynamics extends Thread {
     private double maxx = -999999;
     private double maxy = -999999;
     private double maxz = -999999;
-    private int pointsPerLength = 9; // 13;
+    //private int pointsPerLength = 9; // 13;
+    private int pointsPerLength = 10;
+    //private int pointsPerLength = 14;
+    
     
     Vector<FluidPointObject> pointObjects = new Vector<FluidPointObject>();
     
@@ -267,10 +270,14 @@ public class ComputationalFluidDynamics extends Thread {
                             FluidPointObject compareFluidPoint = pointObjects.elementAt(f);
                             double distance = fluidPoint.getLocation().distance(compareFluidPoint.getLocation());
                             
-                            if(distance > zSegmentWidth * 3){
+                            boolean ignore = false;
+                            if(distance > zSegmentWidth * 2.5){
                                 //break;
+                                ignore = true;
                             }
                             //System.out.println(" dist " + distance + " " + zSegmentWidth);
+                            
+                            if(!ignore){
                             
                             double zDiff = Math.abs(fluidPoint.getLocation().z - compareFluidPoint.getLocation().z);
                             //if(fluidPoint.getLocation().z > compareFluidPoint.getLocation().z){
@@ -289,11 +296,15 @@ public class ComputationalFluidDynamics extends Thread {
                             
                             // Left
                             if( compareFluidPoint.getLocation().x < fluidPoint.getLocation().x &&   // compare is too close on the left
-                               distance <= (xSegmentWidth * 1.5)
+                               distance <= (xSegmentWidth * 1.9)
                                ){
-                                if(compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.0){
-                                    pressureLeft += compareFluidPoint.getPSI() - fluidPoint.getPSI();
-                                    //System.out.print(" l ");
+                                if(compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.0){         // ? document this.
+                                    if(distance <= (xSegmentWidth * 1.5)){
+                                        pressureLeft += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    }
+                                    if(distance <= (xSegmentWidth * 1.9)){
+                                        pressureLeft += (compareFluidPoint.getPSI() - fluidPoint.getPSI()) / 3;
+                                    }
                                 }
                                 //fluidPoint.setPSI(fluidPoint.getPSI() + (distance / xSegmentWidth));
                             }
@@ -303,27 +314,42 @@ public class ComputationalFluidDynamics extends Thread {
                                ){
                                 
                                 if(compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.0){
-                                    pressureRight += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    if(distance < (xSegmentWidth * 1.5)){
+                                        pressureRight += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    }
+                                    if(distance < (xSegmentWidth * 1.9)){
+                                        pressureRight += (compareFluidPoint.getPSI() - fluidPoint.getPSI()) / 3;
+                                    }
                                 }
                                 //fluidPoint.setPSI(fluidPoint.getPSI() + (distance / xSegmentWidth)); // compare is too close on right
                             }
                             // Down
                             if( compareFluidPoint.getLocation().y < fluidPoint.getLocation().y &&
-                               distance < (ySegmentWidth * 1.5)
+                               distance < (ySegmentWidth * 1.9)
                                ){
                                 
                                 if(compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.0){
-                                    pressureBelow += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    if(distance < (ySegmentWidth * 1.5)){
+                                        pressureBelow += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    }
+                                    if(distance < (ySegmentWidth * 1.9)){
+                                        pressureBelow += (compareFluidPoint.getPSI() - fluidPoint.getPSI() / 3);
+                                    }
                                     //System.out.print("u");
                                 }
                                 //fluidPoint.setPSI(fluidPoint.getPSI() + (distance / ySegmentWidth));
                             }
                             // Up
                             if( compareFluidPoint.getLocation().y > fluidPoint.getLocation().y &&
-                               distance < (ySegmentWidth * 1.5)
+                               distance < (ySegmentWidth * 1.9)
                                ){
                                 if(compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.0){
-                                    pressureAbove += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    if(distance < (ySegmentWidth * 1.5)){
+                                        pressureAbove += compareFluidPoint.getPSI() - fluidPoint.getPSI();
+                                    }
+                                    if(distance < (ySegmentWidth * 1.9)){
+                                        pressureAbove += (compareFluidPoint.getPSI() - fluidPoint.getPSI()) / 3;
+                                    }
                                 }
                                 //fluidPoint.setPSI(fluidPoint.getPSI() + (distance / ySegmentWidth)); // compare is too close above
                             }
@@ -341,6 +367,7 @@ public class ComputationalFluidDynamics extends Thread {
                                    ) // compare point is more horizontal than  vertical
                                //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
                                ){
+                                
                                 vacumeLeft = 0.0;
                             }
                             if( compareFluidPoint.getLocation().x > fluidPoint.getLocation().x &&
@@ -365,7 +392,11 @@ public class ComputationalFluidDynamics extends Thread {
                                    ) // compare point is more vertical than horizontal
                             //   //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
                                ){
-                                vacumeAbove = 0.0;
+                                
+                                //if(distance < (ySegmentWidth * 1.2)){
+                                    vacumeAbove = 0.0;
+                                //}
+                                
                                 //pressureAbove -= 0.5;
                                 //System.out.print("+");
                             }
@@ -383,6 +414,8 @@ public class ComputationalFluidDynamics extends Thread {
                                 //pressureBelow -= 0.5;
                                 //System.out.print("-");
                             }
+                                
+                            } // !ignore
                         }
                     }
                     
