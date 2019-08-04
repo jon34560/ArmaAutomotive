@@ -22,12 +22,12 @@ public class ComputationalFluidDynamics extends Thread {
     boolean running = false;
     private Vector<ObjectInfo> objects;
     LayoutWindow window;
-    private double minx = 0;
-    private double miny = 0;
-    private double minz = 0;
-    private double maxx = 0;
-    private double maxy = 0;
-    private double maxz = 0;
+    private double minx = 99999;
+    private double miny = 99999;
+    private double minz = 99999;
+    private double maxx = -999999;
+    private double maxy = -999999;
+    private double maxz = -999999;
     private int pointsPerLength = 9; // 13;
     
     Vector<FluidPointObject> pointObjects = new Vector<FluidPointObject>();
@@ -64,6 +64,10 @@ public class ComputationalFluidDynamics extends Thread {
         java.util.Random random = new java.util.Random();
         LayoutModeling layout = new LayoutModeling();
         
+        System.out.println(" x " + this.minx + " " + this.maxx +
+                           " y " + this.miny + " " + this.maxy +
+                           " z " + this.minz + " " + this.maxz + " ");
+        
         // Expand Scale
         double width = (maxx - minx);
         minx -= (width/1.7);
@@ -77,11 +81,6 @@ public class ComputationalFluidDynamics extends Thread {
         //maxz += ((maxz - minz)/ (1.2) );
         maxz += (depth / 1.7) + depth;
         
-        System.out.println(" x " + this.minx + " " + this.maxx +
-                           " y " +
-                           this.miny + " " + this.maxy +
-                           " z " +
-                           this.minz + " " + this.maxz + " ");
         
         double xSegmentWidth = (maxx - minx) / (pointsPerLength-1);
         double ySegmentWidth = (maxy - miny) / (pointsPerLength-1);
@@ -177,37 +176,42 @@ public class ComputationalFluidDynamics extends Thread {
                             
                             BoundingBox bounds = o3d.getBounds(); // does not include location
                             
-                            bounds = new BoundingBox(bounds); // clone bounds 
+                            bounds = new BoundingBox(bounds); // clone bounds
                             
-                            bounds.minx += objOrigin.x; bounds.maxx += objOrigin.x;
-                            bounds.miny += objOrigin.y; bounds.maxy += objOrigin.y;
-                            bounds.minz += objOrigin.z; bounds.maxz += objOrigin.z;
+                            //bounds.minx += objOrigin.x; bounds.maxx += objOrigin.x; // NO
+                            //bounds.miny += objOrigin.y; bounds.maxy += objOrigin.y;
+                            //bounds.minz += objOrigin.z; bounds.maxz += objOrigin.z;
                             
-                            //System.out.println(" obj bounds    x: " + bounds.minx + " " + bounds.maxx + " y: " +   bounds.miny + " " + bounds.maxy);
+                            //System.out.println(" obj bounds    x: " + bounds.minx + " - " + bounds.maxx + "  y: " +   bounds.miny + " " + bounds.maxy);
                             
                             // If object is TriangleMesh, create bounds from reach face coordinates. Not accurate but better than object bounds.
                             if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
                                 
                                 // Only if point in object bounds. If it isn't none of the faces can collide.
-                                //if(location.x > bounds.minx && location.x < bounds.maxx &&
-                                //   location.y > bounds.miny && location.y < bounds.maxy &&
-                                //   location.z > bounds.minz && location.z < bounds.maxz){
+                                if(location.x > bounds.minx && location.x < bounds.maxx &&
+                                   location.y > bounds.miny && location.y < bounds.maxy &&
+                                   location.z > bounds.minz && location.z < bounds.maxz){
                                 
                                     TriangleMesh triangleMesh = null;
                                     triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
                                     MeshVertex[] verts = triangleMesh.getVertices();
                                     //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                                     TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                                
                                     for(int f = 0; f < faces.length; f++){
                                         TriangleMesh.Face face = faces[f];
-                                        Vec3 vec1 = verts[face.v1].r;
-                                        Vec3 vec2 = verts[face.v2].r;
-                                        Vec3 vec3 = verts[face.v3].r;
+                                        Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                                        Vec3 vec2 = new Vec3(verts[face.v2].r);
+                                        Vec3 vec3 = new Vec3(verts[face.v3].r);
                                         
                                         Mat4 mat4 = c.duplicate().fromLocal();
                                         mat4.transform(vec1);
                                         mat4.transform(vec2);
                                         mat4.transform(vec3);
+                                        
+                                        //if(vec1.x < bounds.minx || vec1.x > bounds.maxx){
+                                        //    System.out.println(" err  face outside bounds " + vec1.x + " o "+ objOrigin.x + " : " + bounds.minx + " - " +  bounds.maxx);
+                                        //}
                                         
                                         BoundingBox faceBounds = new BoundingBox(bounds);
                                         faceBounds.minx = Math.min(Math.min(vec1.x, vec2.x), vec3.x);
@@ -222,7 +226,7 @@ public class ComputationalFluidDynamics extends Thread {
                                             collide = true;
                                         }
                                     }
-                                //}
+                                }
                             } else {
                                 // Default collision method.
                                 
