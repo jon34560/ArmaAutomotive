@@ -140,6 +140,7 @@ public class ComputationalFluidDynamics extends Thread {
         while(running){
             
             double cod = 0; // Coeficient of drag.
+            double volume = 0;
             
             for(int i = 0; i < pointObjects.size(); i++){
                 FluidPointObject fluidPoint = pointObjects.elementAt(i);
@@ -176,7 +177,6 @@ public class ComputationalFluidDynamics extends Thread {
                             Vec3 objOrigin = c.getOrigin();
                             //System.out.println(" obj origin " + objOrigin.x + " " + objOrigin.y + " " + objOrigin.z );
                             
-                            
                             BoundingBox bounds = o3d.getBounds(); // does not include location
                             
                             bounds = new BoundingBox(bounds); // clone bounds
@@ -200,6 +200,8 @@ public class ComputationalFluidDynamics extends Thread {
                                     MeshVertex[] verts = triangleMesh.getVertices();
                                     //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                                     TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                                    
+                                    volume = meshVolume( obj ); // TODO: move this
                                 
                                     for(int f = 0; f < faces.length; f++){
                                         TriangleMesh.Face face = faces[f];
@@ -531,7 +533,20 @@ public class ComputationalFluidDynamics extends Thread {
                     }
                 
                     
-                    /*
+                
+                
+                    //
+                    // Update drag coreffecient based on distance particles have to move divided by volume area.
+                    //
+                    cod += zStepSlow + xStepMove + yStepMove;
+                
+                    //
+                    // Move fluid point based on calculated direction
+                    //
+                    points[v].z -= zStepMove;
+                    points[v].x += xStepMove;
+                    points[v].y += yStepMove;
+                
                     // Bounds check
                     if(points[v].x < minx){
                         points[v].x = minx;
@@ -545,19 +560,6 @@ public class ComputationalFluidDynamics extends Thread {
                     if(points[v].y > maxy){
                         points[v].y = maxy;
                     }
-                     */
-                
-                    //
-                    // Update drag coreffecient based on distance particles have to move divided by volume area.
-                    //
-                    cod += zStepSlow + xStepMove + yStepMove;
-                
-                    //
-                    // Move fluid point based on calculated direction
-                    //
-                    points[v].z -= zStepMove;
-                    points[v].x += xStepMove;
-                    points[v].y += yStepMove;
                 
                     
                     // Reset fluid location
@@ -643,7 +645,8 @@ public class ComputationalFluidDynamics extends Thread {
                 window.repaint();
             }
             
-            System.out.println("coefficient of drag: " + cod);
+            
+            System.out.println("coefficient of drag: " + cod + "   volume: " + volume + " = " + ( cod / volume ) );
             
             // Refresh screen
             window.repaint();
@@ -711,4 +714,210 @@ public class ComputationalFluidDynamics extends Thread {
             }
         }
     }
+    
+    
+    /**
+     * meshVolume
+     *
+     * Description: Calculate mesh volume.
+     *  Break bounds into cubes and check from edges inward until it collides with a polygon bounding box.
+     */
+    public double meshVolume( ObjectInfo obj ){ // TriangleMesh triangleMesh
+        double volume = 0;
+        LayoutModeling layout = new LayoutModeling();
+        
+        Object3D o3d = obj.getObject();
+        TriangleMesh triangleMesh = null;
+        triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
+        
+        
+        
+        CoordinateSystem c;
+        c = layout.getCoords(obj);
+        Vec3 objOrigin = c.getOrigin();
+        
+        //Object3D o3d = triangleMesh.getObject();
+        BoundingBox bounds = triangleMesh.getBounds();
+        //System.out.println(" bounds " + bounds.minx);
+        // ??? add location???
+        bounds.minx += objOrigin.x; bounds.maxx += objOrigin.x;
+        bounds.miny += objOrigin.y; bounds.maxy += objOrigin.y;
+        bounds.minz += objOrigin.z; bounds.maxz += objOrigin.z;
+        
+        // Temp method
+        volume = ( bounds.maxx - bounds.minx ) * ( bounds.maxy - bounds.miny ) * ( bounds.maxz - bounds.minz );
+        
+        //System.out.println(" volume " + volume);
+        
+        int segments = 12;
+        
+        double xSegmentWidth = (bounds.maxx - bounds.minx) / segments;
+        double ySegmentWidth = (bounds.maxy - bounds.miny) / segments;
+        double zSegmentWidth = (bounds.maxz - bounds.minz) / segments;
+        
+        double cubeVolume = xSegmentWidth * ySegmentWidth * zSegmentWidth;
+        
+        MeshVertex[] verts = triangleMesh.getVertices();
+        //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+        TriangleMesh.Face[] faces = triangleMesh.getFaces();
+        
+        
+        
+        
+        
+        
+        double cubesOccupied[][][] = new double[segments][segments][segments];
+        
+        // init cubes occupied state
+        for(int z = 0; z < segments; z++){ //
+            for(int x = 0; x < segments; x++){
+                for(int y = 0; y < segments; y++){
+                    cubesOccupied[x][y][z] = 1;
+                }
+            }
+        }
+        
+        // Top down pass
+        for(int z = 0; z < segments; z++){
+            for(int x = 0; x < segments; x++){
+                for(int y = segments - 1; y >= 0; y--){
+                    BoundingBox cubeBounds = new BoundingBox(bounds);
+                    cubeBounds.minx = bounds.minx + (x * xSegmentWidth);
+                    cubeBounds.maxx = bounds.minx + ((x+1) * xSegmentWidth);
+                    cubeBounds.minz = bounds.minz + (z * zSegmentWidth);
+                    cubeBounds.maxz = bounds.minz + ((z+1) * zSegmentWidth);
+                    cubeBounds.miny = bounds.miny + (y * zSegmentWidth);
+                    cubeBounds.maxy = bounds.maxy + ((y + 1) * zSegmentWidth);
+                    boolean occupied = false;
+                    
+                    for(int f = 0; f < faces.length; f++){
+                        TriangleMesh.Face face = faces[f];
+                        Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                        Vec3 vec2 = new Vec3(verts[face.v2].r);
+                        Vec3 vec3 = new Vec3(verts[face.v3].r);
+                        
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vec1);
+                        mat4.transform(vec2);
+                        mat4.transform(vec3);
+                        
+                        BoundingBox faceBounds = new BoundingBox(bounds);
+                        faceBounds.minx = Math.min(Math.min(vec1.x, vec2.x), vec3.x);
+                        faceBounds.maxx = Math.max(Math.max(vec1.x, vec2.x), vec3.x);
+                        faceBounds.miny = Math.min(Math.min(vec1.y, vec2.y), vec3.y);
+                        faceBounds.maxy = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
+                        faceBounds.minz = Math.min(Math.min(vec1.z, vec2.z), vec3.z);
+                        faceBounds.maxz = Math.max(Math.max(vec1.z, vec2.z), vec3.z);
+                        if(cubeBounds.maxx > faceBounds.minx && cubeBounds.minx < faceBounds.maxx &&
+                           cubeBounds.maxy > faceBounds.miny && cubeBounds.miny < faceBounds.maxy &&
+                           cubeBounds.maxz > faceBounds.minz && cubeBounds.minz < faceBounds.maxz
+                           ){
+                            //System.out.print(".");
+                            occupied = true;
+                        }
+                    }
+                    
+                    /*
+                    for(int f = 0; f < verts.length; f++){
+                        Vec3 location = new Vec3(verts[f].r);
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(location);
+                        if(location.x > cubeBounds.minx && location.x < cubeBounds.maxx &&
+                           location.y > cubeBounds.miny && location.y < cubeBounds.maxy &&
+                           location.z > cubeBounds.minz && location.z < cubeBounds.maxz){
+                            occupied = true;
+                        }
+                    }
+                     */
+                    if(occupied){
+                        y = -1; // break downward pass
+                    } else {
+                        cubesOccupied[x][y][z] = 0;
+                    }
+                }
+            }
+        }
+        
+        // Bottom up pass
+        for(int z = 0; z < segments; z++){
+            for(int x = 0; x < segments; x++){
+                for(int y = 0; y < segments; y++){
+                    BoundingBox cubeBounds = new BoundingBox(bounds);
+                    cubeBounds.minx = bounds.minx + (x * xSegmentWidth);
+                    cubeBounds.maxx = bounds.minx + ((x+1) * xSegmentWidth);
+                    cubeBounds.minz = bounds.minz + (z * zSegmentWidth);
+                    cubeBounds.maxz = bounds.minz + ((z+1) * zSegmentWidth);
+                    cubeBounds.miny = bounds.miny + (y * zSegmentWidth);
+                    cubeBounds.maxy = bounds.maxy + ((y + 1) * zSegmentWidth);
+                    boolean occupied = false;
+                    
+                    for(int f = 0; f < faces.length; f++){
+                        TriangleMesh.Face face = faces[f];
+                        Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                        Vec3 vec2 = new Vec3(verts[face.v2].r);
+                        Vec3 vec3 = new Vec3(verts[face.v3].r);
+                        
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vec1);
+                        mat4.transform(vec2);
+                        mat4.transform(vec3);
+                        
+                        BoundingBox faceBounds = new BoundingBox(bounds);
+                        faceBounds.minx = Math.min(Math.min(vec1.x, vec2.x), vec3.x);
+                        faceBounds.maxx = Math.max(Math.max(vec1.x, vec2.x), vec3.x);
+                        faceBounds.miny = Math.min(Math.min(vec1.y, vec2.y), vec3.y);
+                        faceBounds.maxy = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
+                        faceBounds.minz = Math.min(Math.min(vec1.z, vec2.z), vec3.z);
+                        faceBounds.maxz = Math.max(Math.max(vec1.z, vec2.z), vec3.z);
+                        if(cubeBounds.maxx > faceBounds.minx && cubeBounds.minx < faceBounds.maxx &&
+                           cubeBounds.maxy > faceBounds.miny && cubeBounds.miny < faceBounds.maxy &&
+                           cubeBounds.maxz > faceBounds.minz && cubeBounds.minz < faceBounds.maxz
+                           ){
+                            //System.out.print(".");
+                            occupied = true;
+                        }
+                    }
+                    /*
+                    for(int f = 0; f < verts.length; f++){
+                        Vec3 location = new Vec3(verts[f].r);
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(location);
+                        if(location.x > cubeBounds.minx && location.x < cubeBounds.maxx &&
+                           location.y > cubeBounds.miny && location.y < cubeBounds.maxy &&
+                           location.z > cubeBounds.minz && location.z < cubeBounds.maxz){
+                            occupied = true;
+                        }
+                    }
+                     */
+                    if(occupied){
+                        y = segments; // break upward pass
+                    } else {
+                        cubesOccupied[x][y][z] = 0;
+                    }
+                }
+            }
+        }
+        
+        
+        System.out.println(" vol 1 " + volume  );
+        
+        // Subtract unocupied cubes from volume
+        for(int z = 0; z < segments; z++){ //
+            for(int x = 0; x < segments; x++){
+                for(int y = 0; y < segments; y++){
+                    if(cubesOccupied[x][y][z] == 0) {
+                        //System.out.println(" vol " + volume + " cube " + cubeVolume );
+                        volume -= cubeVolume;
+                    }
+                }
+            }
+        }
+        
+        System.out.println(" vol 2 " + volume  );
+        
+        
+        
+        return volume;
+    }
+    
 }

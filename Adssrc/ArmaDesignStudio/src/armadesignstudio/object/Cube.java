@@ -85,7 +85,7 @@ public class Cube extends Object3D
   @Override
   public TriangleMesh convertToTriangleMesh(double tol)
   {
-    System.out.println(" cube convert ");
+    //System.out.println(" cube convert ");
     Vec3 v[] = new Vec3 [14];
     TriangleMesh mesh;
     int i, faces[][] = {{1, 0, 12}, {2, 1, 12}, {3, 2, 12}, {0, 3, 12},
