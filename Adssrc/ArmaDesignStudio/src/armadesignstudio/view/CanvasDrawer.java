@@ -99,7 +99,9 @@ public interface CanvasDrawer
   public void renderLabelObject(ObjectInfo obj, Camera theCamera);
   public void renderPointJoinObject(ObjectInfo obj, Camera theCamera);
     
+  // CFD
   public void renderFluidPoint(ObjectInfo obj, Camera theCamera);
+  public void renderCFDResults( Camera theCamera );
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

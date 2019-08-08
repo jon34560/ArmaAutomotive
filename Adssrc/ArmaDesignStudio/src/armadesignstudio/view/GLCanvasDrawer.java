@@ -492,6 +492,11 @@ public class GLCanvasDrawer implements CanvasDrawer
         
     }
     
+    public void renderCFDResults( Camera theCamera ){
+        //int fontSize = 12;
+        //drawString("CFD: 0.0", (int) 20, (int) 20, fontSize, new Color(0.0f, 0.0f, 0.0f));
+    }
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   
