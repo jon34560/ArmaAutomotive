@@ -1776,9 +1776,17 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       //}
   }
     
-    public void renderCFDResults( Camera theCamera ){
+    /**
+     * renderCFDResults
+     *
+     * Description: Draw text to the screen.
+     */
+    public void renderCFDResults(Camera theCamera, Vector values){
         int fontSize = 12;
-        drawString("CFD: 0.0", (int) 20, (int) 20, fontSize, new Color(0.0f, 0.0f, 0.0f));
+        for(int i = 0; i < values.size(); i++){
+            String value = (String)values.elementAt(i);
+            drawString(value, (int)40, (int)20 + (i * 20), fontSize, new Color(0.0f, 0.0f, 0.0f));
+        }
     }
     
     /**
@@ -2757,7 +2765,8 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
    */
   public void drawString(String text, int x, int y, int size, Color color)
   {
-      imageGraphics.setFont(new Font("Courier New", Font.PLAIN, size));
+      //imageGraphics.setFont(new Font("Courier New", Font.PLAIN, size));
+      imageGraphics.setFont(new Font("Arial", Font.PLAIN, size));
       
       FontMetrics fm = imageGraphics.getFontMetrics();
       Rectangle2D rect = fm.getStringBounds(text, imageGraphics);

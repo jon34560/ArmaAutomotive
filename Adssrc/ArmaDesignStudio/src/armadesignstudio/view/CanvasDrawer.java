@@ -18,6 +18,7 @@ import armadesignstudio.WireframeMesh;
 import armadesignstudio.math.Vec2;
 import armadesignstudio.math.Vec3;
 import armadesignstudio.object.*; // JDT for drawing dimensions
+import java.util.*;
 
 /** This interface defines an object which renders the content of a ViewerCanvas. */
 
@@ -101,7 +102,7 @@ public interface CanvasDrawer
     
   // CFD
   public void renderFluidPoint(ObjectInfo obj, Camera theCamera);
-  public void renderCFDResults( Camera theCamera );
+  public void renderCFDResults(Camera theCamera, Vector values);
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

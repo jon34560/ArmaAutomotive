@@ -32,6 +32,9 @@ public class SceneViewer extends ViewerCanvas
   ObjectInfo clickedObject;
   int deselect;
     
+    String screenText = "";
+    ComputationalFluidDynamics cfd = null;
+    
   //PointJoinObject pointJoin = new PointJoinObject();
     
   public SceneViewer(Scene s, RowContainer p, EditingWindow fr)
@@ -55,6 +58,10 @@ public class SceneViewer extends ViewerCanvas
     rebuildCameraList();
     setRenderMode(ArmaDesignStudio.getPreferences().getDefaultDisplayMode());
   }
+    
+    public void setCFD(ComputationalFluidDynamics cfd){
+        this.cfd = cfd;
+    }
 
   /** Get the EditingWindow in which this canvas is displayed. */
 
@@ -211,6 +218,11 @@ public class SceneViewer extends ViewerCanvas
     }
   }
 
+    /**
+     * updateImage
+     *
+     * Description:
+     */
   public synchronized void updateImage()
   {
     if (renderMode == RENDER_RENDERED)
@@ -280,6 +292,12 @@ public class SceneViewer extends ViewerCanvas
       drawBoxes(selectedBoxes, handleColor); // red main window, non edit. outline  drawBoxes(selectedBoxes, new Color(0, 255, 0) ); //
       drawBoxes(parentSelectedBoxes, highlightColor); // ???
     }
+      
+    // Draw CFD result text on screen ???
+      if(cfd != null){
+          cfd.drawText();
+      }
+      
     
     // Finish up.
     

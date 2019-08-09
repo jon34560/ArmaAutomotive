@@ -13,6 +13,7 @@ package armadesignstudio;
 import java.util.*;
 import armadesignstudio.math.*;
 import armadesignstudio.object.*;
+import armadesignstudio.view.CanvasDrawer;
 
 /**
  * ComputationalFluidDynamics
@@ -36,6 +37,8 @@ public class ComputationalFluidDynamics extends Thread {
     private int pointsPerLength = 10;
     //private int pointsPerLength = 14;
     
+    private double cod = 0;
+    
     
     Vector<FluidPointObject> pointObjects = new Vector<FluidPointObject>();
     
@@ -49,6 +52,13 @@ public class ComputationalFluidDynamics extends Thread {
     
     public void setLayoutWindow(LayoutWindow window){
         this.window = window;
+        
+        ViewerCanvas canvas = window.getView();
+        //Camera theCamera = canvas.getCamera();
+        //CanvasDrawer drawer = canvas.getCanvasDrawer();
+        if(canvas instanceof SceneViewer){
+            ((SceneViewer)canvas).setCFD(this);
+        }
     }
 
     public boolean isRunning(){
@@ -146,7 +156,7 @@ public class ComputationalFluidDynamics extends Thread {
         // Move fluid points through region around objects calculating diflections.
         while(running){
             
-            double cod = 0; // Coeficient of drag.
+            cod = 0; // Coeficient of drag.
             
             for(int i = 0; i < pointObjects.size(); i++){
                 FluidPointObject fluidPoint = pointObjects.elementAt(i);
@@ -650,19 +660,52 @@ public class ComputationalFluidDynamics extends Thread {
             }
             
             
-            System.out.println("coefficient of drag: " + cod + "   volume: " + volume + " = " + ( cod / volume ) );
+            //System.out.println("coefficient of drag: " + cod + "   volume: " + volume + " = " + ( cod / volume ) );
+            cod = ( cod / volume );
+            
+            // Draw --- ViewerCanvas  renderCFDResults( Camera theCamera )
+            // Scene -> ViewerCanvas
+            //Scene scene = window.getScene();
+            
+            //ViewerCanvas canvas = window.getView();
+            //Camera theCamera = canvas.getCamera();
+            //CanvasDrawer drawer = canvas.getCanvasDrawer();
+            //drawer.renderCFDResults( theCamera );  // not the right time to draw
+            //((SceneViewer)canvas).setCFD(this);
+            
+            // SceneViewer setScreenText
+            
             
             // Refresh screen
             window.repaint();
             
-            System.out.print(".");
+            //System.out.print(".");
             
-            try {
-                Thread.sleep(8);
-            } catch (Exception e){  }
-            
+            //try {
+            //    Thread.sleep(2);
+            //} catch (Exception e){  }
+        }
+    }
+    
+    /**
+     * drawText
+     *
+     * Description: Draw CFD results to the screen. Called by SceneViewer.updateImage().
+     */
+    public void drawText(){
+        ViewerCanvas canvas = window.getView();
+        Camera theCamera = canvas.getCamera();
+        CanvasDrawer drawer = canvas.getCanvasDrawer();
+        Vector lines = new Vector();
+        
+        String codeString = ""+cod;
+        if(codeString.length() > 5){
+            codeString = codeString.substring(0, 5);
         }
         
+        lines.addElement("COD: " + codeString);
+        //
+        drawer.renderCFDResults(theCamera, lines);
     }
     
     /**
