@@ -2766,7 +2766,11 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
   public void drawString(String text, int x, int y, int size, Color color)
   {
       //imageGraphics.setFont(new Font("Courier New", Font.PLAIN, size));
-      imageGraphics.setFont(new Font("Arial", Font.PLAIN, size));
+      imageGraphics.setFont(new Font("Helvetica", Font.PLAIN, size));
+      // Helvetica
+      // TimesRoman
+      // Courier
+      // Dialog
       
       FontMetrics fm = imageGraphics.getFontMetrics();
       Rectangle2D rect = fm.getStringBounds(text, imageGraphics);

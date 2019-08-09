@@ -67,6 +67,24 @@ public class ComputationalFluidDynamics extends Thread {
     
     public void stopCFD(){
         running = false;
+        
+        // Clear Text
+        clearText();
+        
+        // Remove fluid points
+        
+        for(int i = 0; i < pointObjects.size(); i++){
+            FluidPointObject fluidPoint = pointObjects.elementAt(i);
+            
+            //fluidPoint = null;
+            //int id = ((LayoutWindow)window).addObjectL(fluidPoint); // This is bad. don't add this way later.
+            //fluidPoint.setId(id);
+            int id = fluidPoint.getId();
+            
+            ((LayoutWindow)window).removeObjectL( fluidPoint);
+            //((LayoutWindow)window).removeObject(id, null);
+            
+        }
     }
     
     public void run(){
@@ -158,7 +176,7 @@ public class ComputationalFluidDynamics extends Thread {
             
             cod = 0; // Coeficient of drag.
             
-            for(int i = 0; i < pointObjects.size(); i++){
+            for(int i = 0; i < pointObjects.size() && running; i++){
                 FluidPointObject fluidPoint = pointObjects.elementAt(i);
                 Vec3 location = fluidPoint.getLocation();
                 // MeshVertex[] getVertices()
@@ -180,7 +198,8 @@ public class ComputationalFluidDynamics extends Thread {
                            obj.getName().indexOf("Light") < 0 &&
                            //obj.getClass() != FluidPointObject.class
                            obj.getName().equals("") == false &&
-                           obj.isVisible()
+                           obj.isVisible() &&
+                           running
                         ){
                             //System.out.println("Object Info: ");
                             //Object3D co = (Object3D)obj.getObject();
@@ -217,7 +236,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                                     TriangleMesh.Face[] faces = triangleMesh.getFaces();
                                     
-                                    for(int f = 0; f < faces.length; f++){
+                                    for(int f = 0; f < faces.length && running; f++){
                                         TriangleMesh.Face face = faces[f];
                                         Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
                                         Vec3 vec2 = new Vec3(verts[face.v2].r);
@@ -281,7 +300,7 @@ public class ComputationalFluidDynamics extends Thread {
                     double vacumeBelow = 1.0;
                     
                     // Compare this point (fluidPoint) with other points (compareFluidPoint) too see if they are too close or too far
-                    for(int f = 0; f < pointObjects.size(); f++){ // optimise later with index data structures.
+                    for(int f = 0; f < pointObjects.size() && running; f++){ // optimise later with index data structures.
                         if(f != i){
                             FluidPointObject compareFluidPoint = pointObjects.elementAt(f);
                             double distance = fluidPoint.getLocation().distance(compareFluidPoint.getLocation());
@@ -705,6 +724,14 @@ public class ComputationalFluidDynamics extends Thread {
         
         lines.addElement("COD: " + codeString);
         //
+        drawer.renderCFDResults(theCamera, lines);
+    }
+    
+    public void clearText(){
+        ViewerCanvas canvas = window.getView();
+        Camera theCamera = canvas.getCamera();
+        CanvasDrawer drawer = canvas.getCanvasDrawer();
+        Vector lines = new Vector();
         drawer.renderCFDResults(theCamera, lines);
     }
     

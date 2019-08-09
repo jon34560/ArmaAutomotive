@@ -5013,17 +5013,16 @@ public class Scene
      * desc
      */
     public void runCFD(LayoutWindow window){
-        if(cfd == null){
+        //if(cfd == null){
             cfd = new ComputationalFluidDynamics();
-        }
+        //}
         cfd.setObjects(objects);
         cfd.setLayoutWindow(window);
         //cfd.run();
         if(cfd.isRunning() == false){
             cfd.start();
         } else {
-            cfd.stopCFD();
-            //cfd = null;
+            //cfd.stopCFD();
         }
     }
     
@@ -5038,6 +5037,8 @@ public class Scene
             } else {
                 System.out.println("stop cfd");
                 cfd.stopCFD();
+                
+                cfd = null;
             }
         }
     }
