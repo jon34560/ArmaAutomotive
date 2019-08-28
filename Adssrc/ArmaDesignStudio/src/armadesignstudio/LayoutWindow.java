@@ -863,6 +863,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.add(Translate.menuItem("Export Table GCode", this, "exportGCode"));
       layoutMenu.add(Translate.menuItem("Export Tube Notch GCode", this, "exportTubeGCode"));
       layoutMenu.add(Translate.menuItem("Export Tube Bend GCode", this, "exportTubeBendGCode"));
+      layoutMenu.add(Translate.menuItem("Export 3D Top Down GCode", this, "export3dGCode"));
       layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
       layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
       
@@ -3361,6 +3362,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void exportTubeBendGCode(){
         if(theScene != null){
             theScene.exportTubeBendGCode();
+        }
+    }
+    
+    public void export3dGCode(){
+        if(theScene != null){
+            theScene.export3dCode();
         }
     }
     
