@@ -30,7 +30,9 @@ public class Mill extends Thread {
     private double maxy = -999999;
     private double maxz = -999999;
     
-    private double drill_bit = 0.125; // 0.125 1/8th 3.175mm
+    private double drill_bit = 0.125;   // 0.125 1/8th 3.175mm
+    private double pass_height = 0.5;   // drill cuts this much material per pass
+    private double material_height = 2; // cut scene into layers this thick for seperate parts/files.
 
     public void setObjects(Vector<ObjectInfo> objects){
         this.objects = objects;
@@ -71,7 +73,8 @@ public class Mill extends Thread {
         
         // this.minx this.minz
         
-        Double[][] mapHeights = new Double[mapWidth][mapDepth];
+        Double[][] cutHeights = new Double[mapWidth][mapDepth]; // state of machined material. Used to ensure not too deep a pass is made.
+        Double[][] mapHeights = new Double[mapWidth][mapDepth]; // Object top surface
         
         
         System.out.println(" map  x: " + mapWidth + " z: " + mapDepth );
@@ -82,7 +85,8 @@ public class Mill extends Thread {
                 double z_loc = this.minz + (z * drill_bit);
                 Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
                 double height = 0;
-                System.out.print(".");
+                cutHeights[x][z] = material_height; // initalize material state.
+                //System.out.print(".");
         
                 for (ObjectInfo obj : objects){
                     if(obj.getName().indexOf("Camera") < 0 &&
@@ -145,10 +149,11 @@ public class Mill extends Thread {
                                 
                                 if(inside_trigon(point_loc, vec1, vec2, vec3) ){
                                     //System.out.println(" *** ");
-                                    double curr = Math.max(Math.max(vec1.y, vec2.y), vec3.y);  // TODO get actual height
+                                    //double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);  // TODO get actual height
+                                    double currHeight = trigon_height(point_loc, vec1, vec2, vec3);
                                     
-                                    if(curr > height){
-                                        height = curr;
+                                    if(currHeight > height){
+                                        height = currHeight;
                                     }
                                 }
                                 
@@ -175,14 +180,20 @@ public class Mill extends Thread {
                 double height = mapHeights[x][z];
                 //System.out.println(" map   x: " + x_loc + " z: " +z_loc  + " h: "  +height );
                 
-                gcode += "G1 X" +
-                roundThree(x_loc) +
-                " Y" +
-                roundThree(height) +
-                " Z" +
-                roundThree(z_loc);
-                gcode += " F"+10+"";
-                gcode += ";\n"; // End line
+                // Move up to height of next point before moving cutter or the corner will be cut.
+                double nextHeight = 0;
+                
+                
+                // todo: if x < mapWidth && height == next X height skip. Compression of gcode
+                //if( x < mapWidth &&  ){
+                
+                // GCode coordinates are different.
+                    gcode += "G1 X" + roundThree(x_loc) +
+                    " Y" + roundThree(z_loc) +
+                    " Z" + roundThree(height);
+                    gcode += " F"+10+"";
+                    gcode += ";\n"; // End line
+                //}
                 
             }
         }
@@ -201,6 +212,32 @@ public class Mill extends Thread {
         
     }
     
+    
+    /**
+     * trigon_height
+     *
+     * Description:
+     */
+    double trigon_height(Vec3 s, Vec3 a, Vec3 b, Vec3 c){
+        double height = 0;
+        double aDistance = Math.sqrt(Math.pow(s.x - a.x, 2) + Math.pow(s.y - a.y, 2) + Math.pow(s.z - a.z, 2));
+        double bDistance = Math.sqrt(Math.pow(s.x - b.x, 2) + Math.pow(s.y - b.y, 2) + Math.pow(s.z - b.z, 2));
+        double cDistance = Math.sqrt(Math.pow(s.x - c.x, 2) + Math.pow(s.y - c.y, 2) + Math.pow(s.z - c.z, 2));
+        
+        double wv1 = 1/aDistance;
+        double wv2 = 1/bDistance;
+        double wv3 = 1/cDistance;
+        
+        height = (
+                  ( wv1 * a.y)  +
+                  ( wv2 * b.y)  +
+                  ( wv3 * c.y)
+                 )
+                 /
+                 (wv1 + wv2 + wv3);
+        
+        return height;
+    }
     
     /**
      * inside_trigon
