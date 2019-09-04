@@ -63,7 +63,6 @@ public class Mill extends Thread {
         //Vector cutPaths = new Vector(); // Lines to cut.
         //Vector<FluidPointObject> millPoint = new Vector<FluidPointObject>();
         
-        
         calculateBounds(objects);
         
         // Create grid across bounds, with border, using the width of the drill bit.
@@ -71,11 +70,12 @@ public class Mill extends Thread {
         int mapWidth = (int)((this.maxx - this.minx) / drill_bit) + 0;
         int mapDepth = (int)((this.maxz - this.minz) / drill_bit) + 0;
         
+        int sections = 1;
+        
         // this.minx this.minz
         
         Double[][] cutHeights = new Double[mapWidth][mapDepth]; // state of machined material. Used to ensure not too deep a pass is made.
         Double[][] mapHeights = new Double[mapWidth][mapDepth]; // Object top surface
-        
         
         System.out.println(" map  x: " + mapWidth + " z: " + mapDepth );
         
@@ -110,26 +110,26 @@ public class Mill extends Thread {
                         BoundingBox bounds = o3d.getBounds(); // does not include location
                         bounds = new BoundingBox(bounds); // clone bounds
                         
-                        if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT &&
-                           ( x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization
+                        if(
+                           ( x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
+                           && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
+                           && obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
                            ){
                             
                             //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
                             TriangleMesh triangleMesh = null;
                             triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
+                            //triangleMesh = ((TriangleMesh)obj.getObject()).duplicate()  .convertToTriangleMesh(0.0);
                             MeshVertex[] verts = triangleMesh.getVertices();
                             TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
-                            for(int e = 0; e < edges.length; e++){
-                                TriangleMesh.Edge edge = edges[e];
-                                
-                                Vec3 vec1 = new Vec3(verts[edge.v1].r); // duplicate
-                                Vec3 vec2 = new Vec3(verts[edge.v2].r);
-                                
+                            //for(int e = 0; e < edges.length; e++){
+                            //    TriangleMesh.Edge edge = edges[e];
+                            //    Vec3 vec1 = new Vec3(verts[edge.v1].r); // duplicate
+                            //    Vec3 vec2 = new Vec3(verts[edge.v2].r);
                             //    System.out.println(" x: " + vec1.x + " y: "+ vec1.y + " z: " + vec1.z  + " ->  " + " x: " + vec2.x + " y: "+ vec2.y + " z: " + vec2.z  );
-                            }
-                            
+                            //}
                             
                             TriangleMesh.Face[] faces = triangleMesh.getFaces();
                             
@@ -145,13 +145,40 @@ public class Mill extends Thread {
                                 mat4.transform(vec2);
                                 mat4.transform(vec3);
                                 
-                                // TODO: calculate 8 points around drill bit.
-                                
-                                if(inside_trigon(point_loc, vec1, vec2, vec3) ){
-                                    //System.out.println(" *** ");
+                                if(inside_trigon(point_loc, vec1, vec2, vec3)){
                                     //double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);  // TODO get actual height
                                     double currHeight = trigon_height(point_loc, vec1, vec2, vec3);
-                                    
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                
+                                // Edges of drill bit
+                                Vec3 drill_side_l = new Vec3(x_loc - (drill_bit / 2), 0, z_loc);
+                                Vec3 drill_side_r = new Vec3(x_loc + (drill_bit / 2), 0, z_loc);
+                                Vec3 drill_side_f = new Vec3(x_loc, 0, z_loc - (drill_bit / 2));
+                                Vec3 drill_side_b = new Vec3(x_loc, 0, z_loc + (drill_bit / 2));
+                                
+                                if(inside_trigon(drill_side_l, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_l, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_r, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_r, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_f, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_f, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_b, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_b, vec1, vec2, vec3);
                                     if(currHeight > height){
                                         height = currHeight;
                                     }
@@ -191,44 +218,57 @@ public class Mill extends Thread {
                 
                 // Move up to height of next point before moving cutter or the corner will be cut.
                 if( z != 1 && !(z == 0 && z == 0) ){
+                    /*
                     gcode += "G1 X" + roundThree(prev_x_loc) +
                     " Y" + roundThree(prev_z_loc) +
                     " Z" + roundThree(height - material_height);
                     gcode += " F"+10+"";
-                    gcode += ";  A  \n"; // End line
+                    gcode += ";  A pre rise  \n"; //
+                    */
+                    
+                    gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
+                    " Y" + roundThree(prev_z_loc - this.minz) +
+                    " Z" + roundThree( (prev_height ) - this.maxy ); // - material_height
+                    gcode += " F"+10+"";
+                    gcode += ";  A pre rise  \n"; //
+                    
+                    
                 } else if(z == 1) {    // end on z line
                     
                     // Raise
                     gcode += "G1 " +
                     " Z" + roundThree(0.0);
                     gcode += " F"+10+"";
-                    gcode += "; B  \n"; // End line
+                    gcode += "; end line  \n"; // End line
                     
-                    gcode += "G1 X" + roundThree(prev_x_loc) +
-                    " Y" + roundThree(prev_z_loc) +
+                    gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
+                    " Y" + roundThree(prev_z_loc - this.minz) +
                     " Z" + roundThree(0);
                     gcode += " F"+10+"";
                     gcode += "; C   \n"; // End line
                 } else if(x == 0 && z == 0) { // Should only occur once.???
                  
-                    gcode += "G1 X" + roundThree(prev_x_loc) +
-                    " Y" + roundThree(prev_z_loc) +
+                    gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
+                    " Y" + roundThree(prev_z_loc - this.minz) +
                     " Z" + roundThree(0);
                     gcode += " F"+10+"";
-                    gcode += "; D \n"; // End line
+                    gcode += "; D \n";
+                    
                 }
                 
                 
                 // todo: if x < mapWidth && height == next X height skip. Compression of gcode
                 //if( x < mapWidth &&  ){
                 // GCode coordinates are different.
+                /*
                 if( (prev_height - material_height) != (height - material_height) ){
-                    gcode += "G1 X" + roundThree(prev_x_loc) +
-                    " Y" + roundThree(prev_z_loc) +
+                    gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
+                    " Y" + roundThree(prev_z_loc - this.minz) +
                     " Z" + roundThree(prev_height - material_height);
                     gcode += " F"+10+"";
                     gcode += ";\n"; // End line
                 }
+                 */
                 //}
                 prev_x = x;
                 prev_z = z;
@@ -267,9 +307,13 @@ public class Mill extends Thread {
         double bDistance = Math.sqrt(Math.pow(s.x - b.x, 2) + Math.pow(s.y - b.y, 2) + Math.pow(s.z - b.z, 2));
         double cDistance = Math.sqrt(Math.pow(s.x - c.x, 2) + Math.pow(s.y - c.y, 2) + Math.pow(s.z - c.z, 2));
         
-        double wv1 = 1/aDistance;
-        double wv2 = 1/bDistance;
-        double wv3 = 1/cDistance;
+        //System.out.println(" aDistance " + aDistance + " " + bDistance + " " + cDistance );
+        
+        double wv1 = 1.0/aDistance;
+        double wv2 = 1.0/bDistance;
+        double wv3 = 1.0/cDistance;
+        
+        //double wv1_ = ()
         
         height = (
                   ( wv1 * a.y)  +
@@ -285,7 +329,7 @@ public class Mill extends Thread {
     /**
      * inside_trigon
      *
-     * Description:
+     * Description: determine if a point lays with the bounds of a triangle horizontally.
      */
     boolean inside_trigon(Vec3 s, Vec3 a, Vec3 b, Vec3 c)
     {
@@ -320,7 +364,7 @@ public class Mill extends Thread {
                 //System.out.println("obj " + obj.getId() + "  " + obj.getName() );
                 
                 // obj.getObject(); // Object3D
-                Object3D o3d = obj.getObject();
+                Object3D o3d = obj.getObject().duplicate();
                 BoundingBox bounds = o3d.getBounds();
                 
                 // Include object location in bounds values.
