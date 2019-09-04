@@ -173,29 +173,72 @@ public class Mill extends Thread {
         gcode += "; CNC Top Down Mill\n";
         
         gcode += "G1\n";
+        
+        int prev_x = 0;
+        int prev_z = 0;
+        
+        
         for(int x = 0; x < mapWidth; x++){
             for(int z = 0; z < mapDepth; z++){
+                double prev_x_loc = this.minx + (prev_x * drill_bit);
+                double prev_z_loc = this.minz + (prev_z * drill_bit);
+                double prev_height = mapHeights[prev_x][prev_z];
+                
                 double x_loc = this.minx + (x * drill_bit);
                 double z_loc = this.minz + (z * drill_bit);
                 double height = mapHeights[x][z];
                 //System.out.println(" map   x: " + x_loc + " z: " +z_loc  + " h: "  +height );
                 
                 // Move up to height of next point before moving cutter or the corner will be cut.
-                double nextHeight = 0;
+                if( z != 1 && !(z == 0 && z == 0) ){
+                    gcode += "G1 X" + roundThree(prev_x_loc) +
+                    " Y" + roundThree(prev_z_loc) +
+                    " Z" + roundThree(height - material_height);
+                    gcode += " F"+10+"";
+                    gcode += ";  A  \n"; // End line
+                } else if(z == 1) {    // end on z line
+                    
+                    // Raise
+                    gcode += "G1 " +
+                    " Z" + roundThree(0.0);
+                    gcode += " F"+10+"";
+                    gcode += "; B  \n"; // End line
+                    
+                    gcode += "G1 X" + roundThree(prev_x_loc) +
+                    " Y" + roundThree(prev_z_loc) +
+                    " Z" + roundThree(0);
+                    gcode += " F"+10+"";
+                    gcode += "; C   \n"; // End line
+                } else if(x == 0 && z == 0) { // Should only occur once.???
+                 
+                    gcode += "G1 X" + roundThree(prev_x_loc) +
+                    " Y" + roundThree(prev_z_loc) +
+                    " Z" + roundThree(0);
+                    gcode += " F"+10+"";
+                    gcode += "; D \n"; // End line
+                }
                 
                 
                 // todo: if x < mapWidth && height == next X height skip. Compression of gcode
                 //if( x < mapWidth &&  ){
-                
                 // GCode coordinates are different.
-                    gcode += "G1 X" + roundThree(x_loc) +
-                    " Y" + roundThree(z_loc) +
-                    " Z" + roundThree(height);
+                if( (prev_height - material_height) != (height - material_height) ){
+                    gcode += "G1 X" + roundThree(prev_x_loc) +
+                    " Y" + roundThree(prev_z_loc) +
+                    " Z" + roundThree(prev_height - material_height);
                     gcode += " F"+10+"";
                     gcode += ";\n"; // End line
+                }
                 //}
-                
+                prev_x = x;
+                prev_z = z;
             }
+            
+            // Raise
+            //gcode += "G1 " +
+            //" Z" + roundThree(0.0);
+            //gcode += " F"+10+"";
+            //gcode += ";\n"; // End line
         }
         
         // String dir = scene.getDirectory() + System.getProperty("file.separator") + scene.getName() + "_gCode3d";
