@@ -3129,6 +3129,9 @@ public class Scene
         mill.setObjects(objects);
         mill.setScene(this);
        
+        // Dialog
+        mill.getUserInput();
+        
         mill.exportGCode();
         //if(mill.isRunning() == false){
         //    mill.start();
