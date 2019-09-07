@@ -34,6 +34,7 @@ import java.awt.Font;
 import javax.swing.SwingConstants;
 
 import javax.swing.JTextField;
+import javax.swing.JCheckBox;
 
 public class Mill extends Thread {
     boolean running = true;
@@ -54,12 +55,20 @@ public class Mill extends Thread {
     private double pass_height = 0.5;   // drill cuts this much material per pass
     private double material_height = 2; // cut scene into layers this thick for seperate parts/files.
 
+    private boolean toolpathMarkup = false;
+    
+    private LayoutWindow window = null;
+    
     public void setObjects(Vector<ObjectInfo> objects){
         this.objects = objects;
     }
     
     public void setScene(Scene scene){
         this.scene = scene;
+    }
+    
+    public void setLayoutWindow(LayoutWindow window){
+        this.window = window;
     }
     
     /**
@@ -118,6 +127,20 @@ public class Mill extends Thread {
         bitField.setBounds(100, 120, 120, 40); // x, y, width, height
         panel.add(bitField);
         
+    
+        JLabel pathBit = new JLabel("Tool Path Markup");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        pathBit.setHorizontalAlignment(SwingConstants.CENTER);
+        pathBit.setFont(new Font("Arial", Font.BOLD, 11));
+        pathBit.setBounds(0, 160, 120, 40); // x, y, width, height
+        panel.add(pathBit);
+        
+        JCheckBox toolpathCheck = new JCheckBox("");
+        toolpathCheck.setBounds(100, 160, 120, 40); // x, y, width, height
+        toolpathCheck.setSelected(false);
+        panel.add(toolpathCheck);
+        
+        
         UIManager.put("OptionPane.minimumSize",new Dimension(350, 350));
         
         int result = JOptionPane.showConfirmDialog(null, panel, "CNC Mill Properties", JOptionPane.OK_CANCEL_OPTION);
@@ -131,6 +154,8 @@ public class Mill extends Thread {
             this.depth = Integer.parseInt(depthtField.getText());
             this.material_height = Double.parseDouble(heightField.getText());
             this.drill_bit = Double.parseDouble(bitField.getText());
+            
+            this.toolpathMarkup = toolpathCheck.isSelected();
         }
     }
     
@@ -187,7 +212,7 @@ public class Mill extends Thread {
             
             //BoundingBox sectionBounds = o3d.getBounds();
             
-        
+            //
             for(int x = 0; x < mapWidth; x++){
                 for(int z = 0; z < mapDepth; z++){
                     double x_loc = this.minx + (x * drill_bit);
@@ -312,7 +337,6 @@ public class Mill extends Thread {
             int prev_x = 0;
             int prev_z = 0;
             
-            
             for(int x = 0; x < mapWidth; x++){
                 for(int z = 0; z < mapDepth; z++){
                     double prev_x_loc = this.minx + (prev_x * drill_bit);
@@ -339,7 +363,6 @@ public class Mill extends Thread {
                         " Z" + roundThree( (prev_height - material_height)  ); //  // - this.maxy
                         gcode += " F"+10+"";
                         gcode += ";  A pre rise  \n"; //
-                        
                         
                     } else if(z == 1) {    // end on z line
                         
@@ -400,6 +423,26 @@ public class Mill extends Thread {
             } catch (Exception e){
                 System.out.println("Error: " + e.toString());
             }
+            
+        }
+        
+        
+        System.out.println(" window " + window);
+        if(window != null && toolpathMarkup){
+            Vec3[] pathPoints = new Vec3[2];
+            pathPoints[0] = new Vec3(-1, 0, 0);
+            pathPoints[1] = new Vec3(1, 0, 0);
+            
+            float[] s = new float [2];
+            s[0] = 0; s[1] = 0;
+            
+            Curve toolPathMarkup = new Curve(pathPoints, s, 0, false); // Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed
+            
+            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+            window.addObject(toolPathMarkup, coords, "Path Object ", null);
+            window.setSelection(window.getScene().getNumObjects()-1);
+            window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+            window.updateImage();
             
         }
         

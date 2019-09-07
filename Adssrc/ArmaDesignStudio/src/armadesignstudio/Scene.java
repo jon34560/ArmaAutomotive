@@ -3124,10 +3124,11 @@ public class Scene
      *
      * Description: export mill gcode. find path.
      */
-    public void export3dCode(){
+    public void export3dCode(LayoutWindow window){
         mill = new Mill();
         mill.setObjects(objects);
         mill.setScene(this);
+        mill.setLayoutWindow(window);
        
         // Dialog
         mill.getUserInput();

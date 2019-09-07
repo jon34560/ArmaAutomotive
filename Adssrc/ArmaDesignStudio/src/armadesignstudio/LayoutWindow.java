@@ -3367,7 +3367,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void export3dGCode(){
         if(theScene != null){
-            theScene.export3dCode();
+            theScene.export3dCode(this);
         }
     }
     
