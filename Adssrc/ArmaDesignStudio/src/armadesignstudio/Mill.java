@@ -201,10 +201,12 @@ public class Mill extends Thread {
         
         // this.minx this.minz
         
-        Double[][] cutHeights = new Double[mapWidth][mapDepth]; // state of machined material. Used to ensure not too deep a pass is made.
-        Double[][] mapHeights = new Double[mapWidth][mapDepth]; // Object top surface
+        Double[][] cutHeights = new Double[mapWidth + 1][mapDepth + 1]; // state of machined material. Used to ensure not too deep a pass is made.
+        Double[][] mapHeights = new Double[mapWidth + 1][mapDepth + 1]; // Object top surface
         
         System.out.println(" map  x: " + mapWidth + " z: " + mapDepth);
+        
+        Vector toolpathMarkupPoints = new Vector();
         
         for(int s = 1; s < sections; s++){
             double top = this.maxy - ((s-1) * material_height);
@@ -212,9 +214,11 @@ public class Mill extends Thread {
             
             //BoundingBox sectionBounds = o3d.getBounds();
             
+            
+            
             //
-            for(int x = 0; x < mapWidth; x++){
-                for(int z = 0; z < mapDepth; z++){
+            for(int x = 0; x < mapWidth + 1; x++){
+                for(int z = 0; z < mapDepth + 1; z++){
                     double x_loc = this.minx + (x * drill_bit);
                     double z_loc = this.minz + (z * drill_bit);
                     Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
@@ -278,12 +282,17 @@ public class Mill extends Thread {
                                     mat4.transform(vec2);
                                     mat4.transform(vec3);
                                     
+                                    //  first row of polygons isn't detecting.
+                                    
                                     if(inside_trigon(point_loc, vec1, vec2, vec3)){
                                         //double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);  // TODO get actual height
                                         double currHeight = trigon_height(point_loc, vec1, vec2, vec3);
                                         if(currHeight > height){
                                             height = currHeight;
                                         }
+                                        //if(currHeight == 0){
+                                        //    System.out.println(" height 0 ");
+                                        //}
                                     }
                                     
                                     // Edges of drill bit
@@ -337,8 +346,8 @@ public class Mill extends Thread {
             int prev_x = 0;
             int prev_z = 0;
             
-            for(int x = 0; x < mapWidth; x++){
-                for(int z = 0; z < mapDepth; z++){
+            for(int x = 0; x <= mapWidth; x++){
+                for(int z = 0; z <= mapDepth; z++){
                     double prev_x_loc = this.minx + (prev_x * drill_bit);
                     double prev_z_loc = this.minz + (prev_z * drill_bit);
                     double prev_height = mapHeights[prev_x][prev_z];
@@ -364,6 +373,9 @@ public class Mill extends Thread {
                         gcode += " F"+10+"";
                         gcode += ";  A pre rise  \n"; //
                         
+                        Vec3 markupPoint = new Vec3(prev_x_loc, prev_height , prev_z_loc);
+                        //toolpathMarkupPoints.addElement(markupPoint);
+                        
                     } else if(z == 1) {    // end on z line
                         
                         // Raise
@@ -377,6 +389,13 @@ public class Mill extends Thread {
                         " Z" + roundThree(0);
                         gcode += " F"+10+"";
                         gcode += "; C   \n"; // End line
+                        
+                        Vec3 markupPoint = new Vec3(prev_x_loc, prev_height + material_height, prev_z_loc);
+                        //toolpathMarkupPoints.addElement(markupPoint);
+                        
+                        markupPoint = new Vec3(x_loc, prev_height + material_height, z_loc);
+                        //toolpathMarkupPoints.addElement(markupPoint);
+                        
                     } else if(x == 0 && z == 0) { // Should only occur once.???
                      
                         gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
@@ -385,6 +404,23 @@ public class Mill extends Thread {
                         gcode += " F"+10+"";
                         gcode += "; D \n";
                         
+                        Vec3 markupPoint = new Vec3(prev_x_loc, prev_height  , prev_z_loc);
+                        //toolpathMarkupPoints.addElement(markupPoint);
+                    }
+                    
+                    
+                    if( z == 0 ){
+                        Vec3 markupPoint = new Vec3(x_loc, prev_height + material_height, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                    }
+                    
+                    Vec3 markupPoint = new Vec3(x_loc, prev_height , z_loc);
+                    toolpathMarkupPoints.addElement(markupPoint);
+                    
+                    if( z == mapDepth ){
+                        
+                        markupPoint = new Vec3(x_loc, prev_height + material_height, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
                     }
                     
                     
@@ -429,12 +465,14 @@ public class Mill extends Thread {
         
         System.out.println(" window " + window);
         if(window != null && toolpathMarkup){
-            Vec3[] pathPoints = new Vec3[2];
-            pathPoints[0] = new Vec3(-1, 0, 0);
-            pathPoints[1] = new Vec3(1, 0, 0);
             
-            float[] s = new float [2];
-            s[0] = 0; s[1] = 0;
+            //toolpathMarkupPoints
+            Vec3[] pathPoints = new Vec3[toolpathMarkupPoints.size()];
+            float[] s = new float[toolpathMarkupPoints.size()];
+            for(int p = 0; p < toolpathMarkupPoints.size(); p++){
+                pathPoints[p] = (Vec3)toolpathMarkupPoints.elementAt(p);
+                s[p] = 0;
+            }
             
             Curve toolPathMarkup = new Curve(pathPoints, s, 0, false); // Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed
             
