@@ -246,9 +246,18 @@ public class Mill extends Thread {
                             
                             BoundingBox bounds = o3d.getBounds(); // does not include location
                             bounds = new BoundingBox(bounds); // clone bounds
+                            // add obj location to bounds local coordinates.
+                            bounds.minx += objOrigin.x;
+                            bounds.maxx += objOrigin.x;
+                            bounds.miny += objOrigin.y;
+                            bounds.maxy += objOrigin.y;
+                            bounds.minz += objOrigin.z;
+                            bounds.maxz += objOrigin.z;
+                            
+                            //System.out.println(" x " + bounds.minx + "-" + bounds.maxx + "    loc " + objOrigin.x);
                             
                             if(
-                               ( x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
+                               (x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
                                && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
                                && obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
                                ){
@@ -294,6 +303,15 @@ public class Mill extends Thread {
                                         //    System.out.println(" height 0 ");
                                         //}
                                     }
+                                    
+                                    // DEBUG
+                                    //if(height == 0 && inside_trion2(point_loc, vec1, vec2, vec3)){
+                                    
+                                    //    double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
+                                    //    if(currHeight > height){
+                                            //height = currHeight;
+                                    //    }
+                                    //}
                                     
                                     // Edges of drill bit
                                     Vec3 drill_side_l = new Vec3(x_loc - (drill_bit / 2), 0, z_loc);
@@ -355,6 +373,20 @@ public class Mill extends Thread {
                     double x_loc = this.minx + (x * drill_bit);
                     double z_loc = this.minz + (z * drill_bit);
                     double height = mapHeights[x][z];
+                    
+                    int next_x = x;
+                    int next_z = z + 1;
+                    if(next_z >= mapDepth){
+                        next_x = next_x + 1;
+                        next_z = 0;
+                    }
+                    double next_x_loc = this.minx + (next_x * drill_bit);
+                    double next_z_loc = this.minz + (next_z * drill_bit);
+                    double next_height = 0;
+                    if( next_x < mapWidth + 1 && next_z < mapDepth + 1 ){
+                        next_height = mapHeights[next_x][next_z];
+                    }
+                    
                     //System.out.println(" map   x: " + x_loc + " z: " +z_loc  + " h: "  +height );
                     
                     // Move up to height of next point before moving cutter or the corner will be cut.
@@ -409,17 +441,29 @@ public class Mill extends Thread {
                     }
                     
                     
-                    if( z == 0 ){
-                        Vec3 markupPoint = new Vec3(x_loc, prev_height + material_height, z_loc);
+                    if( z == 0 ){ // Start of row, drop from top pass
+                        Vec3 markupPoint = new Vec3(x_loc, height + material_height, z_loc); // prev_height
                         toolpathMarkupPoints.addElement(markupPoint);
                     }
                     
-                    Vec3 markupPoint = new Vec3(x_loc, prev_height , z_loc);
+                    Vec3 markupPoint = new Vec3(x_loc, height , z_loc); // prev_height
                     toolpathMarkupPoints.addElement(markupPoint);
                     
-                    if( z == mapDepth ){
-                        
-                        markupPoint = new Vec3(x_loc, prev_height + material_height, z_loc);
+                    // If next point is higher than current point, rise up in current location. Prevents cutting corners
+                    if(next_height > height){
+                        markupPoint = new Vec3(x_loc, next_height, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                        //System.out.println(" RISE " + x_loc + " " + z_loc + " next_height: " + next_height);
+                    }
+                    
+                    // If next point is lower than the current point, move over one bit width before moving down cutting the corner.
+                    if(next_height < height ){
+                        markupPoint = new Vec3(x_loc, height, next_z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                    }
+                    
+                    if( z == mapDepth ){ // End of row, rise to pass back for next row.
+                        markupPoint = new Vec3(x_loc, height + material_height, z_loc); // prev_height
                         toolpathMarkupPoints.addElement(markupPoint);
                     }
                     
@@ -530,6 +574,86 @@ public class Mill extends Thread {
         if((c.x-a.x)*as_z-(c.z-a.z)*as_x > 0 == s_ab) return false;
         if((c.x-b.x)*(s.z-b.z)-(c.z-b.z)*(s.x-b.x) > 0 != s_ab) return false;
         return true;
+    }
+    
+    // debug
+    boolean inside_trion2(Vec3 s, Vec3 a, Vec3 b, Vec3 c){
+        BoundingBox boundingBox = new BoundingBox(0,0,0,0,0,0);
+        boundingBox.minx = 99999;
+        boundingBox.maxx = -999999;
+        boundingBox.miny = 99999;
+        boundingBox.maxy = -999999;
+        boundingBox.minz = 99999;
+        boundingBox.maxz = -999999;
+        
+        if(a.x < boundingBox.minx){
+            boundingBox.minx = a.x;
+        }
+        if(b.x < boundingBox.minx){
+            boundingBox.minx = b.x;
+        }
+        if(c.x < boundingBox.minx){
+            boundingBox.minx = c.x;
+        }
+        
+        if(a.x > boundingBox.maxx){
+            boundingBox.maxx = a.x;
+        }
+        if(b.x > boundingBox.maxx){
+            boundingBox.maxx = b.x;
+        }
+        if(c.x > boundingBox.maxx){
+            boundingBox.maxx = c.x;
+        }
+        
+        
+        if(a.y < boundingBox.miny){
+            boundingBox.miny = a.y;
+        }
+        if(b.y < boundingBox.miny){
+            boundingBox.miny = b.y;
+        }
+        if(c.y < boundingBox.miny){
+            boundingBox.minx = c.y;
+        }
+        
+        if(a.y > boundingBox.maxy){
+            boundingBox.maxy = a.y;
+        }
+        if(b.y > boundingBox.maxy){
+            boundingBox.maxy = b.y;
+        }
+        if(c.y > boundingBox.maxy){
+            boundingBox.maxy = c.y;
+        }
+        
+        if(a.z < boundingBox.minz){
+            boundingBox.minz = a.z;
+        }
+        if(b.z < boundingBox.minz){
+            boundingBox.minz = b.z;
+        }
+        if(c.z < boundingBox.minz){
+            boundingBox.minz = c.z;
+        }
+        
+        if(a.z > boundingBox.maxz){
+            boundingBox.maxz = a.z;
+        }
+        if(b.z > boundingBox.maxz){
+            boundingBox.maxz = b.z;
+        }
+        if(c.z > boundingBox.maxz){
+            boundingBox.maxz = c.z;
+        }
+        
+        if( s.x >= boundingBox.minx && s.x <= boundingBox.maxx
+           && s.z >= boundingBox.minz && s.z <= boundingBox.maxz){
+            
+            return true;
+        }
+        
+        return false;
     }
     
     /**
