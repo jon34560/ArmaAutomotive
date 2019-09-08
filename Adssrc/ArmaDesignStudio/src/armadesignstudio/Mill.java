@@ -204,7 +204,7 @@ public class Mill extends Thread {
         Double[][] cutHeights = new Double[mapWidth + 1][mapDepth + 1]; // state of machined material. Used to ensure not too deep a pass is made.
         Double[][] mapHeights = new Double[mapWidth + 1][mapDepth + 1]; // Object top surface
         
-        System.out.println(" map  x: " + mapWidth + " z: " + mapDepth);
+        //System.out.println(" map  x: " + mapWidth + " z: " + mapDepth);
         
         Vector toolpathMarkupPoints = new Vector();
         
@@ -214,9 +214,6 @@ public class Mill extends Thread {
             
             //BoundingBox sectionBounds = o3d.getBounds();
             
-            
-            
-            //
             for(int x = 0; x < mapWidth + 1; x++){
                 for(int z = 0; z < mapDepth + 1; z++){
                     double x_loc = this.minx + (x * drill_bit);
@@ -224,8 +221,6 @@ public class Mill extends Thread {
                     Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
                     double height = 0;
                     cutHeights[x][z] = material_height; // initalize material state.
-                    //System.out.print(".");
-            
                     for (ObjectInfo obj : objects){
                         if(obj.getName().indexOf("Camera") < 0 &&
                            obj.getName().indexOf("Light") < 0 &&
@@ -530,11 +525,35 @@ public class Mill extends Thread {
         
     }
     
+    /*
+    public Vec3 calcNormal(Vec3 a, Vec3 b, Vec3 c) {
+        //Vec3 s1 = Vector3f.sub(v1, v0, null);
+        Vec3 s1 = new Vec3( .sub(v1, v0, null);
+        
+        //Vec3 s2 = Vector3f.sub(v2, v0, null);
+        return Vector3f.cross(s1, s2, null);
+    }
+     */
+    private Vec3 calcNormal(Vec3 v0, Vec3 v1, Vec3 v2) {
+        Vec3 s1 = new Vec3( v1.x - v0.x, v1.y - v0.y, v1.z - v0.z ); // Vector3f.sub(v1, v0, null);
+        Vec3 s2 = new Vec3( v2.x - v0.x, v2.y - v0.y, v2.z - v0.z ); // Vector3f.sub(v2, v0, null);
+        
+        // A x B = (a2b3  -   a3b2,     a3b1   -   a1b3,     a1b2   -   a2b1)
+        Vec3 nv = new Vec3(s1.y * s2.z - s1.z*s2.y,
+                           s1.z*s2.x - s1.x*s2.z,
+                           s1.x*s2.y - s1.y*s2.x); // Vector3f.cross(s1, s2, null);
+        float length = (float) Math.sqrt(nv.x * nv.x + nv.y * nv.y + nv.z * nv.z);
+        nv.x /= length;
+        nv.y /= length;
+        nv.z /= length;
+        return nv;
+    }
     
     /**
      * trigon_height
      *
-     * Description:
+     * Description: calculate height on surface of polygon a,b,c given point x,z (s).
+     *
      */
     double trigon_height(Vec3 s, Vec3 a, Vec3 b, Vec3 c){
         double height = 0;
@@ -550,16 +569,98 @@ public class Mill extends Thread {
         
         //double wv1_ = ()
         
+        /*
+         int power = 4;
+        height = (
+                  ( Math.pow(wv1, power) * a.y)  +
+                  ( Math.pow(wv2, power) * b.y)  +
+                  ( Math.pow(wv3, power) * c.y)
+                 )
+                 /
+                 (Math.pow(wv1, power) + Math.pow(wv2, power) + Math.pow(wv3, power));
+        */
+        
         height = (
                   ( wv1 * a.y)  +
                   ( wv2 * b.y)  +
                   ( wv3 * c.y)
-                 )
-                 /
-                 (wv1 + wv2 + wv3);
+                  )
+        /
+        (wv1 + wv2 + wv3);
+        
+        
+        //double z4 = z1 - ((x4-x1)*N.x + (y4-y1)*N.y)/ N.z
+        
+        
+        double aP = aDistance / (aDistance + bDistance + cDistance);
+        double bP = bDistance / (aDistance + bDistance + cDistance);
+        double cP = cDistance / (aDistance + bDistance + cDistance);
+        
+        //if( a.y == b.y && b.y == c.y ){
+            //System.out.println("HEIGHT x: "+ " -  " + wv1 + " " + wv2 + " " + wv3 +
+            //                   "  " +
+            //                   "  (" + a.y + " " + b.y + "  " + c.y + ")   h: " +  height  );
+            //System.out.println("     - " + aP + " " + bP + " " + cP );
+            
+            //
+            
+            Vec3 planeNormal = calcNormal(a, b, c);
+            //System.out.println(" normal  x: " +  planeNormal.x + " y: " + planeNormal.y + " z: " + planeNormal.z  );
+        
+        
+            Vec3 intersect = intersectPoint(new Vec3(0,1,0), s, planeNormal, a);
+            //System.out.println(" intersect x " + intersect.x + " y " + intersect.y + " z" + intersect.z + " = " + height );
+            height = intersect.y;
+            
+            //equation_plane( a.x , a.y , a.z,  b.x, b.y, b.z,  c.x, c.y, c.z );
+            
+            System.out.println("");
+        //}
         
         return height;
     }
+    
+    
+    /**
+     * intersectPoint
+     *
+     * Description:
+     */
+    private static Vec3 intersectPoint(Vec3 rayVector, Vec3 rayPoint, Vec3 planeNormal, Vec3 planePoint) {
+        //Vec3D diff = rayPoint.minus(planePoint);
+        // new Vector3D(x - v.x, y - v.y, z - v.z);
+        Vec3 diff = new Vec3(rayPoint.x - planePoint.x,  rayPoint.y - planePoint.y, rayPoint.z - planePoint.z);
+        //double prod1 = diff.dot(planeNormal);
+        double prod1 = diff.x * planeNormal.x + diff.y * planeNormal.y + diff.z * planeNormal.z;  //  x * v.x + y * v.y + z * v.z;
+        //double prod2 = rayVector.dot(planeNormal);
+        double prod2 = rayVector.x * planeNormal.x + rayVector.y * planeNormal.y + rayVector.z * planeNormal.z;
+        double prod3 = prod1 / prod2;
+        //return rayPoint.minus(rayVector.times(prod3));
+        Vec3 t = new Vec3(rayVector.x * prod3, rayVector.y * prod3, rayVector.z * prod3);
+        return new Vec3( rayPoint.x - t.x, rayPoint.y - t.y, rayPoint.z - t.z );
+    }
+    
+    void equation_plane(double x1, double y1, double z1,
+                        double x2, double y2, double z2,
+                        double x3, double y3, double z3)
+    {
+        double a1 = x2 - x1;
+        double b1 = y2 - y1;
+        double c1 = z2 - z1;
+        double a2 = x3 - x1;
+        double b2 = y3 - y1;
+        double c2 = z3 - z1;
+        double a = b1 * c2 - b2 * c1;
+        double b = a2 * c1 - a1 * c2;
+        double c = a1 * b2 - b1 * a2;
+        double d = (- a * x1 - b * y1 - c * z1);
+        System.out.println("equation of plane is " + a +
+                           " x + " + b +
+                           " y + " + c +
+                           " z + " + d + " = 0.");
+    }
+    
+    
     
     /**
      * inside_trigon
