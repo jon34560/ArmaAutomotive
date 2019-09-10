@@ -178,6 +178,12 @@ public class Mill extends Thread {
         }
     }
     
+    public void progressDialog(){
+        
+        //JProgressBar progressBar;
+        
+    }
+    
     
     /**
      * exportGCode
@@ -186,7 +192,7 @@ public class Mill extends Thread {
      * TODO: slice into seperate files for layers of material. ie 2" foam blocks.
      */
     public void exportGCode(){
-        System.out.println("Export 3D Mill.");
+        System.out.println("Export 3D Mill GCode.");
         LayoutModeling layout = new LayoutModeling();
         
         String dir = scene.getDirectory() + System.getProperty("file.separator") + scene.getName() + "_gCode3d";
@@ -225,155 +231,168 @@ public class Mill extends Thread {
         
         //System.out.println(" map  x: " + mapWidth + " z: " + mapDepth);
         
-        Vector toolpathMarkupPoints = new Vector();
-        
-        for(int s = 1; s < sections; s++){
-            double top = this.maxy - ((s-1) * material_height);
-            double bot = this.maxy - ((s-2) * material_height);
-            
-            //BoundingBox sectionBounds = o3d.getBounds();
-            
-            for(int x = 0; x < mapWidth + 1; x++){
-                for(int z = 0; z < mapDepth + 1; z++){
-                    double x_loc = this.minx + (x * accuracy); //  accuracy    drill_bit
-                    double z_loc = this.minz + (z * accuracy);
-                    Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
-                    double height = 0;
-                    cutHeights[x][z] = material_height; // initalize material state.
-                    for (ObjectInfo obj : objects){
-                        if(obj.getName().indexOf("Camera") < 0 &&
-                           obj.getName().indexOf("Light") < 0 &&
-                           //obj.getClass() != FluidPointObject.class
-                           obj.getName().equals("") == false &&
-                           obj.isVisible() &&
-                           running
+        //
+        // Calculate mapHeights[x][z] given scene mesh objects
+        //
+        for(int x = 0; x < mapWidth + 1; x++){
+            for(int z = 0; z < mapDepth + 1; z++){
+                double x_loc = this.minx + (x * accuracy);
+                double z_loc = this.minz + (z * accuracy);
+                Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
+                double height = this.miny;
+                cutHeights[x][z] = material_height; // initalize material state.
+                for (ObjectInfo obj : objects){
+                    if(obj.getName().indexOf("Camera") < 0 &&
+                       obj.getName().indexOf("Light") < 0 &&
+                       //obj.getClass() != FluidPointObject.class
+                       obj.getName().equals("") == false &&
+                       obj.isVisible() &&
+                       running
+                       ){
+                        //System.out.println("Object Info: ");
+                        //Object3D co = (Object3D)obj.getObject();
+                        //System.out.println("obj " + obj.getId() + "  " + obj.getName() );
+                        Object3D o3d = obj.getObject();
+                        
+                        CoordinateSystem c;
+                        c = layout.getCoords(obj);
+                        Vec3 objOrigin = c.getOrigin();
+                        //System.out.println(" obj origin " + objOrigin.x + " " + objOrigin.y + " " + objOrigin.z );
+                        
+                        BoundingBox bounds = o3d.getBounds(); // does not include location
+                        bounds = new BoundingBox(bounds); // clone bounds
+                        // add obj location to bounds local coordinates.
+                        bounds.minx += objOrigin.x;
+                        bounds.maxx += objOrigin.x;
+                        bounds.miny += objOrigin.y;
+                        bounds.maxy += objOrigin.y;
+                        bounds.minz += objOrigin.z;
+                        bounds.maxz += objOrigin.z;
+                        
+                        //System.out.println(" x " + bounds.minx + "-" + bounds.maxx + "    loc " + objOrigin.x);
+                        
+                        if(
+                           (x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
+                           && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
+                           && obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
                            ){
-                            //System.out.println("Object Info: ");
-                            //Object3D co = (Object3D)obj.getObject();
-                            //System.out.println("obj " + obj.getId() + "  " + obj.getName() );
-                            Object3D o3d = obj.getObject();
                             
-                            CoordinateSystem c;
-                            c = layout.getCoords(obj);
-                            Vec3 objOrigin = c.getOrigin();
-                            //System.out.println(" obj origin " + objOrigin.x + " " + objOrigin.y + " " + objOrigin.z );
+                            //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
-                            BoundingBox bounds = o3d.getBounds(); // does not include location
-                            bounds = new BoundingBox(bounds); // clone bounds
-                            // add obj location to bounds local coordinates.
-                            bounds.minx += objOrigin.x;
-                            bounds.maxx += objOrigin.x;
-                            bounds.miny += objOrigin.y;
-                            bounds.maxy += objOrigin.y;
-                            bounds.minz += objOrigin.z;
-                            bounds.maxz += objOrigin.z;
+                            System.out.println(" % " + (   ( (float)(x * mapDepth) + z)  /  (float)(mapWidth * mapDepth) ) * 100   );
                             
-                            //System.out.println(" x " + bounds.minx + "-" + bounds.maxx + "    loc " + objOrigin.x);
+                            TriangleMesh triangleMesh = null;
+                            triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
+                            //triangleMesh = ((TriangleMesh)obj.getObject()).duplicate()  .convertToTriangleMesh(0.0);
+                            MeshVertex[] verts = triangleMesh.getVertices();
+                            TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
-                            if(
-                               (x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
-                               && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
-                               && obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
-                               ){
+                            //for(int e = 0; e < edges.length; e++){
+                            //    TriangleMesh.Edge edge = edges[e];
+                            //    Vec3 vec1 = new Vec3(verts[edge.v1].r); // duplicate
+                            //    Vec3 vec2 = new Vec3(verts[edge.v2].r);
+                            //    System.out.println(" x: " + vec1.x + " y: "+ vec1.y + " z: " + vec1.z  + " ->  " + " x: " + vec2.x + " y: "+ vec2.y + " z: " + vec2.z  );
+                            //}
+                            
+                            TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                            
+                            //System.out.println("faces: " + faces.length);
+                            for(int f = 0; f < faces.length; f++){ //  && running
+                                TriangleMesh.Face face = faces[f];
+                                Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                                Vec3 vec2 = new Vec3(verts[face.v2].r);
+                                Vec3 vec3 = new Vec3(verts[face.v3].r);
                                 
-                                //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                                Mat4 mat4 = c.duplicate().fromLocal();
+                                mat4.transform(vec1);
+                                mat4.transform(vec2);
+                                mat4.transform(vec3);
                                 
-                                TriangleMesh triangleMesh = null;
-                                triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
-                                //triangleMesh = ((TriangleMesh)obj.getObject()).duplicate()  .convertToTriangleMesh(0.0);
-                                MeshVertex[] verts = triangleMesh.getVertices();
-                                TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                                //  first row of polygons isn't detecting.
                                 
-                                //for(int e = 0; e < edges.length; e++){
-                                //    TriangleMesh.Edge edge = edges[e];
-                                //    Vec3 vec1 = new Vec3(verts[edge.v1].r); // duplicate
-                                //    Vec3 vec2 = new Vec3(verts[edge.v2].r);
-                                //    System.out.println(" x: " + vec1.x + " y: "+ vec1.y + " z: " + vec1.z  + " ->  " + " x: " + vec2.x + " y: "+ vec2.y + " z: " + vec2.z  );
+                                if(inside_trigon(point_loc, vec1, vec2, vec3)){
+                                    //double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);  // TODO get actual height
+                                    double currHeight = trigon_height(point_loc, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                    //if(currHeight == 0){
+                                    //    System.out.println(" height 0 ");
+                                    //}
+                                }
+                                
+                                // DEBUG
+                                //if(height == 0 && inside_trion2(point_loc, vec1, vec2, vec3)){
+                                
+                                //    double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
+                                //    if(currHeight > height){
+                                //height = currHeight;
+                                //    }
                                 //}
                                 
-                                TriangleMesh.Face[] faces = triangleMesh.getFaces();
                                 
-                                //System.out.println("faces: " + faces.length);
-                                for(int f = 0; f < faces.length; f++){ //  && running
-                                    TriangleMesh.Face face = faces[f];
-                                    Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
-                                    Vec3 vec2 = new Vec3(verts[face.v2].r);
-                                    Vec3 vec3 = new Vec3(verts[face.v3].r);
-                                    
-                                    Mat4 mat4 = c.duplicate().fromLocal();
-                                    mat4.transform(vec1);
-                                    mat4.transform(vec2);
-                                    mat4.transform(vec3);
-                                    
-                                    //  first row of polygons isn't detecting.
-                                    
-                                    if(inside_trigon(point_loc, vec1, vec2, vec3)){
-                                        //double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);  // TODO get actual height
-                                        double currHeight = trigon_height(point_loc, vec1, vec2, vec3);
-                                        if(currHeight > height){
-                                            height = currHeight;
-                                        }
-                                        //if(currHeight == 0){
-                                        //    System.out.println(" height 0 ");
-                                        //}
+                                // Edges of drill bit
+                                double edgeHeightOffset = (drill_bit / 2) * Math.tan( Math.toRadians((90 - (drill_bit_angle / 2))) );
+                                //System.out.println("edgeHeightOffset: "+ edgeHeightOffset);
+                                // (90 - (drill_bit_angle / 2))     22.5
+                                
+                                Vec3 drill_side_l = new Vec3(x_loc - (drill_bit / 2), edgeHeightOffset, z_loc);
+                                Vec3 drill_side_r = new Vec3(x_loc + (drill_bit / 2), edgeHeightOffset, z_loc);
+                                Vec3 drill_side_f = new Vec3(x_loc, edgeHeightOffset, z_loc - (drill_bit / 2));
+                                Vec3 drill_side_b = new Vec3(x_loc, edgeHeightOffset, z_loc + (drill_bit / 2));
+                                
+                                if(inside_trigon(drill_side_l, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_l, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
                                     }
-                                    
-                                    // DEBUG
-                                    //if(height == 0 && inside_trion2(point_loc, vec1, vec2, vec3)){
-                                    
-                                    //    double currHeight = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
-                                    //    if(currHeight > height){
-                                            //height = currHeight;
-                                    //    }
-                                    //}
-                                    
-                                    
-                                    // Edges of drill bit
-                                    double edgeHeightOffset = (drill_bit / 2) * Math.tan( Math.toRadians((90 - (drill_bit_angle / 2))) );
-                                    //System.out.println("edgeHeightOffset: "+ edgeHeightOffset);
-                                    // (90 - (drill_bit_angle / 2))     22.5
-                                    
-                                    Vec3 drill_side_l = new Vec3(x_loc - (drill_bit / 2), edgeHeightOffset, z_loc);
-                                    Vec3 drill_side_r = new Vec3(x_loc + (drill_bit / 2), edgeHeightOffset, z_loc);
-                                    Vec3 drill_side_f = new Vec3(x_loc, edgeHeightOffset, z_loc - (drill_bit / 2));
-                                    Vec3 drill_side_b = new Vec3(x_loc, edgeHeightOffset, z_loc + (drill_bit / 2));
-                                    
-                                    if(inside_trigon(drill_side_l, vec1, vec2, vec3)){
-                                        double currHeight = trigon_height(drill_side_l, vec1, vec2, vec3);
-                                        if(currHeight > height){
-                                            height = currHeight;
-                                        }
-                                    }
-                                    if(inside_trigon(drill_side_r, vec1, vec2, vec3)){
-                                        double currHeight = trigon_height(drill_side_r, vec1, vec2, vec3);
-                                        if(currHeight > height){
-                                            height = currHeight;
-                                        }
-                                    }
-                                    if(inside_trigon(drill_side_f, vec1, vec2, vec3)){
-                                        double currHeight = trigon_height(drill_side_f, vec1, vec2, vec3);
-                                        if(currHeight > height){
-                                            height = currHeight;
-                                        }
-                                    }
-                                    if(inside_trigon(drill_side_b, vec1, vec2, vec3)){
-                                        double currHeight = trigon_height(drill_side_b, vec1, vec2, vec3);
-                                        if(currHeight > height){
-                                            height = currHeight;
-                                        }
-                                    }
-                                    
-                                    //System.out.println(" x: " + vec1.x + " y: "+ vec1.y + " z: " + vec1.z);
                                 }
+                                if(inside_trigon(drill_side_r, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_r, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_f, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_f, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_b, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_b, vec1, vec2, vec3);
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                
+                                //if(height > sectionTop){
+                                //    height =
+                                //}
+                                
+                                //System.out.println(" x: " + vec1.x + " y: "+ vec1.y + " z: " + vec1.z);
                             }
                         }
                     }
-                    mapHeights[x][z] = height;
                 }
+                mapHeights[x][z] = height;
             }
+        }
+        
+        
+        
+        for(int s = 0; s < sections; s++){ // height sections
+            double sectionBottom = this.miny + ((s) * material_height);
+            double sectionTop = this.miny + ((s+1) * material_height);
             
+            Vector toolpathMarkupPoints = new Vector();
+            //BoundingBox sectionBounds = o3d.getBounds();
+            
+            //System.out.println("  bot: " +  sectionBottom + " top: " +  sectionTop + "  s: " + s);
+            
+            //
             // Write mapHeights to GCode file.
-            // todo...
+            //
             String gcode = "";
             gcode += "; Arma Automotive\n";
             gcode += "; CNC Top Down Mill\n";
@@ -406,6 +425,53 @@ public class Mill extends Thread {
                         next_height = mapHeights[next_x][next_z];
                     }
                     
+                    // Height section bounds.
+                    if(height < sectionBottom){
+                        height = sectionBottom;
+                    }
+                    if(height > sectionTop){
+                        height = sectionTop;
+                    }
+                    if(next_height < sectionBottom){
+                        next_height = sectionBottom;
+                    }
+                    if(next_height > sectionTop){
+                        next_height = sectionTop;
+                    }
+                    
+                    
+                    //
+                    // Toolpath Markup
+                    //
+                    if( z == 0 ){ // Start of row, drop from top pass
+                        //Vec3 markupPoint = new Vec3(x_loc, height + material_height, z_loc);
+                        Vec3 markupPoint = new Vec3(x_loc, sectionTop, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                    }
+                    
+                    Vec3 markupPoint = new Vec3(x_loc, height, z_loc); // prev_height
+                    toolpathMarkupPoints.addElement(markupPoint);
+                    
+                    // If next point is higher than current point, rise up in current location. Prevents cutting corners
+                    if(next_height > height){
+                        markupPoint = new Vec3(x_loc, next_height, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                        //System.out.println(" RISE " + x_loc + " " + z_loc + " next_height: " + next_height);
+                    }
+                    
+                    // If next point is lower than the current point, move over one bit width before moving down cutting the corner.
+                    if(next_height < height && z > 0 && z < mapDepth ){
+                        markupPoint = new Vec3(x_loc, height, next_z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                    }
+                    
+                    if( z == mapDepth ){ // End of row, rise to pass back for next row.
+                        //markupPoint = new Vec3(x_loc, height + material_height, z_loc);
+                        markupPoint = new Vec3(x_loc, sectionTop, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                    }
+                    
+                    
                     //System.out.println(" map   x: " + x_loc + " z: " +z_loc  + " h: "  +height );
                     
                     // Move up to height of next point before moving cutter or the corner will be cut.
@@ -424,7 +490,7 @@ public class Mill extends Thread {
                         gcode += " F"+10+"";
                         gcode += ";  A pre rise  \n"; //
                         
-                        Vec3 markupPoint = new Vec3(prev_x_loc, prev_height , prev_z_loc);
+                         markupPoint = new Vec3(prev_x_loc, prev_height , prev_z_loc);
                         //toolpathMarkupPoints.addElement(markupPoint);
                         
                     } else if(z == 1) {    // end on z line
@@ -441,7 +507,7 @@ public class Mill extends Thread {
                         gcode += " F"+10+"";
                         gcode += "; C   \n"; // End line
                         
-                        Vec3 markupPoint = new Vec3(prev_x_loc, prev_height + material_height, prev_z_loc);
+                         markupPoint = new Vec3(prev_x_loc, prev_height + material_height, prev_z_loc);
                         //toolpathMarkupPoints.addElement(markupPoint);
                         
                         markupPoint = new Vec3(x_loc, prev_height + material_height, z_loc);
@@ -455,36 +521,11 @@ public class Mill extends Thread {
                         gcode += " F"+10+"";
                         gcode += "; D \n";
                         
-                        Vec3 markupPoint = new Vec3(prev_x_loc, prev_height  , prev_z_loc);
+                         markupPoint = new Vec3(prev_x_loc, prev_height  , prev_z_loc);
                         //toolpathMarkupPoints.addElement(markupPoint);
                     }
                     
                     
-                    if( z == 0 ){ // Start of row, drop from top pass
-                        Vec3 markupPoint = new Vec3(x_loc, height + material_height, z_loc); // prev_height
-                        toolpathMarkupPoints.addElement(markupPoint);
-                    }
-                    
-                    Vec3 markupPoint = new Vec3(x_loc, height , z_loc); // prev_height
-                    toolpathMarkupPoints.addElement(markupPoint);
-                    
-                    // If next point is higher than current point, rise up in current location. Prevents cutting corners
-                    if(next_height > height){
-                        markupPoint = new Vec3(x_loc, next_height, z_loc);
-                        toolpathMarkupPoints.addElement(markupPoint);
-                        //System.out.println(" RISE " + x_loc + " " + z_loc + " next_height: " + next_height);
-                    }
-                    
-                    // If next point is lower than the current point, move over one bit width before moving down cutting the corner.
-                    if(next_height < height ){
-                        markupPoint = new Vec3(x_loc, height, next_z_loc);
-                        toolpathMarkupPoints.addElement(markupPoint);
-                    }
-                    
-                    if( z == mapDepth ){ // End of row, rise to pass back for next row.
-                        markupPoint = new Vec3(x_loc, height + material_height, z_loc); // prev_height
-                        toolpathMarkupPoints.addElement(markupPoint);
-                    }
                     
                     
                     // todo: if x < mapWidth && height == next X height skip. Compression of gcode
@@ -523,29 +564,25 @@ public class Mill extends Thread {
                 System.out.println("Error: " + e.toString());
             }
             
-        }
-        
-        
-        //System.out.println(" window " + window);
-        if(window != null && toolpathMarkup){
             
-            //toolpathMarkupPoints
-            Vec3[] pathPoints = new Vec3[toolpathMarkupPoints.size()];
-            float[] s = new float[toolpathMarkupPoints.size()];
-            for(int p = 0; p < toolpathMarkupPoints.size(); p++){
-                pathPoints[p] = (Vec3)toolpathMarkupPoints.elementAt(p);
-                s[p] = 0;
+            // Debug toolpath markup
+            if(window != null && toolpathMarkup){
+                Vec3[] pathPoints = new Vec3[toolpathMarkupPoints.size()];
+                float[] s_ = new float[toolpathMarkupPoints.size()];
+                for(int p = 0; p < toolpathMarkupPoints.size(); p++){
+                    pathPoints[p] = (Vec3)toolpathMarkupPoints.elementAt(p);
+                    s_[p] = 0;
+                }
+                Curve toolPathMarkup = new Curve(pathPoints, s_, 0, false); // Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed
+                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                window.addObject(toolPathMarkup, coords, "Cut Tool Path " + s, null);
+                window.setSelection(window.getScene().getNumObjects()-1);
+                window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                window.updateImage();
             }
             
-            Curve toolPathMarkup = new Curve(pathPoints, s, 0, false); // Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed
             
-            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-            window.addObject(toolPathMarkup, coords, "Cut Tool Path", null);
-            window.setSelection(window.getScene().getNumObjects()-1);
-            window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
-            window.updateImage();
-            
-        }
+        } // sections
         
     }
     
@@ -720,6 +757,8 @@ public class Mill extends Thread {
      *
      * Description: calculate region to simulate flow to be a
      *  relative size larger than the bounds of scene objects.
+     *
+     * Object bounds doesn't work because of translations. Need translated geometry point boundary.
      */
     public void calculateBounds(Vector<ObjectInfo> objects){
         LayoutModeling layout = new LayoutModeling();
@@ -727,6 +766,7 @@ public class Mill extends Thread {
         for (ObjectInfo obj : objects){
             if(obj.getName().indexOf("Camera") < 0 &&
                obj.getName().indexOf("Light") < 0 &&
+               obj.getName().equals("") == false &&
                obj.isVisible()
                ){ //obj.selected == true  || selection == false
                 //System.out.println("Object Info: ");
@@ -735,12 +775,52 @@ public class Mill extends Thread {
                 
                 // obj.getObject(); // Object3D
                 Object3D o3d = obj.getObject().duplicate();
-                BoundingBox bounds = o3d.getBounds();
+                BoundingBox bounds = o3d.getBounds();           // THIS DOES NOT WORK
                 
-                // Include object location in bounds values.
+                bounds.minx = 999; bounds.maxx = -999;
+                bounds.miny = 999; bounds.maxy = -999;
+                bounds.minz = 999; bounds.maxz = -999;
+                
                 CoordinateSystem c;
                 c = layout.getCoords(obj);
                 Vec3 objOrigin = c.getOrigin();
+                
+                if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                    TriangleMesh triangleMesh = null;
+                    triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
+                    
+                    MeshVertex[] points = triangleMesh.getVertices();
+                    for(int i = 0; i < points.length; i++){
+                        Vec3 point = points[i].r;
+                        
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(point);
+                        
+                        if(point.x < this.minx){
+                            this.minx = point.x;
+                        }
+                        if(point.x > this.maxx){
+                            this.maxx = point.x;
+                        }
+                        if(point.y < this.miny){
+                            this.miny = point.y;
+                        }
+                        if(point.y > this.maxy){
+                            this.maxy = point.y;
+                        }
+                        if(point.z < this.minz){
+                            this.minz = point.z;
+                        }
+                        if(point.z > this.maxz){
+                            this.maxz = point.z;
+                        }
+                        
+                    }
+                }
+                
+                
+                // Include object location in bounds values.
+                /*
                 bounds.minx += objOrigin.x; bounds.maxx += objOrigin.x;
                 bounds.miny += objOrigin.y; bounds.maxy += objOrigin.y;
                 bounds.minz += objOrigin.z; bounds.maxz += objOrigin.z;
@@ -764,6 +844,7 @@ public class Mill extends Thread {
                 if(bounds.maxz > this.maxz){
                     this.maxz = bounds.maxz;
                 }
+                 */
             }
         }
     }

@@ -37,6 +37,8 @@ public abstract class Object3D
   public static final int CANT_CONVERT = 0;
   public static final int EXACTLY = 1;
   public static final int APPROXIMATELY = 2;
+    
+  public String name = ""; // From ObjectInfo. Not sure how else to get it.
 
   public Object3D()
   {
@@ -377,6 +379,10 @@ public abstract class Object3D
 
   public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
   {
+      if(obj != null){
+          this.name = obj.name; // JDT rearchitect this later.
+      }
+      
     if (!obj.isVisible())
       return;
     Camera theCamera = canvas.getCamera();

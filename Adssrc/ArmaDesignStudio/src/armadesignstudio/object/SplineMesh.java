@@ -1050,7 +1050,7 @@ public class SplineMesh extends Object3D implements Mesh
   @Override
   public TriangleMesh convertToTriangleMesh(double tol)
   {
-    System.out.println(" SplineMesh convert ");
+      System.out.println(" SplineMesh convert: " + name);
     int i, j, k, udim, vdim, faces[][];
     TriangleMesh trimesh;
     float us[], vs[];

@@ -59,6 +59,8 @@ public class ObjectInfo
     setVisible(true);
     children = new ObjectInfo [0];
     setId(-1);
+      
+      //obj.name = name;
   }
 
   /** Create a new ObjectInfo which is identical to this one.  It will still reference the
