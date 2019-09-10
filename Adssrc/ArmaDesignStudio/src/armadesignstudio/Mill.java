@@ -476,13 +476,7 @@ public class Mill extends Thread {
                     
                     // Move up to height of next point before moving cutter or the corner will be cut.
                     if( z != 1 && !(z == 0 && z == 0) ){
-                        /*
-                        gcode += "G1 X" + roundThree(prev_x_loc) +
-                        " Y" + roundThree(prev_z_loc) +
-                        " Z" + roundThree(height - material_height);
-                        gcode += " F"+10+"";
-                        gcode += ";  A pre rise  \n"; //
-                        */
+                        
                         
                         gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
                         " Y" + roundThree(prev_z_loc - this.minz) +
