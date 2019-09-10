@@ -17,22 +17,16 @@ import armadesignstudio.view.CanvasDrawer;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-
-
 import buoy.widget.*;
-//import java.awt.*;
 import armadesignstudio.ui.*;
-
 import java.awt.Color;
 import java.awt.Dimension;
-
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.SwingConstants;
-
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 
@@ -50,7 +44,7 @@ public class Mill extends Thread {
     
     private int width = 48;
     private int depth = 96;
-    private double accuracy = 0.019685; // 0.5mm,  0.03125; // 1/32"   grid point length quanta_length
+    private double accuracy = 0.125; // 0.0393701; // 0.019685 = 0.5mm,  0.03125; // 1/32"   grid point length quanta_length
     private double drill_bit = 0.125;   // 0.125 1/8th 3.175mm
     private double drill_bit_angle = 135;
     private double pass_height = 0.5;   // drill cuts this much material per pass
@@ -90,7 +84,7 @@ public class Mill extends Thread {
         widthLabel.setBounds(0, 0, 130, 40); // x, y, width, height
         panel.add(widthLabel);
         
-        JTextField widthField = new JTextField("48");
+        JTextField widthField = new JTextField(new String(width+""));
         widthField.setBounds(130, 0, 130, 40); // x, y, width, height
         panel.add(widthField);
         //widthField.getDocument().addDocumentListener(myListener);
@@ -102,7 +96,7 @@ public class Mill extends Thread {
         labelDepth.setBounds(0, 40, 130, 40); // x, y, width, height
         panel.add(labelDepth);
         
-        JTextField depthtField = new JTextField("96");
+        JTextField depthtField = new JTextField( new String(depth+""));
         depthtField.setBounds(130, 40, 130, 40); // x, y, width, height
         panel.add(depthtField);
         
@@ -113,7 +107,7 @@ public class Mill extends Thread {
         labelHeight.setBounds(0, 80, 130, 40); // x, y, width, height
         panel.add(labelHeight);
         
-        JTextField heightField = new JTextField("2");
+        JTextField heightField = new JTextField(new String(material_height+""));
         heightField.setBounds(130, 80, 130, 40); // x, y, width, height
         panel.add(heightField);
         
@@ -130,8 +124,7 @@ public class Mill extends Thread {
         accuracyField.setBounds(130, 120, 130, 40); // x, y, width, height
         panel.add(accuracyField);
         
-        
-        
+    
         JLabel labelBit = new JLabel("Drill Bit Diameter");
         //labelHeight.setForeground(new Color(255, 255, 0));
         labelBit.setHorizontalAlignment(SwingConstants.CENTER);
@@ -168,25 +161,19 @@ public class Mill extends Thread {
         toolpathCheck.setSelected(false);
         panel.add(toolpathCheck);
         
-        
         UIManager.put("OptionPane.minimumSize",new Dimension(350, 350));
-        
         int result = JOptionPane.showConfirmDialog(null, panel, "CNC Mill Properties", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            System.out.println("width value: " + widthField.getText());
-            System.out.println("depth value: " + depthtField.getText());
-            System.out.println("height value: " + heightField.getText());
-            System.out.println("bit value: " + bitField.getText());
-            
+            //System.out.println("width value: " + widthField.getText());
+            //System.out.println("depth value: " + depthtField.getText());
+            //System.out.println("height value: " + heightField.getText());
+            //System.out.println("bit value: " + bitField.getText());
             this.width = Integer.parseInt(widthField.getText());
             this.depth = Integer.parseInt(depthtField.getText());
             this.material_height = Double.parseDouble(heightField.getText());
             this.drill_bit = Double.parseDouble(bitField.getText());
-            
-            
             this.accuracy = Double.parseDouble(accuracyField.getText());
             this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
-            
             this.toolpathMarkup = toolpathCheck.isSelected();
         }
     }
@@ -217,8 +204,8 @@ public class Mill extends Thread {
         
         // Create grid across bounds, with border, using the width of the drill bit.
         // The cut path can scan the grid height raised for point and faces contained within.
-        int mapWidth = (int)((this.maxx - this.minx) / drill_bit) + 0;
-        int mapDepth = (int)((this.maxz - this.minz) / drill_bit) + 0;
+        int mapWidth = (int)((this.maxx - this.minx) / accuracy) + 0; // drill_bit
+        int mapDepth = (int)((this.maxz - this.minz) / accuracy) + 0; // drill_bit
         
         int sections = 1;
         if(this.maxy - this.miny > material_height){
@@ -248,8 +235,8 @@ public class Mill extends Thread {
             
             for(int x = 0; x < mapWidth + 1; x++){
                 for(int z = 0; z < mapDepth + 1; z++){
-                    double x_loc = this.minx + (x * drill_bit);
-                    double z_loc = this.minz + (z * drill_bit);
+                    double x_loc = this.minx + (x * accuracy); //  accuracy    drill_bit
+                    double z_loc = this.minz + (z * accuracy);
                     Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
                     double height = 0;
                     cutHeights[x][z] = material_height; // initalize material state.
@@ -398,12 +385,12 @@ public class Mill extends Thread {
             
             for(int x = 0; x <= mapWidth; x++){
                 for(int z = 0; z <= mapDepth; z++){
-                    double prev_x_loc = this.minx + (prev_x * drill_bit);
-                    double prev_z_loc = this.minz + (prev_z * drill_bit);
+                    double prev_x_loc = this.minx + (prev_x * accuracy);
+                    double prev_z_loc = this.minz + (prev_z * accuracy);
                     double prev_height = mapHeights[prev_x][prev_z];
                     
-                    double x_loc = this.minx + (x * drill_bit);
-                    double z_loc = this.minz + (z * drill_bit);
+                    double x_loc = this.minx + (x * accuracy);
+                    double z_loc = this.minz + (z * accuracy);
                     double height = mapHeights[x][z];
                     
                     int next_x = x;
@@ -412,8 +399,8 @@ public class Mill extends Thread {
                         next_x = next_x + 1;
                         next_z = 0;
                     }
-                    double next_x_loc = this.minx + (next_x * drill_bit);
-                    double next_z_loc = this.minz + (next_z * drill_bit);
+                    double next_x_loc = this.minx + (next_x * accuracy);
+                    double next_z_loc = this.minz + (next_z * accuracy);
                     double next_height = 0;
                     if( next_x < mapWidth + 1 && next_z < mapDepth + 1 ){
                         next_height = mapHeights[next_x][next_z];
@@ -562,23 +549,18 @@ public class Mill extends Thread {
         
     }
     
-    /*
-    public Vec3 calcNormal(Vec3 a, Vec3 b, Vec3 c) {
-        //Vec3 s1 = Vector3f.sub(v1, v0, null);
-        Vec3 s1 = new Vec3( .sub(v1, v0, null);
-        
-        //Vec3 s2 = Vector3f.sub(v2, v0, null);
-        return Vector3f.cross(s1, s2, null);
-    }
+    
+    /**
+     * calcNormal
+     *
+     * Description: Calculate the normal vector for a three point face.
      */
     private Vec3 calcNormal(Vec3 v0, Vec3 v1, Vec3 v2) {
-        Vec3 s1 = new Vec3( v1.x - v0.x, v1.y - v0.y, v1.z - v0.z ); // Vector3f.sub(v1, v0, null);
-        Vec3 s2 = new Vec3( v2.x - v0.x, v2.y - v0.y, v2.z - v0.z ); // Vector3f.sub(v2, v0, null);
-        
-        // A x B = (a2b3  -   a3b2,     a3b1   -   a1b3,     a1b2   -   a2b1)
+        Vec3 s1 = new Vec3( v1.x - v0.x, v1.y - v0.y, v1.z - v0.z ); // subtract
+        Vec3 s2 = new Vec3( v2.x - v0.x, v2.y - v0.y, v2.z - v0.z ); // subtract
         Vec3 nv = new Vec3(s1.y * s2.z - s1.z*s2.y,
                            s1.z*s2.x - s1.x*s2.z,
-                           s1.x*s2.y - s1.y*s2.x); // Vector3f.cross(s1, s2, null);
+                           s1.x*s2.y - s1.y*s2.x); // cross product
         float length = (float) Math.sqrt(nv.x * nv.x + nv.y * nv.y + nv.z * nv.z);
         nv.x /= length;
         nv.y /= length;
@@ -594,29 +576,13 @@ public class Mill extends Thread {
      */
     double trigon_height(Vec3 s, Vec3 a, Vec3 b, Vec3 c){
         double height = 0;
+        /*
         double aDistance = Math.sqrt(Math.pow(s.x - a.x, 2) + Math.pow(s.y - a.y, 2) + Math.pow(s.z - a.z, 2));
         double bDistance = Math.sqrt(Math.pow(s.x - b.x, 2) + Math.pow(s.y - b.y, 2) + Math.pow(s.z - b.z, 2));
         double cDistance = Math.sqrt(Math.pow(s.x - c.x, 2) + Math.pow(s.y - c.y, 2) + Math.pow(s.z - c.z, 2));
-        
-        //System.out.println(" aDistance " + aDistance + " " + bDistance + " " + cDistance );
-        
         double wv1 = 1.0/aDistance;
         double wv2 = 1.0/bDistance;
         double wv3 = 1.0/cDistance;
-        
-        //double wv1_ = ()
-        
-        /*
-         int power = 4;
-        height = (
-                  ( Math.pow(wv1, power) * a.y)  +
-                  ( Math.pow(wv2, power) * b.y)  +
-                  ( Math.pow(wv3, power) * c.y)
-                 )
-                 /
-                 (Math.pow(wv1, power) + Math.pow(wv2, power) + Math.pow(wv3, power));
-        */
-        
         height = (
                   ( wv1 * a.y)  +
                   ( wv2 * b.y)  +
@@ -624,36 +590,12 @@ public class Mill extends Thread {
                   )
         /
         (wv1 + wv2 + wv3);
-        
-        
-        //double z4 = z1 - ((x4-x1)*N.x + (y4-y1)*N.y)/ N.z
-        
-        
-        double aP = aDistance / (aDistance + bDistance + cDistance);
-        double bP = bDistance / (aDistance + bDistance + cDistance);
-        double cP = cDistance / (aDistance + bDistance + cDistance);
-        
-        //if( a.y == b.y && b.y == c.y ){
-            //System.out.println("HEIGHT x: "+ " -  " + wv1 + " " + wv2 + " " + wv3 +
-            //                   "  " +
-            //                   "  (" + a.y + " " + b.y + "  " + c.y + ")   h: " +  height  );
-            //System.out.println("     - " + aP + " " + bP + " " + cP );
-            
-            //
-            
-            Vec3 planeNormal = calcNormal(a, b, c);
-            //System.out.println(" normal  x: " +  planeNormal.x + " y: " + planeNormal.y + " z: " + planeNormal.z  );
-        
-        
-            Vec3 intersect = intersectPoint(new Vec3(0,1,0), s, planeNormal, a);
+        */
+        Vec3 planeNormal = calcNormal(a, b, c);
+        //System.out.println(" normal  x: " +  planeNormal.x + " y: " + planeNormal.y + " z: " + planeNormal.z  );
+        Vec3 intersect = intersectPoint(new Vec3(0,1,0), s, planeNormal, a);
             //System.out.println(" intersect x " + intersect.x + " y " + intersect.y + " z" + intersect.z + " = " + height );
-            height = intersect.y;
-            
-            //equation_plane( a.x , a.y , a.z,  b.x, b.y, b.z,  c.x, c.y, c.z );
-            
-            System.out.println("");
-        //}
-        
+        height = intersect.y;
         return height;
     }
     
@@ -676,27 +618,6 @@ public class Mill extends Thread {
         Vec3 t = new Vec3(rayVector.x * prod3, rayVector.y * prod3, rayVector.z * prod3);
         return new Vec3( rayPoint.x - t.x, rayPoint.y - t.y, rayPoint.z - t.z );
     }
-    
-    void equation_plane(double x1, double y1, double z1,
-                        double x2, double y2, double z2,
-                        double x3, double y3, double z3)
-    {
-        double a1 = x2 - x1;
-        double b1 = y2 - y1;
-        double c1 = z2 - z1;
-        double a2 = x3 - x1;
-        double b2 = y3 - y1;
-        double c2 = z3 - z1;
-        double a = b1 * c2 - b2 * c1;
-        double b = a2 * c1 - a1 * c2;
-        double c = a1 * b2 - b1 * a2;
-        double d = (- a * x1 - b * y1 - c * z1);
-        System.out.println("equation of plane is " + a +
-                           " x + " + b +
-                           " y + " + c +
-                           " z + " + d + " = 0.");
-    }
-    
     
     
     /**
