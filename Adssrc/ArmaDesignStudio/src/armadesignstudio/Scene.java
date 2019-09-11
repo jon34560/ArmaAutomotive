@@ -3133,7 +3133,9 @@ public class Scene
         // Dialog
         mill.getUserInput();
         
-        mill.exportGCode();
+        //mill.exportGCode();
+        mill.start();
+        
         //if(mill.isRunning() == false){
         //    mill.start();
         //}

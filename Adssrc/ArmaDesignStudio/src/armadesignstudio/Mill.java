@@ -29,6 +29,13 @@ import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
+import java.awt.BorderLayout;
+import javax.swing.JDialog;
+import javax.swing.JProgressBar;
+import javax.swing.JFrame;
+import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Mill extends Thread {
     boolean running = true;
@@ -53,6 +60,8 @@ public class Mill extends Thread {
     private boolean toolpathMarkup = false;
     
     private LayoutWindow window = null;
+    
+    
     
     public void setObjects(Vector<ObjectInfo> objects){
         this.objects = objects;
@@ -179,11 +188,22 @@ public class Mill extends Thread {
     }
     
     public void progressDialog(){
+        //JPanel panel = new JPanel();
+        
+        //UIManager.put("OptionPane.minimumSize",new Dimension(350, 100));
         
         //JProgressBar progressBar;
         
+        //progressMonitor = new ProgressMonitor(ProgressMonitorDemo.this,
+        //                                      "Creating Tool Path GCode",
+        //                                      "", 0, task.getLengthOfTask());
+        
     }
     
+    
+    public void run(){
+        exportGCode();
+    }
     
     /**
      * exportGCode
@@ -193,6 +213,51 @@ public class Mill extends Thread {
      */
     public void exportGCode(){
         System.out.println("Export 3D Mill GCode.");
+        
+        
+        //JFrame parentFrame = new JFrame();
+        //parentFrame.setSize(500, 150);
+        //JLabel jl = new JLabel();
+        //jl.setText("Count : 0");
+        
+        //parentFrame.add(BorderLayout.CENTER, jl);
+        //parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        //parentFrame.setVisible(true);
+        
+        final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
+        JProgressBar dpb = new JProgressBar(0, 100);
+        progressDialog.add(BorderLayout.CENTER, dpb);
+        progressDialog.add(BorderLayout.NORTH, new JLabel("Progress..."));
+        progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        progressDialog.setSize(300, 75);
+        progressDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+       // progressDialog.setLocationRelativeTo(parentFrame);
+        
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        progressDialog.setLocation((int)(screenSize.getWidth() / 2) - (300/2), (int) ((screenSize.getHeight()/(float)2) - ((float)75/(float)2.0)));
+        
+        progressDialog.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosed(WindowEvent e)
+            {
+                System.out.println("jdialog window closed event received");
+                running = false;
+            }
+            
+            public void windowClosing(WindowEvent e)
+            {
+                System.out.println("jdialog window closing event received");
+                running = false;
+            }
+        });
+        
+        progressDialog.setVisible(true);
+        
+        //if(dpb.getValue() == 500){
+        
+        
+        
         LayoutModeling layout = new LayoutModeling();
         
         String dir = scene.getDirectory() + System.getProperty("file.separator") + scene.getName() + "_gCode3d";
@@ -223,6 +288,10 @@ public class Mill extends Thread {
             sections = si;
         }
         System.out.println("sec " + sections);
+        
+        if(this.maxx - this.minx >  width ){ // Width larger than cutting area
+            System.out.println(" Too wide. ");
+        }
         
         // this.minx this.minz
         
@@ -279,7 +348,9 @@ public class Mill extends Thread {
                             
                             //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
-                            System.out.println(" % " + (   ( (float)(x * mapDepth) + z)  /  (float)(mapWidth * mapDepth) ) * 100   );
+                            int progress = (int) ((((float)(x * mapDepth) + z) / (float)(mapWidth * mapDepth)) * (float)100);
+                            System.out.println(" % " + progress  );
+                            dpb.setValue(progress);
                             
                             TriangleMesh triangleMesh = null;
                             triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
@@ -577,7 +648,8 @@ public class Mill extends Thread {
             
             
         } // sections
-        
+     
+        progressDialog.setVisible(false);
     }
     
     
