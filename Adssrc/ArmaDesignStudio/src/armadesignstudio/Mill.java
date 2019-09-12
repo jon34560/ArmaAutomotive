@@ -214,17 +214,6 @@ public class Mill extends Thread {
     public void exportGCode(){
         System.out.println("Export 3D Mill GCode.");
         
-        
-        //JFrame parentFrame = new JFrame();
-        //parentFrame.setSize(500, 150);
-        //JLabel jl = new JLabel();
-        //jl.setText("Count : 0");
-        
-        //parentFrame.add(BorderLayout.CENTER, jl);
-        //parentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        //parentFrame.setVisible(true);
-        
         final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
         JProgressBar dpb = new JProgressBar(0, 100);
         progressDialog.add(BorderLayout.CENTER, dpb);
@@ -253,10 +242,6 @@ public class Mill extends Thread {
         });
         
         progressDialog.setVisible(true);
-        
-        //if(dpb.getValue() == 500){
-        
-        
         
         LayoutModeling layout = new LayoutModeling();
         
@@ -291,12 +276,20 @@ public class Mill extends Thread {
         
         if(this.maxx - this.minx >  width ){ // Width larger than cutting area
             System.out.println(" Too wide. ");
+            
         }
         
         // this.minx this.minz
         
         Double[][] cutHeights = new Double[mapWidth + 1][mapDepth + 1]; // state of machined material. Used to ensure not too deep a pass is made.
         Double[][] mapHeights = new Double[mapWidth + 1][mapDepth + 1]; // Object top surface
+        
+        
+        for(int x = 0; x < mapWidth + 1; x++){
+            for(int z = 0; z < mapDepth + 1; z++){
+                mapHeights[x][z] = miny;
+            }
+        }
         
         //System.out.println(" map  x: " + mapWidth + " z: " + mapDepth);
         
@@ -349,7 +342,7 @@ public class Mill extends Thread {
                             //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
                             int progress = (int) ((((float)(x * mapDepth) + z) / (float)(mapWidth * mapDepth)) * (float)100);
-                            System.out.println(" % " + progress  );
+                            //System.out.println(" % " + progress  );
                             dpb.setValue(progress);
                             
                             TriangleMesh triangleMesh = null;
@@ -450,8 +443,9 @@ public class Mill extends Thread {
             }
         }
         
-        
-        
+        //
+        // Route drill cutting path
+        //
         for(int s = 0; s < sections; s++){ // height sections
             double sectionBottom = this.miny + ((s) * material_height);
             double sectionTop = this.miny + ((s+1) * material_height);
@@ -477,10 +471,14 @@ public class Mill extends Thread {
                 for(int z = 0; z <= mapDepth; z++){
                     double prev_x_loc = this.minx + (prev_x * accuracy);
                     double prev_z_loc = this.minz + (prev_z * accuracy);
-                    double prev_height = mapHeights[prev_x][prev_z];
+                    
+                    //System.out.println(" x: " + x + "  z: " + z + " "  );
+                    //System.out.println(" prev_x: " + prev_x + "  prev_z: " + prev_z + " "  );
+                    double prev_height = miny; //  mapHeights[prev_x][prev_z];
                     
                     double x_loc = this.minx + (x * accuracy);
                     double z_loc = this.minz + (z * accuracy);
+                    
                     double height = mapHeights[x][z];
                     
                     int next_x = x;
@@ -518,10 +516,37 @@ public class Mill extends Thread {
                         //Vec3 markupPoint = new Vec3(x_loc, height + material_height, z_loc);
                         Vec3 markupPoint = new Vec3(x_loc, sectionTop, z_loc);
                         toolpathMarkupPoints.addElement(markupPoint);
+                        
+                        
+                        // skip beginning area if no cuts.
+                        //
+                        
                     }
                     
                     Vec3 markupPoint = new Vec3(x_loc, height, z_loc); // prev_height
                     toolpathMarkupPoints.addElement(markupPoint);
+                    
+                    
+                    // Skip remaining Z path if no cuts. optimization.
+                    // Why only on one section???
+                    boolean skip = false;
+                    if(z > 6){
+                        skip = true;
+                    }
+                    for(int zz = z - 6; zz > 0 && zz <= mapDepth; zz++){
+                        double seek_height = mapHeights[x][zz];
+                        //System.out.println("seek_height: " + seek_height + "  miny: " + miny);
+                        if( seek_height > sectionBottom ){ // sectionBottom
+                            skip = false;
+                        }
+                    }
+                    if( skip ){
+                        prev_z = z;
+                        z = mapDepth + 1; // Skip Z row
+                        markupPoint = new Vec3(x_loc, sectionTop, z_loc);
+                        toolpathMarkupPoints.addElement(markupPoint);
+                        break;
+                    }
                     
                     // If next point is higher than current point, rise up in current location. Prevents cutting corners
                     if(next_height > height){
