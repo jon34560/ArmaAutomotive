@@ -468,7 +468,38 @@ public class Mill extends Thread {
             int prev_z = 0;
             
             for(int x = 0; x <= mapWidth; x++){
+                
+                // Optimization, skip z line if no changes.
+                // TODO: Still need adjacent
+                int prevZLength = 0;
+                int nextZLength = 0;
+                boolean adjacentX = false;
+                
+                boolean skipZ = true;
                 for(int z = 0; z <= mapDepth; z++){
+                    double height = mapHeights[x][z];
+                    if( height > sectionBottom ){
+                        skipZ = false;
+                    }
+                }
+                if(x > 0 && x < mapWidth && skipZ){ // check previous X
+                    for(int z = 0; z <= mapDepth; z++){
+                        double height = mapHeights[x - 1][z];
+                        if( height > sectionBottom ){
+                            skipZ = false;
+                            
+                        }
+                    }
+                    for(int z = 0; z <= mapDepth; z++){
+                        double height = mapHeights[x + 1][z];
+                        if( height > sectionBottom ){
+                            skipZ = false;
+                        }
+                    }
+                }
+                
+                
+                for(int z = 0; z <= mapDepth && skipZ == false; z++){
                     double prev_x_loc = this.minx + (prev_x * accuracy);
                     double prev_z_loc = this.minz + (prev_z * accuracy);
                     
@@ -516,16 +547,10 @@ public class Mill extends Thread {
                         //Vec3 markupPoint = new Vec3(x_loc, height + material_height, z_loc);
                         Vec3 markupPoint = new Vec3(x_loc, sectionTop, z_loc);
                         toolpathMarkupPoints.addElement(markupPoint);
-                        
-                        
-                        // skip beginning area if no cuts.
-                        //
-                        
                     }
                     
                     Vec3 markupPoint = new Vec3(x_loc, height, z_loc); // prev_height
                     toolpathMarkupPoints.addElement(markupPoint);
-                    
                     
                     // Skip remaining Z path if no cuts. optimization.
                     // Why only on one section???
@@ -536,11 +561,11 @@ public class Mill extends Thread {
                     for(int zz = z - 6; zz > 0 && zz <= mapDepth; zz++){
                         double seek_height = mapHeights[x][zz];
                         //System.out.println("seek_height: " + seek_height + "  miny: " + miny);
-                        if( seek_height > sectionBottom ){ // sectionBottom
+                        if( seek_height > sectionBottom ){
                             skip = false;
                         }
                     }
-                    if( skip ){
+                    if(skip){
                         prev_z = z;
                         z = mapDepth + 1; // Skip Z row
                         markupPoint = new Vec3(x_loc, sectionTop, z_loc);
@@ -561,7 +586,7 @@ public class Mill extends Thread {
                         toolpathMarkupPoints.addElement(markupPoint);
                     }
                     
-                    if( z == mapDepth ){ // End of row, rise to pass back for next row.
+                    if(z == mapDepth){ // End of row, rise to pass back for next row.
                         //markupPoint = new Vec3(x_loc, height + material_height, z_loc);
                         markupPoint = new Vec3(x_loc, sectionTop, z_loc);
                         toolpathMarkupPoints.addElement(markupPoint);
