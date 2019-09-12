@@ -467,8 +467,25 @@ public class Mill extends Thread {
             int prev_x = 0;
             int prev_z = 0;
             
+            int adjacentDepth = 0;
+            
+            // Prescan X rows and record Z-depth of each row in order to cut adjacent
+            int [] XDepth = new int[mapWidth + 1];
             for(int x = 0; x <= mapWidth; x++){
-                
+                int depth = 0;
+                for(int z = mapDepth; z >= 0; z--){
+                    double x_loc = this.minx + (x * accuracy);
+                    double z_loc = this.minz + (z * accuracy);
+                    double height = mapHeights[x][z];
+                    if(height > sectionBottom){
+                        depth = z;
+                        z = -1; // Break
+                    }
+                }
+                XDepth[x] = depth;
+            }
+            
+            for(int x = 0; x <= mapWidth; x++){
                 // Optimization, skip z line if no changes.
                 // TODO: Still need adjacent
                 int prevZLength = 0;
@@ -494,12 +511,14 @@ public class Mill extends Thread {
                         double height = mapHeights[x + 1][z];
                         if( height > sectionBottom ){
                             skipZ = false;
+                            
                         }
                     }
                 }
                 
                 
                 for(int z = 0; z <= mapDepth && skipZ == false; z++){
+                    //adjacentDepth = z;
                     double prev_x_loc = this.minx + (prev_x * accuracy);
                     double prev_z_loc = this.minz + (prev_z * accuracy);
                     
@@ -565,7 +584,22 @@ public class Mill extends Thread {
                             skip = false;
                         }
                     }
+                    
+                    // // XDepth[x - 1]  XDepth[x + 1]
+                    int prevXDepth = 0;
+                    int nextXDepth = 0;
+                    if(x > 0){
+                        prevXDepth = XDepth[x - 1];
+                    }
+                    if(x < mapWidth){
+                        nextXDepth = XDepth[x + 1];
+                    }
+                    
+                    if( prevXDepth + 6 > z || nextXDepth + 6 > z ){ // Force this Z row because it is adjacent
+                        skip = false;
+                    }
                     if(skip){
+                        adjacentDepth = z; // Track how far this X row proceded down the Z axis.
                         prev_z = z;
                         z = mapDepth + 1; // Skip Z row
                         markupPoint = new Vec3(x_loc, sectionTop, z_loc);
@@ -659,6 +693,7 @@ public class Mill extends Thread {
                     prev_x = x;
                     prev_z = z;
                 }
+                
                 
                 // Raise
                 //gcode += "G1 " +
