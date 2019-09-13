@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 
 public class Mill extends Thread {
     boolean running = true;
@@ -58,10 +59,11 @@ public class Mill extends Thread {
     private double material_height = 2; // cut scene into layers this thick for seperate parts/files.
 
     private boolean toolpathMarkup = false;
+    private boolean cutOptimization = true;
     
     private LayoutWindow window = null;
     
-    
+    HashMap<ObjectInfo, BoundingBox> objectBoundsCache = new HashMap<ObjectInfo, BoundingBox>();
     
     public void setObjects(Vector<ObjectInfo> objects){
         this.objects = objects;
@@ -170,7 +172,20 @@ public class Mill extends Thread {
         toolpathCheck.setSelected(false);
         panel.add(toolpathCheck);
         
-        UIManager.put("OptionPane.minimumSize",new Dimension(350, 350));
+        
+        JLabel optimizationLabel = new JLabel("Cut Optimization");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        optimizationLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        optimizationLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        optimizationLabel.setBounds(0, 280, 130, 40); // x, y, width, height
+        panel.add(optimizationLabel);
+        
+        JCheckBox optimizationCheck = new JCheckBox("");
+        optimizationCheck.setBounds(130, 280, 130, 40); // x, y, width, height
+        optimizationCheck.setSelected( cutOptimization );
+        panel.add(optimizationCheck);
+        
+        UIManager.put("OptionPane.minimumSize",new Dimension(350, 350 + 40));
         int result = JOptionPane.showConfirmDialog(null, panel, "CNC Mill Properties", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("width value: " + widthField.getText());
@@ -184,6 +199,7 @@ public class Mill extends Thread {
             this.accuracy = Double.parseDouble(accuracyField.getText());
             this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
             this.toolpathMarkup = toolpathCheck.isSelected();
+            this.cutOptimization = optimizationCheck.isSelected();
         }
     }
     
@@ -217,7 +233,8 @@ public class Mill extends Thread {
         final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
         JProgressBar dpb = new JProgressBar(0, 100);
         progressDialog.add(BorderLayout.CENTER, dpb);
-        progressDialog.add(BorderLayout.NORTH, new JLabel("Progress..."));
+        JLabel progressLabel = new JLabel("Progress...");
+        progressDialog.add(BorderLayout.NORTH, progressLabel);
         progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         progressDialog.setSize(300, 75);
         progressDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -319,6 +336,7 @@ public class Mill extends Thread {
         //
         // Calculate mapHeights[x][z] given scene mesh objects
         //
+        progressLabel.setText("Calculating height.");
         for(int x = 0; x < mapWidth + 1; x++){
             for(int z = 0; z < mapDepth + 1; z++){
                 double x_loc = this.minx + (x * accuracy);
@@ -344,7 +362,8 @@ public class Mill extends Thread {
                         Vec3 objOrigin = c.getOrigin();
                         //System.out.println(" obj origin " + objOrigin.x + " " + objOrigin.y + " " + objOrigin.z );
                         
-                        BoundingBox bounds = o3d.getBounds(); // does not include location
+                        /*
+                        BoundingBox bounds = o3d.getBounds(); // does not include location  !!!!!!! (WRONG!!!)
                         bounds = new BoundingBox(bounds); // clone bounds
                         // add obj location to bounds local coordinates.
                         bounds.minx += objOrigin.x;
@@ -353,13 +372,17 @@ public class Mill extends Thread {
                         bounds.maxy += objOrigin.y;
                         bounds.minz += objOrigin.z;
                         bounds.maxz += objOrigin.z;
+                         */
+                        
+                        BoundingBox bounds = getTranslatedBounds(obj); //
                         
                         //System.out.println(" x " + bounds.minx + "-" + bounds.maxx + "    loc " + objOrigin.x);
                         
                         if(
                            (x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
                            && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
-                           && obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
+                           &&
+                           obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
                            ){
                             
                             //TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
@@ -462,9 +485,11 @@ public class Mill extends Thread {
         //
         // Route drill cutting path
         //
-        for(int s = 0; s < sections; s++){ // height sections
+        for(int s = 0; s < sections && running; s++){ // height sections
             double sectionBottom = this.miny + ((s) * material_height);
             double sectionTop = this.miny + ((s+1) * material_height);
+            
+            progressLabel.setText("Routing cutting path for section "+ (s+1) +" of " + sections + ".");
             
             Vector toolpathMarkupPoints = new Vector();
             //BoundingBox sectionBounds = o3d.getBounds();
@@ -501,7 +526,7 @@ public class Mill extends Thread {
                 XDepth[x] = depth;
             }
             
-            for(int x = 0; x <= mapWidth; x++){
+            for(int x = 0; x <= mapWidth && running; x++){
                 
                 // Optimization, skip z line if no objects in path.
                 // TODO: Still need adjacent
@@ -530,16 +555,13 @@ public class Mill extends Thread {
                         }
                     }
                 }
-                //skipZ = false; // debug *****
+                if(cutOptimization == false){
+                    skipZ = false; // debug *****
+                }
                 
-                for(int z = 0; z <= mapDepth && skipZ == false; z++){
-                    
-                    
-                    // s / sections
-                    int progress = (int) ((((float)(x * mapDepth) + z) / (float)(mapWidth * mapDepth)) * (float)100);
-                    //System.out.println(" % " + progress  );
+                for(int z = 0; z <= mapDepth && skipZ == false && running; z++){
+                    int progress = (int)((((float)(x * mapDepth) + z) / (float)(mapWidth * mapDepth)) * (float)100);
                     dpb.setValue(progress);
-                    
                     
                     //adjacentDepth = z;
                     double prev_x_loc = this.minx + (prev_x * accuracy); // DEPRICATE
@@ -631,7 +653,9 @@ public class Mill extends Thread {
                         skip = false;
                     }
                     
-                    //skip = false; // DEBUG ***
+                    if(cutOptimization == false){
+                        skip = false; // DEBUG ***
+                    }
                     
                     if(skip){
                         adjacentDepth = z; // Track how far this X row proceded down the Z axis.
@@ -818,7 +842,7 @@ public class Mill extends Thread {
      *
      */
     double trigon_height(Vec3 s, Vec3 a, Vec3 b, Vec3 c){
-        double height = 0;
+        double height = -10;
         /*
         double aDistance = Math.sqrt(Math.pow(s.x - a.x, 2) + Math.pow(s.y - a.y, 2) + Math.pow(s.z - a.z, 2));
         double bDistance = Math.sqrt(Math.pow(s.x - b.x, 2) + Math.pow(s.y - b.y, 2) + Math.pow(s.z - b.z, 2));
@@ -839,6 +863,7 @@ public class Mill extends Thread {
         Vec3 intersect = intersectPoint(new Vec3(0,1,0), s, planeNormal, a);
             //System.out.println(" intersect x " + intersect.x + " y " + intersect.y + " z" + intersect.z + " = " + height );
         height = intersect.y;
+        
         return height;
     }
     
@@ -1053,6 +1078,67 @@ public class Mill extends Thread {
                  */
             }
         }
+    }
+    
+    /**
+     * getBounds
+     *
+     * Description: ObjectInfo.getBounds doesn't apply transfomations making its results inaccurate.
+     */
+    public BoundingBox getTranslatedBounds(ObjectInfo object){
+        
+        BoundingBox bounds = objectBoundsCache.get(object);
+        if(bounds != null){
+            //System.out.println(" pulling from cache");
+            return bounds;
+        }
+        
+        LayoutModeling layout = new LayoutModeling();
+        Object3D o3d = object.getObject().duplicate();
+        bounds = o3d.getBounds();           // THIS DOES NOT WORK
+        
+        bounds.minx = 999; bounds.maxx = -999;
+        bounds.miny = 999; bounds.maxy = -999;
+        bounds.minz = 999; bounds.maxz = -999;
+        
+        CoordinateSystem c;
+        c = layout.getCoords(object);
+        Vec3 objOrigin = c.getOrigin();
+        
+        if(object.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+            TriangleMesh triangleMesh = null;
+            triangleMesh = object.getObject().convertToTriangleMesh(0.0);
+            
+            MeshVertex[] points = triangleMesh.getVertices();
+            for(int i = 0; i < points.length; i++){
+                Vec3 point = points[i].r;
+                
+                Mat4 mat4 = c.duplicate().fromLocal();
+                mat4.transform(point);
+                
+                if(point.x < bounds.minx){
+                    bounds.minx = point.x;
+                }
+                if(point.x > bounds.maxx){
+                    bounds.maxx = point.x;
+                }
+                if(point.y < bounds.miny){
+                    bounds.miny = point.y;
+                }
+                if(point.y > bounds.maxy){
+                    bounds.maxy = point.y;
+                }
+                if(point.z < bounds.minz){
+                    bounds.minz = point.z;
+                }
+                if(point.z > bounds.maxz){
+                    bounds.maxz = point.z;
+                }
+                
+            }
+        }
+        objectBoundsCache.put(object, bounds);
+        return bounds;
     }
     
     /**
