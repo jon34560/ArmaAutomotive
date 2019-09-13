@@ -616,7 +616,7 @@ public class Mill extends Thread {
                         " Y" + roundThree(z_loc - this.minz) +
                         " Z" + roundThree( 0.0 );
                         gcode += " F"+10+"";
-                        gcode += ";\n";
+                        gcode += ";   d\n";
                     }
                     
                     Vec3 markupPoint = new Vec3(x_loc, height, z_loc);
@@ -626,7 +626,7 @@ public class Mill extends Thread {
                     " Y" + roundThree(z_loc - this.minz) +
                     " Z" + roundThree( height - sectionTop );
                     gcode += " F"+10+"";
-                    gcode += ";\n";
+                    gcode += ";   . \n";
                     
                     
                     // Skip remaining Z path if no cuts. optimization.
@@ -668,7 +668,7 @@ public class Mill extends Thread {
                         " Y" + roundThree(z_loc - this.minz) +
                         " Z" + roundThree( 0 );
                         gcode += " F"+10+"";
-                        gcode += ";\n";
+                        gcode += "; s \n";
                         
                         break;
                     }
@@ -684,7 +684,7 @@ public class Mill extends Thread {
                         " Y" + roundThree(z_loc - this.minz) +
                         " Z" + roundThree( next_height - sectionTop );
                         gcode += " F"+10+"";
-                        gcode += ";\n";
+                        gcode += ";   +\n";
                     }
                     
                     
@@ -697,7 +697,7 @@ public class Mill extends Thread {
                         " Y" + roundThree(next_z_loc - this.minz) +
                         " Z" + roundThree( height - sectionTop );
                         gcode += " F"+10+"";
-                        gcode += ";\n";
+                        gcode += ";   -\n";
                         
                     }
                     
@@ -709,9 +709,9 @@ public class Mill extends Thread {
                         
                         gcode += "G1 X" + roundThree(x_loc - this.minx) +
                         " Y" + roundThree(next_z_loc - this.minz) +
-                        " Z" + roundThree( 0 );
+                        " Z" + roundThree( 0 ); // sectionTop
                         gcode += " F"+10+"";
-                        gcode += ";\n";
+                        gcode += ";    u\n";
                         
                     }
                     
