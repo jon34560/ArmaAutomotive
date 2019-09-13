@@ -274,9 +274,32 @@ public class Mill extends Thread {
         }
         System.out.println("sec " + sections);
         
-        if(this.maxx - this.minx >  width ){ // Width larger than cutting area
-            System.out.println(" Too wide. ");
+        boolean tooWide = this.maxx - this.minx > width;
+        boolean tooDeep = this.maxz - this.minz >  depth;
+        if(tooWide || tooDeep){
+            progressDialog.setVisible(false);
             
+            String warning = "";
+            if(tooWide && !tooDeep){
+                warning = "The scene is too wide to fit in the cutting area. \n";
+            } else if(!tooWide && tooDeep){
+                warning = "The scene is too deep to fit in the cutting area. \n";
+            } else if(tooWide && tooDeep) {
+                warning = "The scene is too wide and too deep to fit in the cutting area. \n";
+            }
+            warning += "Do you wish to continue?";
+            
+            int n = JOptionPane.showConfirmDialog(
+                                                  null,
+                                                  warning,
+                                                  "Warning",
+                                                  JOptionPane.YES_NO_OPTION);
+            System.out.println("" + n);
+            if(n == 1){
+                return;
+            }
+            
+            progressDialog.setVisible(true);
         }
         
         // this.minx this.minz
