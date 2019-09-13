@@ -818,24 +818,6 @@ public class Mill extends Thread {
     
     
     /**
-     * calcNormal
-     *
-     * Description: Calculate the normal vector for a three point face.
-     */
-    private Vec3 calcNormal(Vec3 v0, Vec3 v1, Vec3 v2) {
-        Vec3 s1 = new Vec3( v1.x - v0.x, v1.y - v0.y, v1.z - v0.z ); // subtract
-        Vec3 s2 = new Vec3( v2.x - v0.x, v2.y - v0.y, v2.z - v0.z ); // subtract
-        Vec3 nv = new Vec3(s1.y * s2.z - s1.z*s2.y,
-                           s1.z*s2.x - s1.x*s2.z,
-                           s1.x*s2.y - s1.y*s2.x); // cross product
-        float length = (float) Math.sqrt(nv.x * nv.x + nv.y * nv.y + nv.z * nv.z);
-        nv.x /= length;
-        nv.y /= length;
-        nv.z /= length;
-        return nv;
-    }
-    
-    /**
      * trigon_height
      *
      * Description: calculate height on surface of polygon a,b,c given point x,z (s).
@@ -858,13 +840,31 @@ public class Mill extends Thread {
         /
         (wv1 + wv2 + wv3);
         */
+        
         Vec3 planeNormal = calcNormal(a, b, c);
-        //System.out.println(" normal  x: " +  planeNormal.x + " y: " + planeNormal.y + " z: " + planeNormal.z  );
         Vec3 intersect = intersectPoint(new Vec3(0,1,0), s, planeNormal, a);
-            //System.out.println(" intersect x " + intersect.x + " y " + intersect.y + " z" + intersect.z + " = " + height );
         height = intersect.y;
         
         return height;
+    }
+    
+    
+    /**
+     * calcNormal
+     *
+     * Description: Calculate the normal vector for a three point face.
+     */
+    private Vec3 calcNormal(Vec3 v0, Vec3 v1, Vec3 v2) {
+        Vec3 s1 = new Vec3( v1.x - v0.x, v1.y - v0.y, v1.z - v0.z ); // subtract
+        Vec3 s2 = new Vec3( v2.x - v0.x, v2.y - v0.y, v2.z - v0.z ); // subtract
+        Vec3 nv = new Vec3(s1.y * s2.z - s1.z*s2.y,
+                           s1.z*s2.x - s1.x*s2.z,
+                           s1.x*s2.y - s1.y*s2.x); // cross product
+        float length = (float) Math.sqrt(nv.x * nv.x + nv.y * nv.y + nv.z * nv.z);
+        nv.x /= length;
+        nv.y /= length;
+        nv.z /= length;
+        return nv;
     }
     
     
