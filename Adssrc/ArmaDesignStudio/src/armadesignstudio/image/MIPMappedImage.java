@@ -168,6 +168,21 @@ public class MIPMappedImage extends ImageMap
     data = (int []) pg.getPixels();
     if (components == 0)
       countComponents(data);
+    
+      if(data == null){
+          map = new byte [components][64];
+          //map[0][0] = (byte) (0);
+          //map[0][1] = (byte) (0);
+          //map[0][2] = (byte) (0);
+          //map[0][3] = (byte) (0);
+          
+          for(int d = 0; d < 64; d++){
+              map[0][d] = (byte) (0);
+          }
+          
+          return map; // JDT ???
+      }
+      
     map = new byte [components][data.length]; // data can be null
     for (i = 0; i < data.length; i++)
       {
@@ -502,6 +517,7 @@ public class MIPMappedImage extends ImageMap
 
   private void getMapGradient(Vec2 grad, int component, int which, boolean wrapx, boolean wrapy, double x, double y)
   {
+      System.out.println( "x: " + x + " y: " + y);
     int i1, i2, j1, j2;
     int ind1, ind2, ind3, ind4;
     int w = width[which], h = height[which];
@@ -537,10 +553,21 @@ public class MIPMappedImage extends ImageMap
 
     // Find the values at the four points.
 
-    v1 = (double) (((int) map[ind1]) & 0xFF);
+      //
+      System.out.println(" index " + ind1);
+      if(ind1 >= map.length || ind2 >= map.length || ind3 >= map.length || ind4 >= map.length){
+          v1 = (double) 0;
+          v2 = (double) 0;
+          v3 = (double) 0;
+          v4 = (double) 0;
+      } else{
+      
+    v1 = (double) (((int) map[ind1]) & 0xFF); // index out of bounds
     v2 = (double) (((int) map[ind2]) & 0xFF);
     v3 = (double) (((int) map[ind3]) & 0xFF);
     v4 = (double) (((int) map[ind4]) & 0xFF);
+      
+      }
 
     // Calculate the final value.
 
