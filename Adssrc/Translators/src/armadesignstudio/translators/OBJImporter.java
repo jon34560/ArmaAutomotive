@@ -38,6 +38,9 @@ public class OBJImporter
     if (objName.lastIndexOf('.') > 0)
       objName = objName.substring(0, objName.lastIndexOf('.'));
     
+      
+      System.out.println("Import name: " + objName);
+      
     // Create a scene to add objects to.
     
     Scene theScene = new Scene();
@@ -446,14 +449,25 @@ public class OBJImporter
       }
     catch (Exception ex)
       {
+        System.out.println("Ex: "   );
+          ex.printStackTrace();
+          
         try
           {
             in.close();
           }
         catch (Exception ex2)
           {
+              System.out.println("Ex2: "   );
+              //ex2.printStackTrace();
           }
-        new BStandardDialog("", new String [] {Translate.text("errorLoadingFile"), ex.getMessage() == null ? "" : ex.getMessage()}, BStandardDialog.ERROR).showMessageDialog(parent);
+          
+        new BStandardDialog("",
+                            new String [] {
+                                Translate.text("errorLoadingFile"),
+                                ex.getMessage() == null ? "" : ex.getMessage()
+                            }, BStandardDialog.ERROR).showMessageDialog(parent);
+          
         return;
       }
     ArmaDesignStudio.newWindow(theScene);

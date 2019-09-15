@@ -168,7 +168,7 @@ public class MIPMappedImage extends ImageMap
     data = (int []) pg.getPixels();
     if (components == 0)
       countComponents(data);
-    map = new byte [components][data.length];
+    map = new byte [components][data.length]; // data can be null
     for (i = 0; i < data.length; i++)
       {
         map[0][i] = (byte) ((data[i]>>16) & 0xFF);
@@ -188,7 +188,13 @@ public class MIPMappedImage extends ImageMap
   private void countComponents(int data[])
   {
     components = 1;
-    for (int i = 0; i < data.length; i++)
+      
+      if(data == null){
+          System.out.println("MIPMappedImage data is null. "); // JDT
+          return;
+      }
+      
+    for (int i = 0; i < data.length; i++) // Null pointer
       {
         int j = data[i];
         if ((j & 0xFF000000) != 0xFF000000)

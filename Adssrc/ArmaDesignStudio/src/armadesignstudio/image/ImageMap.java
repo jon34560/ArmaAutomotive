@@ -50,6 +50,9 @@ public abstract class ImageMap
             ex.printStackTrace();
           }
       }
+      
+    System.out.println("ImageMap.loadImage("+name+")"); // JDT debug
+      
     if (name.endsWith(".svg"))
       return new SVGImage(file);
     return new MIPMappedImage(file);
