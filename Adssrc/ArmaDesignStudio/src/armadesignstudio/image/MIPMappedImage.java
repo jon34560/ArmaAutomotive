@@ -450,6 +450,21 @@ public class MIPMappedImage extends ImageMap
     w3 = frac1*(1.0f-frac2);
     w4 = frac1*frac2;
 
+      //System.out.println(" 1 " + ind1 + " " + ind2);
+      if(ind1 < 0){
+          ind1 = 0;
+      }
+      if(ind2 < 0){
+          ind2 = 1;
+      }
+      if(ind3 < 0){
+          ind3 = 2;
+      }
+      if(ind4 < 0){
+          ind4 = 3;
+      }
+      
+      
     // Calculate the final value for each component.
 
     red = ((((int) map[0][ind1]) & 0xFF)*w1 + (((int) map[0][ind2]) & 0xFF)*w2 +
@@ -517,7 +532,7 @@ public class MIPMappedImage extends ImageMap
 
   private void getMapGradient(Vec2 grad, int component, int which, boolean wrapx, boolean wrapy, double x, double y)
   {
-      System.out.println( "x: " + x + " y: " + y);
+      //System.out.println( "x: " + x + " y: " + y);
     int i1, i2, j1, j2;
     int ind1, ind2, ind3, ind4;
     int w = width[which], h = height[which];
@@ -554,8 +569,9 @@ public class MIPMappedImage extends ImageMap
     // Find the values at the four points.
 
       //
-      System.out.println(" index " + ind1);
+      //System.out.println(" index " + ind1);
       if(ind1 >= map.length || ind2 >= map.length || ind3 >= map.length || ind4 >= map.length){
+          //System.out.println("Error: ");
           v1 = (double) 0;
           v2 = (double) 0;
           v3 = (double) 0;
