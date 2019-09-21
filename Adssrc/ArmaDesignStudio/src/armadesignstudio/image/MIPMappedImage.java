@@ -683,10 +683,16 @@ public class MIPMappedImage extends ImageMap
     // Copy the image data into a BufferedImage.
 
     int w = getWidth(), h = getHeight();
+      
+      System.out.println("w: " + w + " h " + h);
+      if(w < 0 || h < 0){
+          return;
+      }
+      
     BufferedImage bi;
     if (getComponentCount() == 1)
     {
-      bi = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+      bi = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY); //
       for (int i = 0; i < w; i++)
         for (int j = 0; j < h; j++)
         {

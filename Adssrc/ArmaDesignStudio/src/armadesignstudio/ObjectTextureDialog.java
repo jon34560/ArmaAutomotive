@@ -33,7 +33,7 @@ public class ObjectTextureDialog extends BDialog implements ListChangeListener
   private ObjectInfo obj[], editObj;
   private BTabbedPane tabs;
   private BList texList, matList, layerList;
-  private BButton texMapButton, matMapButton, addLayerButton, deleteLayerButton, moveUpButton, moveDownButton, editTexturesButton;
+  private BButton texMapButton, matMapButton, addLayerButton, deleteLayerButton, moveUpButton, moveDownButton, editTexturesButton, deleteTextureButton;
   private BComboBox newTextureChoice, newMaterialChoice;
   private BorderContainer content, texturesTab, materialsTab;
   private FormContainer texTitlePanel, texListPanel, matListPanel, layerPanel, paramsPanel;
@@ -93,7 +93,7 @@ public class ObjectTextureDialog extends BDialog implements ListChangeListener
       layeredTex = new LayeredTexture(editObj.getObject());
       layeredMap = (LayeredMapping) layeredTex.getDefaultMapping(editObj.getObject());
     }
-    oldMaterial =  editObj.getObject().getMaterial();
+    oldMaterial = editObj.getObject().getMaterial();
     if (oldMaterial == null)
       oldMatMapping = null;
     else
@@ -140,6 +140,10 @@ public class ObjectTextureDialog extends BDialog implements ListChangeListener
     RowContainer texButtonRow = new RowContainer();
     texButtonRow.add(texMapButton = Translate.button("editMapping", this, "doEditTextureMapping"));
     texButtonRow.add(newTextureChoice = new BComboBox());
+      
+      deleteTextureButton = Translate.button("Delete", this, "doDeleteTexture");
+      texButtonRow.add(deleteTextureButton);
+      
     newTextureChoice.add(Translate.text("button.newTexture"));
     java.util.List<Texture> textureTypes = PluginRegistry.getPlugins(Texture.class);
     for (Texture texture : textureTypes)
@@ -156,6 +160,9 @@ public class ObjectTextureDialog extends BDialog implements ListChangeListener
     }
     newTextureChoice.addEventLink(ValueChangedEvent.class, this, "doNewTexture");
     texListPanel.add(texButtonRow, 0, 1);
+      
+    // Delete Texture button.
+      
 
     // Create the list of materials and the buttons under it.
 
@@ -468,6 +475,39 @@ public class ObjectTextureDialog extends BDialog implements ListChangeListener
       }
     }
   }
+    
+    /**
+     *
+     *
+     */
+    private void doDeleteTexture(){
+        System.out.println("Delete texture");
+        
+        int id = texList.getSelectedIndex();
+        Texture texture = scene.getTexture(id);
+        
+        //int index = layerList.getSelectedIndex();
+        //String label = (String) layerList.getItem(index);
+        System.out.println("  texture: " + id + " " + texture.getName() );
+        //layerList.remove(i);
+        
+        scene.removeTexture(id);
+        
+        texList.setSelected(-1, true);
+        //texList.remove(i);
+        
+        /*
+         texList.removeAll();
+         for (int i = 0; i < scene.getNumTextures(); i++)
+         {
+         texList.add((scene.getTexture(i)).getName());
+         if (editObj.getObject().getTexture() == scene.getTexture(i))
+         texList.setSelected(i, true);
+         }
+         */
+        
+        
+    }
 
   private void doEditTextureMapping()
   {

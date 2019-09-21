@@ -608,7 +608,6 @@ public class Mill extends Thread {
                     // Toolpath Markup
                     //
                     if( z == 0 ){ // Start of row, drop from top pass
-                        
                         Vec3 markupPoint = new Vec3(x_loc, sectionTop, z_loc);
                         toolpathMarkupPoints.addElement(markupPoint);
                         
@@ -627,7 +626,6 @@ public class Mill extends Thread {
                     " Z" + roundThree( height - sectionTop );
                     gcode += " F"+10+"";
                     gcode += ";   . \n";
-                    
                     
                     // Skip remaining Z path if no cuts. optimization.
                     boolean skip = false;
@@ -654,7 +652,7 @@ public class Mill extends Thread {
                     }
                     
                     if(cutOptimization == false){
-                        skip = false; // DEBUG ***
+                        skip = false;
                     }
                     
                     if(skip){
@@ -669,10 +667,8 @@ public class Mill extends Thread {
                         " Z" + roundThree( 0 );
                         gcode += " F"+10+"";
                         gcode += "; s \n";
-                        
                         break;
                     }
-                    
                     
                     // If next point is higher than current point, rise up in current location. Prevents cutting corners
                     if(next_height > height){
@@ -687,9 +683,8 @@ public class Mill extends Thread {
                         gcode += ";   +\n";
                     }
                     
-                    
                     // If next point is lower than the current point, move over one bit width before moving down cutting the corner.
-                    if(next_height < height && z > 0 && z < mapDepth ){
+                    if(next_height < height && z > 0 && z < mapDepth - 1){
                         markupPoint = new Vec3(x_loc, height, next_z_loc);
                         toolpathMarkupPoints.addElement(markupPoint);
                         
@@ -698,9 +693,7 @@ public class Mill extends Thread {
                         " Z" + roundThree( height - sectionTop );
                         gcode += " F"+10+"";
                         gcode += ";   -\n";
-                        
                     }
-                    
                     
                     if(z == mapDepth){ // End of row, rise to pass back for next row.
                         //markupPoint = new Vec3(x_loc, height + material_height, z_loc);
@@ -708,17 +701,14 @@ public class Mill extends Thread {
                         toolpathMarkupPoints.addElement(markupPoint);
                         
                         gcode += "G1 X" + roundThree(x_loc - this.minx) +
-                        " Y" + roundThree(next_z_loc - this.minz) +
+                        " Y" + roundThree(z_loc - this.minz) +
                         " Z" + roundThree( 0 ); // sectionTop
                         gcode += " F"+10+"";
                         gcode += ";    u\n";
-                        
                     }
                     
                     
-                    
                     //System.out.println(" map   x: " + x_loc + " z: " +z_loc  + " h: "  +height );
-                    
                     /*
                     // Move up to height of next point before moving cutter or the corner will be cut.
                     if( z != 1 && !(z == 0 && z == 0) ){
@@ -754,8 +744,6 @@ public class Mill extends Thread {
                     }
                     */
                     
-                    
-                    
                     // todo: if x < mapWidth && height == next X height skip. Compression of gcode
                     //if( x < mapWidth &&  ){
                     // GCode coordinates are different.
@@ -772,7 +760,6 @@ public class Mill extends Thread {
                     prev_x = x;
                     prev_z = z;
                 }
-                
                 
                 // Raise
                 //gcode += "G1 " +
@@ -793,7 +780,6 @@ public class Mill extends Thread {
                 System.out.println("Error: " + e.toString());
             }
             
-            
             // Debug toolpath markup
             if(window != null && toolpathMarkup){
                 Vec3[] pathPoints = new Vec3[toolpathMarkupPoints.size()];
@@ -809,10 +795,7 @@ public class Mill extends Thread {
                 window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
                 window.updateImage();
             }
-            
-            
         } // sections
-     
         progressDialog.setVisible(false);
     }
     
