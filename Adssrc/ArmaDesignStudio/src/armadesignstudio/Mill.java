@@ -82,7 +82,7 @@ public class Mill extends Thread {
      *
      * Description:
      */
-    public void getUserInput(){
+    public boolean getUserInput(){
         JPanel panel = new JPanel();
         //panel.setBackground(new Color(0, 0, 0));
         panel.setSize(new Dimension(350, 32));
@@ -200,7 +200,10 @@ public class Mill extends Thread {
             this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
             this.toolpathMarkup = toolpathCheck.isSelected();
             this.cutOptimization = optimizationCheck.isSelected();
+            return true;
         }
+        
+        return false;
     }
     
     public void progressDialog(){
@@ -336,7 +339,7 @@ public class Mill extends Thread {
         //
         // Calculate mapHeights[x][z] given scene mesh objects
         //
-        progressLabel.setText("Calculating height.");
+        progressLabel.setText("Calculating height map.");
         for(int x = 0; x < mapWidth + 1; x++){
             for(int z = 0; z < mapDepth + 1; z++){
                 double x_loc = this.minx + (x * accuracy);

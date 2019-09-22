@@ -3131,10 +3131,10 @@ public class Scene
         mill.setLayoutWindow(window);
        
         // Dialog
-        mill.getUserInput();
-        
-        //mill.exportGCode();
-        mill.start();
+        if(mill.getUserInput()){
+            //mill.exportGCode();
+            mill.start();
+        }
         
         //if(mill.isRunning() == false){
         //    mill.start();
