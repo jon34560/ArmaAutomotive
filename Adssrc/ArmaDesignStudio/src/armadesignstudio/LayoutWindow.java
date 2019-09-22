@@ -833,7 +833,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
   // JDT
   private void createLayoutMenu(){
-      layoutMenu = Translate.menu("Layout");
+      layoutMenu = Translate.menu("CAM");
 	  menubar.add(layoutMenu);
 
 	  layoutMenuItem = new BMenuItem [13];
