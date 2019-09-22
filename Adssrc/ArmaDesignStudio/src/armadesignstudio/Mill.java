@@ -512,6 +512,7 @@ public class Mill extends Thread {
             
             // Prescan X rows and record Z-depth of each row in order to skip cutting of adjacent rows
             int [] XDepth = new int[mapWidth + 1];
+            int [] XStart = new int[mapWidth + 1];
             for(int x = 0; x <= mapWidth; x++){
                 int depth = 0;
                 for(int z = mapDepth; z >= 0; z--){
@@ -524,16 +525,26 @@ public class Mill extends Thread {
                     }
                 }
                 XDepth[x] = depth;
+                
+                int start = 0;
+                for(int z = 0; z < mapDepth + 1; z++){
+                    double height = mapHeights[x][z];
+                    if(height > sectionBottom){
+                        start = z;
+                        z = mapDepth + 1; // Break
+                    }
+                }
+                XStart[x] = start;
+                //System.out.println(" x " + x + " " + XStart[x]  );
             }
             
             for(int x = 0; x <= mapWidth && running; x++){
                 
                 // Optimization, skip z line if no objects in path.
-                // TODO: Still need adjacent
+                // Include one adjacent row (past and future) to create edge.
                 int prevZLength = 0;
                 int nextZLength = 0;
                 boolean adjacentX = false;
-                
                 boolean skipZ = true;
                 for(int z = 0; z <= mapDepth; z++){
                     double height = mapHeights[x][z];
@@ -556,10 +567,37 @@ public class Mill extends Thread {
                     }
                 }
                 if(cutOptimization == false){
-                    skipZ = false; // debug *****
+                    skipZ = false;
                 }
                 
-                for(int z = 0; z <= mapDepth && skipZ == false && running; z++){
+                //
+                // Skip first Z region if no cuts for 6 positions. optimization.
+                //
+                int zstart = -1;
+                for(int zscan = 0; zscan < mapDepth; zscan++){
+                    double height = mapHeights[x][zscan];
+                    if( height > sectionBottom ){
+                        zscan = mapDepth; // exit scan
+                        if(zstart > 6){
+                            zstart = zstart - 6; // go back 6 positions for a border.
+                        }
+                    } else {
+                        zstart = zscan;
+                    }
+                }
+                if(x > 0 && x <= mapWidth && XStart[x - 1] > 6 && XStart[x - 1] < zstart ){ //  If adjacent starts earlier then update.
+                    zstart = XStart[x - 1] - 5;
+                }
+                if(x >= 0 && x < mapWidth && XStart[x + 1] > 6 && XStart[x + 1] < zstart){ //
+                    zstart = XStart[x + 1] - 5;
+                }
+                //System.out.println(" zstart " + zstart + "   mapDepth: " + mapDepth );
+                
+                int z = 0;
+                if(zstart > 0 && zstart < mapDepth && cutOptimization){
+                    z = zstart;
+                }
+                for(; z <= mapDepth && skipZ == false && running; z++){ // && z >= zstart
                     int progress = (int)((((float)(x * mapDepth) + z) / (float)(mapWidth * mapDepth)) * (float)100);
                     dpb.setValue(progress);
                     
@@ -607,7 +645,7 @@ public class Mill extends Thread {
                     //
                     // Toolpath Markup
                     //
-                    if( z == 0 ){ // Start of row, drop from top pass
+                    if(z == 0 || (z == zstart && cutOptimization)){ // Start of row, drop from top pass
                         Vec3 markupPoint = new Vec3(x_loc, sectionTop, z_loc);
                         toolpathMarkupPoints.addElement(markupPoint);
                         
@@ -617,6 +655,7 @@ public class Mill extends Thread {
                         gcode += " F"+10+"";
                         gcode += ";   d\n";
                     }
+                    
                     
                     Vec3 markupPoint = new Vec3(x_loc, height, z_loc);
                     toolpathMarkupPoints.addElement(markupPoint);
@@ -656,7 +695,8 @@ public class Mill extends Thread {
                     }
                     
                     if(skip){
-                        adjacentDepth = z; // Track how far this X row proceded down the Z axis.
+                        adjacentDepth = z ; // Track how far this X row proceded down the Z axis.
+                        // zstart
                         prev_z = z;
                         z = mapDepth + 1; // Skip Z row
                         markupPoint = new Vec3(x_loc, sectionTop, z_loc); // Up ready for next X row.
