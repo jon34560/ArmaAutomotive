@@ -1317,7 +1317,10 @@ public class Scene
           }
         catch (Exception ex)
           {
+              System.out.println(" Scene.initFromStream()  Error   classname: " + classname);
+              
             throw new IOException("Error loading image: "+ex.getMessage());
+              
           }
       }
 

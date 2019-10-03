@@ -52,7 +52,7 @@ public class Mill extends Thread {
     
     private int width = 48;
     private int depth = 96;
-    private double accuracy = 0.125; // 0.0393701; // 0.019685 = 0.5mm,  0.03125; // 1/32"   grid point length quanta_length
+    private double accuracy = 0.03125; // 0.0393701; // 0.019685 = 0.5mm,  0.03125; // 1/32" .8mm   grid point length quanta_length
     private double drill_bit = 0.125;   // 0.125 1/8th 3.175mm
     private double drill_bit_angle = 135;
     private double pass_height = 0.5;   // drill cuts this much material per pass
@@ -382,7 +382,10 @@ public class Mill extends Thread {
                         //System.out.println(" x " + bounds.minx + "-" + bounds.maxx + "    loc " + objOrigin.x);
                         
                         if(
-                           (x_loc >= bounds.minx && x_loc <= bounds.maxx && z_loc >= bounds.minz && z_loc <= bounds.maxz) // optimization, within x,z region space
+                           (x_loc >= bounds.minx - drill_bit &&
+                            x_loc <= bounds.maxx + drill_bit &&
+                            z_loc >= bounds.minz - drill_bit &&
+                            z_loc <= bounds.maxz + drill_bit) // optimization, within x,z region space
                            && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
                            &&
                            obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
@@ -444,39 +447,78 @@ public class Mill extends Thread {
                                 //}
                                 
                                 // Edges of drill bit
-                                double edgeHeightOffset = (drill_bit / 2) * Math.tan( Math.toRadians((90 - (drill_bit_angle / 2))) );
+                                double drill_bit_radius = drill_bit / 2;
+                                double edgeHeightOffset = (drill_bit_radius) * Math.tan( Math.toRadians((90 - (drill_bit_angle / 2))) );
                                 //System.out.println("edgeHeightOffset: "+ edgeHeightOffset);
                                 // (90 - (drill_bit_angle / 2))     22.5
                                 
-                                Vec3 drill_side_l = new Vec3(x_loc - (drill_bit / 2), edgeHeightOffset, z_loc);
-                                Vec3 drill_side_r = new Vec3(x_loc + (drill_bit / 2), edgeHeightOffset, z_loc);
-                                Vec3 drill_side_f = new Vec3(x_loc, edgeHeightOffset, z_loc - (drill_bit / 2));
-                                Vec3 drill_side_b = new Vec3(x_loc, edgeHeightOffset, z_loc + (drill_bit / 2));
+                                
+                                Vec3 drill_side_l = new Vec3(x_loc - (drill_bit_radius), 0, z_loc);
+                                Vec3 drill_side_r = new Vec3(x_loc + (drill_bit_radius), 0, z_loc);
+                                Vec3 drill_side_f = new Vec3(x_loc, 0, z_loc + (drill_bit_radius));
+                                Vec3 drill_side_b = new Vec3(x_loc, 0, z_loc - (drill_bit_radius));
+                                
                                 
                                 if(inside_trigon(drill_side_l, vec1, vec2, vec3)){
-                                    double currHeight = trigon_height(drill_side_l, vec1, vec2, vec3);
+                                    double currHeight = trigon_height(drill_side_l, vec1, vec2, vec3) - edgeHeightOffset;
                                     if(currHeight > height){
                                         height = currHeight;
                                     }
                                 }
                                 if(inside_trigon(drill_side_r, vec1, vec2, vec3)){
-                                    double currHeight = trigon_height(drill_side_r, vec1, vec2, vec3);
+                                    double currHeight = trigon_height(drill_side_r, vec1, vec2, vec3) - edgeHeightOffset;
                                     if(currHeight > height){
                                         height = currHeight;
                                     }
                                 }
                                 if(inside_trigon(drill_side_f, vec1, vec2, vec3)){
-                                    double currHeight = trigon_height(drill_side_f, vec1, vec2, vec3);
+                                    double currHeight = trigon_height(drill_side_f, vec1, vec2, vec3) - edgeHeightOffset;
                                     if(currHeight > height){
                                         height = currHeight;
                                     }
                                 }
                                 if(inside_trigon(drill_side_b, vec1, vec2, vec3)){
-                                    double currHeight = trigon_height(drill_side_b, vec1, vec2, vec3);
+                                    double currHeight = trigon_height(drill_side_b, vec1, vec2, vec3) - edgeHeightOffset;
                                     if(currHeight > height){
                                         height = currHeight;
                                     }
                                 }
+                                
+                                
+                                //
+                                // diagonals
+                                //
+                                double xydist = Math.sin(0.785398) * (drill_bit_radius); // .125  0.04419
+                                Vec3 drill_side_fl = new Vec3(x_loc - xydist, 0, z_loc + xydist);
+                                Vec3 drill_side_fr = new Vec3(x_loc + xydist, 0, z_loc + xydist);
+                                Vec3 drill_side_bl = new Vec3(x_loc - xydist, 0, z_loc - xydist);
+                                Vec3 drill_side_br = new Vec3(x_loc + xydist, 0, z_loc - xydist);
+                                
+                                if(inside_trigon(drill_side_fl, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_fl, vec1, vec2, vec3) - edgeHeightOffset;
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_fr, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_fr, vec1, vec2, vec3) - edgeHeightOffset;
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_bl, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_bl, vec1, vec2, vec3) - edgeHeightOffset;
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                if(inside_trigon(drill_side_br, vec1, vec2, vec3)){
+                                    double currHeight = trigon_height(drill_side_br, vec1, vec2, vec3) - edgeHeightOffset;
+                                    if(currHeight > height){
+                                        height = currHeight;
+                                    }
+                                }
+                                
                             }
                         }
                     }

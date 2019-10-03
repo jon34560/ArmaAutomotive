@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 by Jon Taylor
+/* Copyright (C) 2018, 2019 by Jon Taylor
   
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -15,12 +15,19 @@ import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;
 import java.util.*;
-
 import java.awt.Graphics;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import armadesignstudio.object.*;
 import armadesignstudio.math.*;
+import java.awt.BorderLayout;
+import javax.swing.JDialog;
+import javax.swing.JProgressBar;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import java.awt.Font;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /** This class implements the dialog box which is used for the "Object Layout" and
     "Transform Object" commands.  It allows the user enter values for the position,
@@ -36,7 +43,7 @@ import armadesignstudio.math.*;
 
 public class CrashSimulation extends BDialog
 {
-
+    boolean running = true;
     private double initialValues[], finalValues[];
     private ValueField fields[];
     private RadioButtonGroup centerGroup;
@@ -210,6 +217,32 @@ public class CrashSimulation extends BDialog
             this.obj = obj;
         }
         public void run() {
+            
+            final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
+            JProgressBar dpb = new JProgressBar(0, 100);
+            progressDialog.add(BorderLayout.CENTER, dpb);
+            JLabel progressLabel = new JLabel("Progress...");
+            progressDialog.add(BorderLayout.NORTH, progressLabel);
+            progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+            progressDialog.setSize(300, 75);
+            progressDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            // progressDialog.setLocationRelativeTo(parentFrame);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            progressDialog.setLocation((int)(screenSize.getWidth() / 2) - (300/2), (int) ((screenSize.getHeight()/(float)2) - ((float)75/(float)2.0)));
+            progressDialog.addWindowListener(new WindowAdapter(){
+                public void windowClosed(WindowEvent e)
+                {
+                    System.out.println("jdialog window closed event received");
+                    running = false;
+                }
+                public void windowClosing(WindowEvent e)
+                {
+                    System.out.println("jdialog window closing event received");
+                    running = false;
+                }
+            });
+            progressDialog.setVisible(true);
+            
             while(inerta > 0.001){
                 impact(obj);
                 try {
@@ -218,6 +251,8 @@ public class CrashSimulation extends BDialog
                     
                 }
             }
+            
+            progressDialog.setVisible(false);
         }
     }
     
@@ -251,6 +286,7 @@ public class CrashSimulation extends BDialog
         LayoutModeling layout = new LayoutModeling();
 
         
+        
 
         // We may need meshObj in TriangleMesh
         //
@@ -269,6 +305,13 @@ public class CrashSimulation extends BDialog
                 for(int i = 0; i < verts.length; i++){
                     vecPoints[i] = verts[i].r;
                 }
+                
+                
+                // Force Vectors for each point
+                //int vertId = ((Integer)orderedVec.get(i)).intValue();
+                //Vector pointForceVectors = new Vector(); // vertId -> Vector( Vec3[] )
+                HashMap<Vec3, Vector> pointForceVectors = new HashMap<Vec3, Vector>(); // Vec3 point, Vector normal forces list
+                
                 
                 CoordinateSystem c;
                 c = layout.getCoords(meshObj);
@@ -305,6 +348,9 @@ public class CrashSimulation extends BDialog
                 int currVecId = -1;
                 int counter = 0;
                 
+                //
+                // scan object, ordering points
+                //
                 while(!done){ // && currVecId >= 0
                     if(currVecId == -1){
                         currVecId = firstVecId;
@@ -346,11 +392,57 @@ public class CrashSimulation extends BDialog
                     }
                 }
                 
+                
+                // TEST
+                
+                // Add connected point normals to list.
+                for(int k = 0; k < edges.length; k++){
+                    TriangleMesh.Edge edge = edges[k];
+                    Vec3 a = verts[edge.v1].r;
+                    Vec3 b = verts[edge.v2].r;
+                    
+                    Vec3 normalForce = new Vec3(a.x - b.x, a.y - b.y, a.z - b.z);
+                    // add normalForce to both points a and b in pointForceVectors.
+                    Vector va = pointForceVectors.get(a);
+                    if( va == null ){
+                        va = new Vector();
+                    }
+                    va.addElement(normalForce);
+                    pointForceVectors.put(a, va);
+                    
+                    Vector vb = pointForceVectors.get(b);
+                    if( vb == null ){
+                        vb = new Vector();
+                    }
+                    vb.addElement(normalForce);
+                    pointForceVectors.put(b, vb);
+                }
+                
+                
+                // print 
+                for(int i = 0; i < orderedVec.size(); i++){
+                    int vertId = ((Integer)orderedVec.get(i)).intValue();
+                    Vec3 vec = verts[vertId].r;
+                    System.out.println("Point:  x: " + vec.x + " y: " + vec.y + " z: " + vec.z);
+                    
+                    
+                    Vec3 overallForceVector = new Vec3();
+                    Vector forceNormals = pointForceVectors.get(vec);
+                    if(forceNormals != null){
+                        for(int j = 0; j < forceNormals.size(); j++){
+                            Vec3 forceNormal = (Vec3)forceNormals.elementAt(j);
+                            System.out.println("   force normal " + forceNormal.x + " " + forceNormal.y + " " + forceNormal.z);
+                        }
+                    } else {
+                        System.out.println("Err.");
+                    }
+                }
+                
+                
                 //
                 // iterate ordered object points moving left to right based on inerta and geometry.
                 //
                 HashMap movedPoint = new HashMap();
-                
                 for(int i = 0; i < orderedVec.size(); i++){
                     int vertId = ((Integer)orderedVec.get(i)).intValue();
                     Vec3 vec = verts[vertId].r;
@@ -359,7 +451,7 @@ public class CrashSimulation extends BDialog
                     //mat4.transform(verts[i]);
                     //mat4.transform(vec);
                     
-                    System.out.println(" vec " + i + " " + orderedVec.get(i) + " x: " + vec.x + " " + vec.y + " " + vec.z );
+                    //System.out.println(" vec " + i + " " + orderedVec.get(i) + " x: " + vec.x + " " + vec.y + " " + vec.z );
                     
                     // Calculate vert (and edge connected verts) angle delta from horizontal impact.
                     // TODO.
@@ -379,7 +471,7 @@ public class CrashSimulation extends BDialog
                         }
                         if(vecCompare != null && vecCompare.x >= vec.x) { // ****
                             double angle = getAngle3(vec, vecCompare);
-                            System.out.println("     comp- x: " + vecCompare.x + " " + vecCompare.y + " " + vecCompare.z + "  a: " + angle);
+                            //System.out.println("     comp- x: " + vecCompare.x + " " + vecCompare.y + " " + vecCompare.z + "  a: " + angle);
                             
                             avgAngleCount++;
                             avgAngle += angle;
@@ -413,7 +505,7 @@ public class CrashSimulation extends BDialog
                     // obj.clearCachedMeshes();
                     // dispatchSceneChangedEvent()
                     
-                    System.out.println("         Move: " + movement  + "   a: " + avgAngle + " inerta: " + inerta  );
+                    //System.out.println("         Move: " + movement  + "   a: " + avgAngle + " inerta: " + inerta  );
                     
                 } // for orderedVec
                 
