@@ -60,6 +60,7 @@ public class Mill extends Thread {
 
     private boolean toolpathMarkup = false;
     private boolean cutOptimization = true;
+    private boolean minimizePasses = true;
     
     private LayoutWindow window = null;
     
@@ -85,7 +86,7 @@ public class Mill extends Thread {
     public boolean getUserInput(){
         JPanel panel = new JPanel();
         //panel.setBackground(new Color(0, 0, 0));
-        panel.setSize(new Dimension(350, 32));
+        panel.setSize(new Dimension(390, 32));
         panel.setLayout(null);
         
         JLabel widthLabel = new JLabel("Bed Width");
@@ -173,7 +174,7 @@ public class Mill extends Thread {
         panel.add(toolpathCheck);
         
         
-        JLabel optimizationLabel = new JLabel("Cut Optimization");
+        JLabel optimizationLabel = new JLabel("Cut Optimization ");
         //labelHeight.setForeground(new Color(255, 255, 0));
         optimizationLabel.setHorizontalAlignment(SwingConstants.CENTER);
         optimizationLabel.setFont(new Font("Arial", Font.BOLD, 11));
@@ -185,7 +186,21 @@ public class Mill extends Thread {
         optimizationCheck.setSelected( cutOptimization );
         panel.add(optimizationCheck);
         
-        UIManager.put("OptionPane.minimumSize",new Dimension(350, 350 + 40));
+        
+        JLabel minimizePassesLabel = new JLabel("Minimize Passes");
+        //minimizePassesLabel.setForeground(new Color(255, 255, 0));
+        minimizePassesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        minimizePassesLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        minimizePassesLabel.setBounds(0, 320, 130, 40); // x, y, width, height
+        panel.add(minimizePassesLabel);
+        
+        JCheckBox minimizePassesCheck = new JCheckBox("");
+        minimizePassesCheck.setBounds(130, 320, 130, 40); // x, y, width, height
+        minimizePassesCheck.setSelected( minimizePasses );
+        panel.add(minimizePassesCheck);
+        
+        
+        UIManager.put("OptionPane.minimumSize",new Dimension(400, 350 + 80));
         int result = JOptionPane.showConfirmDialog(null, panel, "CNC Mill Properties", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("width value: " + widthField.getText());
@@ -200,6 +215,7 @@ public class Mill extends Thread {
             this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
             this.toolpathMarkup = toolpathCheck.isSelected();
             this.cutOptimization = optimizationCheck.isSelected();
+            this.minimizePasses = minimizePassesCheck.isSelected();
             return true;
         }
         
@@ -282,6 +298,9 @@ public class Mill extends Thread {
         // The cut path can scan the grid height raised for point and faces contained within.
         int mapWidth = (int)((this.maxx - this.minx) / accuracy) + 0; // drill_bit
         int mapDepth = (int)((this.maxz - this.minz) / accuracy) + 0; // drill_bit
+        if(minimizePasses){
+            mapWidth = (int)((this.maxx - this.minx) / drill_bit) + 0;  // Only pass once for each width of the drill bit.
+        }
         
         int sections = 1;
         if(this.maxy - this.miny > material_height){
@@ -343,6 +362,9 @@ public class Mill extends Thread {
         for(int x = 0; x < mapWidth + 1; x++){
             for(int z = 0; z < mapDepth + 1; z++){
                 double x_loc = this.minx + (x * accuracy);
+                if(minimizePasses){
+                    x_loc = this.minx + (x * drill_bit);
+                }
                 double z_loc = this.minz + (z * accuracy);
                 Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
                 double height = this.miny;
@@ -562,6 +584,9 @@ public class Mill extends Thread {
                 int depth = 0;
                 for(int z = mapDepth; z >= 0; z--){
                     double x_loc = this.minx + (x * accuracy);
+                    if(minimizePasses){
+                        x_loc = this.minx + (x * drill_bit);
+                    }
                     double z_loc = this.minz + (z * accuracy);
                     double height = mapHeights[x][z];
                     if(height > sectionBottom){
@@ -655,6 +680,9 @@ public class Mill extends Thread {
                     double prev_height = miny; //  mapHeights[prev_x][prev_z];
                     
                     double x_loc = this.minx + (x * accuracy);
+                    if(minimizePasses){
+                        x_loc = this.minx + (x * drill_bit);
+                    }
                     double z_loc = this.minz + (z * accuracy);
                     
                     double height = mapHeights[x][z];
@@ -666,6 +694,9 @@ public class Mill extends Thread {
                         next_z = 0;
                     }
                     double next_x_loc = this.minx + (next_x * accuracy);
+                    if(minimizePasses){
+                        next_x_loc = this.minx + (next_x * drill_bit);
+                    }
                     double next_z_loc = this.minz + (next_z * accuracy);
                     double next_height = 0;
                     if( next_x < mapWidth + 1 && next_z < mapDepth + 1 ){
