@@ -257,7 +257,7 @@ public class Mill extends Thread {
         progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         progressDialog.setSize(300, 75);
         progressDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-       // progressDialog.setLocationRelativeTo(parentFrame);
+        // progressDialog.setLocationRelativeTo(parentFrame);
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         progressDialog.setLocation((int)(screenSize.getWidth() / 2) - (300/2), (int) ((screenSize.getHeight()/(float)2) - ((float)75/(float)2.0)));
@@ -291,8 +291,11 @@ public class Mill extends Thread {
         
         //Vector cutPaths = new Vector(); // Lines to cut.
         //Vector<FluidPointObject> millPoint = new Vector<FluidPointObject>();
+        System.out.println(" 1 ");
         
         calculateBounds(objects);
+        
+        System.out.println(" 2 ");
         
         // Create grid across bounds, with border, using the width of the drill bit.
         // The cut path can scan the grid height raised for point and faces contained within.
@@ -420,8 +423,8 @@ public class Mill extends Thread {
                             dpb.setValue(progress);
                             
                             TriangleMesh triangleMesh = null;
-                            triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
-                            //triangleMesh = ((TriangleMesh)obj.getObject()).duplicate()  .convertToTriangleMesh(0.0);
+                            triangleMesh = obj.getObject().convertToTriangleMesh(0.05);
+                            //triangleMesh = ((TriangleMesh)obj.getObject()).duplicate()  .convertToTriangleMesh(0.05);
                             MeshVertex[] verts = triangleMesh.getVertices();
                             TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                             
@@ -1100,12 +1103,17 @@ public class Mill extends Thread {
                obj.isVisible()
                ){ //obj.selected == true  || selection == false
                 //System.out.println("Object Info: ");
+                System.out.println("Object: " + obj.getName());
+                
                 Object3D co = (Object3D)obj.getObject();
-                //System.out.println("obj " + obj.getId() + "  " + obj.getName() );
+                
+                //System.out.println("a");
                 
                 // obj.getObject(); // Object3D
                 Object3D o3d = obj.getObject().duplicate();
                 BoundingBox bounds = o3d.getBounds();           // THIS DOES NOT WORK
+                
+                //System.out.println("b");
                 
                 bounds.minx = 999; bounds.maxx = -999;
                 bounds.miny = 999; bounds.maxy = -999;
@@ -1115,9 +1123,17 @@ public class Mill extends Thread {
                 c = layout.getCoords(obj);
                 Vec3 objOrigin = c.getOrigin();
                 
+                System.out.println("c");
+                
                 if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
                     TriangleMesh triangleMesh = null;
-                    triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
+                    
+                    double tol = ArmaDesignStudio.getPreferences().getInteractiveSurfaceError();
+                    System.out.println("tol: " + tol );
+                    
+                    triangleMesh = obj.getObject().convertToTriangleMesh(tol);
+                    
+                    System.out.println(".");
                     
                     MeshVertex[] points = triangleMesh.getVertices();
                     for(int i = 0; i < points.length; i++){
@@ -1177,6 +1193,7 @@ public class Mill extends Thread {
                  */
             }
         }
+        System.out.println("calculateBounds end");
     }
     
     /**
@@ -1204,9 +1221,11 @@ public class Mill extends Thread {
         c = layout.getCoords(object);
         Vec3 objOrigin = c.getOrigin();
         
+        //System.out.println("getTranslatedBounds: " + object.getName());
+        
         if(object.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
             TriangleMesh triangleMesh = null;
-            triangleMesh = object.getObject().convertToTriangleMesh(0.0);
+            triangleMesh = object.getObject().convertToTriangleMesh(0.05);
             
             MeshVertex[] points = triangleMesh.getVertices();
             for(int i = 0; i < points.length; i++){
@@ -1237,6 +1256,9 @@ public class Mill extends Thread {
             }
         }
         objectBoundsCache.put(object, bounds);
+        
+        //System.out.println("getTranslatedBounds: " + object.getName());
+        
         return bounds;
     }
     

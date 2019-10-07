@@ -36,6 +36,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 import com.jsevy.jdxf.*;
+//import eu.mihosoft.jcsg.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -86,6 +87,7 @@ public class Scene
   ComputationalFluidDynamics cfd;
   public PointJoinObject createPointJoin;
   Mill mill;
+    Mill2 mill2;
     
   LayoutWindow theWindow; // ...
     
@@ -3144,6 +3146,23 @@ public class Scene
         //}
     }
     
+    public void export3dCode2(LayoutWindow window){
+        mill2 = new Mill2();
+        mill2.setObjects(objects);
+        mill2.setScene(this);
+        mill2.setLayoutWindow(window);
+        
+        // Dialog
+        if(mill2.getUserInput()){
+            //mill.exportGCode();
+            mill2.start();
+        }
+        
+        //if(mill.isRunning() == false){
+        //    mill.start();
+        //}
+    }
+    
     
     public float getAngle(double x, double y) {
         float angle = (float) Math.toDegrees(Math.atan2(y, x));
@@ -3927,7 +3946,7 @@ public class Scene
                         boolean lowered = false;
                         Vec3 firstPoint = null;
                    
-			Vector<RealPoint> realPoints = new Vector<RealPoint>();    
+                        Vector<RealPoint> realPoints = new Vector<RealPoint>();
  
                         for(int pt = 0; pt < polygon.size(); pt++){
                             Vec3 point = (Vec3)polygon.elementAt(pt);
@@ -3935,7 +3954,7 @@ public class Scene
                             point.x = (point.x + -minX); // shift to align all geometry to 0,0
                             point.z = (point.z + -minZ); //
                             
-			    RealPoint realPoint = new RealPoint(point.x, point.y, point.z);
+                            RealPoint realPoint = new RealPoint(point.x, point.y, point.z);
                             realPoints.addElement(realPoint); 
                             
                             polygon.setElementAt(point, pt);
@@ -3986,6 +4005,52 @@ public class Scene
         System.out.println("Export done. ");
         // Notify dialog.
         JOptionPane.showMessageDialog(null, "DXF layout export complete. ",  "Complete" , JOptionPane.ERROR_MESSAGE );
+    }
+    
+    
+    /**
+     * exportSTL
+     *
+     * Description: Export scene to STL format file.
+     * TODO: Move this to a seperate file.
+     */
+    public void exportSTL(){
+        LayoutModeling layout = new LayoutModeling();
+        String dir = getDirectory() + System.getProperty("file.separator") + getName() + "_dxf";
+        File d = new File(dir);
+        if(d.exists() == false){
+            d.mkdir();
+        }
+        
+        // Uses JCSG library
+        //STL stl = new STL();
+        /*
+        CSG cube = new Cube(2).toCSG().color(Color.RED);
+        CSG sphere = new Sphere(1.25).toCSG().color(Color.BLUE);
+        CSG cyl = new Cylinder(0.5,3,16).toCSG().transformed(Transform.unity().translateZ(-1.5)).color(Color.GREEN);
+        CSG cyl2 = cyl.transformed(Transform.unity().rotY(90));
+        CSG cyl3 = cyl.transformed(Transform.unity().rotX(90));
+         
+        // perform union, difference and intersection
+        CSG cubePlusSphere = cube.union(sphere);
+        CSG cubeMinusSphere = cube.difference(sphere);
+        CSG cubeIntersectSphere = cube.intersect(sphere);
+        CSG cubeIntersectSphereCyl = cubeIntersectSphere.difference(cyl).difference(cyl2).difference(cyl3);
+         
+        // translate geometries to prevent overlapping
+        CSG union = cube.
+         union(sphere.transformed(Transform.unity().translateX(3))).
+         union(cyl.transformed(Transform.unity().translateX(6))).
+         union(cubePlusSphere.transformed(Transform.unity().translateX(9))).
+         union(cubeMinusSphere.transformed(Transform.unity().translateX(12))).
+         union(cubeIntersectSphere.transformed(Transform.unity().translateX(15))).
+         union(cubeIntersectSphereCyl.transformed(Transform.unity().translateX(18)));
+         
+         
+        String stlFile = dir + System.getProperty("file.separator") + name + ".stl";
+        
+        FileUtil.write(Paths.get("sample.stl"), union.toStlString());
+        */
     }
     
     /**
