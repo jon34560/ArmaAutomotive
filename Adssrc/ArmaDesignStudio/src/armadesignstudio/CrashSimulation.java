@@ -295,7 +295,7 @@ public class CrashSimulation extends BDialog
             //System.out.println(" can't ");
         } else {
             //System.out.println(" can ");
-            triangleMesh = meshObj.getObject().convertToTriangleMesh(0.0);
+            triangleMesh = meshObj.getObject().convertToTriangleMesh(0.05);
             //System.out.println(" tmesh " + triangleMesh.getClass().getName() );
             if( triangleMesh instanceof TriangleMesh ){     // selected object to impact is TriangleMesh
                 TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
@@ -447,6 +447,12 @@ public class CrashSimulation extends BDialog
                     int vertId = ((Integer)orderedVec.get(i)).intValue();
                     Vec3 vec = verts[vertId].r;
                     
+                    
+                    // Calculate direction of connected forward edges (compression)
+                    // Calculate direction of connected rearward edges (tension)
+                    Vec3 connectionsForward = getPointConnectionsForward(vertId, verts, edges);
+                    
+                    
                     Mat4 mat4 = c.duplicate().fromLocal();
                     //mat4.transform(verts[i]);
                     //mat4.transform(vec);
@@ -460,6 +466,8 @@ public class CrashSimulation extends BDialog
                     double avgAngle = 0;
                     int avgAngleCount = 0;
                     double movement = 0;
+                    double yMovement = 0;
+                    double zMovement = 0;
                     for(int k = 0; k < edges.length; k++){
                         TriangleMesh.Edge edge = edges[k];
                         Vec3 vecCompare = null;
@@ -469,7 +477,9 @@ public class CrashSimulation extends BDialog
                         if(vertId == edge.v2){
                             vecCompare = verts[edge.v1].r;
                         }
-                        if(vecCompare != null && vecCompare.x >= vec.x) { // ****
+                        if(vecCompare != null
+                           //&& vecCompare.x >= vec.x
+                           ) { // ****
                             double angle = getAngle3(vec, vecCompare);
                             //System.out.println("     comp- x: " + vecCompare.x + " " + vecCompare.y + " " + vecCompare.z + "  a: " + angle);
                             
@@ -481,7 +491,10 @@ public class CrashSimulation extends BDialog
                         avgAngle = avgAngle / avgAngleCount;
                     }
                     // Move point
-                    movement = 0.3 * (avgAngle) * inerta; // (avgAngle * avgAngle)  include momentum--
+                    movement = 0.3 * (avgAngle / 2) * inerta; // (avgAngle * avgAngle)  include momentum--
+                    
+                    yMovement =  (connectionsForward.y / 500);
+                    zMovement =  (connectionsForward.z / 500);
                     
                     inerta = inerta - (movement * 0.009); // absorb inerta from deformation of structure.
                     if(inerta < 0){
@@ -497,7 +510,9 @@ public class CrashSimulation extends BDialog
                     //meshObj.getObject().
                     // Update vertex location
                     Vec3 moved = vecPoints[ vertId ];
-                    moved.x = moved.x + movement ;
+                    moved.x = moved.x + movement;
+                    moved.y = moved.y + yMovement;
+                    moved.z = moved.z + zMovement;
                     vecPoints[ vertId ] = moved;
                     
                     // o3d.setVertexPositions(vr); // clears cache mesh
@@ -616,8 +631,45 @@ public class CrashSimulation extends BDialog
         //try { Thread.sleep(250); } catch (Exception e) {}
         */
     }
+    
+    
+    /**
+     * getPointConnectionsForward
+     *
+     * Description: calculate directional information of forward connecting points.
+     */
+    public Vec3 getPointConnectionsForward(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
+        Vec3 dir = new Vec3();
+        Vec3 vec = verts[vertId].r;
+        int count = 0;
+        for(int k = 0; k < edges.length; k++){
+            TriangleMesh.Edge edge = edges[k];
+            Vec3 vecCompare = null;
+            if(vertId == edge.v1){
+                vecCompare = verts[edge.v2].r;
+            }
+            if(vertId == edge.v2){
+                vecCompare = verts[edge.v1].r;
+            }
+            if(vecCompare != null && vecCompare.x >= vec.x){
+                count++;
+                dir.y += vecCompare.y;
+                dir.z += vecCompare.z;
+            }
+        }
+        if(count > 0){
+            dir.y = dir.y / count;
+            dir.z = dir.z / count;
+        }
+        System.out.println("getPointConnectionsForward: y "+ dir.y + " z:  " +  dir.z);
+        return dir;
+    }
       
-      
+    /**
+     * getAngle3
+     *
+     * Description:
+     */
     public double getAngle3(Vec3 a, Vec3 b){
       double result = 0;
       

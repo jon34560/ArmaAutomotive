@@ -813,7 +813,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   private void createPopupMenu()
   {
     popupMenu = new BPopupMenu();
-    popupMenuItem = new BMenuItem [14];
+    popupMenuItem = new BMenuItem [15];
     popupMenu.add(popupMenuItem[0] = Translate.menuItem("editObject", this, "editObjectCommand", null));
     popupMenu.add(popupMenuItem[1] = Translate.menuItem("objectLayout", this, "objectLayoutCommand", null));
     popupMenu.add(popupMenuItem[2] = Translate.menuItem("setTextureAndMaterial", this, "setTextureCommand", null));
@@ -831,6 +831,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     popupMenu.add(popupMenuItem[11] = Translate.menuItem("copy", this, "copyCommand", null));
     popupMenu.add(popupMenuItem[12] = Translate.menuItem("paste", this, "pasteCommand", null));
     popupMenu.add(popupMenuItem[13] = Translate.menuItem("clear", this, "clearCommand", null));
+    popupMenu.addSeparator();
+    popupMenu.add(popupMenuItem[14] = Translate.menuItem("zoomToObject", this, "zoomToObject", null)); 
   }
 
   // JDT
@@ -1629,6 +1631,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   public void clearSelectionPickerList(){
     itemSelectionTree.removeAllElements();
     itemSelectionTree.repaint();
+  }
+
+  private void zoomToObject(){
+	System.out.println("Zoom to object function not implemented. ");
   }
 
   private void actionPerformed(CommandEvent e)
