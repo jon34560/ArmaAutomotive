@@ -1,1 +1,1 @@
-java -jar ArtOfIllusion.jar
+java -Xmx16384M -jar ArmaDesignStudio.jar

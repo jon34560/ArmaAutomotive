@@ -30,7 +30,7 @@
     <pathconvert property="classpath" refid="libraries" />
 
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpath="${classpath}" debug="on" target="1.6" source="1.6" />
+    <javac srcdir="${src}" destdir="${build}" classpath="${classpath}" debug="on" target="1.9" source="1.9" />
   </target>
 
   <target name="core" depends="compile">

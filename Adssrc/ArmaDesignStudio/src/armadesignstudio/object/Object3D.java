@@ -372,11 +372,13 @@ public abstract class Object3D
    * Render this object into a ViewerCanvas.  The default implementation is sufficient for most
    * objects, but subclasses may override this to customize how they are displayed.
    *
+   *
+   * TODO: Add object property that overides the renderMode value to transparent.
+   *
    * @param obj      the ObjectInfo for this object
    * @param canvas   the canvas in which to render this object
    * @param viewDir  the direction from which this object is being viewed
    */
-
   public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
   {
       if(obj != null){

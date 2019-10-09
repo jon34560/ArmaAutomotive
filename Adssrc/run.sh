@@ -1,3 +1,3 @@
-java -Xmx4096M -jar ArmaDesignStudio.jar 
+java -Xmx16384M -jar ArmaDesignStudio.jar 
 
 

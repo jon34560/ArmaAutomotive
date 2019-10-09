@@ -66,6 +66,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   BMenuItem feaMenuItem[]; // JDT
   BMenuItem cfdMenuItem[]; // JDT
   BCheckBoxMenuItem displayItem[];
+  BCheckBoxMenuItem objectDisplayItem[];
   BPopupMenu popupMenu;
   UndoStack undoStack;
   int numViewsShown, currentView;
@@ -591,6 +592,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
   private void createObjectMenu()
   {
+    BMenu objectDisplayMenu;
+      
     objectMenu = Translate.menu("object");
     menubar.add(objectMenu);
     objectMenuItem = new BMenuItem [12];
@@ -605,16 +608,27 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     objectMenu.add(objectMenuItem[7] = Translate.menuItem("convertToActor", this, "convertToActorCommand"));
     objectMenu.addSeparator();
 
-      objectMenu.add( Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
+      objectMenu.add(Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
       
     objectMenu.addSeparator();
-    objectMenu.add( Translate.menuItem("Find Object", this, "findObjectCommand"));
+    objectMenu.add(Translate.menuItem("Find Object", this, "findObjectCommand"));
     objectMenu.addSeparator();
 
-    objectMenu.add(  Translate.menuItem("Set Object Group", this, "setObjectGroupCommand"));
+    objectMenu.add(Translate.menuItem("Set Object Group", this, "setObjectGroupCommand"));
       
     objectMenu.addSeparator();
-    objectMenu.add(  Translate.menuItem("Get Object Info", this, "getObjectInfo") );
+    objectMenu.add(Translate.menuItem("Get Object Info", this, "getObjectInfo") );
+      
+    objectMenu.addSeparator();
+      
+      // Set object display mode
+      objectMenu.add(objectDisplayMenu = Translate.menu("displayMode"));
+      objectDisplayItem = new BCheckBoxMenuItem [6];
+      //displayMenu.add(displayItem[0] = Translate.checkboxMenuItem("wireframeDisplay", this, "displayModeCommand", theView[0].getRenderMode() == ViewerCanvas.RENDER_WIREFRAME));
+      objectDisplayMenu.add(objectDisplayItem[0] = Translate.checkboxMenuItem("default", this, "objectDisplayModeCommand", false));
+      objectDisplayMenu.add(objectDisplayItem[1] = Translate.checkboxMenuItem("wireframeDisplay", this, "objectDisplayModeCommand", false));
+      objectDisplayMenu.add(objectDisplayItem[2] = Translate.checkboxMenuItem("transparentDisplay", this, "objectDisplayModeCommand", false));
+      
 
     objectMenu.addSeparator();
     objectMenu.add(objectMenuItem[8] = Translate.menuItem("hideSelection", this, "actionPerformed"));
@@ -1503,6 +1517,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         updateImage();
     }
 
+    /**
+     * displayModeCommand
+     *
+     * Description: Set viewport display.
+     */
   private void displayModeCommand(CommandEvent ev)
   {
     Widget source = ev.getWidget();
@@ -1522,6 +1541,18 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       displayItem[i].setState(source == displayItem[i]);
     savePreferences();
   }
+    
+    /**
+     * objectDisplayModeCommand
+     *
+     * Description: Set an objects display mode that overrides the scene display mode.
+     */
+    private void objectDisplayModeCommand(CommandEvent ev){
+        System.out.println("objectDisplayModeCommand");
+        
+        
+        
+    }
 
   /** Get a list of the indices of all selected objects. */
 

@@ -451,7 +451,7 @@ public class CrashSimulation extends BDialog
                     // Calculate direction of connected forward edges (compression)
                     // Calculate direction of connected rearward edges (tension)
                     Vec3 connectionsForward = getPointConnectionsForward(vertId, verts, edges);
-                    
+                    Vec3 anglesForward = getPointAnglesForward(vertId, verts, edges);
                     
                     Mat4 mat4 = c.duplicate().fromLocal();
                     //mat4.transform(verts[i]);
@@ -480,7 +480,7 @@ public class CrashSimulation extends BDialog
                         if(vecCompare != null
                            //&& vecCompare.x >= vec.x
                            ) { // ****
-                            double angle = getAngle3(vec, vecCompare);
+                            double angle = getAngle3(vec, vecCompare); // vec (current point) - compare (connected point)
                             //System.out.println("     comp- x: " + vecCompare.x + " " + vecCompare.y + " " + vecCompare.z + "  a: " + angle);
                             
                             avgAngleCount++;
@@ -493,10 +493,10 @@ public class CrashSimulation extends BDialog
                     // Move point
                     movement = 0.3 * (avgAngle / 2) * inerta; // (avgAngle * avgAngle)  include momentum--
                     
-                    yMovement =  (connectionsForward.y / 500);
-                    zMovement =  (connectionsForward.z / 500);
+                    yMovement = (connectionsForward.y / 100);
+                    zMovement = (connectionsForward.z / 100);
                     
-                    inerta = inerta - (movement * 0.009); // absorb inerta from deformation of structure.
+                    inerta = inerta - (movement * 0.018); // absorb inerta from deformation of structure.
                     if(inerta < 0){
                         inerta = 0;
                     }
@@ -653,8 +653,8 @@ public class CrashSimulation extends BDialog
             }
             if(vecCompare != null && vecCompare.x >= vec.x){
                 count++;
-                dir.y += vecCompare.y;
-                dir.z += vecCompare.z;
+                dir.y += (vec.y - vecCompare.y);
+                dir.z += (vec.z - vecCompare.z);
             }
         }
         if(count > 0){
@@ -683,5 +683,44 @@ public class CrashSimulation extends BDialog
       
       return result;
     }
+    
+    /**
+     * getPointAnglesForward
+     *
+     * Description: canculate angles to points connected in front of a given point.
+     */
+    public Vec3 getPointAnglesForward(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
+        Vec3 angles = new Vec3();
+        Vec3 vec = verts[vertId].r;
+        int count = 0;
+        for(int k = 0; k < edges.length; k++){
+            TriangleMesh.Edge edge = edges[k];
+            Vec3 vecCompare = null;
+            if(vertId == edge.v1){
+                vecCompare = verts[edge.v2].r;
+            }
+            if(vertId == edge.v2){
+                vecCompare = verts[edge.v1].r;
+            }
+            if(vecCompare != null && vecCompare.x >= vec.x){
+                count++;
+                double distance = vec.distance(vecCompare);
+                
+                
+                
+                //dir.y += (vec.y - vecCompare.y);
+                //dir.z += (vec.z - vecCompare.z);
+                
+                
+            }
+        }
+        if(count > 0){
+            //dir.y = dir.y / count;
+            //dir.z = dir.z / count;
+        }
+        System.out.println("getPointAnglesForward: y "+ angles.y + " z:  " +  angles.z);
+        return angles;
+    }
+    
 }
 
