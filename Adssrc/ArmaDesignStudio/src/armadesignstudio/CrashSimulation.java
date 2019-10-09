@@ -54,7 +54,7 @@ public class CrashSimulation extends BDialog
     private static boolean children = true;
     private static boolean selectionCenter = true;
 
-    private double inerta = 1.0;
+    private double inerta = 0.5;
     
     LayoutWindow window;
 
@@ -468,6 +468,7 @@ public class CrashSimulation extends BDialog
                     double movement = 0;
                     double yMovement = 0;
                     double zMovement = 0;
+                    /*
                     for(int k = 0; k < edges.length; k++){
                         TriangleMesh.Edge edge = edges[k];
                         Vec3 vecCompare = null;
@@ -490,13 +491,21 @@ public class CrashSimulation extends BDialog
                     if(avgAngleCount > 0){
                         avgAngle = avgAngle / avgAngleCount;
                     }
+                    */
+                    
+                    // Math.abs(anglesForward.y)  Math.abs(anglesForward.z)
+                    //System.out.println(" XXX  y: " + Math.abs(anglesForward.y)   );
+                    
                     // Move point
-                    movement = 0.3 * (avgAngle / 2) * inerta; // (avgAngle * avgAngle)  include momentum--
+                    //movement = 0.3 * (avgAngle / 2) * inerta; // (avgAngle * avgAngle)  include momentum--
+                    movement = 0.2 * (Math.abs(anglesForward.y) + Math.abs(anglesForward.z)) * inerta;
                     
-                    yMovement = (connectionsForward.y / 100);
-                    zMovement = (connectionsForward.z / 100);
+                    System.out.println("movement: " + movement + " y " + anglesForward.y + " z " + anglesForward.z);
                     
-                    inerta = inerta - (movement * 0.018); // absorb inerta from deformation of structure.
+                    yMovement = (connectionsForward.y / 300); // experiment
+                    zMovement = (connectionsForward.z / 300);
+                    
+                    inerta = inerta - (movement * 0.128); // absorb inerta from deformation of structure.
                     if(inerta < 0){
                         inerta = 0;
                     }
@@ -515,6 +524,12 @@ public class CrashSimulation extends BDialog
                     moved.z = moved.z + zMovement;
                     vecPoints[ vertId ] = moved;
                     
+                    System.out.println(" x " + moved.x );
+                    
+                    if(moved.x > 5){
+                        done = true;
+                    }
+                    
                     // o3d.setVertexPositions(vr); // clears cache mesh
                     // obj.setObject((Object3D)o3d);
                     // obj.clearCachedMeshes();
@@ -524,6 +539,13 @@ public class CrashSimulation extends BDialog
                     
                 } // for orderedVec
                 
+                
+                // Shift object if moved.
+                for(int i = 0; i < orderedVec.size(); i++){
+                    int vertId = ((Integer)orderedVec.get(i)).intValue();
+                    Vec3 vec = verts[vertId].r;
+                
+                }
                 
                 ((Mesh)meshObj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
                 meshObj.clearCachedMeshes();
@@ -661,7 +683,7 @@ public class CrashSimulation extends BDialog
             dir.y = dir.y / count;
             dir.z = dir.z / count;
         }
-        System.out.println("getPointConnectionsForward: y "+ dir.y + " z:  " +  dir.z);
+        //System.out.println("getPointConnectionsForward: y "+ dir.y + " z:  " +  dir.z);
         return dir;
     }
       
@@ -690,7 +712,7 @@ public class CrashSimulation extends BDialog
      * Description: canculate angles to points connected in front of a given point.
      */
     public Vec3 getPointAnglesForward(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
-        Vec3 angles = new Vec3();
+        Vec3 angles = new Vec3(0, 0, 0);
         Vec3 vec = verts[vertId].r;
         int count = 0;
         for(int k = 0; k < edges.length; k++){
@@ -704,21 +726,28 @@ public class CrashSimulation extends BDialog
             }
             if(vecCompare != null && vecCompare.x >= vec.x){
                 count++;
-                double distance = vec.distance(vecCompare);
-                
-                
-                
-                //dir.y += (vec.y - vecCompare.y);
-                //dir.z += (vec.z - vecCompare.z);
-                
-                
+                //double distance = vec.distance(vecCompare); // Probably used as the hypotinuce
+                double xOffset = Math.max(vec.x, vecCompare.x) - Math.min(vec.x, vecCompare.x);
+                double yOffset = Math.max(vec.y, vecCompare.y) - Math.min(vec.y, vecCompare.y);
+                double zOffset = Math.max(vec.z, vecCompare.z) - Math.min(vec.z, vecCompare.z);
+                double yAngle = Math.atan(yOffset / xOffset);
+                double zAngle = Math.atan(zOffset / xOffset);
+                if(vec.y > vecCompare.y){
+                    yAngle = -yAngle;
+                }
+                if(vec.z > vecCompare.z){
+                    zAngle = -zAngle;
+                }
+                angles.y += yAngle;
+                angles.z += zAngle;
+                //System.out.println("                yAngle " + yAngle + "  zAngle " + zAngle );
             }
         }
         if(count > 0){
-            //dir.y = dir.y / count;
-            //dir.z = dir.z / count;
+            angles.y = angles.y / count;
+            angles.z = angles.z / count;
         }
-        System.out.println("getPointAnglesForward: y "+ angles.y + " z:  " +  angles.z);
+        //System.out.println("getPointAnglesForward: y "+ angles.y + " z:  " +  angles.z);
         return angles;
     }
     
