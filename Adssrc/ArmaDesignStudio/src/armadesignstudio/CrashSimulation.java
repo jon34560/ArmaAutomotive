@@ -218,6 +218,7 @@ public class CrashSimulation extends BDialog
         }
         public void run() {
             
+            /*
             final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
             JProgressBar dpb = new JProgressBar(0, 100);
             progressDialog.add(BorderLayout.CENTER, dpb);
@@ -242,6 +243,7 @@ public class CrashSimulation extends BDialog
                 }
             });
             progressDialog.setVisible(true);
+             */
             
             while(inerta > 0.001){
                 impact(obj);
@@ -252,7 +254,7 @@ public class CrashSimulation extends BDialog
                 }
             }
             
-            progressDialog.setVisible(false);
+            //progressDialog.setVisible(false);
         }
     }
     
@@ -285,9 +287,6 @@ public class CrashSimulation extends BDialog
         
         LayoutModeling layout = new LayoutModeling();
 
-        
-        
-
         // We may need meshObj in TriangleMesh
         //
         Object3D triangleMesh = null; // && triangleMesh != null
@@ -306,12 +305,10 @@ public class CrashSimulation extends BDialog
                     vecPoints[i] = verts[i].r;
                 }
                 
-                
                 // Force Vectors for each point
                 //int vertId = ((Integer)orderedVec.get(i)).intValue();
                 //Vector pointForceVectors = new Vector(); // vertId -> Vector( Vec3[] )
                 HashMap<Vec3, Vector> pointForceVectors = new HashMap<Vec3, Vector>(); // Vec3 point, Vector normal forces list
-                
                 
                 CoordinateSystem c;
                 c = layout.getCoords(meshObj);
@@ -423,7 +420,7 @@ public class CrashSimulation extends BDialog
                 for(int i = 0; i < orderedVec.size(); i++){
                     int vertId = ((Integer)orderedVec.get(i)).intValue();
                     Vec3 vec = verts[vertId].r;
-                    System.out.println("Point:  x: " + vec.x + " y: " + vec.y + " z: " + vec.z);
+                    //System.out.println("Point:  x: " + vec.x + " y: " + vec.y + " z: " + vec.z);
                     
                     
                     Vec3 overallForceVector = new Vec3();
@@ -431,7 +428,7 @@ public class CrashSimulation extends BDialog
                     if(forceNormals != null){
                         for(int j = 0; j < forceNormals.size(); j++){
                             Vec3 forceNormal = (Vec3)forceNormals.elementAt(j);
-                            System.out.println("   force normal " + forceNormal.x + " " + forceNormal.y + " " + forceNormal.z);
+                            //System.out.println("   force normal " + forceNormal.x + " " + forceNormal.y + " " + forceNormal.z);
                         }
                     } else {
                         System.out.println("Err.");
@@ -452,6 +449,8 @@ public class CrashSimulation extends BDialog
                     // Calculate direction of connected rearward edges (tension)
                     Vec3 connectionsForward = getPointConnectionsForward(vertId, verts, edges);
                     Vec3 anglesForward = getPointAnglesForward(vertId, verts, edges);
+                    Vec3 anglesBack = getPointAnglesBack(vertId, verts, edges);
+                    //double distanceBack = distanceFromPointsBehind(vertId, verts, edges);
                     
                     Mat4 mat4 = c.duplicate().fromLocal();
                     //mat4.transform(verts[i]);
@@ -498,16 +497,40 @@ public class CrashSimulation extends BDialog
                     
                     // Move point
                     //movement = 0.3 * (avgAngle / 2) * inerta; // (avgAngle * avgAngle)  include momentum--
-                    movement = 0.2 * (Math.abs(anglesForward.y) + Math.abs(anglesForward.z)) * inerta;
+                    movement = 0.2 * (Math.abs(anglesForward.y) + Math.abs(anglesForward.z) + 0.01) * inerta; // move more if angle is farther from 0.
                     
-                    System.out.println("movement: " + movement + " y " + anglesForward.y + " z " + anglesForward.z);
+                    // abs(angle) = angle
+                    // hypotinuse = constant (1)
+                    // movement = Opposite
+                    double forceFromAngleY = Math.sin( Math.abs(anglesForward.y) ) * 1; //
+                    double forceFromAngleZ = Math.sin( Math.abs(anglesForward.z) ) * 1;
                     
-                    yMovement = (connectionsForward.y / 300); // experiment
-                    zMovement = (connectionsForward.z / 300);
+                    double tensionFromAnglesY = Math.sin( Math.abs(anglesBack.y) ) * 1;
+                    double tensionFromAnglesZ = Math.sin( Math.abs(anglesBack.z) ) * 1;
+                    
+                    double retard = (tensionFromAnglesY+tensionFromAnglesZ) / 1.7;
+                    
+                    movement = 0.2 * ((forceFromAngleY + forceFromAngleZ ) ) * inerta;
+                    
+                    
+                    //System.out.println("  vec.x " + vec.x + "  angle: " + (forceFromAngleY+forceFromAngleZ) + "  R: " +  (tensionFromAnglesY+tensionFromAnglesZ)  + " m " + movement);
+                    
+                    // anglesBack.y anglesBack.z
+                    
+                    // Limit movement so that lengths in X axis from previous points are not exceeded.
+                    //if( movement > distanceBack ){
+                        
+                    //}
+                    
+                    //System.out.println("movement: " + movement + " y " + anglesForward.y + " z " + anglesForward.z);
+                    
+                    yMovement = ( (connectionsForward.y * forceFromAngleY) / 60); // experiment
+                    zMovement = ( (connectionsForward.z * forceFromAngleZ) / 60);
                     
                     inerta = inerta - (movement * 0.128); // absorb inerta from deformation of structure.
                     if(inerta < 0){
                         inerta = 0;
+                        done = true;
                     }
                     
                     // ObjectInfo meshObj
@@ -524,7 +547,7 @@ public class CrashSimulation extends BDialog
                     moved.z = moved.z + zMovement;
                     vecPoints[ vertId ] = moved;
                     
-                    System.out.println(" x " + moved.x );
+                    //System.out.println(" x " + moved.x );
                     
                     if(moved.x > 5){
                         done = true;
@@ -724,20 +747,27 @@ public class CrashSimulation extends BDialog
             if(vertId == edge.v2){
                 vecCompare = verts[edge.v1].r;
             }
-            if(vecCompare != null && vecCompare.x >= vec.x){
+            if(vecCompare != null && vecCompare.x > vec.x ){
                 count++;
                 //double distance = vec.distance(vecCompare); // Probably used as the hypotinuce
                 double xOffset = Math.max(vec.x, vecCompare.x) - Math.min(vec.x, vecCompare.x);
                 double yOffset = Math.max(vec.y, vecCompare.y) - Math.min(vec.y, vecCompare.y);
                 double zOffset = Math.max(vec.z, vecCompare.z) - Math.min(vec.z, vecCompare.z);
-                double yAngle = Math.atan(yOffset / xOffset);
-                double zAngle = Math.atan(zOffset / xOffset);
-                if(vec.y > vecCompare.y){
-                    yAngle = -yAngle;
+                double yAngle = 0;
+                //System.out.println("xOffset: " + xOffset);
+                if(xOffset != 0){
+                    yAngle = Math.atan(yOffset / xOffset); // yOffset = opposite, xOffet = adjacent
                 }
-                if(vec.z > vecCompare.z){
-                    zAngle = -zAngle;
+                double zAngle = 0;
+                if(xOffset != 0){
+                    zAngle = Math.atan(zOffset / xOffset);
                 }
+                //if(vec.y > vecCompare.y){   // This doesn't work when symmetrical sides cancel out their angles
+                //    yAngle = -yAngle;
+                //}
+                //if(vec.z > vecCompare.z){
+                //    zAngle = -zAngle;
+                //}
                 angles.y += yAngle;
                 angles.z += zAngle;
                 //System.out.println("                yAngle " + yAngle + "  zAngle " + zAngle );
@@ -747,8 +777,85 @@ public class CrashSimulation extends BDialog
             angles.y = angles.y / count;
             angles.z = angles.z / count;
         }
-        //System.out.println("getPointAnglesForward: y "+ angles.y + " z:  " +  angles.z);
+        //System.out.println("getPointAnglesForward: y "+ angles.y + " z:  " +  angles.z + "  count: " + count);
         return angles;
+    }
+    
+    
+    public Vec3 getPointAnglesBack(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
+        Vec3 angles = new Vec3(0, 0, 0);
+        Vec3 vec = verts[vertId].r;
+        int count = 0;
+        for(int k = 0; k < edges.length; k++){
+            TriangleMesh.Edge edge = edges[k];
+            Vec3 vecCompare = null;
+            if(vertId == edge.v1){
+                vecCompare = verts[edge.v2].r;
+            }
+            if(vertId == edge.v2){
+                vecCompare = verts[edge.v1].r;
+            }
+            if(vecCompare != null && vecCompare.x < vec.x ){
+                count++;
+                //double distance = vec.distance(vecCompare); // Probably used as the hypotinuce
+                double xOffset = Math.max(vec.x, vecCompare.x) - Math.min(vec.x, vecCompare.x);
+                double yOffset = Math.max(vec.y, vecCompare.y) - Math.min(vec.y, vecCompare.y);
+                double zOffset = Math.max(vec.z, vecCompare.z) - Math.min(vec.z, vecCompare.z);
+                double yAngle = 0;
+                //System.out.println("xOffset: " + xOffset);
+                if(xOffset != 0){
+                    yAngle = Math.atan(yOffset / xOffset); // yOffset = opposite, xOffet = adjacent
+                }
+                double zAngle = 0;
+                if(xOffset != 0){
+                    zAngle = Math.atan(zOffset / xOffset);
+                }
+                //if(vec.y > vecCompare.y){   // This doesn't work when symmetrical sides cancel out their angles
+                //    yAngle = -yAngle;
+                //}
+                //if(vec.z > vecCompare.z){
+                //    zAngle = -zAngle;
+                //}
+                angles.y += yAngle;
+                angles.z += zAngle;
+                //System.out.println("                yAngle " + yAngle + "  zAngle " + zAngle );
+            }
+        }
+        if(count > 0){
+            angles.y = angles.y / count;
+            angles.z = angles.z / count;
+        }
+        //System.out.println("getPointAnglesForward: y "+ angles.y + " z:  " +  angles.z + "  count: " + count);
+        return angles;
+    }
+    
+    
+    /**
+     * DEPRICATE
+     *
+     */
+    public double distanceFromPointsBehind(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
+        double dist = -1;
+        Vec3 vec = verts[vertId].r;
+        int count = 0;
+        for(int k = 0; k < edges.length; k++){
+            TriangleMesh.Edge edge = edges[k];
+            Vec3 vecCompare = null;
+            if(vertId == edge.v1){
+                vecCompare = verts[edge.v2].r;
+            }
+            if(vertId == edge.v2){
+                vecCompare = verts[edge.v1].r;
+            }
+            if(vecCompare != null && vecCompare.x < vec.x){
+                count++;
+                dist = dist + (vec.x - vecCompare.x);
+            }
+        }
+        if(count > 0){
+            dist = dist / count;
+        }
+        return dist;
     }
     
 }
