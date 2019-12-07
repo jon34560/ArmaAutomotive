@@ -1,4 +1,5 @@
 /* Copyright (C) 1999-2013 by Peter Eastman
+   2019 Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -1790,7 +1791,8 @@ public class Scene
     /**
     * autoSkin
     *
-    * Skin curves into a mesh.
+    * Description:
+    * Skin curves into a mesh. The oprigional skin tool only works on splines of equal segment counts.
     */
     public void autoSkin(){
 
@@ -1850,7 +1852,46 @@ public class Scene
 
     }
 
+    /**
+     * splineGridSkin
+     *
+     * Description: Create mesh from spline mesh in grid form contained as shildren of selected mesh.
+     *  Or create mesh object given selected splines?
+     */
+    public void splineGridSkin(){
+        SplineSkin skin = new SplineSkin();
+        
+        skin.splineGridSkin(objects);
+        
+        /*
+        Vector curves = new Vector();
+        
+        for (ObjectInfo obj : objects){
+          if(obj.selected == true){
+            System.out.println("Object Info: ");
+            Object co = (Object)obj.getObject();
+              if((co instanceof Curve) == true){
+                System.out.println("Curve");
 
+                Mesh mesh = (Mesh) obj.getObject(); // Object3D
+                Vec3 [] verts = mesh.getVertexPositions();
+                
+                for (Vec3 vert : verts){
+                    //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                }
+                  
+                  curves.addElement(verts);
+
+                //if(verts.length > maxPoints){
+                    //maxPoints = verts.length;
+                //}
+
+              }
+          }
+        }
+        System.out.println("XXX: " );
+        */
+    }
 
   /**
   * getObjectInfo

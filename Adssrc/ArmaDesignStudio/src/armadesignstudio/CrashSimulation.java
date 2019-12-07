@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
 
 /** This class implements the dialog box which is used for the "Object Layout" and
     "Transform Object" commands.  It allows the user enter values for the position,
@@ -305,6 +306,16 @@ public class CrashSimulation extends BDialog
                     vecPoints[i] = verts[i].r;
                 }
                 
+                // Pre collide edge distances
+                HashMap<TriangleMesh.Edge, Double> preEdgeDistances = new HashMap<TriangleMesh.Edge, Double>();
+                for(int i = 0; i < edges.length; i++){
+                    TriangleMesh.Edge edge = edges[i];
+                    double distance = verts[edge.v1].r.distance(verts[edge.v2].r);
+                    preEdgeDistances.put(edge, distance);
+                    //System.out.println("distance: " + distance);
+                }
+                
+                
                 // Force Vectors for each point
                 //int vertId = ((Integer)orderedVec.get(i)).intValue();
                 //Vector pointForceVectors = new Vector(); // vertId -> Vector( Vec3[] )
@@ -439,6 +450,7 @@ public class CrashSimulation extends BDialog
                 //
                 // iterate ordered object points moving left to right based on inerta and geometry.
                 //
+                HashMap<Integer, Vector> forceTransferVectors = new HashMap<Integer, Vector>(); // force vectors transfered from prev
                 HashMap movedPoint = new HashMap();
                 for(int i = 0; i < orderedVec.size(); i++){
                     int vertId = ((Integer)orderedVec.get(i)).intValue();
@@ -547,6 +559,13 @@ public class CrashSimulation extends BDialog
                     moved.z = moved.z + zMovement;
                     vecPoints[ vertId ] = moved;
                     
+                    // forceTransferVectors
+                    // Vec3 connectionsForward = getPointConnectionsForward(vertId, verts, edges);
+                    // verts[vertId].r;
+                    Vec3 forceTransfer = new Vec3(movement, yMovement, zMovement);
+                    addForceVector(verts, edges, vertId, forceTransferVectors, forceTransfer);
+                    
+                    
                     //System.out.println(" x " + moved.x );
                     
                     if(moved.x > 5){
@@ -563,12 +582,76 @@ public class CrashSimulation extends BDialog
                 } // for orderedVec
                 
                 
-                // Shift object if moved.
-                for(int i = 0; i < orderedVec.size(); i++){
-                    int vertId = ((Integer)orderedVec.get(i)).intValue();
-                    Vec3 vec = verts[vertId].r;
-                
+                // Post collide edge distances
+                // tension and compression should be averaged among connected edges.
+                /*
+                DecimalFormat df = new DecimalFormat("###.######");
+                HashMap<TriangleMesh.Edge, Double> postEdgeDistances = new HashMap<TriangleMesh.Edge, Double>();
+                for(int i = 0; i < edges.length; i++){
+                    TriangleMesh.Edge edge = edges[i];
+                    double distance = verts[edge.v1].r.distance(verts[edge.v2].r);
+                    postEdgeDistances.put(edge, distance);
+                    //System.out.println("distance: " + distance);
                 }
+                for(int i = 0; i < verts.length; i++){
+                    Vec3 vertex1 = verts[i].r;
+                    System.out.println("  ");
+                    double avg = 0;
+                    for(int j = 0; j < edges.length; j++){
+                        TriangleMesh.Edge edge = edges[j];
+                        if(verts[edge.v1].r == vertex1 || verts[edge.v2].r == vertex1){
+                            double pre = preEdgeDistances.get(edge);
+                            double post = postEdgeDistances.get(edge);
+                            double change = post - pre;
+                            avg += change;
+                            System.out.println("   pre " + pre + " - " + post + "    " + df.format(change) );
+                        }
+                    }
+                    avg /= edges.length;
+                    System.out.println("   avg " + df.format(avg));
+                    for(int j = 0; j < edges.length; j++){
+                        TriangleMesh.Edge edge = edges[j];
+                        double pre = preEdgeDistances.get(edge);
+                        double post = postEdgeDistances.get(edge);
+                        double change = post - pre;
+                        if( change >  avg  ){
+                            // calculate direction point needs to move to even out tension/compression.
+                        }
+                    
+                    }
+                    
+                }
+                */
+                
+                // Shift object if moved.
+                //for(int i = 0; i < orderedVec.size(); i++){
+                //    int vertId = ((Integer)orderedVec.get(i)).intValue();
+                //    Vec3 vec = verts[vertId].r;
+                
+                //}
+                
+                // Shift whole object to stay in frame
+                //
+                double lastVecX2 = -99999;
+                for(int i = 0; i < verts.length; i++){
+                    Vec3 vertex1 = verts[i].r;
+                    //Mat4 mat4 = c.duplicate().fromLocal();
+                    //mat4.transform(vertex1);
+                    if(vertex1.x > lastVecX2){
+                        lastVecX2 = vertex1.x;
+                    }
+                }
+                double shifted = (lastVecX2 - lastVecX);
+                System.out.println("1: " + lastVecX + " 2: " + lastVecX2 + "   shift: " + shifted);
+                /*
+                    Vec3 moved = vecPoints[ vertId ];
+                    moved.x = moved.x + movement;
+                    moved.y = moved.y + yMovement;
+                    moved.z = moved.z + zMovement;
+                    vecPoints[ vertId ] = moved;
+                }
+                */
+                
                 
                 ((Mesh)meshObj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
                 meshObj.clearCachedMeshes();
@@ -708,6 +791,25 @@ public class CrashSimulation extends BDialog
         }
         //System.out.println("getPointConnectionsForward: y "+ dir.y + " z:  " +  dir.z);
         return dir;
+    }
+    
+    public Vector getForwardPoints(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
+        Vector forwardPoints = new Vector();
+        Vec3 vec = verts[vertId].r;
+        for(int k = 0; k < edges.length; k++){
+            TriangleMesh.Edge edge = edges[k];
+            Vec3 vecCompare = null;
+            if(vertId == edge.v1){
+                vecCompare = verts[edge.v2].r;
+            }
+            if(vertId == edge.v2){
+                vecCompare = verts[edge.v1].r;
+            }
+            if(vecCompare != null && vecCompare.x >= vec.x){
+                forwardPoints.addElement(vecCompare);
+            }
+        }
+        return forwardPoints;
     }
       
     /**
@@ -858,5 +960,45 @@ public class CrashSimulation extends BDialog
         return dist;
     }
     
+    /**
+     * addForceVector
+     *
+     * Description:
+     */
+    public void addForceVector(MeshVertex[] verts,
+                               TriangleMesh.Edge[] edges,
+                               int vecId,
+                               HashMap<Integer, Vector> forceTransferVectors,
+                               Vec3 forceTransferVec){
+        Vec3 vec = verts[vecId].r;
+        Vector forwardPoints = getForwardPoints(vecId, verts, edges);
+        for(int i = 0; i < forwardPoints.size(); i++){
+            Vec3 forwardVec = (Vec3)forwardPoints.elementAt(i);
+            if(
+               (forwardVec.y > 0 && forceTransferVec.y > 0 && forwardVec.z > 0 && forceTransferVec.z > 0) ||
+               (forwardVec.y > 0 && forceTransferVec.y > 0 && forwardVec.z < 0 && forceTransferVec.z < 0) ||
+               (forwardVec.y < 0 && forceTransferVec.y < 0 && forwardVec.z > 0 && forceTransferVec.z > 0) ||
+               (forwardVec.y < 0 && forceTransferVec.y < 0 && forwardVec.z < 0 && forceTransferVec.z < 0)
+               ){
+                
+                
+                //forceTransferVectors.put(  , );
+            }
+        }
+    }
+    
+    public Vec3 diminish(Vec3 force){
+        
+        return force;
+    }
+    
+    /**
+     * getForceTransferVec3
+     *
+     * Description:
+     */
+    public Vec3 getForceTransferVec3(int id){
+        return new Vec3();
+    }
 }
 

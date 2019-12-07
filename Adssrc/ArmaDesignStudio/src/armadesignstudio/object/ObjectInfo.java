@@ -1,4 +1,5 @@
 /* Copyright (C) 1999-2013 by Peter Eastman
+                 2019 Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -48,6 +49,9 @@ public class ObjectInfo
   private boolean lastPreviewWasWireframe;
   private boolean layoutViewModel = true;
   private boolean tubeLayoutViewModel = false;
+    
+    private boolean childrenHiddenWhenHidden = false;
+    private int overideDisplayMode = 0;
 
   /** Create a new ObjectInfo. */
 
