@@ -811,6 +811,27 @@ public class CrashSimulation extends BDialog
         }
         return forwardPoints;
     }
+    
+    public Vector getForwardPointIds(int vertId, MeshVertex[] verts, TriangleMesh.Edge[] edges){
+        Vector forwardPoints = new Vector();
+        Vec3 vec = verts[vertId].r;
+        for(int k = 0; k < edges.length; k++){
+            TriangleMesh.Edge edge = edges[k];
+            Vec3 vecCompare = null;
+            int forwardPointId = -1;
+            if(vertId == edge.v1){
+                //vecCompare = verts[edge.v2].r;
+                forwardPointId = edge.v2;
+            }
+            if(vertId == edge.v2){
+                //vecCompare = verts[edge.v1].r;
+            }
+            if(vecCompare != null && vecCompare.x >= vec.x){
+                //forwardPoints.addElement(vecCompare);
+            }
+        }
+        return forwardPoints;
+    }
       
     /**
      * getAngle3
