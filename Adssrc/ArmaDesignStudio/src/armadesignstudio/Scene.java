@@ -1858,10 +1858,10 @@ public class Scene
      * Description: Create mesh from spline mesh in grid form contained as shildren of selected mesh.
      *  Or create mesh object given selected splines?
      */
-    public void splineGridSkin(){
+    public void splineGridSkin(LayoutWindow layoutWindow){
         SplineSkin skin = new SplineSkin();
         
-        skin.splineGridSkin(objects);
+        skin.splineGridSkin(this, layoutWindow, objects);
         
         /*
         Vector curves = new Vector();

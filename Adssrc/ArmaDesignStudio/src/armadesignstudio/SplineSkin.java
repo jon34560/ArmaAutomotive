@@ -52,7 +52,7 @@ public class SplineSkin extends Thread {
      * Description: Given selected splines, generate interpelated splines to fill in gaps and
      * generate a smoothed mesh based on the surface.
      */
-    public void splineGridSkin(Vector<ObjectInfo> objects){
+    public void splineGridSkin(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
         System.out.println("splineGridSkin");
         LayoutModeling layout = new LayoutModeling();
         Vector curves = new Vector();
@@ -169,13 +169,11 @@ public class SplineSkin extends Thread {
             double xNew = 0;
             // new spline curve
             //Curve midCurve = new Curve();
+            Vec3[] midSpline = new Vec3[larger];
+            float midSplineSmoothness[] = new float[larger];
             
-            
-            
-            //System.out.println(" a  " + vertsA.length + "  b " + vertsB.length);
             for(int j = 0; j < Math.max(vertsA.length, vertsB.length); j++){
-                
-                int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length); // a < b
+                int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length);
                 int bIndex = vertsB.length == larger ? j : j / (int)( (float)vertsA.length / (float)vertsB.length);
                 
                 // Bounds check
@@ -186,9 +184,9 @@ public class SplineSkin extends Thread {
                     bIndex = vertsB.length - 1;
                 }
                 
-                System.out.println(" j  " + j +
-                                   " a " + vertsA.length + " " + (aIndex) +
-                                   " b " + vertsB.length + " " + (bIndex)  );
+                //System.out.println(" j  " + j +
+                //                   " a " + vertsA.length + " " + (aIndex) +
+                //                   " b " + vertsB.length + " " + (bIndex)  );
                 
                 // calculate misdpint between two paired points between two splines
                 Vec3 v = new Vec3();
@@ -196,19 +194,24 @@ public class SplineSkin extends Thread {
                 v.y = (vertsA[aIndex].y + vertsB[bIndex].y) / 2;
                 v.z = (vertsA[aIndex].z + vertsB[bIndex].z) / 2;
                 
-                
-                
-                
+                midSpline[j] = v;
+                midSplineSmoothness[j] = 1;
             }
             
-            //for(int j = 0; j < vertsA.length; j++){
-            //    Vec3 v = vertsA[j];
-            //    System.out.println("   yA spline " + v.x + " " + v.y + " " + v.z);
-            //}
-            //for(int j = 0; j < vertsB.length; j++){
-            //    Vec3 v = vertsB[j];
-            //    System.out.println("   yB spline " + v.x + " " + v.y + " " + v.z);
-            //}
+            Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
+            //CoordinateSystem coords = new CoordinateSystem(new Vec3(0.0, 0.0, Camera.DEFAULT_DISTANCE_TO_SCREEN), new Vec3(0.0, 0.0, -1.0), Vec3.vy());
+            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve");
+            
+            scene.addObject(midCurveInfo, null);
+            
+            // ( (DefaultTreeModel) tree.getModel() ).reload();
+            if(scene != null){
+                //scene.setLayoutViewModeling();
+                layoutWindow.updateImage();
+                layoutWindow.updateMenus();
+                //itemTree.repaint(); // reload tree
+                //updateImage();
+            }
         }
     }
 

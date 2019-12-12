@@ -2768,7 +2768,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void splineGridSkin(){
         if(theScene != null){
-           theScene.splineGridSkin();
+           theScene.splineGridSkin(this);
         }
     }
 
