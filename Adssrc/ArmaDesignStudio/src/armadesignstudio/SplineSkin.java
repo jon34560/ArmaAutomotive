@@ -203,15 +203,11 @@ public class SplineSkin extends Thread {
             ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve");
             
             scene.addObject(midCurveInfo, null);
+            layoutWindow.updateImage();
+            layoutWindow.updateMenus();
+            layoutWindow.rebuildItemList();
+                
             
-            // ( (DefaultTreeModel) tree.getModel() ).reload();
-            if(scene != null){
-                //scene.setLayoutViewModeling();
-                layoutWindow.updateImage();
-                layoutWindow.updateMenus();
-                //itemTree.repaint(); // reload tree
-                //updateImage();
-            }
         }
     }
 
