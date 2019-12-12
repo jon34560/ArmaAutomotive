@@ -441,7 +441,7 @@ public class ComputationalFluidDynamics extends Thread {
                                 // Vacume (Buggy. Even if an adjacent point is slightly above canceles out. Should calculate pressure in directions, )
                                 //
                                 if( compareFluidPoint.getLocation().x < fluidPoint.getLocation().x &&
-                                   distance < (xSegmentWidth * 1.5)
+                                   distance < (xSegmentWidth * 1.7)
                                    && xDiff > yDiff  // compare point is more horizontal than  vertical
                                    && zDiff <= (zSegmentWidth/2)
                                    //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -449,7 +449,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     vacumeLeft = 0.0;
                                 }
                                 if( compareFluidPoint.getLocation().x > fluidPoint.getLocation().x &&
-                                   distance < (xSegmentWidth * 1.5)
+                                   distance < (xSegmentWidth * 1.7)
                                    && ( xDiff > yDiff ) // compare point is more horizontal than  vertical
                                    && zDiff <= (zSegmentWidth/2)
                                    //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -459,7 +459,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     //vacumeRightDist = distance;
                                 }
                                 if( compareFluidPoint.getLocation().y > fluidPoint.getLocation().y && // above
-                                   distance < (ySegmentWidth * 1.5)
+                                   distance < (ySegmentWidth * 1.7)
                                    && ( xDiff < yDiff ) // vert diff < hor diff
                                    && zDiff <= (zSegmentWidth/2)
                                 //   //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -471,7 +471,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     //System.out.print("+");
                                 }
                                 if( compareFluidPoint.getLocation().y < fluidPoint.getLocation().y &&
-                                   distance < (ySegmentWidth * 1.5)
+                                   distance < (ySegmentWidth * 1.7)
                                    && ( xDiff < yDiff ) // vert diff < hor diff
                                    && zDiff <= (zSegmentWidth/2)
                                    //   //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -483,7 +483,7 @@ public class ComputationalFluidDynamics extends Thread {
                                 
                                 // ***
                                 if( compareFluidPoint.getLocation().x < fluidPoint.getLocation().x &&
-                                   distance < (xSegmentWidth * 1.5)
+                                   distance < (xSegmentWidth * 2.5)
                                    && ( xDiff > yDiff ) // compare point is more horizontal than  vertical
                                    && zDiff <= (zSegmentWidth/2)
                                    //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -493,7 +493,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     //}
                                 }
                                 if( compareFluidPoint.getLocation().x > fluidPoint.getLocation().x &&
-                                   distance < (xSegmentWidth * 1.5)
+                                   distance < (xSegmentWidth * 2.5)
                                    && ( xDiff > yDiff ) // compare point is more horizontal than  vertical
                                    && zDiff <= (zSegmentWidth/2)
                                    //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -503,7 +503,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     //}
                                 }
                                 if( compareFluidPoint.getLocation().y > fluidPoint.getLocation().y && // above
-                                   distance < (ySegmentWidth * 1.5)
+                                   distance < (ySegmentWidth * 2.5)
                                    && ( xDiff < yDiff ) // compare point is more vertical than horizontal
                                    && zDiff <= (zSegmentWidth/2)
                                    //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -513,7 +513,7 @@ public class ComputationalFluidDynamics extends Thread {
                                     //}
                                 }
                                 if( compareFluidPoint.getLocation().y < fluidPoint.getLocation().y &&
-                                   distance < (ySegmentWidth * 1.5)
+                                   distance < (ySegmentWidth * 2.5)
                                    && ( xDiff < yDiff ) // compare point is more below than beside
                                    && zDiff <= (zSegmentWidth/2)
                                    //   //&& compareFluidPoint.getPSI() > fluidPoint.getPSI() + 0.01
@@ -630,7 +630,7 @@ public class ComputationalFluidDynamics extends Thread {
                         //if( vacumeLeftDist > vacumeRightDist && points[v].x > minx){ // move left vacumeLeft > 0.0 &&
                             //points[v].x -= 0.010; // * (pressureRight-pressureLeft); // Push left from pressure on right side
                             double factor = 1; //  1 + (vacumeLeftDist - vacumeRightDist);
-                            factor = Math.sqrt(Math.sqrt(Math.sqrt(Math.abs(pressureRight-pressureLeft))));
+                       //     factor = Math.sqrt(Math.sqrt(Math.abs(pressureRight-pressureLeft)));
                             // 1.6
                             //System.out.println("factor: " + factor + " r " + pressureRight + " l " + pressureLeft);
                             //factor = Math.sqrt(factor);
@@ -646,7 +646,7 @@ public class ComputationalFluidDynamics extends Thread {
                             //points[v].x += 0.010;
                             
                             double factor = 1; //  1 + (vacumeRightDist - vacumeRightDist);
-                            factor = Math.sqrt(Math.sqrt(Math.sqrt(Math.abs(pressureLeft-pressureRight))));
+                        //    factor = Math.sqrt(Math.sqrt(Math.abs(pressureLeft-pressureRight)));
                             //factor = Math.sqrt(factor);
                             xStepMove += (move * factor);
                             
@@ -657,7 +657,7 @@ public class ComputationalFluidDynamics extends Thread {
                         //if(vacumeBelowDist > vacumeAboveDist && points[v].y < maxy){ // vacume above and in bounds -> move up
                             //points[v].y += 0.010;
                             double factor = 1; // 1 + (vacumeBelowDist - vacumeAboveDist);
-                            factor = Math.sqrt(Math.sqrt(Math.sqrt(Math.abs(pressureBelow-pressureAbove))));
+                        //    factor = Math.sqrt(Math.sqrt(Math.abs(pressureBelow-pressureAbove)));
                             //factor = Math.sqrt(factor);
                             yStepMove += (move * factor);
                             
@@ -669,7 +669,7 @@ public class ComputationalFluidDynamics extends Thread {
                         if(vacumeBelow > 0.0 && points[v].y > miny + (ySegmentWidth)){ // vacume below and in bounds -> move down
                             //points[v].y -= 0.010;
                             double factor = 1; // 1 + (vacumeAboveDist - vacumeBelowDist);
-                            factor = Math.sqrt(Math.sqrt(Math.sqrt(Math.abs(pressureAbove-pressureBelow))));
+                        //    factor = Math.sqrt(Math.sqrt(Math.abs(pressureAbove-pressureBelow)));
                             //factor = Math.sqrt(factor);
                             yStepMove -= (move * factor);  // vacumeAboveDist
                             

@@ -49,56 +49,125 @@ public class SplineSkin extends Thread {
 
     
     /**
+     * splineGridSkin
      *
-     *
+     * Description: Given selected splines, generate interpelated splines to fill in gaps and
+     * generate a smoothed mesh based on the surface.
      */
     public void splineGridSkin(Vector<ObjectInfo> objects){
-        
+        System.out.println("splineGridSkin");
         Vector curves = new Vector();
-        Vector xCurves = new Vector();
-        Vector yCurves = new Vector();
-        Vector zCurves = new Vector();
+        Vector XyCurves = new Vector();
+        Vector XzCurves = new Vector();
+        Vector YzCurves = new Vector();
+        Vector YxCurves = new Vector();
+        Vector ZxCurves = new Vector();
+        Vector ZyCurves = new Vector();
         
         for (ObjectInfo obj : objects){
-          if(obj.selected == true){
-            System.out.println("Object Info: ");
-            Object co = (Object)obj.getObject();
-              if((co instanceof Curve) == true){
-                System.out.println("Curve");
+            if(obj.selected == true){
+                System.out.println("Object Info: ");
+                Object co = (Object)obj.getObject();
+                if((co instanceof Curve) == true){
+                    System.out.println("Curve");
 
-                Mesh mesh = (Mesh) obj.getObject(); // Object3D
-                Vec3 [] verts = mesh.getVertexPositions();
-                
-                for (Vec3 vert : verts){
-                    System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
-                }
-                  
-                  BoundingBox bounds = getTranslatedBounds(obj);
-                  double xSize = bounds.maxx - bounds.minx;
-                  double ySize = bounds.maxy - bounds.miny;
-                  double zSize = bounds.maxz - bounds.minz;
-                  System.out.println( " bounds  x: " + bounds.minx + " " + bounds.maxx +
-                                    " y: " + bounds.miny + " " + bounds.maxy +
-                                     " z:  " + bounds.minz + " " + bounds.maxz);
-                  
-                  curves.addElement(verts);
-                  
-                  double x = bounds.maxx - bounds.minx;
-                  double y = bounds.maxy - bounds.miny;
-                  double z = bounds.maxz - bounds.minz;
-                  //if( (bounds.maxx - bounds.minx)  ){
-                      
-                  //}
+                    Mesh mesh = (Mesh) obj.getObject(); // Object3D
+                    Vec3 [] verts = mesh.getVertexPositions();
 
-                //if(verts.length > maxPoints){
+                    //for (Vec3 vert : verts){
+                    //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                    //}
+
+                    BoundingBox bounds = getTranslatedBounds(obj);
+                    double xSize = bounds.maxx - bounds.minx;
+                    double ySize = bounds.maxy - bounds.miny;
+                    double zSize = bounds.maxz - bounds.minz;
+                    //System.out.println( " bounds  x: " + bounds.minx + " " + bounds.maxx +
+                    //                      " y: " + bounds.miny + " " + bounds.maxy +
+                    //                      " z:  " + bounds.minz + " " + bounds.maxz);
+
+                    curves.addElement(verts);
+
+                    double x = bounds.maxx - bounds.minx;
+                    double y = bounds.maxy - bounds.miny;
+                    double z = bounds.maxz - bounds.minz;
+                    if(xSize > ySize && xSize > zSize && ySize > zSize){ // X-y
+                        //xCurves.addElement(verts);
+                    }
+                    if(xSize > ySize && xSize > zSize && zSize > ySize){ // X-z
+                    
+                    }
+                    if(ySize > xSize && ySize > zSize && zSize > xSize){ //   Y-z orientation (major)-(minor)
+                        // Insert in order
+                        boolean inserted = false;
+                        for(int i = 0; i < YzCurves.size(); i++){
+                            Vec3 [] compareVerts = (Vec3 [])YzCurves.elementAt(i);
+                            if(verts.length > 0 && compareVerts.length > 0 &&
+                               verts[0].x < compareVerts[0].x){ // Sort by Z axis
+                                YzCurves.insertElementAt(verts, i);
+                                inserted = true;
+                                i = YzCurves.size() + 1; // break out of loop
+                            }
+                        }
+                        if(!inserted){
+                            YzCurves.addElement(verts);
+                        }
+                    }
+                    // Y-x orientation (major)-(minor)
+                    if(ySize > xSize && ySize > zSize && xSize > zSize){
+                        
+                    }
+                    //
+                    if(zSize > xSize && zSize > ySize && xSize > ySize){ // Z-x
+                        // Insert in order
+                        boolean inserted = false;
+                        for(int i = 0; i < ZxCurves.size(); i++){
+                            Vec3 [] compareVerts = (Vec3 [])ZxCurves.elementAt(i);
+                            if(verts.length > 0 && compareVerts.length > 0 &&
+                               verts[0].z < compareVerts[0].z){
+                                ZxCurves.insertElementAt(verts, i);
+                                inserted = true;
+                                i = ZxCurves.size() + 1; // break out of loop
+                            }
+                        }
+                        if(!inserted){
+                            ZxCurves.addElement(verts);
+                        }
+                    }
+                    if(zSize > xSize && zSize > ySize && ySize > xSize){ // Z-y
+                    
+                    }
+
+                    //if(verts.length > maxPoints){
                     //maxPoints = verts.length;
-                //}
+                    //}
 
-              }
-          }
+                }
+            }
         }
         System.out.println("XXX: " );
         
+        // yCurves -> order by position
+        
+        
+        
+        for(int i = 1; i < YzCurves.size(); i++){
+            System.out.println("Yz spline pair " + i);
+            Vec3 [] vertsA = (Vec3 [])YzCurves.elementAt(i-1);
+            Vec3 [] vertsB = (Vec3 [])YzCurves.elementAt(i);
+            
+            float pairing = (float)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
+            System.out.println(" pairing " + pairing);
+            
+            for(int j = 0; j < vertsA.length; j++){
+                Vec3 v = vertsA[j];
+                System.out.println("   yA spline " + v.x + " " + v.y + " " + v.z);
+            }
+            for(int j = 0; j < vertsB.length; j++){
+                Vec3 v = vertsB[j];
+                System.out.println("   yB spline " + v.x + " " + v.y + " " + v.z);
+            }
+        }
     }
 
 
