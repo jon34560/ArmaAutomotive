@@ -42,11 +42,9 @@ public class SplineSkin extends Thread {
 
     HashMap<ObjectInfo, BoundingBox> objectBoundsCache = new HashMap<ObjectInfo, BoundingBox>();
     
-    
     public SplineSkin(){
         
     }
-
     
     /**
      * splineGridSkin
@@ -67,10 +65,10 @@ public class SplineSkin extends Thread {
         
         for (ObjectInfo obj : objects){
             if(obj.selected == true){
-                System.out.println("Object Info: ");
+                //System.out.println("Object Info: ");
                 Object co = (Object)obj.getObject();
                 if((co instanceof Curve) == true){
-                    System.out.println("Curve");
+                    //System.out.println("Curve");
 
                     Mesh mesh = (Mesh) obj.getObject(); // Object3D
                     Vec3 [] verts = mesh.getVertexPositions();
@@ -169,33 +167,48 @@ public class SplineSkin extends Thread {
             System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x);
             
             double xNew = 0;
+            // new spline curve
+            //Curve midCurve = new Curve();
             
-            System.out.println(" a  " + vertsA.length + "  b " + vertsB.length);
+            
+            
+            //System.out.println(" a  " + vertsA.length + "  b " + vertsB.length);
             for(int j = 0; j < Math.max(vertsA.length, vertsB.length); j++){
-                Vec3 v = new Vec3();
-                int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length);
-                int bIndex = vertsB.length == larger ? j : j * (int)( (float)vertsA.length / (float)vertsB.length);
+                
+                int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length); // a < b
+                int bIndex = vertsB.length == larger ? j : j / (int)( (float)vertsA.length / (float)vertsB.length);
+                
+                // Bounds check
+                if(aIndex >= vertsA.length){
+                    aIndex = vertsA.length - 1;
+                }
+                if(bIndex >= vertsB.length){
+                    bIndex = vertsB.length - 1;
+                }
                 
                 System.out.println(" j  " + j +
                                    " a " + vertsA.length + " " + (aIndex) +
                                    " b " + vertsB.length + " " + (bIndex)  );
-                if(vertsA.length > vertsB.length){
-                    
-                    //Vec3 a = vertsA[ ];
-                    //Vec3 b = vertsB[ ];
-                    
-                }
+                
+                // calculate misdpint between two paired points between two splines
+                Vec3 v = new Vec3();
+                v.x = (vertsA[aIndex].x + vertsB[bIndex].x) / 2;
+                v.y = (vertsA[aIndex].y + vertsB[bIndex].y) / 2;
+                v.z = (vertsA[aIndex].z + vertsB[bIndex].z) / 2;
+                
+                
+                
                 
             }
             
-            for(int j = 0; j < vertsA.length; j++){
-                Vec3 v = vertsA[j];
-                System.out.println("   yA spline " + v.x + " " + v.y + " " + v.z);
-            }
-            for(int j = 0; j < vertsB.length; j++){
-                Vec3 v = vertsB[j];
-                System.out.println("   yB spline " + v.x + " " + v.y + " " + v.z);
-            }
+            //for(int j = 0; j < vertsA.length; j++){
+            //    Vec3 v = vertsA[j];
+            //    System.out.println("   yA spline " + v.x + " " + v.y + " " + v.z);
+            //}
+            //for(int j = 0; j < vertsB.length; j++){
+            //    Vec3 v = vertsB[j];
+            //    System.out.println("   yB spline " + v.x + " " + v.y + " " + v.z);
+            //}
         }
     }
 
