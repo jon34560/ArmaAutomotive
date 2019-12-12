@@ -56,6 +56,7 @@ public class SplineSkin extends Thread {
      */
     public void splineGridSkin(Vector<ObjectInfo> objects){
         System.out.println("splineGridSkin");
+        LayoutModeling layout = new LayoutModeling();
         Vector curves = new Vector();
         Vector XyCurves = new Vector();
         Vector XzCurves = new Vector();
@@ -74,9 +75,15 @@ public class SplineSkin extends Thread {
                     Mesh mesh = (Mesh) obj.getObject(); // Object3D
                     Vec3 [] verts = mesh.getVertexPositions();
 
-                    //for (Vec3 vert : verts){
-                    //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
-                    //}
+                    // translate local coords with obj location.
+                    CoordinateSystem c;
+                    c = layout.getCoords(obj);
+                    Vec3 objOrigin = c.getOrigin();
+                    for (Vec3 vert : verts){
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vert);
+                        //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                    }
 
                     BoundingBox bounds = getTranslatedBounds(obj);
                     double xSize = bounds.maxx - bounds.minx;
@@ -103,7 +110,7 @@ public class SplineSkin extends Thread {
                         for(int i = 0; i < YzCurves.size(); i++){
                             Vec3 [] compareVerts = (Vec3 [])YzCurves.elementAt(i);
                             if(verts.length > 0 && compareVerts.length > 0 &&
-                               verts[0].x < compareVerts[0].x){ // Sort by Z axis
+                               verts[0].x < compareVerts[0].x){ // Sort by X axis
                                 YzCurves.insertElementAt(verts, i);
                                 inserted = true;
                                 i = YzCurves.size() + 1; // break out of loop
@@ -156,8 +163,30 @@ public class SplineSkin extends Thread {
             Vec3 [] vertsA = (Vec3 [])YzCurves.elementAt(i-1);
             Vec3 [] vertsB = (Vec3 [])YzCurves.elementAt(i);
             
-            float pairing = (float)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
-            System.out.println(" pairing " + pairing);
+            int larger = Math.max(vertsA.length, vertsB.length);
+            int smaller = Math.min(vertsA.length, vertsB.length);
+            int pairing = (int)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
+            System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x);
+            
+            double xNew = 0;
+            
+            System.out.println(" a  " + vertsA.length + "  b " + vertsB.length);
+            for(int j = 0; j < Math.max(vertsA.length, vertsB.length); j++){
+                Vec3 v = new Vec3();
+                int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length);
+                int bIndex = vertsB.length == larger ? j : j * (int)( (float)vertsA.length / (float)vertsB.length);
+                
+                System.out.println(" j  " + j +
+                                   " a " + vertsA.length + " " + (aIndex) +
+                                   " b " + vertsB.length + " " + (bIndex)  );
+                if(vertsA.length > vertsB.length){
+                    
+                    //Vec3 a = vertsA[ ];
+                    //Vec3 b = vertsB[ ];
+                    
+                }
+                
+            }
             
             for(int j = 0; j < vertsA.length; j++){
                 Vec3 v = vertsA[j];
