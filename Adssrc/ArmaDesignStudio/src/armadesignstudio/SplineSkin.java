@@ -97,10 +97,34 @@ public class SplineSkin extends Thread {
                     double y = bounds.maxy - bounds.miny;
                     double z = bounds.maxz - bounds.minz;
                     if(xSize > ySize && xSize > zSize && ySize > zSize){ // X-y
-                        //xCurves.addElement(verts);
+                        boolean inserted = false;
+                        for(int i = 0; i < XyCurves.size(); i++){
+                            Vec3 [] compareVerts = (Vec3 [])XyCurves.elementAt(i);
+                            if(verts.length > 0 && compareVerts.length > 0 &&
+                               verts[0].z < compareVerts[0].z){ // Sort by Z axis
+                                XyCurves.insertElementAt(verts, i);
+                                inserted = true;
+                                i = XyCurves.size() + 1; // break out of loop
+                            }
+                        }
+                        if(!inserted){
+                            XyCurves.addElement(verts);
+                        }
                     }
                     if(xSize > ySize && xSize > zSize && zSize > ySize){ // X-z
-                    
+                        boolean inserted = false;
+                        for(int i = 0; i < XzCurves.size(); i++){
+                            Vec3 [] compareVerts = (Vec3 [])XzCurves.elementAt(i);
+                            if(verts.length > 0 && compareVerts.length > 0 &&
+                               verts[0].y < compareVerts[0].y){ // Sort by Y axis
+                                XzCurves.insertElementAt(verts, i);
+                                inserted = true;
+                                i = XzCurves.size() + 1; // break out of loop
+                            }
+                        }
+                        if(!inserted){
+                            XzCurves.addElement(verts);
+                        }
                     }
                     if(ySize > xSize && ySize > zSize && zSize > xSize){ //   Y-z orientation (major)-(minor)
                         // Insert in order
@@ -120,7 +144,20 @@ public class SplineSkin extends Thread {
                     }
                     // Y-x orientation (major)-(minor)
                     if(ySize > xSize && ySize > zSize && xSize > zSize){
-                        
+                        // Insert in order
+                        boolean inserted = false;
+                        for(int i = 0; i < YxCurves.size(); i++){
+                            Vec3 [] compareVerts = (Vec3 [])YxCurves.elementAt(i);
+                            if(verts.length > 0 && compareVerts.length > 0 &&
+                               verts[0].z < compareVerts[0].z){ // Sort by Z axis
+                                YxCurves.insertElementAt(verts, i);
+                                inserted = true;
+                                i = YxCurves.size() + 1; // break out of loop
+                            }
+                        }
+                        if(!inserted){
+                            YxCurves.addElement(verts);
+                        }
                     }
                     //
                     if(zSize > xSize && zSize > ySize && xSize > ySize){ // Z-x
@@ -140,13 +177,24 @@ public class SplineSkin extends Thread {
                         }
                     }
                     if(zSize > xSize && zSize > ySize && ySize > xSize){ // Z-y
-                    
+                        // Insert in order
+                        boolean inserted = false;
+                        for(int i = 0; i < ZyCurves.size(); i++){
+                            Vec3 [] compareVerts = (Vec3 [])ZyCurves.elementAt(i);
+                            if(verts.length > 0 && compareVerts.length > 0 &&
+                               verts[0].x < compareVerts[0].x){  // Sort by X axis
+                                ZyCurves.insertElementAt(verts, i);
+                                inserted = true;
+                                i = ZyCurves.size() + 1; // break out of loop
+                            }
+                        }
+                        if(!inserted){
+                            ZyCurves.addElement(verts);
+                        }
                     }
-
                     //if(verts.length > maxPoints){
                     //maxPoints = verts.length;
                     //}
-
                 }
             }
         }
@@ -154,28 +202,22 @@ public class SplineSkin extends Thread {
         
         // yCurves -> order by position
         
-        
-        
+        // Yz
         for(int i = 1; i < YzCurves.size(); i++){
-            System.out.println("Yz spline pair " + i);
+            //System.out.println("Yz spline pair " + i);
             Vec3 [] vertsA = (Vec3 [])YzCurves.elementAt(i-1);
             Vec3 [] vertsB = (Vec3 [])YzCurves.elementAt(i);
-            
             int larger = Math.max(vertsA.length, vertsB.length);
             int smaller = Math.min(vertsA.length, vertsB.length);
             int pairing = (int)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
-            System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x);
-            
-            double xNew = 0;
+            System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x + "     YzCurves.size() " + YzCurves.size());
+            //double xNew = 0;
             // new spline curve
-            //Curve midCurve = new Curve();
             Vec3[] midSpline = new Vec3[larger];
             float midSplineSmoothness[] = new float[larger];
-            
             for(int j = 0; j < Math.max(vertsA.length, vertsB.length); j++){
                 int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length);
                 int bIndex = vertsB.length == larger ? j : j / (int)( (float)vertsA.length / (float)vertsB.length);
-                
                 // Bounds check
                 if(aIndex >= vertsA.length){
                     aIndex = vertsA.length - 1;
@@ -183,34 +225,153 @@ public class SplineSkin extends Thread {
                 if(bIndex >= vertsB.length){
                     bIndex = vertsB.length - 1;
                 }
-                
                 //System.out.println(" j  " + j +
                 //                   " a " + vertsA.length + " " + (aIndex) +
                 //                   " b " + vertsB.length + " " + (bIndex)  );
-                
                 // calculate misdpint between two paired points between two splines
                 Vec3 v = new Vec3();
                 v.x = (vertsA[aIndex].x + vertsB[bIndex].x) / 2;
                 v.y = (vertsA[aIndex].y + vertsB[bIndex].y) / 2;
                 v.z = (vertsA[aIndex].z + vertsB[bIndex].z) / 2;
-                
+                // Calculate Z offset from X-z or X-y curves in closest region
+                Vector scanCurves = new Vector();
+                scanCurves.addAll(XzCurves);
+                scanCurves.addAll(XyCurves);
+                double zOffset = getZOffset(vertsA[aIndex], vertsB[bIndex], v, scanCurves);
+                v.z += zOffset;
                 midSpline[j] = v;
                 midSplineSmoothness[j] = 1;
             }
-            
             Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
-            //CoordinateSystem coords = new CoordinateSystem(new Vec3(0.0, 0.0, Camera.DEFAULT_DISTANCE_TO_SCREEN), new Vec3(0.0, 0.0, -1.0), Vec3.vy());
-            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve");
-            
+            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Yz " + i);
             scene.addObject(midCurveInfo, null);
             layoutWindow.updateImage();
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
-                
-            
         }
+        
+        
+        // Xz
+        for(int i = 1; i < XzCurves.size(); i++){
+            //System.out.println("Yz spline pair " + i);
+            Vec3 [] vertsA = (Vec3 [])XzCurves.elementAt(i-1);
+            Vec3 [] vertsB = (Vec3 [])XzCurves.elementAt(i);
+            int larger = Math.max(vertsA.length, vertsB.length);
+            int smaller = Math.min(vertsA.length, vertsB.length);
+            int pairing = (int)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
+            //System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x);
+            //double xNew = 0;
+            // new spline curve
+            Vec3[] midSpline = new Vec3[larger];
+            float midSplineSmoothness[] = new float[larger];
+            for(int j = 0; j < Math.max(vertsA.length, vertsB.length); j++){
+                int aIndex = vertsA.length == larger ? j : j / (int)( (float)vertsB.length / (float)vertsA.length);
+                int bIndex = vertsB.length == larger ? j : j / (int)( (float)vertsA.length / (float)vertsB.length);
+                // Bounds check
+                if(aIndex >= vertsA.length){
+                    aIndex = vertsA.length - 1;
+                }
+                if(bIndex >= vertsB.length){
+                    bIndex = vertsB.length - 1;
+                }
+                //System.out.println(" j  " + j +
+                //                   " a " + vertsA.length + " " + (aIndex) +
+                //                   " b " + vertsB.length + " " + (bIndex)  );
+                // calculate misdpint between two paired points between two splines
+                Vec3 v = new Vec3();
+                v.x = (vertsA[aIndex].x + vertsB[bIndex].x) / 2;
+                v.y = (vertsA[aIndex].y + vertsB[bIndex].y) / 2;
+                v.z = (vertsA[aIndex].z + vertsB[bIndex].z) / 2;
+                // Calculate Z offset from X-z or X-y curves in closest region
+                Vector scanCurves = new Vector();
+                scanCurves.addAll(YzCurves);
+                scanCurves.addAll(YxCurves);
+                double zOffset = getZOffset(vertsA[aIndex], vertsB[bIndex], v, scanCurves);
+                v.z += zOffset;
+                midSpline[j] = v;
+                midSplineSmoothness[j] = 1;
+            }
+            Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
+            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Xz " + i);
+            scene.addObject(midCurveInfo, null);
+            layoutWindow.updateImage();
+            layoutWindow.updateMenus();
+            layoutWindow.rebuildItemList();
+        }
+        
+        
     }
 
+    /**
+     * getZOffset
+     *
+     * Description: Scan given a pair of points to find curvature data from a vector of curves.
+     *
+     * @param Vec3 a - The reference point of a segment to scan curves for diagonal curvature data.
+     */
+    public double getZOffset(Vec3 a, Vec3 b, Vec3 mid, Vector curves){
+        double result = 0;
+        //System.out.println("  getZOffset   a: " + a.x + " " + a.y + " " + a.z +
+        //                   "     b: " + b.x + " " + b.y + " " + b.z +
+        //                   "     mid " +  mid.x + " " + mid.y + " " + mid.z);
+        Vec3 [] matchingCurve = null;
+        Vec3 closestAVec = null;
+        Vec3 closestBVec = null;
+        Vec3 closestMidVec = null;
+        int closestAPointIndex = -1;
+        int closestBPointIndex = -1;
+        int closestMidPointIndex = -1;
+        int matchingCurveIndex = -1;
+        double closestADist = Double.MAX_VALUE;
+        double closestBDist = Double.MAX_VALUE;
+        double closestMidDist = Double.MAX_VALUE;
+        // NOTE: This can incorrectly match points for a and b on different curves which wont work well...
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] compareVerts = (Vec3 [])curves.elementAt(i);
+            for(int v = 0; v < compareVerts.length; v++){
+                Vec3 vec = compareVerts[v];
+                double d = vec.distance(a);
+                if(d < closestADist){
+                    closestADist = d;
+                    closestAVec = vec;
+                    closestAPointIndex = v;
+                    matchingCurve = compareVerts;
+                    matchingCurveIndex = i;
+                }
+                d = vec.distance(b);
+                if(d < closestBDist){
+                    closestBDist = d;
+                    closestBVec = vec;
+                    closestBPointIndex = v;
+                    matchingCurve = compareVerts;
+                    matchingCurveIndex = i;
+                }
+                d = vec.distance(mid);
+                //System.out.println(" mid " + d);
+                if(d < closestMidDist){
+                    //System.out.println(". " + closestMidPointIndex);
+                    closestMidDist = d;
+                    closestMidVec = vec;
+                    closestMidPointIndex = v;
+                }
+            }
+        }
+        if(matchingCurve != null && closestAVec != null && closestBVec != null && closestAPointIndex != closestBPointIndex){
+            //System.out.println("     found a: " + closestAPointIndex + "  b: " + closestBPointIndex +
+            //                   " curve_i " + matchingCurveIndex+
+            //                   " mid  "  + closestMidPointIndex +
+            //                   "   l: " + matchingCurve.length );
+            // calculate
+            Vec3 closestMidV = new Vec3();
+            closestMidV.x = (closestAVec.x + closestBVec.x) / 2;
+            closestMidV.y = (closestAVec.y + closestBVec.y) / 2;
+            closestMidV.z = (closestAVec.z + closestBVec.z) / 2;
+            result = closestMidVec.z - closestMidV.z; // Math.abs(); // and divide difference by distance between mid_closest and actual
+            //double midDiff = closestMidVec.distance(closestMidV);
+            //System.out.println(" offset  " + closestMidVec.z + " c.z  "  + closestMidV.z + " md " + midDiff + "  result " + result);
+        }
+        return result;
+    }
 
     /**
     * getBounds
