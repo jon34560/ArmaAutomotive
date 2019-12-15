@@ -220,13 +220,15 @@ public class SplineSkin extends Thread {
         }
         //System.out.println("XXX: " );
         
-        // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
-        // addPointToCurve
+        
+        
+        
         
         
         // yCurves -> order by position
         
-        // Yz
+        // Yz generate curve between parallel pairs
+        Vector addedCurves = new Vector();
         for(int i = 1; i < YzCurves.size(); i++){
             //System.out.println("Yz spline pair " + i);
             Vec3 [] vertsA = (Vec3 [])YzCurves.elementAt(i-1);
@@ -266,20 +268,44 @@ public class SplineSkin extends Thread {
                 midSpline[j] = v;
                 midSplineSmoothness[j] = 1.0f;
             }
-            Curve midCurve = new Curve(midSpline, midSplineSmoothness, Mesh.APPROXIMATING, false);
-            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Yz " + i);
-            scene.addObject(midCurveInfo, null);
+            //Curve midCurve = new Curve(midSpline, midSplineSmoothness, Mesh.APPROXIMATING, false);
+            //ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Yz " + i);
+            //scene.addObject(midCurveInfo, null);
             
             // Test addPointToCurve
-            Curve midCurveTest = midCurve.addPointToCurve(1);
-            ObjectInfo midCurveInfoTest = new ObjectInfo(midCurveTest, new CoordinateSystem(), "midcurve Yz TEST" + i);
-            scene.addObject(midCurveInfoTest, null);
+            //Curve midCurveTest = midCurve.addPointToCurve(0);
+            //ObjectInfo midCurveInfoTest = new ObjectInfo(midCurveTest, new CoordinateSystem(), "midcurve Yz TEST" + i);
+            //scene.addObject(midCurveInfoTest, null);
+            
+            //layoutWindow.updateImage();
+            //layoutWindow.updateMenus();
+            //layoutWindow.rebuildItemList();
+            
+            addedCurves.addElement(midSpline);
+        }
+        for(int i = 0; i < addedCurves.size(); i++){
+            Vec3[] spline = (Vec3[])addedCurves.elementAt(i);
+            insertOrdered(YzCurves, spline, SplineSkin.X); // Add new curve
+        }
+        
+        // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
+        equalizeCurvePointCounts(YzCurves, scene);
+        
+        // Add to scene (Optional)
+        for(int i = 0; i < YzCurves.size(); i++){
+            Vec3[] spline = (Vec3[])YzCurves.elementAt(i);
+            
+            Curve midCurve = getCurve(spline); //  new Curve(spline, midSplineSmoothness, Mesh.APPROXIMATING, false);
+            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Yz " + i);
+            scene.addObject(midCurveInfo, null);
             
             layoutWindow.updateImage();
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
-            //insertOrdered(YzCurves, midSpline, SplineSkin.X); // Add new curve (Woops recursive)
         }
+        
+        // Skin
+        // if more curves than ...
         
         
         // Xz
@@ -490,4 +516,63 @@ public class SplineSkin extends Thread {
         objectBoundsCache.put(object, bounds);
         return bounds;
     }
+    
+    public Curve getCurve(Vec3[] points){
+        float smooths[] = new float[points.length];
+        for(int i = 0; i < points.length; i++){
+            smooths[i] = 1.0f;
+        }
+        Curve curve = new Curve(points, smooths, Mesh.APPROXIMATING, false);
+        return curve;
+    }
+    
+    
+    /**
+     *
+     */
+    public Curve equalizeCurvePointCounts(Vector curves, Scene scene){
+        Curve result = null;
+        int maxPointCurve = 0;
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] verts = (Vec3 [])curves.elementAt(i);
+            if(verts.length > maxPointCurve){
+                maxPointCurve = verts.length;
+            }
+        }
+        //System.out.println(" maxPointCurve " + maxPointCurve);
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] verts = (Vec3 [])curves.elementAt(i);
+            int inserts = 0;
+            while(verts.length < maxPointCurve && inserts < 1000){
+                inserts++;
+                //System.out.println( " cirve " + i + " is too small " );
+                
+                // find largest spacing vertex pair to insert a new point between.
+                double largestDistance = 0;
+                int largestDistanceIndex = -1;
+                for(int j = 1; j < verts.length; j++){
+                    Vec3 a = verts[j-1];
+                    Vec3 b = verts[j];
+                    double distance = a.distance(b);
+                    if(distance > largestDistance){
+                        largestDistance = distance;
+                        largestDistanceIndex = j-1;
+                    }
+                }
+                if(largestDistanceIndex > -1){
+                    Curve tempCurve = getCurve(verts);
+                    Curve biggerCurve = tempCurve.addPointToCurve(largestDistanceIndex);
+                    verts = biggerCurve.getVertexPositions();
+                    
+                    if(verts.length == maxPointCurve){
+                        ObjectInfo midCurveInfoTest = new ObjectInfo(biggerCurve, new CoordinateSystem(), "expanded Yz TEST" + i);
+                        scene.addObject(midCurveInfoTest, null);
+                        result = biggerCurve;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    
 }
