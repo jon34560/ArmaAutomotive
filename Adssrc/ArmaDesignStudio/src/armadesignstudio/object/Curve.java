@@ -501,6 +501,64 @@ public class Curve extends Object3D implements Mesh
     return new Curve(newpos, news, smoothingMethod, closed);
   }
   
+
+    /**
+     * addPointToCurve
+     *
+     * Description: Add point to curve given an index. This allows curves to increase
+     * the number of points by one so that the skin tool can be used.
+     * NOTE:  Not complete
+     *
+     * @param int pointIndex
+     * @return Curve with added point.
+     */
+    public Curve addPointToCurve(int pointIndex){
+        if (vertex.length < 2)
+            return (Curve) duplicate();
+        Vec3 v[] = new Vec3 [vertex.length];
+        for (int i = 0; i < v.length; i++)
+          v[i] = new Vec3(vertex[i].r);
+        Vec3 newpos[];
+        float news[];
+        int i, j;
+        //if (closed){
+
+        //} else {
+            //newpos = new Vec3 [v.length*2-1];
+            newpos = new Vec3 [v.length + 1];
+            //news = new float [smoothness.length*2-1];
+            news = new float [smoothness.length + 1];
+            if (smoothingMethod == INTERPOLATING){
+
+            } else { // Approximating
+                
+                newpos[0] = v[0];
+                int bump = 0;
+                for (i = 1; i < v.length-1; i++){
+                    //newpos[i*2-1] = v[i].plus(v[i-1]).times(0.5);
+                    //newpos[i*2] = calcApproxPoint(v, smoothness, i-1, i, i+1);
+                    
+                    if(i == pointIndex){
+                        
+                        newpos[i + bump] = calcApproxPoint(v, smoothness, i-1, i, i+1);
+                        bump = 1;
+                    }
+                    newpos[i + bump] = v[i];
+                }
+                //newpos[i*2-1] = v[i].plus(v[i-1]).times(0.5);
+                //newpos[i*2] = v[i];
+                newpos[i + bump] = v[i];
+            }
+            for (i = 0; i < smoothness.length-1 + 1; i++)
+            {
+              //news[i*2] = Math.min(smoothness[i]*2.0f, 1.0f);
+              //news[i*2+1] = 1.0f;
+              news[i] = 1.0f;
+            }
+        //}
+        return new Curve(newpos, news, smoothingMethod, closed);
+    }
+    
   /** Return a new Curve object which has been subdivided the specified number of times to give a finer approximation of
       the curve shape. */
   

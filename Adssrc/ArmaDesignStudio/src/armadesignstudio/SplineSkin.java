@@ -218,7 +218,11 @@ public class SplineSkin extends Thread {
                 }
             }
         }
-        System.out.println("XXX: " );
+        //System.out.println("XXX: " );
+        
+        // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
+        // addPointToCurve
+        
         
         // yCurves -> order by position
         
@@ -260,14 +264,21 @@ public class SplineSkin extends Thread {
                 double zOffset = getZOffset(vertsA[aIndex], vertsB[bIndex], v, scanCurves);
                 v.z += zOffset;
                 midSpline[j] = v;
-                midSplineSmoothness[j] = 1;
+                midSplineSmoothness[j] = 1.0f;
             }
             Curve midCurve = new Curve(midSpline, midSplineSmoothness, Mesh.APPROXIMATING, false);
             ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Yz " + i);
             scene.addObject(midCurveInfo, null);
+            
+            // Test addPointToCurve
+            Curve midCurveTest = midCurve.addPointToCurve(1);
+            ObjectInfo midCurveInfoTest = new ObjectInfo(midCurveTest, new CoordinateSystem(), "midcurve Yz TEST" + i);
+            scene.addObject(midCurveInfoTest, null);
+            
             layoutWindow.updateImage();
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
+            //insertOrdered(YzCurves, midSpline, SplineSkin.X); // Add new curve (Woops recursive)
         }
         
         
@@ -309,7 +320,7 @@ public class SplineSkin extends Thread {
                 double zOffset = getZOffset(vertsA[aIndex], vertsB[bIndex], v, scanCurves);
                 v.z += zOffset;
                 midSpline[j] = v;
-                midSplineSmoothness[j] = 1;
+                midSplineSmoothness[j] = 1.0f;
             }
             Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
             ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Xz " + i);
@@ -317,6 +328,8 @@ public class SplineSkin extends Thread {
             layoutWindow.updateImage();
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
+            
+            //insertOrdered(XzCurves, midSpline, SplineSkin.Y); // recursive
         }
         
         
