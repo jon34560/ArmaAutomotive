@@ -39,11 +39,13 @@ import java.awt.event.WindowEvent;
 import java.util.HashMap;
 
 public class SplineSkin extends Thread {
-
+    public static int X = 1;
+    public static int Y = 2;
+    public static int Z = 3;
     HashMap<ObjectInfo, BoundingBox> objectBoundsCache = new HashMap<ObjectInfo, BoundingBox>();
     
     public SplineSkin(){
-        
+        // Curve.subdivideCurve(int times)
     }
     
     /**
@@ -97,6 +99,8 @@ public class SplineSkin extends Thread {
                     double y = bounds.maxy - bounds.miny;
                     double z = bounds.maxz - bounds.minz;
                     if(xSize > ySize && xSize > zSize && ySize > zSize){ // X-y
+                        insertOrdered(XyCurves, verts, SplineSkin.Z);
+                        /*
                         boolean inserted = false;
                         for(int i = 0; i < XyCurves.size(); i++){
                             Vec3 [] compareVerts = (Vec3 [])XyCurves.elementAt(i);
@@ -110,8 +114,11 @@ public class SplineSkin extends Thread {
                         if(!inserted){
                             XyCurves.addElement(verts);
                         }
+                         */
                     }
                     if(xSize > ySize && xSize > zSize && zSize > ySize){ // X-z
+                        insertOrdered(XzCurves, verts, SplineSkin.Y);
+                        /*
                         boolean inserted = false;
                         for(int i = 0; i < XzCurves.size(); i++){
                             Vec3 [] compareVerts = (Vec3 [])XzCurves.elementAt(i);
@@ -125,8 +132,11 @@ public class SplineSkin extends Thread {
                         if(!inserted){
                             XzCurves.addElement(verts);
                         }
+                         */
                     }
                     if(ySize > xSize && ySize > zSize && zSize > xSize){ //   Y-z orientation (major)-(minor)
+                        insertOrdered(YzCurves, verts, SplineSkin.X);
+                        /*
                         // Insert in order
                         boolean inserted = false;
                         for(int i = 0; i < YzCurves.size(); i++){
@@ -141,9 +151,12 @@ public class SplineSkin extends Thread {
                         if(!inserted){
                             YzCurves.addElement(verts);
                         }
+                         */
                     }
                     // Y-x orientation (major)-(minor)
                     if(ySize > xSize && ySize > zSize && xSize > zSize){
+                        insertOrdered(YxCurves, verts, SplineSkin.Z);
+                        /*
                         // Insert in order
                         boolean inserted = false;
                         for(int i = 0; i < YxCurves.size(); i++){
@@ -158,9 +171,12 @@ public class SplineSkin extends Thread {
                         if(!inserted){
                             YxCurves.addElement(verts);
                         }
+                         */
                     }
                     //
                     if(zSize > xSize && zSize > ySize && xSize > ySize){ // Z-x
+                        insertOrdered(ZxCurves, verts, SplineSkin.Z);
+                        /*
                         // Insert in order
                         boolean inserted = false;
                         for(int i = 0; i < ZxCurves.size(); i++){
@@ -175,8 +191,11 @@ public class SplineSkin extends Thread {
                         if(!inserted){
                             ZxCurves.addElement(verts);
                         }
+                         */
                     }
                     if(zSize > xSize && zSize > ySize && ySize > xSize){ // Z-y
+                        insertOrdered(ZyCurves, verts, SplineSkin.X);
+                        /*
                         // Insert in order
                         boolean inserted = false;
                         for(int i = 0; i < ZyCurves.size(); i++){
@@ -191,6 +210,7 @@ public class SplineSkin extends Thread {
                         if(!inserted){
                             ZyCurves.addElement(verts);
                         }
+                         */
                     }
                     //if(verts.length > maxPoints){
                     //maxPoints = verts.length;
@@ -242,7 +262,7 @@ public class SplineSkin extends Thread {
                 midSpline[j] = v;
                 midSplineSmoothness[j] = 1;
             }
-            Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
+            Curve midCurve = new Curve(midSpline, midSplineSmoothness, Mesh.APPROXIMATING, false);
             ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Yz " + i);
             scene.addObject(midCurveInfo, null);
             layoutWindow.updateImage();
@@ -302,6 +322,41 @@ public class SplineSkin extends Thread {
         
     }
 
+    /**
+     * insertOrdered
+     *
+     * Description:
+     *
+     * @param
+     */
+    public void insertOrdered(Vector curves, Vec3 [] verts, int compareAxis){
+        // Insert in order
+        boolean inserted = false;
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] compareVerts = (Vec3 [])curves.elementAt(i);
+            if(verts.length > 0 && compareVerts.length > 0){
+                if(compareAxis == SplineSkin.X && verts[0].x < compareVerts[0].x){ // Sort by X axis
+                    curves.insertElementAt(verts, i);
+                    inserted = true;
+                    i = curves.size() + 1; // break out of loop
+                }
+                if(compareAxis == SplineSkin.Y && verts[0].y < compareVerts[0].y){ // Sort by X axis
+                    curves.insertElementAt(verts, i);
+                    inserted = true;
+                    i = curves.size() + 1; // break out of loop
+                }
+                if(compareAxis == SplineSkin.Z && verts[0].z < compareVerts[0].z){ // Sort by X axis
+                    curves.insertElementAt(verts, i);
+                    inserted = true;
+                    i = curves.size() + 1; // break out of loop
+                }
+            }
+        }
+        if(!inserted){
+            curves.addElement(verts);
+        }
+    }
+    
     /**
      * getZOffset
      *
