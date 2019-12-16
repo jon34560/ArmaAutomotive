@@ -37,6 +37,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import armadesignstudio.texture.*;
 
 public class SplineSkin extends Thread {
     public static int X = 1;
@@ -220,9 +221,11 @@ public class SplineSkin extends Thread {
         }
         //System.out.println("XXX: " );
         
+        subdivideCurves(YzCurves);
+        subdivideCurves(XzCurves);
         
-        
-        
+        // Equalize and subdivide all curves here
+        // todo
         
         
         // yCurves -> order by position
@@ -291,7 +294,8 @@ public class SplineSkin extends Thread {
         // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
         equalizeCurvePointCounts(YzCurves, scene);
         
-        // Add to scene (Optional)
+        // Add curves to scene (Optional)
+        /*
         for(int i = 0; i < YzCurves.size(); i++){
             Vec3[] spline = (Vec3[])YzCurves.elementAt(i);
             
@@ -302,13 +306,17 @@ public class SplineSkin extends Thread {
             layoutWindow.updateImage();
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
-        }
+        }*/
         
-        // Skin
+        // Skin to mesh
         // if more curves than ...
+        makeObject(YzCurves, scene, layoutWindow, "Yz");
+        
+        
         
         
         // Xz
+        addedCurves.clear();
         for(int i = 1; i < XzCurves.size(); i++){
             //System.out.println("Yz spline pair " + i);
             Vec3 [] vertsA = (Vec3 [])XzCurves.elementAt(i-1);
@@ -348,16 +356,24 @@ public class SplineSkin extends Thread {
                 midSpline[j] = v;
                 midSplineSmoothness[j] = 1.0f;
             }
-            Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
-            ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Xz " + i);
-            scene.addObject(midCurveInfo, null);
-            layoutWindow.updateImage();
-            layoutWindow.updateMenus();
-            layoutWindow.rebuildItemList();
+            //Curve midCurve = new Curve(midSpline, midSplineSmoothness, 1, false);
+            //ObjectInfo midCurveInfo = new ObjectInfo(midCurve, new CoordinateSystem(), "midcurve Xz " + i);
+            //scene.addObject(midCurveInfo, null);
+            //layoutWindow.updateImage();
+            //layoutWindow.updateMenus();
+            //layoutWindow.rebuildItemList();
             
+            addedCurves.addElement(midSpline);
             //insertOrdered(XzCurves, midSpline, SplineSkin.Y); // recursive
         }
+        for(int i = 0; i < addedCurves.size(); i++){
+            Vec3[] spline = (Vec3[])addedCurves.elementAt(i);
+            insertOrdered(XzCurves, spline, SplineSkin.Z); // Add new curve
+        }
+        // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
+        equalizeCurvePointCounts(XzCurves, scene);
         
+        //makeObject(XzCurves, scene, layoutWindow, "Xz");
         
     }
 
@@ -528,7 +544,9 @@ public class SplineSkin extends Thread {
     
     
     /**
+     * equalizeCurvePointCounts
      *
+     * Description:
      */
     public Curve equalizeCurvePointCounts(Vector curves, Scene scene){
         Curve result = null;
@@ -564,9 +582,11 @@ public class SplineSkin extends Thread {
                     Curve biggerCurve = tempCurve.addPointToCurve(largestDistanceIndex);
                     verts = biggerCurve.getVertexPositions();
                     
+                    curves.setElementAt(verts, i);
+                    
                     if(verts.length == maxPointCurve){
-                        ObjectInfo midCurveInfoTest = new ObjectInfo(biggerCurve, new CoordinateSystem(), "expanded Yz TEST" + i);
-                        scene.addObject(midCurveInfoTest, null);
+                        //ObjectInfo midCurveInfoTest = new ObjectInfo(biggerCurve, new CoordinateSystem(), "expanded Yz TEST" + i);
+                        //scene.addObject(midCurveInfoTest, null);
                         result = biggerCurve;
                     }
                 }
@@ -575,4 +595,89 @@ public class SplineSkin extends Thread {
         return result;
     }
     
+    
+    /**
+     * subdivideCurves
+     *
+     * Description: given a list of curve points, subdivide the mesh.
+     */
+    public void subdivideCurves(Vector curves){
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] verts = (Vec3 [])curves.elementAt(i);
+            Curve curve = getCurve(verts);
+            curve = curve.subdivideCurve();
+            verts = curve.getVertexPositions();
+            curves.setElementAt(verts, i);
+        }
+    }
+    
+    /**
+     * Rename create mesh
+     *
+     * From SkinDialog()
+     */
+    private void makeObject(Vector curves, Scene scene, LayoutWindow layoutWindow, String name){
+        ObjectInfo curve[] = new ObjectInfo[curves.size()];
+        boolean reverse[] = new boolean [curves.size()];
+        Vec3 centerOffset;
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] verts = (Vec3 [])curves.elementAt(i);
+            //System.out.println(" curve "+ i + " length " + verts.length );
+            Curve c = getCurve(verts);
+            ObjectInfo curveObject = new ObjectInfo(c, new CoordinateSystem(), "name " + i);
+            curve[i] = curveObject;
+            reverse[i] = false;
+        }
+        
+        Vec3 v[][] = new Vec3 [curve.length][], center = new Vec3();
+        float us[] = new float [curve.length], vs[] = new float [((Curve) curve[0].getObject()).getVertices().length];
+        int smoothMethod = Mesh.INTERPOLATING;
+        boolean closed = false;
+
+        for (int i = 0; i < curve.length; i++)
+        {
+            Curve cv = (Curve) curve[i].getObject();
+            MeshVertex vert[] = cv.getVertices();
+            v[i] = new Vec3 [vert.length];
+            float smooth[] = cv.getSmoothness();
+            if (cv.getSmoothingMethod() > smoothMethod)
+                smoothMethod = cv.getSmoothingMethod();
+            closed |= cv.isClosed();
+            for (int j = 0; j < vert.length; j++){
+                int k = (reverse[i] ? vert.length-j-1 : j);
+                v[i][j] = curve[i].getCoords().fromLocal().times(vert[k].r);
+                center.add(v[i][j]);
+                if (cv.getSmoothingMethod() != Mesh.NO_SMOOTHING && k < vs.length){
+                    //System.out.println("vs.length: " + vs.length + "  k: " + k);
+                    vs[j] += smooth[k];                                             // error
+                }
+            }
+            us[i] = 1.0f;
+        }
+        for (int i = 0; i < vs.length; i++)
+            vs[i] /= curve.length;
+
+        // Center it.
+
+        center.scale(1.0/(v.length*v[0].length));
+        for (int i = 0; i < v.length; i++){
+            for (int j = 0; j < v[i].length; j++){
+                //v[i][j].subtract(center);
+            }
+        }
+
+        //centerOffset = center;
+
+        SplineMesh mesh = new SplineMesh(v, us, vs, smoothMethod, false, closed);
+        Texture tex = layoutWindow.getScene().getDefaultTexture();
+        mesh.setTexture(tex, tex.getDefaultMapping(mesh));
+        mesh.makeRightSideOut();
+        
+        ObjectInfo meshObjectInfo = new ObjectInfo(mesh, new CoordinateSystem(), "mesh " + name);
+        scene.addObject(meshObjectInfo, null); // SplineMesh(Object3D) -> ObjectInfo
+        
+        layoutWindow.updateImage();
+        layoutWindow.updateMenus();
+        layoutWindow.rebuildItemList();
+    }
 }
