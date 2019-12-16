@@ -310,6 +310,9 @@ public class SplineSkin extends Thread {
      * Description: Scan given a pair of points to find curvature data from a vector of curves.
      *
      * @param Vec3 a - The reference point of a segment to scan curves for diagonal curvature data.
+     * @param Vec3 b - second reference point.
+     * @param Vec3 mid - mid point between a and b.
+     * @param Vector curves - list of perpendicular curves. Find segments between a and b.
      */
     public double getZOffset(Vec3 a, Vec3 b, Vec3 mid, Vector curves){
         double result = 0;
@@ -324,21 +327,33 @@ public class SplineSkin extends Thread {
         int closestBPointIndex = -1;
         int closestMidPointIndex = -1;
         int matchingCurveIndex = -1;
+        int matchingCurveIndexA = -1;
+        int matchingCurveIndexB = -1;
+        int matchingCurveIndexM = -1;
         double closestADist = Double.MAX_VALUE;
         double closestBDist = Double.MAX_VALUE;
         double closestMidDist = Double.MAX_VALUE;
         // NOTE: This can incorrectly match points for a and b on different curves which wont work well...
+        
         for(int i = 0; i < curves.size(); i++){
             Vec3 [] compareVerts = (Vec3 [])curves.elementAt(i);
+            
+            //closestADist = Double.MAX_VALUE;
+            //closestBDist = Double.MAX_VALUE;
+            //closestMidDist = Double.MAX_VALUE;
             for(int v = 0; v < compareVerts.length; v++){
                 Vec3 vec = compareVerts[v];
+                
+                //
+                
                 double d = vec.distance(a);
                 if(d < closestADist){
                     closestADist = d;
                     closestAVec = vec;
                     closestAPointIndex = v;
                     matchingCurve = compareVerts;
-                    matchingCurveIndex = i;
+                    //matchingCurveIndex = i;
+                    matchingCurveIndexA = i;
                 }
                 d = vec.distance(b);
                 if(d < closestBDist){
@@ -346,7 +361,8 @@ public class SplineSkin extends Thread {
                     closestBVec = vec;
                     closestBPointIndex = v;
                     matchingCurve = compareVerts;
-                    matchingCurveIndex = i;
+                    //matchingCurveIndex = i;
+                    matchingCurveIndexB = i;
                 }
                 d = vec.distance(mid);
                 //System.out.println(" mid " + d);
@@ -355,20 +371,121 @@ public class SplineSkin extends Thread {
                     closestMidDist = d;
                     closestMidVec = vec;
                     closestMidPointIndex = v;
+                    
+                    matchingCurveIndexM = i;
                 }
             }
         }
-        if(matchingCurve != null && closestAVec != null && closestBVec != null && closestAPointIndex != closestBPointIndex){
+        
+        TreeMap<Double, Double> matches = new TreeMap<Double, Double>();
+        //Vector matchVector = new Vector();
+        double bestMatchDistance = Double.MAX_VALUE;
+        double bestMatchOffset = 0;
+        for(int i = 0; i < curves.size(); i++){
+            Vec3 [] curveVerts = (Vec3 [])curves.elementAt(i);
+            closestADist = Double.MAX_VALUE;
+            closestBDist = Double.MAX_VALUE;
+            closestMidDist = Double.MAX_VALUE;
+            closestAPointIndex = -1;
+            closestBPointIndex = -1;
+            closestMidPointIndex = -1;
+            for(int v = 0; v < curveVerts.length; v++){
+                Vec3 vec = curveVerts[v];
+                double d = vec.distance(a);
+                if(d < closestADist){
+                    closestADist = d;
+                    closestAVec = vec;
+                    closestAPointIndex = v;
+                }
+                d = vec.distance(b);
+                if(d < closestBDist){
+                    closestBDist = d;
+                    closestBVec = vec;
+                    closestBPointIndex = v;
+                }
+                d = vec.distance(mid);
+                if(d < closestMidDist){
+                    closestMidDist = d;
+                    closestMidVec = vec;
+                    closestMidPointIndex = v;
+                }
+            }
+            
+            double patternMatchDistance = closestADist + closestBDist + closestMidDist;
+            
+            //System.out.println(" a " + closestAPointIndex + " " + closestBPointIndex + " " + closestMidPointIndex + " " );
+            Vector match = new Vector();
+            match.addElement(closestAVec);
+            match.addElement(closestMidVec);
+            match.addElement(closestBVec);
+            //matches.put();
+            if(closestAPointIndex != closestBPointIndex &&
+               closestAPointIndex != closestMidPointIndex &&
+               closestBPointIndex != closestMidPointIndex){
+                //System.out.println(".");
+                Vec3 closestMidV = new Vec3();
+                closestMidV.x = (closestAVec.x + closestBVec.x) / 2;
+                closestMidV.y = (closestAVec.y + closestBVec.y) / 2;
+                closestMidV.z = (closestAVec.z + closestBVec.z) / 2;
+                
+                double r = closestMidVec.z - closestMidV.z;
+                
+                if(patternMatchDistance < bestMatchDistance){
+                    bestMatchDistance = patternMatchDistance;
+                    bestMatchOffset = r;
+                    result = bestMatchOffset;
+                    //System.out.println(" r ");
+                }
+                //matchVector.addElement( ); //  (patternMatchDistance, r)
+                matches.put( (patternMatchDistance),  (r));
+            }
+        }
+        
+        System.out.println("  ");
+        Vector distances = new Vector();
+        Vector offsets = new Vector();
+        for(Map.Entry<Double,Double> entry : matches.entrySet()) {
+          Double key = entry.getKey();
+          Double value = entry.getValue();
+            distances.addElement(key);
+            offsets.addElement(value);
+          System.out.println(" d " + key + " =>   r " + value);
+        }
+        
+        double largestDistance = (double)distances.elementAt(distances.size() - 1);
+        for(int i = 0; i < distances.size(); i++){
+            double distance = (double)distances.elementAt(i);
+            double offset = (double)offsets.elementAt(i);
+            System.out.println("   distance " + distance + " " + offset + " " + (1-( distance/largestDistance)) );
+        }
+        // if two closest distances are within 5% of each other compared to the farthest match distance, average the offsets.
+        double closestDist = ((double)distances.elementAt(0));
+        double secondClosestDist = ((double)distances.elementAt(1));
+        if(   (1-( secondClosestDist/largestDistance))  -   (1-( closestDist/largestDistance))  < 0.05 ){
+            //System.out.println("****");
+            
+            double closestOffset = ((double)offsets.elementAt(0));
+            double secondClosestOffet = ((double)offsets.elementAt(1));
+            double avg = (closestOffset + secondClosestOffet) / 2;
+            //result = avg
+            
+            System.out.println("**** " + avg);
+        }
+        
+        
+        if(matchingCurve != null && closestAVec != null && closestBVec != null && closestAPointIndex != closestBPointIndex &&
+           matchingCurveIndexA == matchingCurveIndexB && matchingCurveIndexB == matchingCurveIndexM){
             //System.out.println("     found a: " + closestAPointIndex + "  b: " + closestBPointIndex +
             //                   " curve_i " + matchingCurveIndex+
             //                   " mid  "  + closestMidPointIndex +
             //                   "   l: " + matchingCurve.length );
+            //System.out.println(" matchingCurveIndexA "+ matchingCurveIndexA + " " + matchingCurveIndexB + " " +  matchingCurveIndexM);
             // calculate
             Vec3 closestMidV = new Vec3();
             closestMidV.x = (closestAVec.x + closestBVec.x) / 2;
             closestMidV.y = (closestAVec.y + closestBVec.y) / 2;
             closestMidV.z = (closestAVec.z + closestBVec.z) / 2;
-            result = closestMidVec.z - closestMidV.z; // Math.abs(); // and divide difference by distance between mid_closest and actual
+        //    result = closestMidVec.z - closestMidV.z; // Math.abs(); // and divide difference by distance between mid_closest and actual
             //double midDiff = closestMidVec.distance(closestMidV);
             //System.out.println(" offset  " + closestMidVec.z + " c.z  "  + closestMidV.z + " md " + midDiff + "  result " + result);
         }
