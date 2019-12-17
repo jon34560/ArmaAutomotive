@@ -125,31 +125,37 @@ public class SplineSkin extends Thread {
         }
         
         // subdividing the curves increases accuracy when equalizing point counts and possibly mid curves
-        subdivideCurves(XyCurves);
-        subdivideCurves(XzCurves);
-        subdivideCurves(YxCurves);
-        subdivideCurves(YzCurves);
-        subdivideCurves(ZxCurves);
-        subdivideCurves(ZyCurves);
         
+         XyCurves = subdivideCurves(XyCurves, 4);
+         XzCurves = subdivideCurves(XzCurves, 4);
+         YxCurves = subdivideCurves(YxCurves, 4);
+         YzCurves = subdivideCurves(YzCurves, 4);
+         ZxCurves = subdivideCurves(ZxCurves, 4);
+         ZyCurves = subdivideCurves(ZyCurves, 4);
         
         
         // XyCurves
         
         
-        
         // Yz generate curve between parallel pairs (Works to some degree)
         Vector addedCurves = new Vector();
         for(int i = 1; i < YzCurves.size(); i++){
-            //System.out.println("Yz spline pair " + i);
+            System.out.println("Yz spline pair " + i);
             Vec3 [] vertsA = (Vec3 [])YzCurves.elementAt(i-1);
             Vec3 [] vertsB = (Vec3 [])YzCurves.elementAt(i);
             int larger = Math.max(vertsA.length, vertsB.length);
             int smaller = Math.min(vertsA.length, vertsB.length);
             int pairing = (int)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
-            System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x + "     YzCurves.size() " + YzCurves.size());
+            System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x + "  YzCurves.size() " + YzCurves.size());
             //double xNew = 0;
             // new spline curve
+            
+            Vector midPoints = new Vector();
+            Vector scanCurves = new Vector();
+            scanCurves.addAll(XzCurves);
+            scanCurves.addAll(XyCurves);
+            System.out.println("XzCurves "+  XzCurves.size() + "  XyCurves "  + XyCurves.size() );
+            
             Vec3[] midSpline = new Vec3[larger];
             float midSplineSmoothness[] = new float[larger];
             for(int j = 0; j < Math.max(vertsA.length, vertsB.length); j++){
@@ -170,16 +176,24 @@ public class SplineSkin extends Thread {
                 v.x = (vertsA[aIndex].x + vertsB[bIndex].x) / 2;
                 v.y = (vertsA[aIndex].y + vertsB[bIndex].y) / 2;
                 v.z = (vertsA[aIndex].z + vertsB[bIndex].z) / 2;
+                midPoints.addElement(v);
                 // Calculate Z offset from X-z or X-y curves in closest region
-                Vector scanCurves = new Vector();
-                scanCurves.addAll(XzCurves);
-                scanCurves.addAll(XyCurves);
+                
                 double zOffset = getZOffset(vertsA[aIndex], vertsB[bIndex], v, scanCurves);
                 v.z += zOffset;
                 midSpline[j] = v;
                 midSplineSmoothness[j] = 1.0f;
             }
-            addedCurves.addElement(midSpline);
+            
+            // Experimental
+            // mid curve by closest perpendicular curves matching mid points (v)
+            
+            Vec3[] midCurve2 = generateMidCurve( midPoints, scanCurves, scene, layoutWindow);
+            
+            addedCurves.addElement(midCurve2);
+            
+            
+            //addedCurves.addElement(midSpline);
         }
         for(int i = 0; i < addedCurves.size(); i++){
             Vec3[] spline = (Vec3[])addedCurves.elementAt(i);
@@ -188,7 +202,7 @@ public class SplineSkin extends Thread {
         // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
         equalizeCurvePointCounts(YzCurves, scene);
         // Add curves to scene (Optional)
-        /*
+        
         for(int i = 0; i < YzCurves.size(); i++){
             Vec3[] spline = (Vec3[])YzCurves.elementAt(i);
             
@@ -199,13 +213,15 @@ public class SplineSkin extends Thread {
             layoutWindow.updateImage();
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
-        }*/
+        }
+        
         // Skin to mesh
         skinMesh(YzCurves, scene, layoutWindow, "Yz");
         
         
-        
+        //
         // Xz
+        //
         addedCurves.clear();
         for(int i = 1; i < XzCurves.size(); i++){
             //System.out.println("Yz spline pair " + i);
@@ -216,6 +232,14 @@ public class SplineSkin extends Thread {
             int pairing = (int)((float)Math.max(vertsA.length, vertsB.length) / (float)Math.min(vertsA.length, vertsB.length));
             //System.out.println(" pairing " + pairing + " a " + vertsA[0].x + " b " + vertsB[0].x);
             //double xNew = 0;
+            
+            Vector scanCurves = new Vector(); // rename -> perpendicular curves
+            scanCurves.addAll(YzCurves);
+            scanCurves.addAll(YxCurves);
+            
+            // test midCurve
+            Vector midPoints = new Vector();
+            
             // new spline curve
             Vec3[] midSpline = new Vec3[larger];
             float midSplineSmoothness[] = new float[larger];
@@ -237,15 +261,19 @@ public class SplineSkin extends Thread {
                 v.x = (vertsA[aIndex].x + vertsB[bIndex].x) / 2;
                 v.y = (vertsA[aIndex].y + vertsB[bIndex].y) / 2;
                 v.z = (vertsA[aIndex].z + vertsB[bIndex].z) / 2;
+                midPoints.addElement(v);
                 // Calculate Z offset from X-z or X-y curves in closest region
-                Vector scanCurves = new Vector();
-                scanCurves.addAll(YzCurves);
-                scanCurves.addAll(YxCurves);
+                
                 double zOffset = getZOffset(vertsA[aIndex], vertsB[bIndex], v, scanCurves);
                 v.z += zOffset;
                 midSpline[j] = v;
                 midSplineSmoothness[j] = 1.0f;
             }
+            
+            // Experimental
+            // mid curve by closest perpendicular curves matching mid points (v)
+            //generateMidCurve( midPoints, scanCurves, scene, layoutWindow);
+            
             addedCurves.addElement(midSpline);
             //insertOrdered(XzCurves, midSpline, SplineSkin.Y); // recursive
         }
@@ -441,6 +469,7 @@ public class SplineSkin extends Thread {
             }
         }
         
+        /*
         System.out.println("  ");
         Vector distances = new Vector();
         Vector offsets = new Vector();
@@ -459,19 +488,21 @@ public class SplineSkin extends Thread {
             System.out.println("   distance " + distance + " " + offset + " " + (1-( distance/largestDistance)) );
         }
         // if two closest distances are within 5% of each other compared to the farthest match distance, average the offsets.
-        double closestDist = ((double)distances.elementAt(0));
-        double secondClosestDist = ((double)distances.elementAt(1));
-        if(   (1-( secondClosestDist/largestDistance))  -   (1-( closestDist/largestDistance))  < 0.05 ){
-            //System.out.println("****");
-            
-            double closestOffset = ((double)offsets.elementAt(0));
-            double secondClosestOffet = ((double)offsets.elementAt(1));
-            double avg = (closestOffset + secondClosestOffet) / 2;
-            //result = avg
-            
-            System.out.println("**** " + avg);
+        if(distances.size() > 1){
+            double closestDist = ((double)distances.elementAt(0));
+            double secondClosestDist = ((double)distances.elementAt(1));
+            if(   (1-( secondClosestDist/largestDistance))  -   (1-( closestDist/largestDistance))  < 0.05 ){
+                //System.out.println("****");
+                
+                double closestOffset = ((double)offsets.elementAt(0));
+                double secondClosestOffet = ((double)offsets.elementAt(1));
+                double avg = (closestOffset + secondClosestOffet) / 2;
+                //result = avg
+                
+                System.out.println("**** " + avg);
+            }
         }
-        
+        */
         
         if(matchingCurve != null && closestAVec != null && closestBVec != null && closestAPointIndex != closestBPointIndex &&
            matchingCurveIndexA == matchingCurveIndexB && matchingCurveIndexB == matchingCurveIndexM){
@@ -491,6 +522,16 @@ public class SplineSkin extends Thread {
         }
         return result;
     }
+    
+    public double getXOffset(Vec3 a, Vec3 b, Vec3 mid, Vector curves){
+        double result = 0;
+        return result;
+    }
+    
+    public double getYOffset(Vec3 a, Vec3 b, Vec3 mid, Vector curves){
+        double result = 0;
+        return result;
+    }
 
     /**
     * getBounds
@@ -505,9 +546,14 @@ public class SplineSkin extends Thread {
         LayoutModeling layout = new LayoutModeling();
         Object3D o3d = object.getObject().duplicate();
         bounds = o3d.getBounds();           // THIS DOES NOT WORK
+        //bounds.minx = Float.MAX_VALUE; bounds.maxx = Float.MIN_VALUE;
+        //bounds.miny = Float.MAX_VALUE; bounds.maxy = Float.MIN_VALUE;
+        //bounds.minz = Float.MAX_VALUE; bounds.maxz = Float.MIN_VALUE;
+        
         bounds.minx = 999; bounds.maxx = -999;
         bounds.miny = 999; bounds.maxy = -999;
         bounds.minz = 999; bounds.maxz = -999;
+        
         CoordinateSystem c;
         c = layout.getCoords(object);
         Vec3 objOrigin = c.getOrigin();
@@ -610,14 +656,27 @@ public class SplineSkin extends Thread {
      *
      * Description: given a list of curve points, subdivide the mesh.
      */
-    public void subdivideCurves(Vector curves){
-        for(int i = 0; i < curves.size(); i++){
-            Vec3 [] verts = (Vec3 [])curves.elementAt(i);
-            Curve curve = getCurve(verts);
-            curve = curve.subdivideCurve();
-            verts = curve.getVertexPositions();
-            curves.setElementAt(verts, i);
+    public Vector subdivideCurves(Vector curves, int subdivisions){
+        Vector subdivided = new Vector(curves);
+        for(int subs = 0; subs < subdivisions; subs++){
+            for(int i = 0; i < subdivided.size(); i++){
+                Vec3 [] verts = (Vec3 [])subdivided.elementAt(i);
+                Curve curve = getCurve(verts);
+                curve = curve.subdivideCurve();
+                verts = curve.getVertexPositions();
+                subdivided.setElementAt(verts, i);
+            }
         }
+        return subdivided;
+    }
+    
+    public Vec3[] subdivideCurve(Vec3[] curveVerts, int subdivisions){
+        for(int subs = 0; subs < subdivisions; subs++){
+            Curve curve = getCurve(curveVerts);
+            curve = curve.subdivideCurve();
+            curveVerts = curve.getVertexPositions();
+        }
+        return curveVerts;
     }
     
     /**
@@ -626,6 +685,9 @@ public class SplineSkin extends Thread {
      * From SkinDialog()
      */
     private void skinMesh(Vector curves, Scene scene, LayoutWindow layoutWindow, String name){
+        if(curves.size() == 0){
+            return;
+        }
         ObjectInfo curve[] = new ObjectInfo[curves.size()];
         boolean reverse[] = new boolean [curves.size()];
         Vec3 centerOffset;
@@ -688,5 +750,75 @@ public class SplineSkin extends Thread {
         layoutWindow.updateImage();
         layoutWindow.updateMenus();
         layoutWindow.rebuildItemList();
+    }
+    
+    /**
+     * generateMidCurve
+     *
+     * Description:
+     */
+    public Vec3[] generateMidCurve(Vector midPoints, Vector perpendicularCurves, Scene scene, LayoutWindow layoutWindow){
+        Vector<Vec3> generatedMidCurve = new Vector<Vec3>();
+        
+        //perpendicularCurves = subdivideCurves(perpendicularCurves, 8);
+        HashMap hash = new HashMap();
+        
+        // Find closest pairs of points for each
+        //System.out.println(" - " + perpendicularCurves.size());
+        
+            
+        //for(int i = 0; i < perpendicularCurves.size(); i++){            // perpendicular curves
+        for(int i = perpendicularCurves.size()-1; i >= 0;  i-- ){
+            Vec3 [] verts = (Vec3 [])perpendicularCurves.elementAt(i);
+            
+            double closestPointDistance = Double.MAX_VALUE;
+            Vec3 closestPoint = null;
+            
+            for(int p = 0; p < verts.length; p++){
+                Vec3 perpVert = (Vec3)verts[p];
+                
+                for(int j = 0; j < midPoints.size(); j++){
+                    Vec3 midPoint = (Vec3)midPoints.elementAt(j);
+                
+                    double distance = perpVert.distance(midPoint);
+                    if(distance < closestPointDistance){
+                        closestPointDistance = distance;
+                        closestPoint = perpVert;
+                    }
+                    
+                }
+            }
+            
+            
+            if(closestPoint != null){
+                generatedMidCurve.addElement(closestPoint);
+                //System.out.println(" point " + closestPoint);
+            }
+        }
+            
+        
+        
+        // Blend, subtract difference between closest perp point and midpoint edges (a, b)
+        // This way perpendicular curves won't pull mesh faces out if not aligned to the rib curves perfectly.
+        // TODO
+        Vec3[] midCurvePoints = new Vec3[generatedMidCurve.size()];
+        if(generatedMidCurve.size() > 1 ){
+            //Vec3[] points = new Vec3[generatedMidCurve.size()];
+            for(int i = 0; i < generatedMidCurve.size(); i++){
+                midCurvePoints[i] = (Vec3)generatedMidCurve.elementAt(i);
+            }
+            
+            midCurvePoints = subdivideCurve(midCurvePoints, 4);
+            
+            Curve curve = getCurve(midCurvePoints);
+            ObjectInfo curveObject = new ObjectInfo(curve, new CoordinateSystem(), "XXX ");
+            
+            scene.addObject(curveObject, null);
+            
+            layoutWindow.updateImage();
+            layoutWindow.updateMenus();
+            layoutWindow.rebuildItemList();
+        }
+        return midCurvePoints;
     }
 }
