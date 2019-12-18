@@ -77,6 +77,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   protected Preferences preferences;
 
   boolean layoutModelingView = true;
+    Analytics analytics;
 
   /** Create a new LayoutWindow for editing a Scene.  Usually, you will not use this constructor directly.
       Instead, call ModellingApp.newWindow(Scene s). */
@@ -281,6 +282,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     setBounds(screenBounds);
     tools.requestFocus();
     setTime(theScene.getTime());
+      
+      analytics = new Analytics();
+      analytics.start();
   }
 
   /** Load all the preferences into memory. */
@@ -677,7 +681,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         toolsMenuItem[i] = item;
       }
 
+      
     toolsMenu.addSeparator();
+      
+      toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
+      
+      toolsMenu.addSeparator();
 
     // Auto Skin
     // TODO
@@ -2769,6 +2778,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void splineGridSkin(){
         if(theScene != null){
            theScene.splineGridSkin(this);
+        }
+    }
+    
+    public void joinMultipleSplines(){
+        if(theScene != null){
+            theScene.joinMultipleSplines(this);
         }
     }
 

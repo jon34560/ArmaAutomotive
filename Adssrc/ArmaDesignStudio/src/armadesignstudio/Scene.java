@@ -1892,6 +1892,16 @@ public class Scene
         System.out.println("XXX: " );
         */
     }
+    
+    /**
+     * joinMultipleSplines
+     *
+     * Description:
+     */
+    public void joinMultipleSplines(LayoutWindow layoutWindow){
+        JoinSplines join = new JoinSplines();
+        join.joinSplines(this, layoutWindow, objects);
+    }
 
   /**
   * getObjectInfo

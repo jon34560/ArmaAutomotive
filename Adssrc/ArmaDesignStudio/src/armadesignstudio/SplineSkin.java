@@ -28,7 +28,7 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
-import javax.swing.JCheckBox;
+//import javax.swing.JCheckBox;
 import java.awt.BorderLayout;
 import javax.swing.JDialog;
 import javax.swing.JProgressBar;
@@ -125,13 +125,14 @@ public class SplineSkin extends Thread {
         }
         
         // subdividing the curves increases accuracy when equalizing point counts and possibly mid curves
+        orderPointsInCurves(XzCurves);
         
-         XyCurves = subdivideCurves(XyCurves, 4);
-         XzCurves = subdivideCurves(XzCurves, 4);
-         YxCurves = subdivideCurves(YxCurves, 4);
-         YzCurves = subdivideCurves(YzCurves, 4);
-         ZxCurves = subdivideCurves(ZxCurves, 4);
-         ZyCurves = subdivideCurves(ZyCurves, 4);
+        XyCurves = subdivideCurves(XyCurves, 4);
+        XzCurves = subdivideCurves(XzCurves, 4);
+        YxCurves = subdivideCurves(YxCurves, 4);
+        YzCurves = subdivideCurves(YzCurves, 4);
+        ZxCurves = subdivideCurves(ZxCurves, 4);
+        ZyCurves = subdivideCurves(ZyCurves, 4);
         
         
         // XyCurves
@@ -140,7 +141,7 @@ public class SplineSkin extends Thread {
         // Yz generate curve between parallel pairs (Works to some degree)
         Vector addedCurves = new Vector();
         for(int i = 1; i < YzCurves.size(); i++){
-            System.out.println("Yz spline pair " + i);
+            //System.out.println("Yz spline pair " + i);
             Vec3 [] vertsA = (Vec3 [])YzCurves.elementAt(i-1);
             Vec3 [] vertsB = (Vec3 [])YzCurves.elementAt(i);
             int larger = Math.max(vertsA.length, vertsB.length);
@@ -154,7 +155,7 @@ public class SplineSkin extends Thread {
             Vector scanCurves = new Vector();
             scanCurves.addAll(XzCurves);
             scanCurves.addAll(XyCurves);
-            System.out.println("XzCurves "+  XzCurves.size() + "  XyCurves "  + XyCurves.size() );
+            //System.out.println("XzCurves "+  XzCurves.size() + "  XyCurves "  + XyCurves.size() );
             
             Vec3[] midSpline = new Vec3[larger];
             float midSplineSmoothness[] = new float[larger];
@@ -188,7 +189,7 @@ public class SplineSkin extends Thread {
             // Experimental
             // mid curve by closest perpendicular curves matching mid points (v)
             
-            Vec3[] midCurve2 = generateMidCurve( midPoints, scanCurves, scene, layoutWindow);
+            Vec3[] midCurve2 = generateMidCurve(midPoints, scanCurves, scene, layoutWindow);
             
             addedCurves.addElement(midCurve2);
             
@@ -202,7 +203,7 @@ public class SplineSkin extends Thread {
         // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
         equalizeCurvePointCounts(YzCurves, scene);
         // Add curves to scene (Optional)
-        
+        /*
         for(int i = 0; i < YzCurves.size(); i++){
             Vec3[] spline = (Vec3[])YzCurves.elementAt(i);
             
@@ -214,7 +215,7 @@ public class SplineSkin extends Thread {
             layoutWindow.updateMenus();
             layoutWindow.rebuildItemList();
         }
-        
+        */
         // Skin to mesh
         skinMesh(YzCurves, scene, layoutWindow, "Yz");
         
@@ -273,8 +274,11 @@ public class SplineSkin extends Thread {
             // Experimental
             // mid curve by closest perpendicular curves matching mid points (v)
             //generateMidCurve( midPoints, scanCurves, scene, layoutWindow);
+            Vec3[] midCurve2 = generateMidCurve(midPoints, scanCurves, scene, layoutWindow);
             
-            addedCurves.addElement(midSpline);
+            addedCurves.addElement(midCurve2);
+            
+            //addedCurves.addElement(midSpline);
             //insertOrdered(XzCurves, midSpline, SplineSkin.Y); // recursive
         }
         for(int i = 0; i < addedCurves.size(); i++){
@@ -283,7 +287,7 @@ public class SplineSkin extends Thread {
         }
         // Equalize point count in each group of curves. Equal points is required if skin to mesh is used.
         equalizeCurvePointCounts(XzCurves, scene);
-        //skinMesh(XzCurves, scene, layoutWindow, "Xz");
+        skinMesh(XzCurves, scene, layoutWindow, "Xz");
         
         
         
@@ -820,5 +824,34 @@ public class SplineSkin extends Thread {
             layoutWindow.rebuildItemList();
         }
         return midCurvePoints;
+    }
+    
+    
+    /**
+     * orderPointsInCurves
+     *
+     * Description:
+     */
+    public void orderPointsInCurves(Vector curves){
+        for(int i = 1; i < curves.size(); i++){
+            Vec3 [] curve = (Vec3 [])curves.elementAt(i);
+            if(curve.length > 1){
+                if(curve[0].x < curve[curve.length-1].x){
+                    //System.out.println(" Reverse curve points: " + i);
+                    Vec3[] reversed = new Vec3[curve.length];
+                    for(int j = 0; j < reversed.length; j++){
+                        reversed[j] = curve[ (curve.length - 1) - j  ];
+                    }
+                    curves.setElementAt(reversed, i);
+                }
+            }
+            
+            //for(int p = 0; p < curve.length; p++){
+            //    Vec3 point = (Vec3)curve[p];
+            
+            //    System.out.println(" i " + p + "    x " + point.x   );
+            //}
+            
+        }
     }
 }
