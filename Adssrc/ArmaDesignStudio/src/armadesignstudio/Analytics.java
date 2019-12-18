@@ -11,33 +11,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 package armadesignstudio;
 
 import java.util.*;
-//import armadesignstudio.math.*;
-//import armadesignstudio.object.*;
-//import armadesignstudio.view.CanvasDrawer;
 import java.io.*;
-import java.math.BigDecimal;
-//import java.text.DecimalFormat;
-//import buoy.widget.*;
-import armadesignstudio.ui.*;
-import java.awt.Color;
-import java.awt.Dimension;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-//import javax.swing.JLabel;
-//import java.awt.Font;
-import javax.swing.SwingConstants;
-//import javax.swing.JTextField;
-//import javax.swing.JCheckBox;
-//import java.awt.BorderLayout;
-//import javax.swing.JDialog;
-//import javax.swing.JProgressBar;
-//import javax.swing.JFrame;
-//import java.awt.Toolkit;
-//import java.awt.event.WindowAdapter;
-//import java.awt.event.WindowEvent;
-import java.util.HashMap;
-import armadesignstudio.texture.*;
 import java.net.*;
 import java.net.URL;
 
@@ -61,8 +35,7 @@ public class Analytics extends Thread {
         while(running){
             // Ping server
             try {
-            
-                URL url = new URL("http://www.armaautomotive.com/contact.php");
+                URL url = new URL("http://armaautomotive.com/analytics/activity.php");
                 URLConnection con = url.openConnection();
                 InputStream in = con.getInputStream();
                 String encoding = con.getContentEncoding();  // ** WRONG: should use "con.getContentType()" instead but it returns something like "text/html; charset=UTF-8" so this value must be parsed to extract the actual encoding
@@ -76,7 +49,7 @@ public class Analytics extends Thread {
                     baos.write(buf, 0, len);
                 }
                 String body = new String(baos.toByteArray(), encoding);
-                //System.out.println(body);
+                System.out.println("Analytics: "+body);
             
             
             
