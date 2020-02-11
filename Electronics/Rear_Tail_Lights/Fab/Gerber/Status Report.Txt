@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [Rear_Tail_Lights_FULL.PrjPcb]
+   Generated File[Rear_Tail_Lights_FULL.TXT]
+   Generated File[Rear_Tail_Lights_FULL.LDP]
+   Generated File[Rear_Tail_Lights_FULL.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 6:00:55 PM On 3/3/2019

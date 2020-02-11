@@ -1,0 +1,6 @@
+DRC Rules Export File for PCB: F:\Work\PCB\Jon Taylor\V4\proj\Rear_Tail_Lights - 1-March-2019\Rear_Tail_Lights_FULL.PcbDoc
+RuleKind=Clearance|RuleName=Clearance_AC|Scope=Board|Minimum=39.37
+RuleKind=Width|RuleName=Width|Scope=Board|Minimum=5.91
+RuleKind=SolderMaskExpansion|RuleName=SolderMaskExpansion|Scope=Board|Minimum=1.97
+RuleKind=ShortCircuit|RuleName=ShortCircuit|Scope=Board|Allowed=0
+RuleKind=Clearance|RuleName=Clearance|Scope=Board|Minimum=6.00
