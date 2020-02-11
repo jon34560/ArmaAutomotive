@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [CAR_V6_Project.PrjPcb]
+   Generated File[CAR.TXT]
+   Generated File[CAR.LDP]
+   Generated File[CAR.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 11:14:58 AM On 4/3/2019
