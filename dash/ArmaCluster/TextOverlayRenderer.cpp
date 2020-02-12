@@ -166,17 +166,18 @@ void TextOverlayRenderer::doRender()
 		const char char_timemax = -1;
 		char const* timeValchar = timeVal.c_str();
 
-		renderText(1400, 223, BITMAP_FONT_TYPE_TIMES_ROMAN_24, fuelValchar ); // Fuel
-		renderText(1650, 223, BITMAP_FONT_TYPE_TIMES_ROMAN_24, rangeValchar); // Range
-		renderText(1405, 467, BITMAP_FONT_TYPE_TIMES_ROMAN_24, temperatureValchar); // Temp
-		renderText(1655, 467, BITMAP_FONT_TYPE_TIMES_ROMAN_24, pressureValchar); // Oil pressure
+		renderText(1400, 223, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar ); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
+		renderText(1650, 223, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
+		renderText(1405, 467, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
+		renderText(1655, 467, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
 
 		renderText(1557, 680, BITMAP_FONT_TYPE_HELVETICA_18, voltageValchar); // voltage
-		renderText(1770, 684, BITMAP_FONT_TYPE_TIMES_ROMAN_24, odometerValchar); // odo
-		renderText(1300, 684, BITMAP_FONT_TYPE_TIMES_ROMAN_24, timeValchar); // time
+		renderText(1770, 684, BITMAP_FONT_TYPE_HELVETICA_18, odometerValchar); // odo
+		renderText(1300, 684, BITMAP_FONT_TYPE_HELVETICA_18, timeValchar); // time
 
 		// Speed units
-		renderText(934, 433, BITMAP_FONT_TYPE_TIMES_ROMAN_24, "Kmh"); // Speed Units
+		renderText(940, 433, BITMAP_FONT_TYPE_HELVETICA_18, "Kmh"); // Speed Units
+		// Helvetica18 BITMAP_FONT_TYPE_TIMES_ROMAN_24
 
 
 		glColor3f(1.0f, 1.0f, 1.0f);
@@ -195,7 +196,7 @@ void TextOverlayRenderer::doRender()
 		beginRenderText(1920, 720);
 		{
 			glColor3f(1.0f, 1.0f, 1.0f);
-			renderText(80, 170 , BITMAP_FONT_TYPE_TIMES_ROMAN_24,"Settings");
+			renderText(80, 170 , BITMAP_FONT_TYPE_HELVETICA_18,"Settings");
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
@@ -222,7 +223,7 @@ void TextOverlayRenderer::drawMainMenu()
 		beginRenderText(1920, 720);
 		{
 		glColor3f(1.0f, 1.0f, 1.0f);
-		renderText((float)80, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_TIMES_ROMAN_24, mainMenuItems.at(menuStartIndex).c_str());
+		renderText((float)80, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, mainMenuItems.at(menuStartIndex).c_str());
 		glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
@@ -238,7 +239,7 @@ void TextOverlayRenderer::drawMainMenu()
 		{
 			string temp = ptrSubMenuLevel1->at(nIndex).at(0);
 			glColor3f(1.0f, 1.0f, 1.0f);
-			renderText((float)290, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_TIMES_ROMAN_24, temp.c_str());
+			renderText((float)290, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, temp.c_str());
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
@@ -256,7 +257,7 @@ void TextOverlayRenderer::drawMainMenu()
 			{
 				string temp = ptrSubMenuLevel1->at(activeMenuSelection[1]).at(nIndex + 1);
 				glColor3f(1.0f, 1.0f, 1.0f);
-				renderText((float)490, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_TIMES_ROMAN_24, temp.c_str());
+				renderText((float)490, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, temp.c_str());
 				glColor3f(1.0f, 1.0f, 1.0f);
 			}
 			endRenderText();

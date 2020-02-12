@@ -273,11 +273,11 @@ void SpeedDisplay::drawDigit(int ndigit, int nDigitOrder, int nOffset)
 		glBindTexture(GL_TEXTURE_2D, digit9Texture);
 
 	if( 1 == nDigitOrder)
-		glViewport(847+ nOffset, 386 - 52, 69, 94); // x, y, w, h
+		glViewport(847+ nOffset, 386 - 60, 69, 94); // x, y, w, h
 	else if (2 == nDigitOrder)
-		glViewport(923+ nOffset, 386 - 52, 69, 94);
+		glViewport(923+ nOffset, 386 - 60, 69, 94);
 	else if (3 == nDigitOrder)
-		glViewport(999+ nOffset, 386 - 52, 69, 94);
+		glViewport(999+ nOffset, 386 - 60, 69, 94);
 
 	glRotatef(180.0, 1, 0, 0);
 	glBegin(GL_QUADS);
