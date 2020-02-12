@@ -7,6 +7,7 @@
 RpmRenderer::RpmRenderer()
 {
 	angle = 0;
+	reverse = false;
 }
 
 RpmRenderer::~RpmRenderer()
@@ -77,13 +78,19 @@ void RpmRenderer::DrawCircle(float cx, float cy, float r, int num_segments) {
 	glEnd();
 }
 
-void RpmRenderer::DrawArc(float cx, float cy, float r, int num_segments, int arc) {
+/**
+*
+*/
+void RpmRenderer::DrawArc(float cx, float cy, float r, int num_segments, int arc_angle) {
+	int arc = (int)((float)num_segments * ((float)arc_angle / (float)360));
+	int quarter_segments = (int)((float)num_segments * 0.25);
 	glEnable(GL_LINE_SMOOTH);
 	glBegin(GL_LINES);
 	float prevX = 0;
 	float prevY = 0;
-	for (int ii = 0; ii < num_segments && ii < arc; ii++) {
-		float theta = ((2.0f * 3.1415926f) + (3.1415926f )) * float(ii) / float(num_segments); // get the current angle 
+	for (int ii = 0; ii < num_segments && ii < arc ; ii++) { // - (num_segments/4)
+		float theta = (2.0f * 3.1415926f) * ((float(ii + quarter_segments) / float(num_segments) ) ); //
+		theta = -theta;
 		float x = r * cosf(theta); //calculate the x component 
 		float y = r * sinf(theta); //calculate the y component 
 		glVertex2f(x + cx, y + cy); //output vertex 
@@ -157,13 +164,14 @@ void RpmRenderer::doRender()
 	DrawCircle(0.0, 0.0, 0.886, 120);
 
 	glLineWidth(12.0);
-	DrawArc(0.0, 0.0, 0.586, 120, 60);
+	//int deg = angle / 3.6;
+	DrawArc(0.0, 0.0, 0.586, 360, angle);
 
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	
-	
+
+
+
 	/*
 	glLineWidth(1.0);
 	glBegin(GL_LINES);				//
@@ -173,27 +181,27 @@ void RpmRenderer::doRender()
 	glVertex2f(-0.1, -0.3);
 	glEnd();
 		*/
-	/*
-	glBegin(GL_POLYGON);			// Works
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(-0.5, -0.5);
-	glColor3f(1.0f, 0.0f, 1.0f);
-	glVertex2f(-0.5, 0.5);
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex2f(0.5, 0.5);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(0.5, -0.5);
-	glEnd();
-	*/
+		/*
+		glBegin(GL_POLYGON);			// Works
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex2f(-0.5, -0.5);
+		glColor3f(1.0f, 0.0f, 1.0f);
+		glVertex2f(-0.5, 0.5);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex2f(0.5, 0.5);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex2f(0.5, -0.5);
+		glEnd();
+		*/
 
-	
+
 
 	glPopMatrix();
 
 	glColor3f(1.0, 1.0, 1.0);
 
 
-	
+
 	// Draw RPM Dial
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
@@ -204,7 +212,7 @@ void RpmRenderer::doRender()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	int s32_count = 0;
 	std::vector<Triangle> TrianglesVe;
 	TrianglesVe = m_ply_temp->get_traignles_for_rendering(-angle);
@@ -214,9 +222,9 @@ void RpmRenderer::doRender()
 		glBegin(GL_TRIANGLES);
 		if (angle > 315)
 			glColor3f(1.0, 0.0, 0.0);
-		else if(angle > 270)
+		else if (angle > 270)
 			glColor3f(1.0, 1.0, 0.0);
-		
+
 
 		glTexCoord2f((TrianglesVe[s32_count].uv1[0]), 1.0 - TrianglesVe[s32_count].uv1[1]);
 		glVertex2f(TrianglesVe[s32_count].point1[0], TrianglesVe[s32_count].point1[1]);
@@ -230,9 +238,19 @@ void RpmRenderer::doRender()
 		glEnd();
 	}
 	glColor3f(1.0, 1.0, 1.0);
-	angle++;
-	if (angle > 360)
-		angle = 0;
+	if (reverse == false) {
+		angle+=2;
+	}
+	else {
+		angle-=2;
+	}
+	if (angle > 360) {
+		reverse = true;
+		//angle = 0;
+	}
+	if (angle <= 0) {
+		reverse = false;
+	}
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	

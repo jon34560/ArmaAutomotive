@@ -19,11 +19,11 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import buoy.widget.*;
 import armadesignstudio.ui.*;
-import java.awt.Color;
-import java.awt.Dimension;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
+//import java.awt.Color;
+//import java.awt.Dimension;
+//import javax.swing.JOptionPane;
+//import javax.swing.JPanel;
+//import javax.swing.UIManager;
 //import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.SwingConstants;
@@ -50,7 +50,7 @@ public class JoinSplines {
      * Description: given a selection of spline curves. join them into one continous new curve object
      */
     public void joinSplines(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
-        Vector splines = new Vector();
+        Vector<Vec3[]> splines = new <Vec3[]>Vector();
         LayoutModeling layout = new LayoutModeling();
         int joinedSplineLength = 0;
         for (ObjectInfo obj : objects){
@@ -70,7 +70,7 @@ public class JoinSplines {
                     for (Vec3 vert : verts){
                         Mat4 mat4 = c.duplicate().fromLocal();
                         mat4.transform(vert);
-                        System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                        //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
                     }
                     splines.addElement(verts);
                     joinedSplineLength += verts.length;
@@ -83,9 +83,30 @@ public class JoinSplines {
         // Generate new spline with combined
         Vec3[] joinedSpline = new Vec3[joinedSplineLength];
         for(int i = 0; i < splines.size(); i++){
-            
+            Vec3 [] spline = splines.elementAt(i);
+            //joinedSpline[ ] =
         }
         
+        /*
+        Curve curve = getCurve(midCurvePoints);
+        ObjectInfo curveObject = new ObjectInfo(curve, new CoordinateSystem(), "XXX ");
         
+        scene.addObject(curveObject, null);
+        
+        layoutWindow.updateImage();
+        layoutWindow.updateMenus();
+        layoutWindow.rebuildItemList();
+         */
     }
+    
+    public Curve getCurve(Vec3[] points){
+        float smooths[] = new float[points.length];
+        for(int i = 0; i < points.length; i++){
+            smooths[i] = 1.0f;
+        }
+        Curve curve = new Curve(points, smooths, Mesh.APPROXIMATING, false);
+        return curve;
+    }
+    
+    
 }
