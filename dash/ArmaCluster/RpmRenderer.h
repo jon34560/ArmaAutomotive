@@ -14,10 +14,13 @@ public:
 	~RpmRenderer();
 	 void initialize();
 	 void doRender();
+	 void dialA();
+	 void dialB();
 	 void keyPressed(int key);
 
 	 void drawBackground();
 	 void drawFilledSun();
 	 void DrawCircle(float cx, float cy, float r, int num_segments);
 	 void DrawArc(float cx, float cy, float r, int num_segments, int arc_angle);
+	 void DrawArcSegment(float cx, float cy, float r, int num_segments, int start_angle, int end_angle);
 };

@@ -133,21 +133,25 @@ void TextOverlayRenderer::doRender()
 		int fuelVal = DataModel::getInstance()->getfuelValue();
 		const char char_fuelmax = -1;
 		std::string f = std::to_string(fuelVal);
+		f = f + " Fuel";
 		char const* fuelValchar = f.c_str();
 
 		int temperatureVal = DataModel::getInstance()->gettemperatureValue();
 		const char char_temperaturemax = -1;
 		std::string t = std::to_string(temperatureVal);
+		t = t + " Temp";
 		char const* temperatureValchar = t.c_str();
 
 		int rangeVal = DataModel::getInstance()->getrangeValue();
 		const char char_rangemax = -1;
 		std::string r = std::to_string(rangeVal);
+		r = r + " Range";
 		char const* rangeValchar = r.c_str();
 
 		int pressureVal = DataModel::getInstance()->getpressureValue();
 		const char char_pressuremax = -1;
 		std::string p = std::to_string(pressureVal);
+		p = p + " Pressure";
 		char const* pressureValchar = p.c_str();
 
 		int voltageVal = DataModel::getInstance()->getvoltageValue();
@@ -166,10 +170,19 @@ void TextOverlayRenderer::doRender()
 		const char char_timemax = -1;
 		char const* timeValchar = timeVal.c_str();
 
-		renderText(1400, 223, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar ); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
-		renderText(1650, 223, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
-		renderText(1405, 467, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
-		renderText(1655, 467, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
+		if (false) {
+			renderText(1400 + 10, 223 + 23, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
+			renderText(1650 + 7, 223 + 23, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
+			renderText(1405, 467 + 39, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
+			renderText(1655 + 2, 467 + 39, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
+		}
+
+		if (true) {
+			renderText(1300, 283 - 8, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
+			renderText(1300, 283 + 50, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
+			renderText(1300, 283 + 108, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
+			renderText(1300, 283 + 166, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
+		}
 
 		renderText(1557, 680, BITMAP_FONT_TYPE_HELVETICA_18, voltageValchar); // voltage
 		renderText(1770, 684, BITMAP_FONT_TYPE_HELVETICA_18, odometerValchar); // odo

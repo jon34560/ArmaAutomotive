@@ -130,6 +130,7 @@ void RpmRenderer::DrawArcSegment(float cx, float cy, float r, int num_segments, 
 	glEnd();
 }
 
+// DEPRICATE
 void RpmRenderer::drawBackground()
 {
 	glPushMatrix();
@@ -174,6 +175,11 @@ void RpmRenderer::drawBackground()
 */
 void RpmRenderer::doRender()
 {
+	//dialA();
+	dialB();
+}
+
+void RpmRenderer::dialA(){
 	glPushMatrix();
 	//glViewport(0, 0, 1920, 720);
 	glViewport(667, 77, 584, 584);
@@ -250,15 +256,6 @@ void RpmRenderer::doRender()
 	DrawArc(0.0, 0.0, radius + 0.013, 360, angle);
 
 
-	/*
-	glLineWidth(1.0);
-	glBegin(GL_LINES);				//
-	//glColor3f(1.0f, 0.5f, 0.5f);
-	glVertex2f(0, 0);
-	glVertex2f(0.1, 0.1);
-	glVertex2f(-0.1, -0.3);
-	glEnd();
-		*/
 		/*
 		glBegin(GL_POLYGON);			// Works
 		glColor3f(1.0f, 0.0f, 0.0f);
@@ -272,25 +269,21 @@ void RpmRenderer::doRender()
 		glEnd();
 		*/
 
-
-
 	glPopMatrix();
 
 	glColor3f(1.0, 1.0, 1.0);
 
-
-
 	// Draw RPM Dial
 	
 	glPushMatrix();
-	glEnable(GL_TEXTURE_2D);
-	glViewport(667, 77, 584, 584);
+	//glEnable(GL_TEXTURE_2D);
+	//glViewport(667, 77, 584, 584);
 
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, rpmMeterFrame);
+	//glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, rpmMeterFrame);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	/*
 	int s32_count = 0;
 	std::vector<Triangle> TrianglesVe;
@@ -334,6 +327,131 @@ void RpmRenderer::doRender()
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	
+}
+
+void RpmRenderer::dialB() {
+	glPushMatrix();
+	//glViewport(0, 0, 1920, 720);
+	glViewport(667, 77, 584, 584);
+	//drawBackground();
+
+	float radius = 0.739;
+
+	// Draw unit line
+	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glLineWidth(4.0);
+	DrawArcSegment(0.0, 0.0, radius, 720, 60, 62);
+
+	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glLineWidth(4.0);
+	DrawArcSegment(0.0, 0.0, radius, 720, 120, 122);
+
+	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glLineWidth(4.0);
+	DrawArcSegment(0.0, 0.0, radius, 720, 180, 182);
+
+	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glLineWidth(4.0);
+	DrawArcSegment(0.0, 0.0, radius, 720, 240, 242);
+
+	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glLineWidth(4.0);
+	DrawArcSegment(0.0, 0.0, radius, 720, 300, 302);
+
+
+	// Inner circle
+	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
+	glLineWidth(2.0);
+	//DrawCircle(0.0, 0.0, 0.739, 120);
+	DrawArcSegment(0.0, 0.0, 0.739, 360, 0, 270);
+
+	glColor4f(225.0 / 255.0, 225.0 / 255.0, 0.0 / 255.0, 0.5); // yellow region
+	glLineWidth(2.0);
+	DrawArcSegment(0.0, 0.0, radius, 360, 270, 315);
+
+	glColor4f(225.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.5); // red region
+	glLineWidth(2.0);
+	DrawArcSegment(0.0, 0.0, radius, 360, 315, 360);
+
+	// Outer Circle
+	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glLineWidth(2.0);
+	DrawCircle(0.0, 0.0, 0.886, 120);
+
+
+	// Draw gauge
+	glLineWidth(12.0);
+	if (angle < 270) { glColor3f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0); }
+	else if (angle < 315) { glColor3f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0); }
+	else if (angle > 315) { glColor3f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0); }
+	DrawArc(0.0, 0.0, radius + 0.014, 360, angle);
+	DrawArc(0.0, 0.0, radius + 0.045, 360, angle);
+	DrawArc(0.0, 0.0, radius + 0.078, 360, angle);
+	DrawArc(0.0, 0.0, radius + 0.102, 360, angle);
+	DrawArc(0.0, 0.0, radius + 0.134, 360, angle);
+
+	
+	// Inner shadow
+	if (angle < 270) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.17); }
+	else if (angle < 315) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.17); }
+	else if (angle > 315) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.17); }
+	DrawArc(0.0, 0.0, radius + 0.012 - 0.007, 360, angle);
+	if (angle < 270) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.07); }
+	else if (angle < 315) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.07); }
+	else if (angle > 315) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.07); }
+	DrawArc(0.0, 0.0, radius + 0.012 - 0.013, 360, angle);
+	// Outer shadow
+	if (angle < 270) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.17); }
+	else if (angle < 315) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.17); }
+	else if (angle > 315) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.17); }
+	DrawArc(0.0, 0.0, radius + 0.002 + 0.134 + 0.007, 360, angle);
+	if (angle < 270) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.07); }
+	else if (angle < 315) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.07); }
+	else if (angle > 315) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.07); }
+	DrawArc(0.0, 0.0, radius + 0.002 + 0.134 + 0.013, 360, angle);
+	
+
+
+	/*
+	glBegin(GL_POLYGON);			// Works
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glVertex2f(-0.5, -0.5);
+	glColor3f(1.0f, 0.0f, 1.0f);
+	glVertex2f(-0.5, 0.5);
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex2f(0.5, 0.5);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glVertex2f(0.5, -0.5);
+	glEnd();
+	*/
+
+
+
+	glPopMatrix();
+
+	glColor3f(1.0, 1.0, 1.0);
+
+
+	// Draw RPM Dial
+
+	glPushMatrix();
+	
+	if (reverse == false) {
+		angle += 2;
+	}
+	else {
+		angle -= 2;
+	}
+	if (angle > 360) {
+		reverse = true;
+		//angle = 0;
+	}
+	if (angle <= 0) {
+		reverse = false;
+	}
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
 }
 
 void RpmRenderer::keyPressed(int key)
