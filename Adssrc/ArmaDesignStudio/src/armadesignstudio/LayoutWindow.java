@@ -682,9 +682,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       }
 
       
-    toolsMenu.addSeparator();
+      toolsMenu.addSeparator();
       
       toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
+      toolsMenu.add(Translate.menuItem("Straighten Spline", this, "straightenSpline"));
       
       toolsMenu.addSeparator();
 
@@ -2784,6 +2785,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void joinMultipleSplines(){
         if(theScene != null){
             theScene.joinMultipleSplines(this);
+        }
+    }
+    
+    public void straightenSpline(){
+        if(theScene != null){
+            theScene.straightenSpline(this);
         }
     }
 
