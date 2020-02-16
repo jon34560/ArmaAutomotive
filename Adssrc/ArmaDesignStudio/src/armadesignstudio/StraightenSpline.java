@@ -20,6 +20,7 @@ import buoy.widget.*;
 import java.util.*;
 import armadesignstudio.object.*;
 import armadesignstudio.math.*;
+import java.lang.Math;
 
 public class StraightenSpline {
     LayoutWindow layoutWindow;
@@ -40,7 +41,7 @@ public class StraightenSpline {
                 //System.out.println("Object Info: ");
                 Object co = (Object)obj.getObject();
                 if((co instanceof Curve) == true){
-                    System.out.println("Curve");
+                    //System.out.println("Curve");
                     CoordinateSystem cs = ((ObjectInfo)obj).getCoords();
                     Vec3 origin = cs.getOrigin();
 
@@ -65,7 +66,7 @@ public class StraightenSpline {
                         Vec3 vertA = verts[i - 1];
                         Vec3 vertB = verts[i];
                         
-                         double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
+                        double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
                         double xOffset = Math.max(vertA.x, vertB.x) - Math.min(vertA.x, vertB.x);
                         double yOffset = Math.max(vertA.y, vertB.y) - Math.min(vertA.y, vertB.y);
                         double zOffset = Math.max(vertA.z, vertB.z) - Math.min(vertA.z, vertB.z);
@@ -79,35 +80,86 @@ public class StraightenSpline {
                             zAngle = Math.atan(zOffset / xOffset);
                         }
                         
-                        
-                        System.out.println("    vert: " +
-                                           vertA.x + " " + vertA.y + "  " + vertA.z  + " - " +
-                                           vertB.x + " " + vertB.y + "  " + vertB.z);
-                        
-                        if(i == 1){
-                            //Vec3 moved = vecPoints[ vertId ];
-                            Vec3 moved = vecPoints[ i ];
-                            moved.x = moved.x + 0;
-                            moved.y = moved.y + 1;
-                            moved.z = moved.z + 0;
-                            vecPoints[ i ] = moved;
+                        //System.out.println("    vert: " +
+                        //                   vertA.x + " " + vertA.y + "  " + vertA.z  + " - " +
+                        //                   vertB.x + " " + vertB.y + "  " + vertB.z);
+                        //System.out.println( "distance " + distance);
+                        if(true){ // i == 1 || i == 2
+                            
+                            // Rotate all remaining points around vertA to angle required to become straight.
+                            double rotateXRequired = 0;
+                            double rotateZRequired = 0;
+                            
+                            Vec3 vertBNew = new Vec3(vertB);
+                            vertBNew.x = vertA.x - distance;
+                            vertBNew.y = vertA.y;
+                            vertBNew.z = vertA.z;
+                            vecPoints[ i ] = vertBNew;
+                            verts[i] = vertBNew;
+                            
+                            rotateXRequired = getAngleX(vertA, vertB, vertBNew);
+                            System.out.println("rotateXRequired " + rotateXRequired);
+                            
+                            for(int j = i + 1; j < verts.length; j++){
+                                Vec3 next = verts[j];
+                                Vec3 rotated = rotatePointX(next, vertA, rotateXRequired);
+                                verts[j] = rotated;
+                                vecPoints[ j ] = rotated;
+                            }
+                             
                         }
                         
-                    }
+                    } // verts pairs
                     
                     
-                    
+                    // Update scene
                     ((Mesh)obj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
                     obj.clearCachedMeshes();
                     ((LayoutWindow)layoutWindow).setModified();
                     ((LayoutWindow)layoutWindow).updateImage();
-                    // Fix
                     
+                    
+                } else {
+                    //
+                    System.out.println("No curve selected.");
                 }
             }
         }
     }
     
+    /**
+     * getAngle
+     *
+     * Description:
+     */
+    double getAngleX(Vec3 a, Vec3 b, Vec3 b2){
+        double angle = 0;
+        
+        // Scale to a.
+        double x1 = b.x - a.x;     // 1 = b
+        double x2 = b2.x - a.x;     // 2 = b2
+        double y1 = b.y - a.y;
+        double y2 = b2.y - a.y;
+        System.out.println("     - x1: " + x1 + " y1: " + y1 + "   x2: " + x2 + " y2: " + y2 );
+        
+        //double f = arccos((x1*x2 + y1*y2) / ( sqrt(x1*x1 + y1*y1) * sqrt(x2*x2 + y2*y2) );
+        angle = Math.acos((x1*x2 + y1*y2) / ( Math.sqrt(x1*x1 + y1*y1) * Math.sqrt(x2*x2 + y2*y2)));
+        
+        return angle;
+    }
+    
+    /**
+     * rotatePoint
+     *
+     * Description:
+     */
+    Vec3 rotatePointX(Vec3 point, Vec3 origin, double angle){
+        Vec3 rotatedPoint = new Vec3();
+        rotatedPoint.x = origin.x + (point.x-origin.x)*Math.cos(angle) - (point.y - origin.y)*Math.sin(angle);
+        rotatedPoint.y = origin.y + (point.x-origin.x)*Math.sin(angle) + (point.y - origin.y)*Math.cos(angle);
+        rotatedPoint.z = point.z;
+        return rotatedPoint;
+    }
 }
 
 
