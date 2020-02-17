@@ -30,12 +30,12 @@ public class StraightenSpline {
     }
     
     /**
+     * straightenSpline
      *
-     *
+     * Description: 
      */
     public void straightenSpline(Vector<ObjectInfo> objects){
         System.out.println("Straighten Spline ");
-        
         for (ObjectInfo obj : objects){
             if(obj.selected == true){
                 //System.out.println("Object Info: ");
@@ -72,7 +72,6 @@ public class StraightenSpline {
                         mat4.transform(worldVertA);
                         mat4.transform(worldVertB);
                         
-                        
                         double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
                         //double xOffset = Math.max(vertA.x, vertB.x) - Math.min(vertA.x, vertB.x);
                         //double yOffset = Math.max(vertA.y, vertB.y) - Math.min(vertA.y, vertB.y);
@@ -90,7 +89,8 @@ public class StraightenSpline {
                         //                   vertA.x + " " + vertA.y + "  " + vertA.z  + " - " +
                         //                   vertB.x + " " + vertB.y + "  " + vertB.z);
                         //System.out.println( "distance " + distance);
-                        if(true){ // i == 1 || i == 2
+                        if(true){
+                        //if(i == 1 || i == 2 || i == 3 || i == 4 || i == 5){
                             
                             // Rotate all remaining points around vertA to angle required to become straight.
                             double rotateXRequired = 0;
@@ -100,7 +100,7 @@ public class StraightenSpline {
                             vertBNew.x = vertA.x - distance;
                             vertBNew.y = vertA.y;
                             vertBNew.z = vertA.z;
-                            vecPoints[ i ] = vertBNew;
+                            vecPoints[i] = vertBNew;
                             verts[i] = vertBNew;
                             
                             rotateXRequired = getAngleX(vertA, vertB, vertBNew);
@@ -114,29 +114,40 @@ public class StraightenSpline {
                             BoundingBox targetRegion = new BoundingBox(worldVertA.x, worldVertB.x,
                                                                        worldVertA.y, worldVertB.y,
                                                                        worldVertA.z, worldVertB.z);
-                            System.out.println(" target x " + targetRegion.minx  + " " + targetRegion.maxx +
-                                               " y " + targetRegion.miny  + " " + targetRegion.maxy +
-                                               " z " + targetRegion.minz  + " " + targetRegion.maxz);
+                            
+                            targetRegion.outset( Math.abs(worldVertA.x - worldVertB.x) / 50.0 );
+                            
+                            //System.out.println(" target x " + targetRegion.minx  + " " + targetRegion.maxx +
+                            //                   " y " + targetRegion.miny  + " " + targetRegion.maxy +
+                            //                   " z " + targetRegion.minz  + " " + targetRegion.maxz);
+                            
                             for (int c = 0; c < obj.getChildren().length; c++){
                                 ObjectInfo child = obj.getChildren()[c];
                                 Object childco = (Object)child.getObject();
                                 if((childco instanceof Curve) == true){
                                     //System.out.println(" child " + child.getName() );
                                     BoundingBox childBox = getTranslatedBounds(child);
-                                    Vec3 childCentre = childBox.getCenter();                    //
-                                    System.out.println("   child " + child.getName()+ " centre x " + childCentre.x +
-                                                       " y " + childCentre.y +
-                                                       " z " + childCentre.z );
+                                    Vec3 childCentre = childBox.getCenter();
+                                    //System.out.println("   child " + child.getName()+ " centre x " + childCentre.x +
+                                    //                   " y " + childCentre.y +
+                                    //                   " z " + childCentre.z );
                                     
-                                    if(targetRegion.contains(childCentre)){
-                                        System.out.println("        INSIDE " + child.getName() );
-                                        
-                                        System.out.println("       worldVertA  x " + worldVertA.x +   // correct
-                                        " y " + worldVertA.y +
-                                        " z " + worldVertA.z );
+                                    boolean moveChild = true;
+                                    for(int x = 0; x < ignoreChildren.size(); x++){
+                                        ObjectInfo oi = (ObjectInfo)ignoreChildren.elementAt(x);
+                                        if(oi == child){
+                                            moveChild = false;
+                                        }
+                                    }
+                                    
+                                    if(moveChild){
+                                        //System.out.println("       worldVertA  x " + worldVertA.x +   // correct
+                                        //" y " + worldVertA.y +
+                                        //" z " + worldVertA.z );
                                         
                                         // if not ignored child
                                         CoordinateSystem childCs = ((ObjectInfo)child).getCoords();
+                                        //System.out.println(" child coord x " +  childCs.getOrigin().x +  " y "+ childCs.getOrigin().y );
                                         Mat4 childMat4 = childCs.duplicate().fromLocal();
                                         
                                         Mesh childMesh = (Mesh) child.getObject(); // Object3D
@@ -145,29 +156,30 @@ public class StraightenSpline {
                                             Vec3 childVert = childVerts[d];
                                             childMat4.transform(childVert);
                                             
-                                            System.out.println("           childVert  x " + childVert.x +
-                                            " y " + childVert.y +
-                                            " z " + childVert.z );
+                                            //System.out.println("           childVert  x " + childVert.x +
+                                            //" y " + childVert.y +
+                                            //" z " + childVert.z );
                                             
                                             childVert = rotatePointX(childVert, worldVertA, rotateXRequired);  //
                                             
-                                            System.out.println("           ->childVert  x " + childVert.x +
-                                            " y " + childVert.y +
-                                            " z " + childVert.z );
+                                            //System.out.println("           ->childVert  x " + childVert.x +
+                                            //" y " + childVert.y +
+                                            //" z " + childVert.z );
                                             
                                             childVerts[d] = childVert; // ISSUE because of translation
                                         }
+                                        CoordinateSystem zeroCS = new CoordinateSystem();
+                                        child.setCoords(zeroCS);
                                         ((Mesh)child.getObject()).setVertexPositions(childVerts);
                                         child.clearCachedMeshes();
-                                        
-                                        
+                                    }
+                                    
+                                    //
+                                    if(targetRegion.contains(childCentre) ){
+                                        //System.out.println("        INSIDE " + child.getName() );
                                         // Don't move this child object any more because it's region has been bent to the correct place.
                                         ignoreChildren.addElement(child);
-                                        
-                                    } else {
-                                        //System.out.println("     NO " + child.getName() );
                                     }
-                                
                                 }
                             }
                             
@@ -205,17 +217,25 @@ public class StraightenSpline {
      */
     double getAngleX(Vec3 a, Vec3 b, Vec3 b2){
         double angle = 0;
-        
         // Scale to a.
         double x1 = b.x - a.x;     // 1 = b
         double x2 = b2.x - a.x;     // 2 = b2
         double y1 = b.y - a.y;
         double y2 = b2.y - a.y;
         //System.out.println("     - x1: " + x1 + " y1: " + y1 + "   x2: " + x2 + " y2: " + y2 );
-        
-        //double f = arccos((x1*x2 + y1*y2) / ( sqrt(x1*x1 + y1*y1) * sqrt(x2*x2 + y2*y2) );
         angle = Math.acos((x1*x2 + y1*y2) / ( Math.sqrt(x1*x1 + y1*y1) * Math.sqrt(x2*x2 + y2*y2)));
-        
+        return angle;
+    }
+    
+    double getAngleY(Vec3 a, Vec3 b, Vec3 b2){
+        double angle = 0;
+        // Scale to a.
+        double x1 = b.x - a.x;     // 1 = b
+        double x2 = b2.x - a.x;     // 2 = b2
+        double y1 = b.z - a.z;
+        double y2 = b2.z - a.z;
+        //System.out.println("     - x1: " + x1 + " y1: " + y1 + "   x2: " + x2 + " y2: " + y2 );
+        angle = Math.acos((x1*x2 + y1*y2) / ( Math.sqrt(x1*x1 + y1*y1) * Math.sqrt(x2*x2 + y2*y2)));
         return angle;
     }
     
@@ -232,12 +252,18 @@ public class StraightenSpline {
         return rotatedPoint;
     }
     
+    /*
+    Vec3 rotatePointY(Vec3 point, Vec3 origin, double angle){
+        Vec3 rotatedPoint = new Vec3();
+        rotatedPoint.x = origin.x + (point.x-origin.x)*Math.cos(angle) - (point.y - origin.y)*Math.sin(angle);
+        rotatedPoint.y = point.y;
+        rotatedPoint.z = origin.y + (point.x-origin.x)*Math.sin(angle) + (point.y - origin.y)*Math.cos(angle);
+        return rotatedPoint;
+    }
+     */
+    
     public BoundingBox getTranslatedBounds(ObjectInfo object){
-        BoundingBox bounds = null; // objectBoundsCache.get(object);
-        if(bounds != null){
-            //System.out.println(" pulling from cache");
-            return bounds;
-        }
+        BoundingBox bounds = null;
         
         LayoutModeling layout = new LayoutModeling();
         Object3D o3d = object.getObject().duplicate();
