@@ -166,6 +166,34 @@ public class BoundingBox
     maxy += dist;
     maxz += dist;
   }
+    
+    /**
+     * expand
+     *
+     * description: Expand size of bounding box by a percentage. Used for range detection.
+     */
+    public void expandPercentage(double percentage){
+        double x = Math.abs(maxx - minx) * ((double)percentage / (double)100.0);
+        double y = Math.abs(maxy - miny) * ((double)percentage / (double)100.0);
+        double z = Math.abs(maxz - minz) * ((double)percentage / (double)100.0);
+        double max = Math.max(Math.max(x, y), z);
+        if(x <= 0){
+            x = max;
+        }
+        if(y <= 0){
+            y = max;
+        }
+        if(z <= 0){
+            z = max;
+        }
+        System.out.println(" x " + x + "  y " + y + " z " + z);
+        minx -= x;
+        miny -= y;
+        minz -= z;
+        maxx += x;
+        maxy += y;
+        maxz += z;
+    }
   
   /** Return a new bounding box which is translated from this one by the specified amount. */
   

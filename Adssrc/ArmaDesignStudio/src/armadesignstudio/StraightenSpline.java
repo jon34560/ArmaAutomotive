@@ -32,7 +32,10 @@ public class StraightenSpline {
     /**
      * straightenSpline
      *
-     * Description: 
+     * Description: With a selected curve object this function will straighten it out and rotate children curves
+     * so that it can be used by the CNC tube notcher.
+     *
+     *  @param vector objects - scene objects used to find a selected curve for processing.
      */
     public void straightenSpline(Vector<ObjectInfo> objects){
         System.out.println("Straighten Spline ");
@@ -41,24 +44,16 @@ public class StraightenSpline {
                 //System.out.println("Object Info: ");
                 Object co = (Object)obj.getObject();
                 if((co instanceof Curve) == true){
-                    //System.out.println("Curve");
                     CoordinateSystem cs = ((ObjectInfo)obj).getCoords();
-                    //Vec3 origin = cs.getOrigin();
-
+                    
                     Mesh mesh = (Mesh) obj.getObject(); // Object3D
                     Vec3 [] verts = mesh.getVertexPositions();
                     
                     Vec3 vecPoints[] = new Vec3[verts.length];
                     for(int i = 0; i < verts.length; i++){
-                        vecPoints[i] = verts[i]; // .r;
+                        vecPoints[i] = verts[i];
                     }
 
-                    //for (Vec3 vert : verts){
-                        //Mat4 mat4 = cs.duplicate().fromLocal();
-                        //mat4.transform(vert);
-                        //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
-                    //}
-                    
                     Vector ignoreChildren = new Vector();
                   
                     for(int i = 1; i < verts.length; i++){
@@ -73,17 +68,6 @@ public class StraightenSpline {
                         mat4.transform(worldVertB);
                         
                         double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
-                        //double xOffset = Math.max(vertA.x, vertB.x) - Math.min(vertA.x, vertB.x);
-                        //double yOffset = Math.max(vertA.y, vertB.y) - Math.min(vertA.y, vertB.y);
-                        //double zOffset = Math.max(vertA.z, vertB.z) - Math.min(vertA.z, vertB.z);
-                        //double yAngle = 0;
-                        //if(xOffset != 0){
-                        //    yAngle = Math.atan(yOffset / xOffset); // yOffset = opposite, xOffet = adjacent
-                        //}
-                        //double zAngle = 0;
-                        //if(xOffset != 0){
-                        //    zAngle = Math.atan(zOffset / xOffset);
-                        //}
                         
                         //System.out.println("    vert: " +
                         //                   vertA.x + " " + vertA.y + "  " + vertA.z  + " - " +
@@ -94,7 +78,7 @@ public class StraightenSpline {
                             
                             // Rotate all remaining points around vertA to angle required to become straight.
                             double rotateXRequired = 0;
-                            double rotateZRequired = 0;
+                            double rotateYRequired = 0;
                             
                             Vec3 vertBNew = new Vec3(vertB);
                             vertBNew.x = vertA.x - distance;
@@ -105,9 +89,9 @@ public class StraightenSpline {
                             
                             rotateXRequired = getAngleX(vertA, vertB, vertBNew);
                             //System.out.println("rotateXRequired " + rotateXRequired);
+                            rotateYRequired = getAngleY(vertA, vertB, vertBNew);
+                            System.out.println("rotateYRequired " + rotateYRequired);
                             
-                            
-                             
                             // rotate any child objects between vertA and vertB around vertA
                             //
         
@@ -115,7 +99,8 @@ public class StraightenSpline {
                                                                        worldVertA.y, worldVertB.y,
                                                                        worldVertA.z, worldVertB.z);
                             
-                            targetRegion.outset( Math.abs(worldVertA.x - worldVertB.x) / 50.0 );
+                            targetRegion.outset( Math.abs(worldVertA.x - worldVertB.x) / 50.0 ); // 2% of x
+                            targetRegion.expandPercentage(10);
                             
                             //System.out.println(" target x " + targetRegion.minx  + " " + targetRegion.maxx +
                             //                   " y " + targetRegion.miny  + " " + targetRegion.maxy +
@@ -162,6 +147,8 @@ public class StraightenSpline {
                                             
                                             childVert = rotatePointX(childVert, worldVertA, rotateXRequired);  //
                                             
+                                            //childVert = rotatePointY(childVert, worldVertA, rotateYRequired);
+                                            
                                             //System.out.println("           ->childVert  x " + childVert.x +
                                             //" y " + childVert.y +
                                             //" z " + childVert.z );
@@ -188,6 +175,9 @@ public class StraightenSpline {
                             for(int j = i + 1; j < verts.length; j++){
                                 Vec3 next = verts[j];
                                 Vec3 rotated = rotatePointX(next, vertA, rotateXRequired);
+                                
+                                //rotated = rotatePointY(rotated, vertA, rotateYRequired);
+                                
                                 verts[j] = rotated;
                                 vecPoints[ j ] = rotated;
                             }
@@ -197,7 +187,7 @@ public class StraightenSpline {
                     } // verts pairs
                     
                     // Update scene
-                    ((Mesh)obj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
+                    //((Mesh)obj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
                     obj.clearCachedMeshes();
                     ((LayoutWindow)layoutWindow).setModified();
                     ((LayoutWindow)layoutWindow).updateImage();
@@ -252,7 +242,11 @@ public class StraightenSpline {
         return rotatedPoint;
     }
     
-    /*
+    /**
+     * rotatePointY
+     *
+     * Description:
+     */
     Vec3 rotatePointY(Vec3 point, Vec3 origin, double angle){
         Vec3 rotatedPoint = new Vec3();
         rotatedPoint.x = origin.x + (point.x-origin.x)*Math.cos(angle) - (point.y - origin.y)*Math.sin(angle);
@@ -260,7 +254,7 @@ public class StraightenSpline {
         rotatedPoint.z = origin.y + (point.x-origin.x)*Math.sin(angle) + (point.y - origin.y)*Math.cos(angle);
         return rotatedPoint;
     }
-     */
+     
     
     public BoundingBox getTranslatedBounds(ObjectInfo object){
         BoundingBox bounds = null;
