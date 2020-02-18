@@ -1,5 +1,5 @@
 /* Copyright (C) 1999-2013 by Peter Eastman
-   2019 Jon Taylor
+   2019-2020 by Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -88,7 +88,7 @@ public class Scene
   ComputationalFluidDynamics cfd;
   public PointJoinObject createPointJoin;
   Mill mill;
-    Mill2 mill2;
+  Mill2 mill2;
     
   LayoutWindow theWindow; // ...
     
@@ -2048,7 +2048,7 @@ public class Scene
         }
       }
   }
-
+    
 
 	/**
 	* exportGCode

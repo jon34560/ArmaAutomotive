@@ -201,9 +201,9 @@ public class StraightenSpline {
     }
     
     /**
-     * getAngle
+     * getAngleX
      *
-     * Description:
+     * Description: get an angle between the vectors (a,b) and (a, b2) only on the XY axis. Facing down Z aaxis.
      */
     double getAngleX(Vec3 a, Vec3 b, Vec3 b2){
         double angle = 0;
@@ -217,6 +217,11 @@ public class StraightenSpline {
         return angle;
     }
     
+    /**
+     * getAngleY
+     *
+     * Description: get an angle between the vectors (a,b) and (a, b2) only on the XZ axis. Facing down Y aaxis.
+     */
     double getAngleY(Vec3 a, Vec3 b, Vec3 b2){
         double angle = 0;
         // Scale to a.

@@ -633,6 +633,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       objectDisplayMenu.add(objectDisplayItem[1] = Translate.checkboxMenuItem("wireframeDisplay", this, "objectDisplayModeCommand", false));
       objectDisplayMenu.add(objectDisplayItem[2] = Translate.checkboxMenuItem("transparentDisplay", this, "objectDisplayModeCommand", false));
       
+      
+    
 
     objectMenu.addSeparator();
     objectMenu.add(objectMenuItem[8] = Translate.menuItem("hideSelection", this, "actionPerformed"));
@@ -825,6 +827,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     sceneMenu.add(sceneMenuItem[2] = Translate.menuItem("showCoordinateAxes", this, "actionPerformed"));
     sceneMenu.add(sceneMenuItem[3] = Translate.menuItem("showTemplate", this, "actionPerformed"));
     sceneMenu.add(Translate.menuItem("setTemplate", this, "setTemplateCommand"));
+    sceneMenu.add(Translate.menuItem("Toggle Background Gradient", this, "toggleBackgroundGradient"));
     sceneMenu.addSeparator();
     sceneMenu.add(sceneMenuItem[4] = Translate.menuItem("frameSelection", this, "actionPerformed"));
     sceneMenu.add(Translate.menuItem("frameScene", this, "actionPerformed"));
@@ -2769,6 +2772,20 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
               theScene.getObjectInfo();
       }
   }
+    
+    /**
+     * toggleBackgroundGradient
+     *
+     * Description: Tell each view to toggle the background gradient.
+     */
+    public void toggleBackgroundGradient(){
+        for(int i = 0; i < 4; i++){
+            SceneViewer v = theView[i];
+            v.toggleBackgroundGradient();
+        }
+        setModified();
+        updateImage();
+    }
 
   public void autoSkin(){
       if(theScene != null){

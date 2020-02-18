@@ -47,6 +47,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
   private static final int MODE_SUBTRACT = 2;
     
   public double sceneScale = 1.0; // JDT
+  public boolean backgroundGradient = true;
 
   public SoftwareCanvasDrawer(ViewerCanvas view)
   {
@@ -132,11 +133,29 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       imageGraphics = theImage.createGraphics();
       imageGraphics.setFont(view.getComponent().getFont());
     }
+      
     int rgb = ViewerCanvas.backgroundColor.getRGB();
     for (int i = 0; i < pixel.length; i++)
     {
       pixel[i] = rgb;
       zbuffer[i] = Integer.MAX_VALUE;
+    }
+      
+    if(backgroundGradient){
+      // Background gradient
+      for (int i = 0; i < pixel.length; i++)
+      {
+          int row = i / bounds.width;
+          int percentage = (int) (( (float)row / (float)bounds.height) * 100);
+          percentage = (int)(percentage / 4);
+          // Color backgroundColor;
+          int colorValue = 255 - percentage;
+          if(colorValue < 0){
+              colorValue = 0;
+          }
+          Color rowColor = new Color(colorValue, colorValue, 255);
+          pixel[i] = rowColor.getRGB();
+      }
     }
 
     // Draw the template image, if necessary.
@@ -2972,4 +2991,8 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       }
     }
   }
+    
+    public void toggleBackgroundGradient(){
+        backgroundGradient = !backgroundGradient;
+    }
 }

@@ -89,6 +89,8 @@ public abstract class ViewerCanvas extends CustomWidget
   public static final int VIEW_BOTTOM = 5;
   public static final int VIEW_OTHER = Integer.MAX_VALUE;
 
+  public boolean backgroundGradient = true;
+    
   public ViewerCanvas()
   {
     this(ArmaDesignStudio.getPreferences().getUseOpenGL() && openGLAvailable);
