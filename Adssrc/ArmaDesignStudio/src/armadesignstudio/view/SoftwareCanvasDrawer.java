@@ -914,6 +914,27 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       } 
   }
     
+    public void renderForceObject( ObjectInfo obj, Camera theCamera ){
+        ObjectInfo objClone = obj.duplicate();
+        LayoutModeling layout = new LayoutModeling();
+        CoordinateSystem c;
+        c = layout.getCoords(objClone);
+        double scale = 1.0;
+        Mesh mesh = (Mesh) objClone.getObject(); // Object3D
+        Vec3 [] verts = mesh.getVertexPositions();
+
+        if(verts.length >= 2){
+        
+            Vec3 vert1 = new Vec3( verts[0].x, verts[0].y, verts[0].z); // point 2
+            Vec3 vert2 = new Vec3( verts[1].x, verts[1].y, verts[1].z); // point 3
+            renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.2f, 0.2f));
+            
+            
+            
+            
+        }
+    }
+    
     /**
      * renderPointJoinObject
      *

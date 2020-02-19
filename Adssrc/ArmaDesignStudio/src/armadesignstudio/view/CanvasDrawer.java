@@ -152,4 +152,6 @@ public interface CanvasDrawer
   public void setScale(double scale);
     
   public void toggleBackgroundGradient();
+    
+    public void renderForceObject( ObjectInfo obj, Camera theCamera );
 }
