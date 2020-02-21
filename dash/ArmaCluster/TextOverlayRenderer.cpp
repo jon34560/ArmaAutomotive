@@ -1,3 +1,15 @@
+/**
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+*/
+
 #include "TextOverlayRenderer.h"
 
 #ifndef TEX_REND
@@ -13,6 +25,11 @@
 #include "stb_image.h"
 #include <string>
 #include <vector>
+
+#include <iostream>
+#include <chrono>
+#include <ctime>  
+
 using namespace std;
 #define  KEY_UP                        0x0065
 #define  KEY_DOWN                      0x0067
@@ -120,7 +137,6 @@ void TextOverlayRenderer::initialize()
 	subMenu7Level1.push_back(subMenu7_2);
 
 	ptrSubMenuLevel1 = &subMenu1Level1;
-
 }
 
 void TextOverlayRenderer::doRender()
@@ -133,25 +149,25 @@ void TextOverlayRenderer::doRender()
 		int fuelVal = DataModel::getInstance()->getfuelValue();
 		const char char_fuelmax = -1;
 		std::string f = std::to_string(fuelVal);
-		f = f + " Fuel";
+		f = "Fuel " + f + " L";
 		char const* fuelValchar = f.c_str();
 
 		int temperatureVal = DataModel::getInstance()->gettemperatureValue();
 		const char char_temperaturemax = -1;
 		std::string t = std::to_string(temperatureVal);
-		t = t + " Temp";
+		t = "Temp " + t + " c";
 		char const* temperatureValchar = t.c_str();
 
 		int rangeVal = DataModel::getInstance()->getrangeValue();
 		const char char_rangemax = -1;
 		std::string r = std::to_string(rangeVal);
-		r = r + " Range";
+		r = "Range " + r + " km";
 		char const* rangeValchar = r.c_str();
 
 		int pressureVal = DataModel::getInstance()->getpressureValue();
 		const char char_pressuremax = -1;
 		std::string p = std::to_string(pressureVal);
-		p = p + " Pressure";
+		p = "Pressure " + p + " psi";
 		char const* pressureValchar = p.c_str();
 
 		int voltageVal = DataModel::getInstance()->getvoltageValue();
@@ -167,29 +183,51 @@ void TextOverlayRenderer::doRender()
 		char const* odometerValchar = o.c_str();
 
 		std::string timeVal = DataModel::getInstance()->gettimeValue();
+		//auto time = std::chrono::system_clock::now();
+		std::time_t tm = std::time(0);   // get time now
+		std::tm* now = std::localtime(&tm);
+		
 		const char char_timemax = -1;
-		char const* timeValchar = timeVal.c_str();
+		std::string m = "AM";
+		int hour = now->tm_hour;
+		if (hour > 12 ) {
+			hour = hour - 12;
+			m = "PM";
+		}
+		std::string minute = std::to_string(now->tm_min);
+		if (now->tm_min < 10) {
+			minute = "0" + minute;
+		}
+		std::string second = std::to_string(now->tm_sec);
+		if (now->tm_sec < 10) {
+			second = "0" + second;
+		}
+		std::string xxx;
+		xxx = std::to_string(hour) + " : " + minute + " : " + second + " " + m;
 
-		if (false) {
-			renderText(1400 + 10, 223 + 23, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
-			renderText(1650 + 7, 223 + 23, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
-			renderText(1405, 467 + 39, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
-			renderText(1655 + 2, 467 + 39, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
+		char const* timeValchar = xxx.c_str();
+		
+
+		if (displayMode == 1) {	// dials
+			renderText(1400 + 5, 223 + 23, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
+			renderText(1648 + 0, 223 + 23, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
+			renderText(1396, 467 + 39, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
+			renderText(1642, 467 + 39, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
 		}
 
-		if (true) {
-			renderText(1300, 283 - 8, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
-			renderText(1300, 283 + 50, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
-			renderText(1300, 283 + 108, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
-			renderText(1300, 283 + 166, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
+		if (displayMode != 1) {	// bars
+			renderText(1300 + 10, 283 - 8, BITMAP_FONT_TYPE_HELVETICA_18, fuelValchar); // Fuel  BITMAP_FONT_TYPE_TIMES_ROMAN_24
+			renderText(1300 + 10, 283 + 50, BITMAP_FONT_TYPE_HELVETICA_18, rangeValchar); // Range
+			renderText(1300 + 10, 283 + 108, BITMAP_FONT_TYPE_HELVETICA_18, temperatureValchar); // Temp
+			renderText(1300 + 10, 283 + 166, BITMAP_FONT_TYPE_HELVETICA_18, pressureValchar); // Oil pressure
 		}
 
 		renderText(1557, 680, BITMAP_FONT_TYPE_HELVETICA_18, voltageValchar); // voltage
-		renderText(1770, 684, BITMAP_FONT_TYPE_HELVETICA_18, odometerValchar); // odo
+		renderText(1738, 684, BITMAP_FONT_TYPE_HELVETICA_18, odometerValchar); // odo
 		renderText(1300, 684, BITMAP_FONT_TYPE_HELVETICA_18, timeValchar); // time
 
 		// Speed units
-		renderText(940, 433, BITMAP_FONT_TYPE_HELVETICA_18, "Kmh"); // Speed Units
+		renderText(940, 433 + 6, BITMAP_FONT_TYPE_HELVETICA_18, "Kmh"); // Speed Units
 		// Helvetica18 BITMAP_FONT_TYPE_TIMES_ROMAN_24
 
 
@@ -202,6 +240,8 @@ void TextOverlayRenderer::doRender()
 		menuRendererObj.setSubMenuMaxLimits(ptrSubMenuLevel1->size(), ptrSubMenuLevel1->at(activeMenuSelection[1]).size() - 1);
 		drawMainMenu();
 		menuRendererObj.doRender();
+
+		DrawLeftBox();
 	}
 	else
 	{
@@ -209,7 +249,7 @@ void TextOverlayRenderer::doRender()
 		beginRenderText(1920, 720);
 		{
 			glColor3f(1.0f, 1.0f, 1.0f);
-			renderText(80, 170 , BITMAP_FONT_TYPE_HELVETICA_18,"Settings");
+			renderText(80 - 27, 170 , BITMAP_FONT_TYPE_HELVETICA_18,"Settings");
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
@@ -226,7 +266,7 @@ void TextOverlayRenderer::drawMainMenu()
 	glViewport(0, 0, 1920, 720);
 
 	// Render main menu
-	int yOffset = 45;
+	int yOffset = 41;				// distance between rows
 	int nNoOfMenu = mainMenuItems.size();
 	for (int nIndex = 0; nIndex < 3; nIndex++)
 	{
@@ -235,9 +275,9 @@ void TextOverlayRenderer::drawMainMenu()
 			break;
 		beginRenderText(1920, 720);
 		{
-		glColor3f(1.0f, 1.0f, 1.0f);
-		renderText((float)80, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, mainMenuItems.at(menuStartIndex).c_str());
-		glColor3f(1.0f, 1.0f, 1.0f);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			renderText((float)80 - 20 - 3, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, mainMenuItems.at(menuStartIndex).c_str());
+			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
 	}
@@ -252,7 +292,7 @@ void TextOverlayRenderer::drawMainMenu()
 		{
 			string temp = ptrSubMenuLevel1->at(nIndex).at(0);
 			glColor3f(1.0f, 1.0f, 1.0f);
-			renderText((float)290, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, temp.c_str());
+			renderText((float)290 - 20 - 10 - 3, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, temp.c_str());
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
@@ -270,7 +310,7 @@ void TextOverlayRenderer::drawMainMenu()
 			{
 				string temp = ptrSubMenuLevel1->at(activeMenuSelection[1]).at(nIndex + 1);
 				glColor3f(1.0f, 1.0f, 1.0f);
-				renderText((float)490, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, temp.c_str());
+				renderText((float)490 - 20 - 20, (float)170 + (yOffset * nIndex), BITMAP_FONT_TYPE_HELVETICA_18, temp.c_str());
 				glColor3f(1.0f, 1.0f, 1.0f);
 			}
 			endRenderText();
@@ -346,7 +386,9 @@ void TextOverlayRenderer::keyPressed(int key)
 	{
 		DataModel::getInstance()->setMenuDisplayStatus(true);
 	}
-	
+	if (key == 'q'){
+		DataModel::getInstance()->setMenuDisplayStatus(false);
+	}
 }
 
 void TextOverlayRenderer::ChangeMainMenuWithIndex(int index)
@@ -365,4 +407,41 @@ void TextOverlayRenderer::ChangeMainMenuWithIndex(int index)
 		ptrSubMenuLevel1 = &subMenu6Level1;
 	else if (6 == index)
 		ptrSubMenuLevel1 = &subMenu7Level1;
+}
+
+void TextOverlayRenderer::setDisplayMode(int mode) {
+	this->displayMode = mode;
+}
+
+void TextOverlayRenderer::DrawLeftBox() {
+	glPushMatrix();
+	//glViewport(0, 0, 1920, 720);
+	glViewport(30, 77 - 20, 584, 584);
+
+	// Menu
+	glColor3f(70.0 / 255.0, 70.0 / 255.0, 70.0 / 255.0);	// White region
+	glLineWidth(2.0);
+	DrawRectangle(-0.99, 0.3 + .045, 1.97, 0.5 - 0.045); // border
+
+	// Status Display
+	glColor3f(70.0 / 255.0, 70.0 / 255.0, 70.0 / 255.0);	// White region
+	glLineWidth(2.0);
+	DrawRectangle(-0.99, -0.8, 1.97, 1.1); // border
+
+	glPopMatrix();
+	glColor3f(1.0, 1.0, 1.0);
+}
+
+void TextOverlayRenderer::DrawRectangle(float x, float y, float width, float height) {
+	glEnable(GL_LINE_SMOOTH);
+	glBegin(GL_LINE_LOOP);
+	//glBegin(GL_LINES);
+	//glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
+	glVertex2f(x, y);
+	glVertex2f(x + width, y);
+	glVertex2f(x + width, y + height);
+	glVertex2f(x, y + height);
+	glVertex2f(x, y);
+
+	glEnd();
 }

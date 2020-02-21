@@ -11,7 +11,8 @@
 class ClusterDisplayManager
 {
 private:
-	
+	int rpmDisplayMode = 0;
+	int clusterDisplayMode = 0;
 public:
 	ObjectRendererBase *rpmRenderObj;
 	ObjectRendererBase *clusterBackgroundObj;

@@ -186,7 +186,7 @@ void SpeedDisplay::initialize()
 
 void SpeedDisplay::doRender()
 {
-	int nCurSpeed = testAngle;// 124;
+	int nCurSpeed = testAngle;
 	int digit1 = 0;
 	int digit2 = 0;
 	int digit3 = 0;
@@ -200,7 +200,7 @@ void SpeedDisplay::doRender()
 		nCurSpeed = nCurSpeed / 10;
 		digit2 = nCurSpeed % 10;
 		nCurSpeed = nCurSpeed / 10;
-		digit3 = nCurSpeed % 10;
+		digit3 = nCurSpeed % 10;		// extract value for each decimal.
 	}
 	else if (nCurSpeed / 10 != 0)
 	{
@@ -217,24 +217,27 @@ void SpeedDisplay::doRender()
 		digit3 = nCurSpeed % 10;
 	}
 
-	if (3 == nNoOfDigits)
+	if (3 == nNoOfDigits)			// 100s
 	{
-		drawDigit(digit1, 3, 0);
-		drawDigit(digit2, 2, 0);
-		drawDigit(digit3, 1, 0);
+		drawDigit(digit1, 3, 2);
+		drawDigit(digit2, 2, 2);
+		drawDigit(digit3, 1, 2);
 	}
-	else if (2 == nNoOfDigits)
+	else if (2 == nNoOfDigits)		// 10s
 	{
-		drawDigit(digit2, 2, nOffset);
-		drawDigit(digit3, 1, nOffset);
+		drawDigit(digit2, 2, nOffset - 0);
+		drawDigit(digit3, 1, nOffset - 0);
 	}
 	else
-		drawDigit(digit3, 1, 100);
+	{								// 1s
+		drawDigit(digit3, 1, 80);
+	}
+		
 
 	testAngle++;
 	if (testAngle > 360)
 		testAngle = 0;
-
+		
 }
 
 
@@ -272,12 +275,12 @@ void SpeedDisplay::drawDigit(int ndigit, int nDigitOrder, int nOffset)
 	else if (9 == ndigit)
 		glBindTexture(GL_TEXTURE_2D, digit9Texture);
 
-	if( 1 == nDigitOrder)
-		glViewport(847+ nOffset, 386 - 60, 69, 94); // x, y, w, h
+	if( 1 == nDigitOrder)	// Offsets between digits
+		glViewport(847 + nOffset, 386 - 60 - 6, 69, 94); // x, y, w, h
 	else if (2 == nDigitOrder)
-		glViewport(923+ nOffset, 386 - 60, 69, 94);
+		glViewport(923 + nOffset, 386 - 60 - 6, 69, 94);
 	else if (3 == nDigitOrder)
-		glViewport(999+ nOffset, 386 - 60, 69, 94);
+		glViewport(999 + nOffset, 386 - 60 - 6, 69, 94);
 
 	glRotatef(180.0, 1, 0, 0);
 	glBegin(GL_QUADS);

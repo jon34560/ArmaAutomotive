@@ -13,4 +13,5 @@ public:
 	virtual void initialize() = 0;
 	virtual void doRender() = 0;
 	virtual void keyPressed(int key)=0;
+	virtual void setDisplayMode(int mode);
 };

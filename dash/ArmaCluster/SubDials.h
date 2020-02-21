@@ -9,6 +9,7 @@ private:
 	c_meter_polygenerator *m_ply_temp;// (306.0f, 460.0f, 80.0f, 250.0f, 800, 1280);
 	float angle;
 	bool reverse;
+	int displayMode = 0;
 public:
 	SubDials();
 	~SubDials();
@@ -27,4 +28,6 @@ public:
 	void DrawArcSegment(float cx, float cy, float r, int num_segments, int start_angle, int end_angle);
 	void DrawRectangle(float x, float y, float width, float height);
 	void FillRectangle(float x, float y, float width, float height);
+	void setDisplayMode(int mode);
+	void DrawLeftBox();
 };

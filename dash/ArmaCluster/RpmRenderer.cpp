@@ -175,14 +175,18 @@ void RpmRenderer::drawBackground()
 */
 void RpmRenderer::doRender()
 {
-	//dialA();
-	dialB();
+	if (displayMode == 1) {
+		dialA();
+	}
+	else {
+		dialB();
+	}
 }
 
 void RpmRenderer::dialA(){
 	glPushMatrix();
 	//glViewport(0, 0, 1920, 720);
-	glViewport(667, 77, 584, 584);
+	glViewport(667, 77 - 6, 584, 584);
 	//drawBackground();
 	
 	float radius = 0.739;
@@ -213,11 +217,11 @@ void RpmRenderer::dialA(){
 	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
 	glLineWidth(2.0);
 	//DrawCircle(0.0, 0.0, 0.739, 120);
-	DrawArcSegment(0.0, 0.0, 0.739, 360, 0, 270);
+	DrawArcSegment(0.0, 0.0, 0.739, 360, 0, 271);
 
 	glColor4f(225.0 / 255.0, 225.0 / 255.0, 0.0 / 255.0, 0.5); // yellow region
 	glLineWidth(2.0);
-	DrawArcSegment(0.0, 0.0, radius, 360, 270, 315);
+	DrawArcSegment(0.0, 0.0, radius, 360, 270, 316);
 
 	glColor4f(225.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.5); // red region
 	glLineWidth(2.0);
@@ -326,18 +330,52 @@ void RpmRenderer::dialA(){
 	}
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
-	
 }
 
 void RpmRenderer::dialB() {
 	glPushMatrix();
 	//glViewport(0, 0, 1920, 720);
-	glViewport(667, 77, 584, 584);
+	glViewport(667, 77 - 6, 584, 584);
 	//drawBackground();
 
 	float radius = 0.739;
 
-	// Draw unit line
+	// Inner background white
+	glLineWidth(12.0);
+	glColor3f(15.0 / 255.0, 15.0 / 255.0, 15.0 / 255.0);
+	DrawArc(0.0, 0.0, radius + 0.014, 360, 271);
+	DrawArc(0.0, 0.0, radius + 0.045, 360, 271);
+	DrawArc(0.0, 0.0, radius + 0.078, 360, 271);
+	DrawArc(0.0, 0.0, radius + 0.102, 360, 271);
+	DrawArc(0.0, 0.0, radius + 0.134, 360, 271);
+
+	// Inner background yellow
+	glColor3f(25.0 / 255.0, 25.0 / 255.0, 0.0 / 255.0); // yellow region
+	glLineWidth(12.0);
+	DrawArcSegment(0.0, 0.0, radius + 0.014, 360, 270, 316);
+	DrawArcSegment(0.0, 0.0, radius + 0.045, 360, 270, 316);
+	DrawArcSegment(0.0, 0.0, radius + 0.078, 360, 270, 316);
+	DrawArcSegment(0.0, 0.0, radius + 0.102, 360, 270, 316);
+	DrawArcSegment(0.0, 0.0, radius + 0.134, 360, 270, 316);
+
+	// Inner background red segment
+	glColor3f(25.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0); // yellow region
+	glLineWidth(12.0);
+	DrawArcSegment(0.0, 0.0, radius + 0.014, 360, 315, 360);
+	DrawArcSegment(0.0, 0.0, radius + 0.045, 360, 315, 360);
+	DrawArcSegment(0.0, 0.0, radius + 0.078, 360, 315, 360);
+	DrawArcSegment(0.0, 0.0, radius + 0.102, 360, 315, 360);
+	DrawArcSegment(0.0, 0.0, radius + 0.134, 360, 315, 360);
+
+
+	// Inner circle
+	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
+	glLineWidth(2.0);
+	DrawArcSegment(0.0, 0.0, 0.739, 360, 0, 271);
+
+
+
+	// Draw unit segment line
 	glColor3f(200.0 / 255.0, 200.0 / 255.0, 200.0 / 255.0);
 	glLineWidth(4.0);
 	DrawArcSegment(0.0, 0.0, radius, 720, 60, 62);
@@ -359,15 +397,10 @@ void RpmRenderer::dialB() {
 	DrawArcSegment(0.0, 0.0, radius, 720, 300, 302);
 
 
-	// Inner circle
-	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
-	glLineWidth(2.0);
-	//DrawCircle(0.0, 0.0, 0.739, 120);
-	DrawArcSegment(0.0, 0.0, 0.739, 360, 0, 270);
-
+	// 
 	glColor4f(225.0 / 255.0, 225.0 / 255.0, 0.0 / 255.0, 0.5); // yellow region
 	glLineWidth(2.0);
-	DrawArcSegment(0.0, 0.0, radius, 360, 270, 315);
+	DrawArcSegment(0.0, 0.0, radius, 360, 270, 316);
 
 	glColor4f(225.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.5); // red region
 	glLineWidth(2.0);
@@ -438,9 +471,11 @@ void RpmRenderer::dialB() {
 	
 	if (reverse == false) {
 		angle += 2;
+		//angle += 1;
 	}
 	else {
 		angle -= 2;
+		//angle -= 1;
 	}
 	if (angle > 360) {
 		reverse = true;
@@ -457,4 +492,9 @@ void RpmRenderer::dialB() {
 void RpmRenderer::keyPressed(int key)
 {
 
+	
+}
+
+void RpmRenderer::setDisplayMode(int mode) {
+	this->displayMode = mode;
 }

@@ -7,6 +7,7 @@ class TextOverlayRenderer : public ObjectRendererBase
 {
 private:
 	MenuRenderer menuRendererObj;
+	int displayMode = 0;
 public:
 	TextOverlayRenderer();
 	~TextOverlayRenderer();
@@ -15,4 +16,7 @@ public:
 	void drawMainMenu();
 	void keyPressed(int key);
 	void ChangeMainMenuWithIndex(int index);
+	void setDisplayMode(int mode);
+	void DrawLeftBox();
+	void DrawRectangle(float x, float y, float width, float height);
 };

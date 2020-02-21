@@ -72,7 +72,7 @@ void MenuRenderer::initialize()
 
 void MenuRenderer::doRender()
 {
-	drawCar();
+	//drawCar(); // temp disable until better images are ready.
 
 	glPushMatrix();
 
@@ -80,13 +80,12 @@ void MenuRenderer::doRender()
 	glBindTexture(GL_TEXTURE_2D, bckgroundTexture);
 
 	
-
 	if(0== nSelBoxHorizLevelIndex)
-		glViewport(selectedRectStartX, selectedRectStartY-(selBoxIndex-1)*41, 170, 40);
+		glViewport(selectedRectStartX - 11, selectedRectStartY-(selBoxIndex-1)*41, 168, 40);
 	else if(1== nSelBoxHorizLevelIndex)
-		glViewport(selectedRectStartX, selectedRectStartY - (selBoxIndexLevel1 - 1) * 41, 170, 40);
+		glViewport(selectedRectStartX - 11, selectedRectStartY - (selBoxIndexLevel1 - 1) * 41, 168, 40);
 	else if(2== nSelBoxHorizLevelIndex)
-		glViewport(selectedRectStartX, selectedRectStartY - (selBoxIndexLevel2 - 1) * 41, 170, 40);
+		glViewport(selectedRectStartX - 15, selectedRectStartY - (selBoxIndexLevel2 - 1) * 41, 168, 40);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 0.0);
 	glVertex2f(-1.0, -1.0);
@@ -199,8 +198,6 @@ void MenuRenderer::keyPressed(int key)
 		if (selBoxIndexLevel2 < 1)
 			selBoxIndexLevel2 = 1;
 	}
-	
-	
 }
 
 int MenuRenderer::getSelecedIndex()

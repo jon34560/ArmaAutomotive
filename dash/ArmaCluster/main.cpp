@@ -35,6 +35,7 @@ int WINDOW_WIDTH = 1920;
 int WINDOW_HEIGHT = 720;
 int nCount = 0;
 int nMenuDisplayCounter = 0;
+//int displayMode = 0;
 
 // Thread
 void dataAcquisitionThread() { // pass in state (DataModel dataModel)
@@ -99,7 +100,7 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 		//setfuelDialAngle  getfuelDialAngle
 
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(400));
 		counter++;
 	}
 }
@@ -134,6 +135,8 @@ void display()
 
 void keyboard_up(unsigned char key, int x, int y)
 {
+	clusterDispMgr.keyPressed(key);
+
 	switch (key) {
 	case 13: 
 		exit(0);
@@ -146,10 +149,10 @@ void keyboard_up(unsigned char key, int x, int y)
 		break;
 	case VK_UP:
 		exit(0);
+
 	default:
 		break;
 	}
-
 }
 
 void SpecialKeys(int key, int x, int y)

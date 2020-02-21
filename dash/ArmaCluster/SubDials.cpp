@@ -124,36 +124,46 @@ void SubDials::DrawRectangle(float x, float y, float width, float height) {
 }
 
 void SubDials::FillRectangle(float x, float y, float width, float height) {
-	
-	
 	glBegin(GL_POLYGON);	
-	
 	glVertex2f(x, y);
-	
 	glVertex2f(x + width, y);
-	
 	glVertex2f(x + width, y + height);
-	
 	glVertex2f(x, y + height);
-	/*
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(-0.5, -0.5);
-	glColor3f(1.0f, 0.0f, 1.0f);
-	glVertex2f(-0.5, 0.5);
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex2f(0.5, 0.5);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(0.5, -0.5);
-	*/
 	glEnd();
 }
 
 void SubDials::doRender()
 {
-	//DrawSubDialsA();
-	DrawSubDialsB();
+	if (displayMode == 1) {
+		DrawSubDialsA();
+	}
+	else {
+		DrawSubDialsB();
+	}
+
+	//DrawLeftBox();
 }
 
+
+void SubDials::DrawLeftBox() {
+	glPushMatrix();
+	//glViewport(0, 0, 1920, 720);
+	glViewport(30, 77 - 20, 584, 584);
+
+	// Menu
+	glColor3f(90.0 / 255.0, 90.0 / 255.0, 90.0 / 255.0);	// White region
+	glLineWidth(2.0);
+	DrawRectangle(-0.99, 0.3 + .045, 1.97, 0.5 - 0.045); // border
+
+
+	// Status Display
+	glColor3f(90.0 / 255.0, 90.0 / 255.0, 90.0 / 255.0);	// White region
+	glLineWidth(2.0);
+	DrawRectangle(-0.99, -0.8, 1.97, 1.1); // border
+
+	glPopMatrix();
+	glColor3f(1.0, 1.0, 1.0);
+}
 
 void SubDials::DrawSubDialsA(){
 	//drawFuelDial();
@@ -361,12 +371,9 @@ void SubDials::DrawSubDialsA(){
 	DrawArc(xPos, yPos, radius + 0.013, 360, angle);
 
 
-
-
 	glPopMatrix();
 
 	glColor3f(1.0, 1.0, 1.0);
-
 
 
 	// Draw RPM Dial
@@ -401,6 +408,7 @@ void SubDials::DrawSubDialsA(){
 /**
 * DrawSubDialsB
 *
+* Bars
 */
 void SubDials::DrawSubDialsB() {
 	glPushMatrix();
@@ -409,57 +417,58 @@ void SubDials::DrawSubDialsB() {
 	//drawBackground();
 
 	float radius = 0.28;
-	float xPos = -0.5;
+	float xPos = -0.36;
 	float yPos = 0.30;
 
 
 	// Fuel 
-	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
+	// Border
+	glColor3f(90.0 / 255.0, 90.0 / 255.0, 90.0 / 255.0);	// White region
 	glLineWidth(2.0);
 	DrawRectangle(xPos, yPos, 1.1, 0.1); // border
 
+	// Fill
 	if (angle < 22) { glColor3f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0); }		// Red
 	else if (angle < 45) { glColor3f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0); }	// Yellow
 	else if (angle > 45) { glColor3f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0); } // White
 	FillRectangle(xPos, yPos, (1.1 * (angle / 360)), 0.1);
 
-	if (angle < 22) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.07); }		// Red
-	else if (angle < 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.07); }	// Yellow
-	else if (angle > 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.07); } // White
+	// Shadow
+	if (angle < 22) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.15); }		// Red
+	else if (angle < 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.15); }	// Yellow
+	else if (angle > 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.15); } // White
 	float b = 0.009;
 	FillRectangle(xPos - b, yPos - b, (1.1 * (angle / 360)) + (b * 2), 0.1 + (b * 2));
 
+	
 
 
 	// Range 
-	xPos = -0.5;
+	xPos = -0.36;
 	yPos = 0.1;
-
-	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
+	glColor3f(90.0 / 255.0, 90.0 / 255.0, 90.0 / 255.0);	// White region
 	glLineWidth(2.0);
 	DrawRectangle(xPos, yPos, 1.1, 0.1); // border
-
+	// Fill
 	if (angle < 22) { glColor3f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0); }		// Red
 	else if (angle < 45) { glColor3f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0); }	// Yellow
 	else if (angle > 45) { glColor3f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0); } // White
 	FillRectangle(xPos, yPos, (1.1 * (angle / 360)), 0.1);
 
-	if (angle < 22) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.07); }		// Red
-	else if (angle < 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.07); }	// Yellow
-	else if (angle > 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.07); } // White
+	// Shadow
+	if (angle < 22) { glColor4f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0, 0.15); }		// Red
+	else if (angle < 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 0.0 / 255.0, 0.15); }	// Yellow
+	else if (angle > 45) { glColor4f(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0, 0.15); } // White
 	b = 0.009;
 	FillRectangle(xPos - b, yPos - b, (1.1 * (angle / 360)) + (b * 2), 0.1 + (b * 2));
 
-
-
-
+	
 
 
 	// Temperature 
-	xPos = -0.5;
+	xPos = -0.36;
 	yPos = -0.1;
-
-	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
+	glColor3f(90.0 / 255.0, 90.0 / 255.0, 90.0 / 255.0);	// White region
 	glLineWidth(2.0);
 	DrawRectangle(xPos, yPos, 1.1, 0.1); // border
 	if (angle < 45) { glColor3f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0); }
@@ -488,15 +497,15 @@ void SubDials::DrawSubDialsB() {
 	else {
 		FillRectangle(centreX - b, yPos - b, (1.1 * (angle / 360)) - (1.1 / 2) + (b * 2), 0.1 + (b * 2));
 	}
-
+	
 	
 
 
 	// Pressure 
-	xPos = -0.5;
+	xPos = -0.36;
 	yPos = -0.3;
 	
-	glColor3f(60.0 / 255.0, 60.0 / 255.0, 60.0 / 255.0);	// White region
+	glColor3f(90.0 / 255.0, 90.0 / 255.0, 90.0 / 255.0);	// White region
 	glLineWidth(2.0);
 	DrawRectangle(xPos, yPos, 1.1, 0.1); // border
 	if (angle < 45) { glColor3f(255.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0); }
@@ -525,16 +534,13 @@ void SubDials::DrawSubDialsB() {
 	else {
 		FillRectangle(centreX - b, yPos - b, (1.1 * (angle / 360)) - (1.1 / 2) + (b * 2), 0.1 + (b * 2));
 	}
-
-
-
 	
+
 
 
 	glPopMatrix();
 
 	glColor3f(1.0, 1.0, 1.0);
-
 
 
 	// Draw RPM Dial
@@ -728,4 +734,8 @@ void SubDials::drawOilPresDial()
 void SubDials::keyPressed(int key)
 {
 
+}
+
+void SubDials::setDisplayMode(int mode) {
+	this->displayMode = mode;
 }

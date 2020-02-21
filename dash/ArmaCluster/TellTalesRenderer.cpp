@@ -225,7 +225,7 @@ void TellTailesRenderer::doRender()
 
 
 	// Right turn telltale
-	glViewport(1150 + 10, 632 - 10, 77, 73); // 89, 73 
+	glViewport(1160 + 10, 622 - 36, 77, 73); // 89, 73 
 	if (DataModel::getInstance()->getrightTurnTellTaleStatus())
 		glBindTexture(GL_TEXTURE_2D, rightOnTexture);
 	else
@@ -233,7 +233,7 @@ void TellTailesRenderer::doRender()
 	drawTellTale();
 
 	// Left turn telltale
-	glViewport(675 - 5, 632 - 10, 77, 73); // 89, 73 
+	glViewport(670 - 4, 622 - 36, 77, 73); // 89, 73 
 	if (DataModel::getInstance()->getleftTurnTellTaleStatus())
 		glBindTexture(GL_TEXTURE_2D, leftOnTexture);
 	else
