@@ -22,6 +22,12 @@ private:
 
 	unsigned int checkOnTexture;
 	unsigned int checkOffTexture;
+
+	unsigned int seatbeltOnTexture;
+	unsigned int seatbeltOffTexture;
+
+	unsigned int doorAjarOnTexture;
+	unsigned int doorAjarOffTexture;
 public:
 	TellTailesRenderer();
 	~TellTailesRenderer();

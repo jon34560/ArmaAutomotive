@@ -188,6 +188,65 @@ void TellTailesRenderer::initialize()
 	stbi_image_free(data);
 
 
+	// Seatbelt
+	data = stbi_load(".\\images\\seatbelt_on.png", &width, &height, &nrChannels, 0);
+
+	glGenTextures(1, &seatbeltOnTexture);
+	glBindTexture(GL_TEXTURE_2D, seatbeltOnTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	stbi_image_free(data);
+
+	data = stbi_load(".\\images\\seatbelt_off.png", &width, &height, &nrChannels, 0);
+
+	glGenTextures(1, &seatbeltOffTexture);
+	glBindTexture(GL_TEXTURE_2D, seatbeltOffTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	stbi_image_free(data);
+
+	
+
+	// Door Ajar
+	data = stbi_load(".\\images\\door_ajar_on.png", &width, &height, &nrChannels, 0);
+
+	glGenTextures(1, &doorAjarOnTexture);
+	glBindTexture(GL_TEXTURE_2D, doorAjarOnTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	stbi_image_free(data);
+
+	data = stbi_load(".\\images\\door_ajar_off.png", &width, &height, &nrChannels, 0);
+
+	glGenTextures(1, &doorAjarOffTexture);
+	glBindTexture(GL_TEXTURE_2D, doorAjarOffTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	stbi_image_free(data);
 }
 
 void TellTailesRenderer::doRender()
@@ -241,13 +300,33 @@ void TellTailesRenderer::doRender()
 	drawTellTale();
 
 
+	// door ajar telltale
+	glViewport(296 - 200, 632, 50, 56);
+	if (DataModel::getInstance()->getvehicleCheckTellTaleStatus()) {
+		glBindTexture(GL_TEXTURE_2D, doorAjarOnTexture);
+		//else
+			//glBindTexture(GL_TEXTURE_2D, doorAjarOffTexture);
+		drawTellTale();
+	}
+
+
 	// vehicle check telltale
-	glViewport(296, 632, 66, 50);
+	glViewport(296 - 10, 632, 66, 50);
 	if (DataModel::getInstance()->getvehicleCheckTellTaleStatus())
 		glBindTexture(GL_TEXTURE_2D, checkOnTexture);
 	else
 		glBindTexture(GL_TEXTURE_2D, checkOffTexture);
 	drawTellTale();
+
+
+	// seatbelt telltale
+	glViewport(296 + 200, 632, 34, 56);
+	if (DataModel::getInstance()->getvehicleCheckTellTaleStatus())
+		glBindTexture(GL_TEXTURE_2D, seatbeltOnTexture);
+	else
+		glBindTexture(GL_TEXTURE_2D, seatbeltOffTexture);
+	drawTellTale();
+
 
 
 	glDisable(GL_TEXTURE_2D);
