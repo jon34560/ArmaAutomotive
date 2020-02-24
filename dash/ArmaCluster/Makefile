@@ -1,16 +1,12 @@
 CC_LINUX=g++
 CC_MAC=clang++
 OUT_PATH=./bin
-SRC_PATH_MAC= -I ./ *.cpp   -I ./GL_Dependency/include  -I/usr/local/include 
-SRC_PATH_LINUX=-I./src -I/usr/include/openssl -I/usr/local/include -I./src/leveldb/include
-
+SRC_PATH_MAC= -I ./ *.cpp -I./GL_Dependency/include -I/usr/local/include 
+SRC_PATH_LINUX= -I ./ *.cpp -I/usr/include/openssl -I/usr/local/include  
 FILES_MAC= ./   
 FILES_LINUX= ./
-
-
-CFLAGS_MAC=  -L ./GL_Dependency/lib   -L/usr/local/lib   -lz   -std=c++11 -stdlib=libc++ -Wdeprecated -Wc++98-compat -w    `pkg-config --cflags --libs nice`
-
-CFLAGS_LINUX= -L/usr/local/lib/ 
+CFLAGS_MAC= -L ./GL_Dependency/lib -L/usr/local/lib -lz -std=c++11 -stdlib=libc++ -Wdeprecated -Wc++98-compat -w `pkg-config --cflags --libs nice`
+CFLAGS_LINUX= -L ./GL_Dependency/lib -L/usr/local/lib/ 
 
 all:
 	mkdir -p ${OUT_PATH}
