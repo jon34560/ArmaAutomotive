@@ -208,7 +208,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     tools.addTool(new CreateSnapToTool(this));
     tools.addTool(new CreateLabelTool(this));
     tools.addTool(new CreateForceTool(this));
+    tools.addTool(new CreateVoidTool(this));
       
+    tools.addTool(new CreateAlignLeftTool(this));
+    tools.addTool(new CreateAlignRightTool(this));
+    tools.addTool(new CreateAlignUpTool(this));
+    tools.addTool(new CreateAlignDownTool(this));
       
     if (ArmaDesignStudio.getPreferences().getUseCompoundMeshTool())
       defaultTool = compoundTool;
@@ -613,7 +618,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     objectMenu.add(objectMenuItem[7] = Translate.menuItem("convertToActor", this, "convertToActorCommand"));
     objectMenu.addSeparator();
 
-      objectMenu.add(Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
+    objectMenu.add(Translate.menuItem("Auto Align Selection to Scene", this, "autoAlignTransformCommand"));
+      
+    objectMenu.addSeparator();
+    objectMenu.add(Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
       
     objectMenu.addSeparator();
     objectMenu.add(Translate.menuItem("Find Object", this, "findObjectCommand"));
@@ -685,12 +693,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       }
 
       
-      toolsMenu.addSeparator();
+    toolsMenu.addSeparator();
       
-      toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
-      toolsMenu.add(Translate.menuItem("Straighten Spline", this, "straightenSpline"));
+    toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
+    toolsMenu.add(Translate.menuItem("Straighten Spline", this, "straightenSpline"));
       
-      toolsMenu.addSeparator();
+    toolsMenu.addSeparator();
+      
+    toolsMenu.add(Translate.menuItem("Perferate Object Triangles", this, "perferateTrianglesCommand"));
+      
+    toolsMenu.addSeparator();
 
     // Auto Skin
     // TODO
@@ -2122,6 +2134,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   }
 
     
+    public void autoAlignTransformCommand(){
+        // Not implemented
+    
+    }
+    
     /**
      * joinObjectVerticesCommand
      *
@@ -2799,18 +2816,25 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
            theScene.splineGridSkin(this);
         }
     }
-    
+
     public void joinMultipleSplines(){
         if(theScene != null){
             theScene.joinMultipleSplines(this);
         }
     }
-    
+
     public void straightenSpline(){
         if(theScene != null){
             theScene.straightenSpline(this);
         }
     }
+
+
+    public void perferateTrianglesCommand(){
+        Perferate perferate = new Perferate(theScene, this);
+        
+    }
+    
 
   private void setObjectVisibility(boolean visible, boolean selectionOnly)
   {
