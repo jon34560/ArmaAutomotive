@@ -1,4 +1,5 @@
 /* Copyright (C) 1999-2013 by Peter Eastman
+                 2020 by Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -34,6 +35,13 @@ import buoyx.docking.*;
 
 import javax.swing.text.*;
 import javax.swing.*;
+
+//import javax.swing.JFrame;
+//import javax.swing.JMenu;
+//import javax.swing.JMenuBar;
+//import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /** The LayoutWindow class represents the main window for creating and laying out scenes. */
 
@@ -86,7 +94,24 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   {
     super(s.getName() == null ? "Untitled" : s.getName());
     theScene = s;
+    
+      try {
+          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      } catch (ClassNotFoundException ex) {
+      } catch (InstantiationException ex) {
+      } catch (IllegalAccessException ex) {
+      } catch (UnsupportedLookAndFeelException ex) {
+      }
+
+      //UIManager.put("MenuBar.background", Color.RED);   // not work
+      //UIManager.put("Menu.background", Color.GREEN);    // works
+      //UIManager.put("MenuItem.background", Color.MAGENTA); // works
+      
+      
     helpText = new BLabel();
+      //helpText.setForeground(Color.WHITE);
+      //helpText.setBackground(new Color(255, 255, 255));
+      
     theScore = new Score(this);
     undoStack = new UndoStack();
     sceneChangedEvent = new SceneChangedEvent(this);
@@ -150,7 +175,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     centerContainer = new FormContainer(new double [] {0.0, 1.0}, new double [] {0.0, 1.0, 0.0, 0.0});
     centerContainer.setDefaultLayout(new LayoutInfo(LayoutInfo.CENTER, LayoutInfo.BOTH, null, null));
     centerContainer.add(viewsContainer, 1, 0, 1, 3);
-    centerContainer.add(helpText, 0, 3, 2, 1);
+    
+    centerContainer.add(helpText, 0, 3, 2, 1);    // Lower text status message
+      
     dock = new DockingContainer [4];
     dock[0] = new DockingContainer(centerContainer, BTabbedPane.LEFT);
     dock[1] = new DockingContainer(dock[0], BTabbedPane.RIGHT);
@@ -231,7 +258,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     // Set colors
     //centerContainer.getViewport().setBackground(Color.RED);
-    centerContainer.setBackground(new Color(95, 95, 95)); // no effect
+    //centerContainer.setBackground(new Color(23, 23, 23)); // no effect
+      centerContainer.setBackground(new Color(64, 64, 64));  // temp
       
     propertiesScroller.setBackground(new Color(95, 95, 95)); // background of property container
     propertiesPanel.setBackground(new Color(95, 95, 95));
@@ -240,6 +268,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // Build the menubar.
 
     menubar = new BMenuBar();
+      //menubar.setBackground(Color.red);
+      
     setMenuBar(menubar);
     createFileMenu();
     createEditMenu();
@@ -528,6 +558,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     List<Translator> trans = PluginRegistry.getPlugins(Translator.class);
 
     fileMenu = Translate.menu("file");
+      //fileMenu.setBackground(new Color(0, 0, 0));
+      
     menubar.add(fileMenu);
     importMenu = Translate.menu("import");
     exportMenu = Translate.menu("export");
@@ -2832,6 +2864,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
     public void perferateTrianglesCommand(){
         Perferate perferate = new Perferate(theScene, this);
+        
+        perferate.perferate( theScene ); // pass scene objects
         
     }
     

@@ -10,11 +10,32 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
 package armadesignstudio;
 
+import armadesignstudio.object.*;
+
 public class Perferate {
 
     Perferate(Scene scene, LayoutWindow window){
         System.out.println("Perferate ");
     }
     
+    /**
+     * perferate
+     *
+     * Description:
+     *
+     */
+    public void perferate(Scene scene){
+        
+        int selection[] = scene.getSelection();
+        if(selection.length > 0){
+            ObjectInfo info = scene.getObject(selection[0]);
+            
+            System.out.println("obj " + info);
+            
+            
+            
+            
+        }
+    }
 }
 

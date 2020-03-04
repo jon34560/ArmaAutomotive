@@ -4517,6 +4517,9 @@ public class Scene
     * Description.
     */
     public void runCrashSimulation( BFrame frame ){
+        CrashSimulation crash = new CrashSimulation(frame);
+        crash.setObjects(objects);
+        
         ObjectInfo wall = null;
         ObjectInfo meshObj = null;
         LayoutModeling layout = new LayoutModeling();
@@ -4526,21 +4529,19 @@ public class Scene
                 meshObj = obj;
             }
 
-            System.out.println(" object: " + obj.getName() );
+            //System.out.println(" object: " + obj.getName() );
             if( obj.getName().equals("wall") ){
-                System.out.println("found it");
+                System.out.println("found fall");
                 wall = obj;
             }     
         }
         
-        if(meshObj == null){
-           JOptionPane.showMessageDialog(null, "Select an object to crash.",  "alert" , JOptionPane.ERROR_MESSAGE ); 
-           return;
-        }
+        //if(meshObj == null){
+        //   JOptionPane.showMessageDialog(null, "Select an object to crash.",  "alert" , JOptionPane.ERROR_MESSAGE );
+        //   return;
+        //}
 
-        CrashSimulation crash = new CrashSimulation(frame);
         if (crash.clickedOk()){
-            
             //crash.runImpact( meshObj );
             
             //CrashSimulation.ImpactThread impactThread;
@@ -4548,9 +4549,6 @@ public class Scene
             crash.impactThread.setObject(meshObj);
             crash.impactThread.start();
             
-            
-            
-              
             //}
         }
     }
