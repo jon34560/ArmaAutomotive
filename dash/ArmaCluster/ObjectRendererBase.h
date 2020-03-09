@@ -3,7 +3,7 @@
 #include <GL/freeglut.h>
 
 #ifdef _WIN32
-#include <GL/glaux.h>
+#include <GL/glaux.h> // What is this for?
 #endif
 
 class ObjectRendererBase

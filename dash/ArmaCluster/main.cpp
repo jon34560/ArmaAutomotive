@@ -56,7 +56,6 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 	char mode[] = {'8', 'N', '1', 0}; // [5|6|7|8] Bits, [N|E|O] Parity, [1,2] Stop Bits
 	
     #ifdef _WIN32
-    
     if (RS232_OpenComport(cport_nr, bdrate, mode, 0))
 	{
 		printf("Can not open comport\n");
@@ -82,11 +81,10 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 		printf("received %i bytes: %s\n", n, (char*)buf);
 	}
 	*/
-
+    #endif
 
 
 	while (true) {
-	
 		DataModel::getInstance()->setrightTurnTellTaleStatus(!DataModel::getInstance()->getrightTurnTellTaleStatus());
 		DataModel::getInstance()->setleftTurnTellTaleStatus(!DataModel::getInstance()->getleftTurnTellTaleStatus());
 
@@ -96,8 +94,7 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 		DataModel::getInstance()->setparkingTellTaleStatus(!DataModel::getInstance()->getparkingTellTaleStatus());
 		DataModel::getInstance()->setlightTellTaleStatus(!DataModel::getInstance()->getlightTellTaleStatus());
 
-		
-		 
+
 		int fuel = DataModel::getInstance()->getfuelValue();
 		fuel++;
 		if (fuel > 100) {
@@ -107,12 +104,9 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 		DataModel::getInstance()->setfuelDialAngle(fuel);
 		//setfuelDialAngle  getfuelDialAngle
 
-
 		std::this_thread::sleep_for(std::chrono::milliseconds(400));
 		counter++;
 	}
-    
-    #endif
 }
 
 void display() 
