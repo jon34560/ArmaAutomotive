@@ -16,7 +16,6 @@
 #include <mutex>
 #include <thread>
 #include <chrono>
-
 #include "ClusterDisplayManager.h"
 //#include "DataLogger.h"
 
@@ -167,7 +166,10 @@ void SpecialKeys(int key, int x, int y)
 
 /* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
-	glutInit(&argc, argv);					// Initialize GLUT
+	std::string strMytestString("hello world");
+    std::cout << strMytestString;
+    
+    glutInit(&argc, argv);					// Initialize GLUT
 
 	glutCreateWindow("Arma Automotive Dash");	// Create a window with the given title
 	glutInitWindowSize(500, 500);			// Set the window's initial width & height

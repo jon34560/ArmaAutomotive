@@ -8,7 +8,7 @@ FILES_LINUX= ./
 #  `pkg-config --cflags --libs nice`
 #CFLAGS_MAC= -L ./GL_Dependency/lib -L/usr/local/lib -framework OpenGL -framework GLUT  -lz -std=c++11 -stdlib=libc++ -Wdeprecated -Wc++98-compat -w  
 CFLAGS_MAC= -L./GL_Dependency/lib -L/usr/local/lib -framework OpenGL -framework GLUT   -std=c++11 -stdlib=libc++ -Wdeprecated  -Wc++98-compat -w  
-CFLAGS_LINUX= -L ./GL_Dependency/lib -L/usr/local/lib/ 
+CFLAGS_LINUX= -L./GL_Dependency/lib -L/usr/local/lib/ -framework OpenGL -framework GLUT   -std=c++11 -stdlib=libc++ -Wdeprecated  -Wc++98-compat -w 
 
 # ${FILES_MAC}
 
