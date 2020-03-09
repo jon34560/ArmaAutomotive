@@ -14,9 +14,12 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <GL/gl.h> // Windows
 #endif
-
-#include <GL/gl.h>
+//
+#ifdef __APPLE__
+#include <OpenGL/gl.h> // Mac
+#endif
 
 /*
  * The bitmap font structure
@@ -933,8 +936,9 @@ void renderText( float x, float y, BitmapFontType fontType, const char *string )
 
     const BitmapFontData* font = getBitmapFontDataByType( fontType );
     const unsigned char* face;
-    const char *c = '\0';
-
+    //const char *c = '\0'; // windows
+    const char *c = "\0"; // Mac
+    
     for( c = string; *c != '\0'; ++c )
     {
         // Find the character face that we want to draw.

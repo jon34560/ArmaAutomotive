@@ -1,7 +1,10 @@
 #pragma once
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+
+#ifdef _WIN32
 #include <GL/glaux.h>
+#endif
 
 class ObjectRendererBase
 {

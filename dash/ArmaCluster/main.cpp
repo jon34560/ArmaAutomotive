@@ -19,14 +19,19 @@
 
 #include "ClusterDisplayManager.h"
 //#include "DataLogger.h"
-#include "rs232.h"
 
 #ifdef _WIN32
 #include <Windows.h>
+#include "windows/rs232.h"
 #else
 #include <unistd.h>
 #endif
 
+#ifndef MACOS
+#define VK_LEFT 0x25
+#define VK_RIGHT 0x27
+#define VK_UP 0x26
+#endif
 
 /* Handler for window-repaint event. Call back when the window first appears and
 whenever the window needs to be re-painted. */
@@ -49,7 +54,10 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 	unsigned char buf[4096];
 
 	char mode[] = {'8', 'N', '1', 0}; // [5|6|7|8] Bits, [N|E|O] Parity, [1,2] Stop Bits
-	if (RS232_OpenComport(cport_nr, bdrate, mode, 0))
+	
+    #ifdef _WIN32
+    
+    if (RS232_OpenComport(cport_nr, bdrate, mode, 0))
 	{
 		printf("Can not open comport\n");
 		//return(0);
@@ -103,6 +111,8 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 		std::this_thread::sleep_for(std::chrono::milliseconds(400));
 		counter++;
 	}
+    
+    #endif
 }
 
 void display() 
@@ -113,7 +123,7 @@ void display()
 	clusterDispMgr.doRender();
 	//glFlush();
 	glutSwapBuffers();
-	Sleep(50);
+	sleep(50);
 	nCount++;
 	//if (nCount % 15 == 0)
 	//{

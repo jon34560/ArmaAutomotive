@@ -1,7 +1,7 @@
 #include "SubDials.h"
 #include "stb_image.h"
 #include "DataModel.h"
-
+#include <math.h>
 
 SubDials::SubDials()
 {
