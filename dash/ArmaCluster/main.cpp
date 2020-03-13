@@ -110,13 +110,22 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 
 void display() 
 {
+    //std::string strMytestString("display");
+    //std::cout << strMytestString;
+    
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
 
 	clusterDispMgr.doRender();
 	//glFlush();
 	glutSwapBuffers();
+	
+	#ifdef _WIN32
+	Sleep(50);
+	#else
 	sleep(50);
+	#endif
+
 	nCount++;
 	//if (nCount % 15 == 0)
 	//{
@@ -132,6 +141,11 @@ void display()
 	glutPostRedisplay();
 }
 
+void idle(void)
+{
+    glutPostRedisplay();
+
+}
 
 
 
@@ -164,6 +178,17 @@ void SpecialKeys(int key, int x, int y)
 	clusterDispMgr.keyPressed(key);
 }
 
+// Called every time a window is resized to resize the projection matrix
+void reshape(int w, int h)
+{
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-0.1, 0.1, -float(h)/(10.0*float(w)), float(h)/(10.0*float(w)), 0.2, 9999999.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
 /* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
 	std::string strMytestString("hello world");
@@ -176,16 +201,19 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowPosition(0, 0);			// Position the window's initial top-left corner
 	glutDisplayFunc(display);				// Register display callback handler for window re-paint
-	glutKeyboardUpFunc(keyboard_up);		// when the key goes up
+	glutIdleFunc(idle);
+    glutKeyboardUpFunc(keyboard_up);		// when the key goes up
 	glutSpecialUpFunc(SpecialKeys);
 
 	glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
+    
+    glutReshapeFunc(reshape); // test
 
 	clusterDispMgr.initialize();
 
 	// Start data acquisition thread
 	std::thread t(dataAcquisitionThread);
-
+    
 	glutMainLoop();           // Enter the event-processing loop
 	return 0;
 }

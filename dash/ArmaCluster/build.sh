@@ -4,7 +4,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
     LD_LIBRARY_PATH=/usr/local/lib make linux $1 $2
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo "Build Mac environment."
-    make $1 $2
+    make mac $1 $2
 elif [[ "$OSTYPE" == "win32" ]]; then
     echo "Build Windows environment."
     make $1 $2

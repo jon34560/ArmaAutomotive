@@ -14,11 +14,11 @@ CFLAGS_LINUX= -L./GL_Dependency/lib -L/usr/local/lib/ -framework OpenGL -framewo
 
 all:
 	mkdir -p ${OUT_PATH}
-	${CC_MAC} ${CFLAGS_MAC} ${SRC_PATH_MAC}  -o ${OUT_PATH}/Dash
+	${CC_MAC} ${CFLAGS_MAC} ${SRC_PATH_MAC} -o ${OUT_PATH}/Dash
 
 mac:
 	mkdir -p ${OUT_PATH}
-	${CC_MAC} ${CFLAGS_MAC} ${SRC_PATH_MAC}  -o ${OUT_PATH}/Dash
+	${CC_MAC} ${CFLAGS_MAC} ${SRC_PATH_MAC} -o ${OUT_PATH}/Dash.app
 
 linux:
 	mkdir -p ${OUT_PATH}
