@@ -11,6 +11,9 @@ elif [[ "$OSTYPE" == "win32" ]]; then
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo "Build FreeBSD"
     make $1 $2
+elif [[ "$OSTYPE" == "linux-gnueabihf" ]]; then
+    echo "Build Linux ARM"
+    make linux-arm
 else
     echo "Build..."
     make $1 $2
