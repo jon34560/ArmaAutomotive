@@ -114,8 +114,8 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 
 void display() 
 {
-    //std::string strMytestString("display");
-    //std::cout << strMytestString;
+    std::string strMytestString("display");
+    std::cout << strMytestString;
     
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
@@ -229,7 +229,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);					// Initialize GLUT
 
 	glutCreateWindow("Arma Automotive Dash");	// Create a window with the given title
-	glutInitWindowSize(500, 500);			// Set the window's initial width & height
+	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);			// Set the window's initial width & height
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowPosition(0, 0);			// Position the window's initial top-left corner
 	glutDisplayFunc(display);				// Register display callback handler for window re-paint
