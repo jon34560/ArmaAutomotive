@@ -1,5 +1,6 @@
 #include "MenuRenderer.h"
 #include "stb_image.h"
+#include <string>
 
 #define  KEY_UP                        0x0065
 #define  KEY_DOWN                      0x0067
@@ -27,7 +28,13 @@ MenuRenderer::~MenuRenderer()
 void MenuRenderer::initialize()
 {
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load(".\\images\\selected.png", &width, &height, &nrChannels, 0);
+    std::string image_path;
+    #ifdef _WIN32
+        image_path = ".\\images\\selected.png";
+    #else
+        image_path = "./images/selected.png";
+    #endif
+	unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &bckgroundTexture);
 
@@ -48,7 +55,12 @@ void MenuRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\car.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\car.png";
+    #else
+        image_path = "./images/car.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &carImageTexture);
 

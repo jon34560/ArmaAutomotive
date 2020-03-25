@@ -114,8 +114,8 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 
 void display() 
 {
-    std::string strMytestString("display");
-    std::cout << strMytestString;
+    //std::string strMytestString("display");
+    //std::cout << strMytestString;
     
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
@@ -135,9 +135,9 @@ void display()
 	glutSwapBuffers();
 	
 	#ifdef _WIN32
-	Sleep(50);
+	Sleep(50); // Milliseconds
 	#else
-	sleep(50);
+	//sleep(50); // Seconds
 	#endif
 
 	nCount++;
