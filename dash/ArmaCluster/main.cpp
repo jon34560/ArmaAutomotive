@@ -233,7 +233,7 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowPosition(0, 0);			// Position the window's initial top-left corner
 	glutDisplayFunc(display);				// Register display callback handler for window re-paint
-	glutIdleFunc(idle);
+	//glutIdleFunc(idle);
     glutKeyboardUpFunc(keyboard_up);		// when the key goes up
 	glutSpecialUpFunc(SpecialKeys);
 
