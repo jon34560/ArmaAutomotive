@@ -117,7 +117,16 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
 
 	clusterDispMgr.doRender();
-	//glFlush();
+
+	glViewport(0, 0, 1920, 720);	
+	glPointSize(3.0);
+	glBegin(GL_LINES);
+	glVertex2d(180, 25);
+	glVertex2d(10, 145);
+	glEnd();
+
+	
+        glFlush();
 	glutSwapBuffers();
 	
 	#ifdef _WIN32
@@ -189,6 +198,17 @@ void reshape(int w, int h)
     glLoadIdentity();
 }
 
+
+void init(){
+	glViewport(0,0,1920, 720);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, 500, 0, 500, 1, -1);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();	
+	
+}
+
 /* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
 	std::string strMytestString("hello world");
@@ -209,6 +229,7 @@ int main(int argc, char** argv) {
     
     glutReshapeFunc(reshape); // test
 
+	//init();
 	clusterDispMgr.initialize();
 
 	// Start data acquisition thread
