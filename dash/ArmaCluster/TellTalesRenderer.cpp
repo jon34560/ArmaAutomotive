@@ -14,7 +14,14 @@ TellTailesRenderer::~TellTailesRenderer()
 void TellTailesRenderer::initialize()
 {
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load(".\\images\\lighton.png", &width, &height, &nrChannels, 0);
+    
+    std::string image_path;
+    #ifdef _WIN32
+        image_path = ".\\images\\lighton.png";
+    #else
+        image_path = "./images/lighton.png";
+    #endif
+	unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &lightOnTexture);
 	glBindTexture(GL_TEXTURE_2D, lightOnTexture);
@@ -28,7 +35,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	unsigned char *dataLightOff = stbi_load(".\\images\\lightoff.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\lightoff.png";
+    #else
+        image_path = "./images/lightoff.png";
+    #endif
+	unsigned char *dataLightOff = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &lightOffTexture);
 	glBindTexture(GL_TEXTURE_2D, lightOffTexture);
@@ -43,7 +55,12 @@ void TellTailesRenderer::initialize()
 	stbi_image_free(dataLightOff);
 
 	// Hazard
-	data = stbi_load(".\\images\\hazardon.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\hazardon.png";
+    #else
+        image_path = "./images/hazardon.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &hazardOnTexture);
 	glBindTexture(GL_TEXTURE_2D, hazardOnTexture);
@@ -57,7 +74,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\hazardoff.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\hazardoff.png";
+    #else
+        image_path = "./images/hazardoff.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &hazardOffTexture);
 	glBindTexture(GL_TEXTURE_2D, hazardOffTexture);
@@ -72,7 +94,12 @@ void TellTailesRenderer::initialize()
 	stbi_image_free(data);
 
 	// Park
-	data = stbi_load(".\\images\\parkon.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\parkon.png";
+    #else
+        image_path = "./images/parkon.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &parkOnTexture);
 	glBindTexture(GL_TEXTURE_2D, parkOnTexture);
@@ -86,7 +113,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\parkoff.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\parkoff.png";
+    #else
+        image_path = "./images/parkoff.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &parkOffTexture);
 	glBindTexture(GL_TEXTURE_2D, parkOffTexture);
@@ -101,7 +133,12 @@ void TellTailesRenderer::initialize()
 	stbi_image_free(data);
 
 	// Right turn
-	data = stbi_load(".\\images\\right_arrow.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\right_arrow.png";
+    #else
+        image_path = "./images/right_arrow.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &rightOnTexture);
 	glBindTexture(GL_TEXTURE_2D, rightOnTexture);
@@ -115,7 +152,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\right_arrow_off.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\right_arrow_off.png";
+    #else
+        image_path = "./images/right_arrow_off.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &rightOffTexture);
 	glBindTexture(GL_TEXTURE_2D, rightOffTexture);
@@ -130,7 +172,12 @@ void TellTailesRenderer::initialize()
 	stbi_image_free(data);
 
 	// Left turn
-	data = stbi_load(".\\images\\left_arrow.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\left_arrow.png";
+    #else
+        image_path = "./images/left_arrow.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &leftOnTexture);
 	glBindTexture(GL_TEXTURE_2D, leftOnTexture);
@@ -144,7 +191,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\left_arrow_off.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\left_arrow_off.png";
+    #else
+        image_path = "./images/left_arrow_off.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &leftOffTexture);
 	glBindTexture(GL_TEXTURE_2D, leftOffTexture);
@@ -159,7 +211,12 @@ void TellTailesRenderer::initialize()
 	stbi_image_free(data);
 
 	// Check
-	data = stbi_load(".\\images\\checkon.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\checkon.png";
+    #else
+        image_path = "./images/checkon.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &checkOnTexture);
 	glBindTexture(GL_TEXTURE_2D, checkOnTexture);
@@ -173,7 +230,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\checkoff.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\checkoff.png";
+    #else
+        image_path = "./images/checkoff.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &checkOffTexture);
 	glBindTexture(GL_TEXTURE_2D, checkOffTexture);
@@ -189,7 +251,12 @@ void TellTailesRenderer::initialize()
 
 
 	// Seatbelt
-	data = stbi_load(".\\images\\seatbelt_on.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\seatbelt_on.png";
+    #else
+        image_path = "./images/seatbelt_on.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &seatbeltOnTexture);
 	glBindTexture(GL_TEXTURE_2D, seatbeltOnTexture);
@@ -203,7 +270,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\seatbelt_off.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\seatbelt_off.png";
+    #else
+        image_path = "./images/seatbelt_off.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &seatbeltOffTexture);
 	glBindTexture(GL_TEXTURE_2D, seatbeltOffTexture);
@@ -220,7 +292,12 @@ void TellTailesRenderer::initialize()
 	
 
 	// Door Ajar
-	data = stbi_load(".\\images\\door_ajar_on.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\door_ajar_on.png";
+    #else
+        image_path = "./images/door_ajar_on.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &doorAjarOnTexture);
 	glBindTexture(GL_TEXTURE_2D, doorAjarOnTexture);
@@ -234,7 +311,12 @@ void TellTailesRenderer::initialize()
 	}
 	stbi_image_free(data);
 
-	data = stbi_load(".\\images\\door_ajar_off.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\door_ajar_off.png";
+    #else
+        image_path = "./images/door_ajar_off.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 
 	glGenTextures(1, &doorAjarOffTexture);
 	glBindTexture(GL_TEXTURE_2D, doorAjarOffTexture);

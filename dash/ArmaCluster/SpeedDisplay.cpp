@@ -1,5 +1,6 @@
 #include "SpeedDisplay.h"
 #include "stb_image.h"
+#include <string>
 
 int testAngle = 0;
 SpeedDisplay::SpeedDisplay()
@@ -24,7 +25,14 @@ SpeedDisplay::~SpeedDisplay()
 void SpeedDisplay::initialize()
 {
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load(".\\images\\0.png", &width, &height, &nrChannels, 0);
+    
+    std::string image_path;
+    #ifdef _WIN32
+        image_path = ".\\images\\0.png";
+    #else
+        image_path = "./images/0.png";
+    #endif
+	unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit0Texture);
 	glBindTexture(GL_TEXTURE_2D, digit0Texture);
 
@@ -40,7 +48,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 1
-	data = stbi_load(".\\images\\1.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\1.png";
+    #else
+        image_path = "./images/1.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit1Texture);
 	glBindTexture(GL_TEXTURE_2D, digit1Texture);
 
@@ -56,7 +69,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 2
-	data = stbi_load(".\\images\\2.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\2.png";
+    #else
+        image_path = "./images/2.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit2Texture);
 	glBindTexture(GL_TEXTURE_2D, digit2Texture);
 
@@ -72,7 +90,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 3
-	data = stbi_load(".\\images\\3.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\3.png";
+    #else
+        image_path = "./images/3.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit3Texture);
 	glBindTexture(GL_TEXTURE_2D, digit3Texture);
 
@@ -88,7 +111,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 4
-	data = stbi_load(".\\images\\4.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\4.png";
+    #else
+        image_path = "./images/4.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit4Texture);
 	glBindTexture(GL_TEXTURE_2D, digit4Texture);
 
@@ -104,7 +132,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 5
-	data = stbi_load(".\\images\\5.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\5.png";
+    #else
+        image_path = "./images/5.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit5Texture);
 	glBindTexture(GL_TEXTURE_2D, digit5Texture);
 
@@ -120,7 +153,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 6
-	data = stbi_load(".\\images\\6.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\6.png";
+    #else
+        image_path = "./images/6.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit6Texture);
 	glBindTexture(GL_TEXTURE_2D, digit6Texture);
 
@@ -136,7 +174,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 7
-	data = stbi_load(".\\images\\7.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\7.png";
+    #else
+        image_path = "./images/7.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit7Texture);
 	glBindTexture(GL_TEXTURE_2D, digit7Texture);
 
@@ -152,7 +195,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 8
-	data = stbi_load(".\\images\\8.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\8.png";
+    #else
+        image_path = "./images/8.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit8Texture);
 	glBindTexture(GL_TEXTURE_2D, digit8Texture);
 
@@ -168,7 +216,12 @@ void SpeedDisplay::initialize()
 	stbi_image_free(data);
 
 	// Digit 9
-	data = stbi_load(".\\images\\9.png", &width, &height, &nrChannels, 0);
+    #ifdef _WIN32
+        image_path = ".\\images\\9.png";
+    #else
+        image_path = "./images/9.png";
+    #endif
+	data = stbi_load(image_path.c_str(), &width, &height, &nrChannels, 0);
 	glGenTextures(1, &digit9Texture);
 	glBindTexture(GL_TEXTURE_2D, digit9Texture);
 
