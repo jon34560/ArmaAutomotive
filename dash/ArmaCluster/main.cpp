@@ -40,6 +40,7 @@ int WINDOW_HEIGHT = 720;
 int nCount = 0;
 int nMenuDisplayCounter = 0;
 //int displayMode = 0;
+double demo_mode = true;
 
 // Thread
 void dataAcquisitionThread() { // pass in state (DataModel dataModel)
@@ -84,27 +85,30 @@ void dataAcquisitionThread() { // pass in state (DataModel dataModel)
 
 
 	while (true) {
-		DataModel::getInstance()->setrightTurnTellTaleStatus(!DataModel::getInstance()->getrightTurnTellTaleStatus());
-		DataModel::getInstance()->setleftTurnTellTaleStatus(!DataModel::getInstance()->getleftTurnTellTaleStatus());
+		if (demo_mode) {
+			DataModel::getInstance()->setrightTurnTellTaleStatus(!DataModel::getInstance()->getrightTurnTellTaleStatus());
+			DataModel::getInstance()->setleftTurnTellTaleStatus(!DataModel::getInstance()->getleftTurnTellTaleStatus());
 
-		DataModel::getInstance()->sethazardTellTaleStatus(!DataModel::getInstance()->gethazardTellTaleStatus()); 
-		DataModel::getInstance()->setvehicleCheckTellTaleStatus(!DataModel::getInstance()->getvehicleCheckTellTaleStatus());
+			DataModel::getInstance()->sethazardTellTaleStatus(!DataModel::getInstance()->gethazardTellTaleStatus());
+			DataModel::getInstance()->setvehicleCheckTellTaleStatus(!DataModel::getInstance()->getvehicleCheckTellTaleStatus());
 
-		DataModel::getInstance()->setparkingTellTaleStatus(!DataModel::getInstance()->getparkingTellTaleStatus());
-		DataModel::getInstance()->setlightTellTaleStatus(!DataModel::getInstance()->getlightTellTaleStatus());
+			DataModel::getInstance()->setparkingTellTaleStatus(!DataModel::getInstance()->getparkingTellTaleStatus());
+			DataModel::getInstance()->setlightTellTaleStatus(!DataModel::getInstance()->getlightTellTaleStatus());
 
 
-		int fuel = DataModel::getInstance()->getfuelValue();
-		fuel++;
-		if (fuel > 100) {
-			fuel = 0;
+			int fuel = DataModel::getInstance()->getfuelValue();
+			fuel++;
+			if (fuel > 100) {
+				fuel = 0;
+			}
+			DataModel::getInstance()->setfuelValue(fuel);
+			DataModel::getInstance()->setfuelDialAngle(fuel);
+			//setfuelDialAngle  getfuelDialAngle
+
+			counter++;
 		}
-		DataModel::getInstance()->setfuelValue(fuel);
-		DataModel::getInstance()->setfuelDialAngle(fuel);
-		//setfuelDialAngle  getfuelDialAngle
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(400));
-		counter++;
 	}
 }
 
@@ -118,15 +122,16 @@ void display()
 
 	clusterDispMgr.doRender();
 
+	/*
 	glViewport(0, 0, 1920, 720);	
 	glPointSize(3.0);
 	glBegin(GL_LINES);
-	glVertex2d(180, 25);
-	glVertex2d(10, 145);
+	glVertex2d(12, 12);
+	glVertex2d(0, 0);
 	glEnd();
-
+	*/
 	
-        glFlush();
+        //glFlush();
 	glutSwapBuffers();
 	
 	#ifdef _WIN32
@@ -175,7 +180,13 @@ void keyboard_up(unsigned char key, int x, int y)
 		break;
 	case VK_UP:
 		exit(0);
-
+	case 'f':
+		glutFullScreen();
+	case 'q':
+		exit(0);
+		break;
+	case 'd':
+		demo_mode = !demo_mode;
 	default:
 		break;
 	}
@@ -188,6 +199,7 @@ void SpecialKeys(int key, int x, int y)
 }
 
 // Called every time a window is resized to resize the projection matrix
+// Does not work.
 void reshape(int w, int h)
 {
     glViewport(0, 0, w, h);
@@ -203,7 +215,7 @@ void init(){
 	glViewport(0,0,1920, 720);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, 500, 0, 500, 1, -1);
+	glOrtho(0, 1000, 0, 1000, 1, -1);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
 	
@@ -211,7 +223,7 @@ void init(){
 
 /* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
-	std::string strMytestString("hello world");
+	std::string strMytestString("Arma Dash");
     std::cout << strMytestString;
     
     glutInit(&argc, argv);					// Initialize GLUT
@@ -226,8 +238,9 @@ int main(int argc, char** argv) {
 	glutSpecialUpFunc(SpecialKeys);
 
 	glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
+	//glutFullScreen();
     
-    glutReshapeFunc(reshape); // test
+    //glutReshapeFunc(reshape); // test
 
 	//init();
 	clusterDispMgr.initialize();
