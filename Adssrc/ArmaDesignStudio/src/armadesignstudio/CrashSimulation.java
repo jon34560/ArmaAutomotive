@@ -6,7 +6,30 @@
 
    This program is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-   PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
+   PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ 
+ 
+ 1 for each force object get force vector direction and vertex it affects. Length could be force value.
+
+ 2 propagate force input vector to connected verticies (not repeating on verts). Each verticy
+ will accumulate a set of force vectors from all scene force objects.
+ Angle of force and angle of connected edge will affect the amount of force propagated.
+ Angles same max, 90 deg off is none, 180 off is negative.
+ each vertex point only needs one force vector that can be adjusted for each input force propagation.
+ EAch propagation keeps
+ 
+ track of which points it’s updated as to only do each one once.
+ Thread per input force vector ???
+
+ 3 move verticies based on force vectors. Take average of all force vectors to apply.
+ Use transformation to apply correct deformation.
+ Threaded by groups of points.
+
+ 4 calculate deformation sum and repeat process until forces transferred into deformation.
+ Possibly show edges in colour by deformation.
+
+ 
+ */
 
 package armadesignstudio;
 
@@ -58,6 +81,7 @@ public class CrashSimulation extends BDialog
     private double inerta = 0.5;
     
     LayoutWindow window;
+    Vector<ObjectInfo> objects;
 
     public CrashSimulation(BFrame parent)
     {
@@ -73,6 +97,10 @@ public class CrashSimulation extends BDialog
         setVisible(true);
         
         window = ((LayoutWindow)parent);
+    }
+    
+    public void setObjects(Vector<ObjectInfo> objects){
+        this.objects = objects;
     }
 
     public boolean clickedOk()
@@ -246,7 +274,9 @@ public class CrashSimulation extends BDialog
             progressDialog.setVisible(true);
              */
             
-            while(inerta > 0.001){
+            solver(); // New FEA Solver.
+            
+            while(obj != null && inerta > 0.001){
                 impact(obj);
                 try {
                     Thread.sleep(50);
@@ -273,12 +303,52 @@ public class CrashSimulation extends BDialog
         }
     }
     
+    /**
+     * solver
+     * Description:
+     */
+    public void solver(){
+        // 1
+        Vector forceVectors = new Vector();
+        for (ObjectInfo info : objects){
+            Object co = (Object)info.getObject();
+            if((co instanceof ForceObject) == true){
+                
+                System.out.println(" Force Vector ");
+                Mesh mesh = (Mesh) info.getObject(); // Object3D
+                Vec3 [] verts = mesh.getVertexPositions();
+                for (Vec3 vert : verts){
+                    System.out.println("   - " + vert.x + " " + vert.y + " " + vert.z);
+                }
+                
+            }
+        }
+    }
+    
+    //public SolverThread solverThread = new SolverThread();
+    public class SolverThread extends Thread {
+        ObjectInfo obj;
+        public SolverThread(){}
+        public void setObject(ObjectInfo obj){
+            this.obj = obj;
+        }
+        public void run() {
+        
+            
+        }
+    }
+    
+    public void applyForceVectors(){
+        
+        
+    }
     
     /**
      * impact
      *
      * Description:
-     *
+     *      This is a one dimensional static simulation that is only a proof of concept to access scene mesh points and edges used as a
+     *      Platform for a correct fea solver.
      *
      * TODO: Break inerta into descrete values for each vertex as it transfers through the object.
      * TODO: Trasform coordinate points

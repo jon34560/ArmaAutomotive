@@ -11,6 +11,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 package armadesignstudio;
 
 import armadesignstudio.object.*;
+import armadesignstudio.math.*;
 
 public class Perferate {
 
@@ -19,12 +20,41 @@ public class Perferate {
     }
     
     /**
-     * perferate
+     * perferateTriangles
      *
      * Description:
      *
      */
-    public void perferate(Scene scene){
+    public void perferateTriangles(Scene scene){
+        
+        int selection[] = scene.getSelection();
+        if(selection.length > 0){
+            ObjectInfo info = scene.getObject(selection[0]);
+            
+            System.out.println("obj " + info);
+            Object co = (Object)info.getObject();
+            if((co instanceof Mesh) == true){
+            
+                // Find object orientation
+                
+                BoundingBox bounds = getTranslatedBounds(info);
+                System.out.println("bounds " + bounds.minx + " " + bounds.maxx + " " +
+                                   bounds.miny + " " + bounds.maxy + " " +
+                                   bounds.minz + " " + bounds.maxz + " " );
+            } else {
+                System.out.println("Error: Object is not a mesh. ");
+            }
+        }
+    }
+    
+    
+    /**
+     * perferateSquares
+     *
+     * Description:
+     *
+     */
+    public void perferateSquares(Scene scene){
         
         int selection[] = scene.getSelection();
         if(selection.length > 0){
@@ -34,8 +64,62 @@ public class Perferate {
             
             
             
-            
         }
+    }
+    
+    public BoundingBox getTranslatedBounds(ObjectInfo object){
+        BoundingBox bounds = null;
+        
+        LayoutModeling layout = new LayoutModeling();
+        Object3D o3d = object.getObject().duplicate();
+        bounds = o3d.getBounds();           // THIS DOES NOT WORK
+        
+        bounds.minx = 999; bounds.maxx = -999;
+        bounds.miny = 999; bounds.maxy = -999;
+        bounds.minz = 999; bounds.maxz = -999;
+        
+        CoordinateSystem c;
+        c = layout.getCoords(object);
+        Vec3 objOrigin = c.getOrigin();
+        
+        //System.out.println("getTranslatedBounds: " + object.getName());
+        
+        Mesh mesh = (Mesh) object.getObject(); // Object3D
+        Vec3 [] verts = mesh.getVertexPositions();
+        
+        //if(object.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+            //TriangleMesh triangleMesh = null;
+            //triangleMesh = object.getObject().convertToTriangleMesh(0.05);
+            
+            //MeshVertex[] points = triangleMesh.getVertices();
+            for(int i = 0; i < verts.length; i++){
+                Vec3 point = verts[i];
+                
+                Mat4 mat4 = c.duplicate().fromLocal();
+                mat4.transform(point);
+                
+                if(point.x < bounds.minx){
+                    bounds.minx = point.x;
+                }
+                if(point.x > bounds.maxx){
+                    bounds.maxx = point.x;
+                }
+                if(point.y < bounds.miny){
+                    bounds.miny = point.y;
+                }
+                if(point.y > bounds.maxy){
+                    bounds.maxy = point.y;
+                }
+                if(point.z < bounds.minz){
+                    bounds.minz = point.z;
+                }
+                if(point.z > bounds.maxz){
+                    bounds.maxz = point.z;
+                }
+            }
+        //}
+        //System.out.println("getTranslatedBounds: " + object.getName());
+        return bounds;
     }
 }
 
