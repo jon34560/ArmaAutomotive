@@ -41,6 +41,39 @@ public class Perferate {
                 System.out.println("bounds " + bounds.minx + " " + bounds.maxx + " " +
                                    bounds.miny + " " + bounds.maxy + " " +
                                    bounds.minz + " " + bounds.maxz + " " );
+                
+                // What if part is not aligned to primary axis???
+                // todo sort out
+                
+                
+                if( (bounds.maxx - bounds.minx) > (bounds.maxy - bounds.miny) &&
+                     (bounds.maxx - bounds.minx) > (bounds.maxz - bounds.minz)   ){ // X axis
+                    System.out.println(" is on x ");
+                    
+                    // H
+                    double rotate_angle_index = 0; // 360 degrees total
+                    int x_index = 0; // bounds.minx;
+                    double unit_distance = (bounds.maxz - bounds.minz) / 5; // testing for now
+                    
+                    for(int x_i = 0; x_i < ((bounds.maxx - bounds.minx) / unit_distance); x_i++){ // x
+                        
+                        for(int r_i = 0; r_i < (360 / unit_distance); r_i++){ // rotate
+                            
+                            // Create object
+                            Vec3 point1 = new Vec3( );
+                            //Vec3 point2 = new Vec3( );
+                            //Vec3 point2 = new Vec3( );
+                            
+                            
+                            //Curve theCurve = new Curve(vertex, s, smoothing, false);
+                            
+                        }
+                    
+                    }
+                    
+                    
+                }
+                
             } else {
                 System.out.println("Error: Object is not a mesh. ");
             }

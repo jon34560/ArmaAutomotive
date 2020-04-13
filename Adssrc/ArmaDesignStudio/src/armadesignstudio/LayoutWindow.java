@@ -729,6 +729,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
     toolsMenu.add(Translate.menuItem("Straighten Spline", this, "straightenSpline"));
+    toolsMenu.add(Translate.menuItem("Get Spline Length", this, "getSplineLength"));
       
     toolsMenu.addSeparator();
       
@@ -2859,6 +2860,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void straightenSpline(){
         if(theScene != null){
             theScene.straightenSpline(this);
+        }
+    }
+    
+    public void getSplineLength(){
+        if(theScene != null){
+            theScene.getSplineLength(this);
         }
     }
 

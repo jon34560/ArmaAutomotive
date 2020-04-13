@@ -56,6 +56,7 @@ public class StraightenSpline {
 
                     Vector ignoreChildren = new Vector();
                   
+                    double linearLength = 0;
                     for(int i = 1; i < verts.length; i++){
                         Vec3 vertA = verts[i - 1];
                         Vec3 vertB = verts[i];
@@ -68,7 +69,7 @@ public class StraightenSpline {
                         mat4.transform(worldVertB);
                         
                         double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
-                        
+                        linearLength += distance;
                         //System.out.println("    vert: " +
                         //                   vertA.x + " " + vertA.y + "  " + vertA.z  + " - " +
                         //                   vertB.x + " " + vertB.y + "  " + vertB.z);
@@ -185,6 +186,8 @@ public class StraightenSpline {
                         }
                         
                     } // verts pairs
+                    
+                    System.out.println(" len " + linearLength);
                     
                     // Update scene
                     //((Mesh)obj.getObject()).setVertexPositions(vecPoints); // todo: check object is instance of type.
