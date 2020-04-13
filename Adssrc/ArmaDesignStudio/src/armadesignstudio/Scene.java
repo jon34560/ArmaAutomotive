@@ -1915,6 +1915,11 @@ public class Scene
         straighten.straightenSpline(objects);
     }
     
+    /**
+     * getSplineLength
+     *
+     * Description: Calculate linear length of a spline object.
+     */
     public void getSplineLength(LayoutWindow layoutWindow){
         System.out.println("Get spline length");
         double linearLength = 0;
@@ -1924,35 +1929,41 @@ public class Scene
                 Object co = (Object)obj.getObject();
                 if((co instanceof Curve) == true){
                     CoordinateSystem cs = ((ObjectInfo)obj).getCoords();
-                    
                     Mesh mesh = (Mesh) obj.getObject(); // Object3D
                     Vec3 [] verts = mesh.getVertexPositions();
-                    
                     Vec3 vecPoints[] = new Vec3[verts.length];
                     for(int i = 0; i < verts.length; i++){
                         vecPoints[i] = verts[i];
                     }
-
                     Vector ignoreChildren = new Vector();
-                  
-                    
                     for(int i = 1; i < verts.length; i++){
                         Vec3 vertA = verts[i - 1];
                         Vec3 vertB = verts[i];
-                        
                         Vec3 worldVertA = new Vec3(vertA);
                         Vec3 worldVertB = new Vec3(vertB);
                         cs = ((ObjectInfo)obj).getCoords();
                         Mat4 mat4 = cs.duplicate().fromLocal();
                         mat4.transform(worldVertA);
                         mat4.transform(worldVertB);
-                        
+                        double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
+                        linearLength += distance;
+                    }
+                    if((  (Curve) co ).isClosed()){ // If spline is closed loop add distance from verticies on the ends.
+                        Vec3 vertA = verts[verts.length - 1];
+                        Vec3 vertB = verts[0];
+                        Vec3 worldVertA = new Vec3(vertA);
+                        Vec3 worldVertB = new Vec3(vertB);
+                        cs = ((ObjectInfo)obj).getCoords();
+                        Mat4 mat4 = cs.duplicate().fromLocal();
+                        mat4.transform(worldVertA);
+                        mat4.transform(worldVertB);
                         double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
                         linearLength += distance;
                     }
                 }
             }
         }
+        
         double scale = getScale();
         linearLength = linearLength * scale;
         
