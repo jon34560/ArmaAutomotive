@@ -1198,6 +1198,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         theView[i].repaint();
       }
   }
+    
+    // JDT
+    public void updateTree(){
+        rebuildItemList();
+        //itemTree.repaint();
+    }
 
   /** Update the state of all menu items. */
 

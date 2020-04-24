@@ -129,23 +129,21 @@ public class Perferate {
                             vertex[1] = point2;
                             vertex[2] = point3;
                             Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            
                             CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
-                            
-                            
+                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                            perferationInfo.setParent(info); // Add perferation object to selection.
+                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                            window.addObject(perferationInfo, null); // Add ObjectInfo
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
-                            
                         }
-                    
                     }
                     
                     // end of X axis
                     window.updateImage();
+                    window.updateTree(); // Tell the tree it has changed.
+             
                 }
-                
             } else {
                 System.out.println("Error: Object is not a mesh. ");
             }
@@ -252,8 +250,13 @@ public class Perferate {
                             Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
                             
                             CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
+                            //window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
                             
+                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                            
+                            perferationInfo.setParent(info); // Add perferation object to selection.
+                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                            window.addObject(perferationInfo, null); // Add ObjectInfo
                             
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
                             
@@ -265,6 +268,7 @@ public class Perferate {
                     
                     // end of X axis
                     window.updateImage();
+                    window.updateTree(); // Tell the tree it has changed.
                 }
                 
             } else {
@@ -371,19 +375,22 @@ public class Perferate {
                             Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
                             
                             CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
+                            //window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
                             
+                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                            perferationInfo.setParent(info); // Add perferation object to selection.
+                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                            window.addObject(perferationInfo, null); // Add ObjectInfo
                             
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
-                            
                         }
                     
                     }
                     
                     // end of X axis
                     window.updateImage();
+                    window.updateTree(); // Tell the tree it has changed.
                 }
                 
             } else {
