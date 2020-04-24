@@ -56,55 +56,70 @@ public class Perferate {
                     // H
                     double rotate_angle_index = 0; // 360 degrees total
                     int x_index = 0; // bounds.minx;
-                    double unit_distance = (bounds.maxz - bounds.minz) / 4.5; // testing for now
+                    double unit_distance = (bounds.maxz - bounds.minz) / 5.5; // testing for now
+                    System.out.println("unit_distance " + unit_distance); // 0.36363636363636365
                     double partDiameter = (bounds.maxy - bounds.miny);
                     double partRadius = (partDiameter / 2);
-                    partRadius = partRadius * 1.03; // expand for visibility.
+                    partRadius = partRadius * 1.02; // expand for visibility.
                     //System.out.println(" xi : " + ((bounds.maxx - bounds.minx) / (unit_distance)));
                     //System.out.println(" r_i : " + (360 / (unit_distance * 4 )));
                     double yCentre = ((bounds.maxy - bounds.miny) / 2);
                     double zCentre = ((bounds.maxz - bounds.minz) / 2);
+                    int p = 0;
                     
                     //for(int x_i = 0; x_i < ((bounds.maxx - bounds.minx) / unit_distance); x_i ++){ // x unit_distance
                     for(int x_i = 0; x_i < ((bounds.maxx - bounds.minx) / unit_distance); x_i++){
                         double xRow =  ( x_i * unit_distance); // (bounds.minx) +
+                        int rUnits = 14; // (int)(unit_distance * 38.5); // 0.36363636363636365 = 14
                         
-                        for(int r_i = 0; r_i < 14; r_i++){ // rotate    // unit_distance
-                            double angle = (360.0 / 14.0) * (double)r_i;
+                        double rShift = 0; // rotate to evenly pack
+                        if(x_i % 4 == 2 || x_i % 4 == 3){ //
+                            rShift = Math.toRadians( (360.0 / ((double)rUnits)) / 2 );
+                        }
+                        double xShift = 0;  // Shift to evenly pack
+                        if(x_i % 4 == 1){
+                            xShift = (unit_distance / 7.0); // move right
+                        } else if (x_i % 4 == 2){
+                            xShift = -(unit_distance / 7.0); // move left
+                        }
+                        
+                        for(int r_i = 0; r_i < rUnits; r_i++){ // rotate    // unit_distance
+                            double angle = (360.0 / ((double)rUnits)) * (double)r_i;
                             angle = Math.toRadians(angle);
+                            angle = angle + rShift; // shift every double pair
                             //System.out.println("  angle " + angle);
                             
                             // 1
-                            double xPos = bounds.minx + xRow;
-                            double yPos = (partRadius * Math.cos(angle)) - partRadius - 0.05;
+                            double xPos = bounds.minx + xRow + xShift;
+                            double yPos = (partRadius * Math.cos(angle)) - partRadius - 0.07;
                             double zPos = partRadius * Math.sin(angle);
                             Vec3 point1 = new Vec3(xPos, yPos, zPos);
                             
                             // 2
-                            xPos = bounds.minx + xRow;
-                            yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.05;
+                            xPos = bounds.minx + xRow + xShift;
+                            yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.065;
                             zPos = partRadius * Math.sin(angle + 0.25);
                             Vec3 point2 = new Vec3(xPos, yPos, zPos);
                             
                             // 3
-                            xPos = bounds.minx + xRow + (unit_distance / 2);
-                            yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.05;
+                            xPos = bounds.minx + xRow + (unit_distance / 1.68) + xShift;
+                            yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.065;
                             zPos = partRadius * Math.sin(angle + 0.125);
                             Vec3 point3 = new Vec3(xPos, yPos, zPos);
                             
                             if(x_i % 2 == 0){
-                                xPos = bounds.minx + xRow + (unit_distance / 2);
-                                yPos = (partRadius * Math.cos(angle)) - partRadius - 0.05;
+                                xPos = bounds.minx + xRow + (unit_distance / 1.68) + xShift;
+                                yPos = (partRadius * Math.cos(angle)) - partRadius - 0.065;
                                 zPos = partRadius * Math.sin(angle);
                                 point1 = new Vec3(xPos, yPos, zPos);
                                 
-                                xPos = bounds.minx + xRow + (unit_distance / 2);
-                                yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.05;
+                                xPos = bounds.minx + xRow + (unit_distance / 1.68) + xShift;
+                                yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.065;
                                 zPos = partRadius * Math.sin(angle + 0.25);
                                 point2 = new Vec3(xPos, yPos, zPos);
                                 
-                                xPos = bounds.minx + xRow;
-                                yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.05;
+                                xPos = bounds.minx + xRow + xShift;
+                                yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.065;
                                 zPos = partRadius * Math.sin(angle + 0.125);
                                 point3 = new Vec3(xPos, yPos, zPos);
                             }
@@ -117,7 +132,9 @@ public class Perferate {
                             Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
                             
                             CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            window.addObject(perferationCurve, coords, "Perferation " + angle, null);
+                            window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
+                            
+                            
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
                             
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
