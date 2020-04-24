@@ -735,6 +735,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     toolsMenu.add(Translate.menuItem("Perferate with Triangles", this, "perferateTrianglesCommand"));
     toolsMenu.add(Translate.menuItem("Perferate with Squares", this, "perferateSquaresCommand"));
+    toolsMenu.add(Translate.menuItem("Perferate with Diamonds", this, "perferateDiamondsCommand"));
       
     toolsMenu.addSeparator();
 
@@ -2880,6 +2881,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         perferate.perferateSquares( theScene ); // pass scene objects
     }
     
+    public void perferateDiamondsCommand(){
+        Perferate perferate = new Perferate(theScene, this);
+        perferate.perferateDiamonds( theScene ); // pass scene objects
+    }
 
   private void setObjectVisibility(boolean visible, boolean selectionOnly)
   {
