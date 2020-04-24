@@ -14,16 +14,19 @@ import armadesignstudio.object.*;
 import armadesignstudio.math.*;
 
 public class Perferate {
+    private LayoutWindow window = null;
 
     Perferate(Scene scene, LayoutWindow window){
         System.out.println("Perferate ");
+        this.window = window;
     }
     
     /**
      * perferateTriangles
      *
-     * Description:
-     *
+     * Description: Given an object selection, generate curve geometry representing cut lines to perferate the part with holes.
+     * @param - Scene : object containing world objects.
+     * @param - double percentage of material to remove.
      */
     public void perferateTriangles(Scene scene){
         
@@ -53,25 +56,78 @@ public class Perferate {
                     // H
                     double rotate_angle_index = 0; // 360 degrees total
                     int x_index = 0; // bounds.minx;
-                    double unit_distance = (bounds.maxz - bounds.minz) / 5; // testing for now
+                    double unit_distance = (bounds.maxz - bounds.minz) / 4.5; // testing for now
+                    double partDiameter = (bounds.maxy - bounds.miny);
+                    double partRadius = (partDiameter / 2);
+                    partRadius = partRadius * 1.03; // expand for visibility.
+                    //System.out.println(" xi : " + ((bounds.maxx - bounds.minx) / (unit_distance)));
+                    //System.out.println(" r_i : " + (360 / (unit_distance * 4 )));
+                    double yCentre = ((bounds.maxy - bounds.miny) / 2);
+                    double zCentre = ((bounds.maxz - bounds.minz) / 2);
                     
-                    for(int x_i = 0; x_i < ((bounds.maxx - bounds.minx) / unit_distance); x_i++){ // x
+                    //for(int x_i = 0; x_i < ((bounds.maxx - bounds.minx) / unit_distance); x_i ++){ // x unit_distance
+                    for(int x_i = 0; x_i < ((bounds.maxx - bounds.minx) / unit_distance); x_i++){
+                        double xRow =  ( x_i * unit_distance); // (bounds.minx) +
                         
-                        for(int r_i = 0; r_i < (360 / unit_distance); r_i++){ // rotate
+                        for(int r_i = 0; r_i < 14; r_i++){ // rotate    // unit_distance
+                            double angle = (360.0 / 14.0) * (double)r_i;
+                            angle = Math.toRadians(angle);
+                            //System.out.println("  angle " + angle);
                             
-                            // Create object
-                            Vec3 point1 = new Vec3( );
-                            //Vec3 point2 = new Vec3( );
-                            //Vec3 point2 = new Vec3( );
+                            // 1
+                            double xPos = bounds.minx + xRow;
+                            double yPos = (partRadius * Math.cos(angle)) - partRadius - 0.05;
+                            double zPos = partRadius * Math.sin(angle);
+                            Vec3 point1 = new Vec3(xPos, yPos, zPos);
                             
+                            // 2
+                            xPos = bounds.minx + xRow;
+                            yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.05;
+                            zPos = partRadius * Math.sin(angle + 0.25);
+                            Vec3 point2 = new Vec3(xPos, yPos, zPos);
                             
-                            //Curve theCurve = new Curve(vertex, s, smoothing, false);
+                            // 3
+                            xPos = bounds.minx + xRow + (unit_distance / 2);
+                            yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.05;
+                            zPos = partRadius * Math.sin(angle + 0.125);
+                            Vec3 point3 = new Vec3(xPos, yPos, zPos);
+                            
+                            if(x_i % 2 == 0){
+                                xPos = bounds.minx + xRow + (unit_distance / 2);
+                                yPos = (partRadius * Math.cos(angle)) - partRadius - 0.05;
+                                zPos = partRadius * Math.sin(angle);
+                                point1 = new Vec3(xPos, yPos, zPos);
+                                
+                                xPos = bounds.minx + xRow + (unit_distance / 2);
+                                yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.05;
+                                zPos = partRadius * Math.sin(angle + 0.25);
+                                point2 = new Vec3(xPos, yPos, zPos);
+                                
+                                xPos = bounds.minx + xRow;
+                                yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.05;
+                                zPos = partRadius * Math.sin(angle + 0.125);
+                                point3 = new Vec3(xPos, yPos, zPos);
+                            }
+                            
+                            float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
+                            Vec3[] vertex = new Vec3[3];
+                            vertex[0] = point1;
+                            vertex[1] = point2;
+                            vertex[2] = point3;
+                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                            
+                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                            window.addObject(perferationCurve, coords, "Perferation " + angle, null);
+                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                            
+                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
                             
                         }
                     
                     }
                     
-                    
+                    // end of X axis
+                    window.updateImage();
                 }
                 
             } else {

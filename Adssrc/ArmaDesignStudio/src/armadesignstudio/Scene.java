@@ -1972,6 +1972,23 @@ public class Scene
         JOptionPane.showMessageDialog(null, "Spline length: " + linearLength);
     }
 
+    /**
+     * getMeshLength
+     *
+     * Description: calculate the length of a mesh object by treating is as a bent tube.
+     */
+    public void getMeshLength(LayoutWindow layoutWindow){
+        /*
+         1 Start with the first virtex.
+         2 for each connected vertex select the furthest away and calculate the distance.
+         3 Only evaluate each vertex once.
+         4 repeat process (1-3 with furthest vertex, ignoring verticies allready reviewed.)
+         5 sum and return the total distances from all processes.
+         
+         // This wonn't work for some geometry.
+         */
+    }
+    
   /**
   * getObjectInfo
   *
