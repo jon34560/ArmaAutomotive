@@ -59,7 +59,7 @@ public class Perferate {
                     System.out.println("unit_distance " + unit_distance); // 0.36363636363636365
                     double partDiameter = (bounds.maxy - bounds.miny);
                     double partRadius = (partDiameter / 2);
-                    partRadius = partRadius * 1.02; // expand for visibility.
+                    partRadius = partRadius * 1.01; // expand for visibility.
                     //System.out.println(" xi : " + ((bounds.maxx - bounds.minx) / (unit_distance)));
                     //System.out.println(" r_i : " + (360 / (unit_distance * 4 )));
                     double yCentre = ((bounds.maxy - bounds.miny) / 2);
@@ -81,6 +81,17 @@ public class Perferate {
                         } else if (x_i % 4 == 2){
                             xShift = -(unit_distance / 7.0); // move left
                         }
+                        if(x_i % 4 == 1){
+                            xShift += (unit_distance / 24.0);
+                        }
+                        if(x_i % 4 == 2){
+                            xShift += ((unit_distance / 24.0) * 2);
+                            xShift += ((unit_distance / 24.0) );
+                        }
+                        if(x_i % 4 == 3){
+                            xShift += ((unit_distance / 24.0) * 3);
+                            xShift += ((unit_distance / 24.0) );
+                        }
                         
                         for(int r_i = 0; r_i < rUnits; r_i++){ // rotate    // unit_distance
                             double angle = (360.0 / ((double)rUnits)) * (double)r_i;
@@ -90,35 +101,35 @@ public class Perferate {
                             
                             // 1
                             double xPos = bounds.minx + xRow + xShift;
-                            double yPos = (partRadius * Math.cos(angle)) - partRadius - 0.07;
+                            double yPos = bounds.maxy + (partRadius * Math.cos(angle)) - (partDiameter/2); //  - 0.07;
                             double zPos = partRadius * Math.sin(angle);
                             Vec3 point1 = new Vec3(xPos, yPos, zPos);
                             
                             // 2
                             xPos = bounds.minx + xRow + xShift;
-                            yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.25)) - (partDiameter/2); //  - 0.065;
                             zPos = partRadius * Math.sin(angle + 0.25);
                             Vec3 point2 = new Vec3(xPos, yPos, zPos);
                             
                             // 3
-                            xPos = bounds.minx + xRow + (unit_distance / 1.68) + xShift;
-                            yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.065;
+                            xPos = bounds.minx + xRow + (unit_distance / 1.65) + xShift;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.125)) - (partDiameter/2); //  - 0.065;
                             zPos = partRadius * Math.sin(angle + 0.125);
                             Vec3 point3 = new Vec3(xPos, yPos, zPos);
                             
                             if(x_i % 2 == 0){
-                                xPos = bounds.minx + xRow + (unit_distance / 1.68) + xShift;
-                                yPos = (partRadius * Math.cos(angle)) - partRadius - 0.065;
+                                xPos = bounds.minx + xRow + (unit_distance / 1.65) + xShift;
+                                yPos = bounds.maxy + (partRadius * Math.cos(angle)) - (partDiameter/2); //  - 0.065;
                                 zPos = partRadius * Math.sin(angle);
                                 point1 = new Vec3(xPos, yPos, zPos);
                                 
-                                xPos = bounds.minx + xRow + (unit_distance / 1.68) + xShift;
-                                yPos = (partRadius * Math.cos(angle + 0.25)) - partRadius - 0.065;
+                                xPos = bounds.minx + xRow + (unit_distance / 1.65) + xShift;
+                                yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.25)) - (partDiameter/2); //  - 0.065;
                                 zPos = partRadius * Math.sin(angle + 0.25);
                                 point2 = new Vec3(xPos, yPos, zPos);
                                 
                                 xPos = bounds.minx + xRow + xShift;
-                                yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.065;
+                                yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.125)) - (partDiameter/2); //  - 0.065;
                                 zPos = partRadius * Math.sin(angle + 0.125);
                                 point3 = new Vec3(xPos, yPos, zPos);
                             }
@@ -217,25 +228,25 @@ public class Perferate {
                             
                             // 1
                             double xPos = bounds.minx + xRow + xShift;
-                            double yPos = (partRadius * Math.cos(angle)) - partRadius - 0.07;
+                            double yPos = bounds.maxy + (partRadius * Math.cos(angle)) - (partDiameter/2);
                             double zPos = partRadius * Math.sin(angle);
                             Vec3 point1 = new Vec3(xPos, yPos, zPos);
                             
                             // 2
                             xPos = bounds.minx + xRow + xShift;
-                            yPos = (partRadius * Math.cos(angle + 0.22)) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.22)) - (partDiameter/2);
                             zPos = partRadius * Math.sin(angle + 0.22);
                             Vec3 point2 = new Vec3(xPos, yPos, zPos);
                             
                             // 3
                             xPos = bounds.minx + xRow + (unit_distance / 2) + xShift;
-                            yPos = (partRadius * Math.cos(angle + 0.22)) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.22)) - (partDiameter/2);
                             zPos = partRadius * Math.sin(angle+ 0.22);
                             Vec3 point3 = new Vec3(xPos, yPos, zPos);
                             
                             // 4
                             xPos = bounds.minx + xRow + (unit_distance / 2) + xShift;
-                            yPos = (partRadius * Math.cos(angle)) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle)) - (partDiameter/2);
                             zPos = partRadius * Math.sin(angle);
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
@@ -342,25 +353,25 @@ public class Perferate {
                             
                             // 1
                             double xPos = bounds.minx + xRow + xShift;
-                            double yPos = (partRadius * Math.cos(angle)) - partRadius - 0.07;
+                            double yPos = bounds.maxy + (partRadius * Math.cos(angle)) - (partDiameter / 2);
                             double zPos = partRadius * Math.sin(angle);
                             Vec3 point1 = new Vec3(xPos, yPos, zPos);
                             
                             // 2
                             xPos = bounds.minx + xRow + ((unit_distance / 1.68)/1.1) + xShift;
-                            yPos = (partRadius * Math.cos(angle + 0.125)) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle + 0.125)) - (partDiameter / 2);
                             zPos = partRadius * Math.sin(angle + 0.125);
                             Vec3 point2 = new Vec3(xPos, yPos, zPos);
                             
                             // 3
                             xPos = bounds.minx + xRow + ((unit_distance / 1.68) * 1.8 ) + xShift;
-                            yPos = (partRadius * Math.cos(angle )) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle )) - (partDiameter / 2);
                             zPos = partRadius * Math.sin(angle);
                             Vec3 point3 = new Vec3(xPos, yPos, zPos);
                             
                             // 4
                             xPos = bounds.minx + xRow + ((unit_distance / 1.68)/1.1) + xShift;
-                            yPos = (partRadius * Math.cos(angle - 0.125)) - partRadius - 0.065;
+                            yPos = bounds.maxy + (partRadius * Math.cos(angle - 0.125)) - (partDiameter / 2);
                             zPos = partRadius * Math.sin(angle - 0.125);
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
