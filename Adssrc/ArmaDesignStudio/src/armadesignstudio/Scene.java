@@ -2952,6 +2952,7 @@ public class Scene
                         }
                     } // end if mesh and visible
                     
+                    /*
                     if(co instanceof Curve && objClone.isVisible() == true ){ // Bent tube.
                         
                         CoordinateSystem c;
@@ -2960,9 +2961,9 @@ public class Scene
                         
                         Curve curve = (Curve) objClone.getObject(); // Object3D
                         Vec3 [] verts = curve.getVertexPositions();
-                        for (Vec3 vert : verts){
+                        //for (Vec3 vert : verts){
                             
-                        }
+                        //}
                         
                         // TODO: Bend child objects (notches) around curve of tube vertecies.
                         for (int i = 0; i < verts.length - 2; i++ ){
@@ -2984,6 +2985,7 @@ public class Scene
                         }
                         
                     }
+                     */
                     
                     for(int p = 0; p < polygons.size(); p++){
                         //System.out.println(" POLYGON ***");
