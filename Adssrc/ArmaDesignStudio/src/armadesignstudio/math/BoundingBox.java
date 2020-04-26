@@ -186,12 +186,25 @@ public class BoundingBox
         if(z <= 0){
             z = max;
         }
-        System.out.println(" x " + x + "  y " + y + " z " + z);
+        //System.out.println(" x " + x + "  y " + y + " z " + z);
         minx -= x;
         miny -= y;
         minz -= z;
         maxx += x;
         maxy += y;
+        maxz += z;
+    }
+    
+    
+    public void expandYPercentage(double percentage){
+        double y = Math.abs(maxy - miny) * ((double)percentage / (double)100.0);
+        miny -= y;
+        maxy += y;
+    }
+    
+    public void expandZPercentage(double percentage){
+        double z = Math.abs(maxz - minz) * ((double)percentage / (double)100.0);
+        minz -= z;
         maxz += z;
     }
   

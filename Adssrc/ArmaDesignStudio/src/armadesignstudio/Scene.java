@@ -2574,6 +2574,8 @@ public class Scene
      * Description: export gcode for tube notcher.
      *  Straight tubes notch detail will be modeled around a mesh object but tubes to be
      *  bent will be modeled around a Curve.
+     *
+     *
      */
     public void exportTubeGCode(){
         LayoutModeling layout = new LayoutModeling();

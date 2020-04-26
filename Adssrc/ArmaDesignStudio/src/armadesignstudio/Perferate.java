@@ -144,6 +144,10 @@ public class Perferate {
                             window.addObject(perferationInfo, null); // Add ObjectInfo
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            
+                        }
+                        if(x_i % 6 == 0){   // Show intermittant progress
+                            window.updateImage();
                         }
                     }
                     window.updateImage();
@@ -248,6 +252,10 @@ public class Perferate {
                             window.addObject(perferationInfo, null); // Add ObjectInfo
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            
+                        }
+                        if(y_i % 6 == 0){   // Show intermittant progress
+                            window.updateImage();
                         }
                     }
                     window.updateImage();
@@ -351,6 +359,10 @@ public class Perferate {
                             window.addObject(perferationInfo, null); // Add ObjectInfo
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            
+                        }
+                        if(z_i % 6 == 0){   // Show intermittant progress
+                            window.updateImage();
                         }
                     }
                     window.updateImage();

@@ -1,4 +1,5 @@
 /*
+ StraightenSpline.java
  
  Copyright (C) 2020 by Jon Taylor
 
@@ -55,6 +56,8 @@ public class StraightenSpline {
                     }
 
                     Vector ignoreChildren = new Vector();
+                    HashMap childSegmentDistances = new HashMap();
+                    Vector ignoreVerticies = new Vector();
                   
                     double linearLength = 0;
                     for(int i = 1; i < verts.length; i++){
@@ -91,7 +94,7 @@ public class StraightenSpline {
                             rotateXRequired = getAngleX(vertA, vertB, vertBNew);
                             //System.out.println("rotateXRequired " + rotateXRequired);
                             rotateYRequired = getAngleY(vertA, vertB, vertBNew);
-                            System.out.println("rotateYRequired " + rotateYRequired);
+                            //System.out.println("rotateYRequired " + rotateYRequired);
                             
                             // rotate any child objects between vertA and vertB around vertA
                             //
@@ -103,22 +106,29 @@ public class StraightenSpline {
                             targetRegion.outset( Math.abs(worldVertA.x - worldVertB.x) / 50.0 ); // 2% of x
                             targetRegion.expandPercentage(10);
                             
-                            //System.out.println(" target x " + targetRegion.minx  + " " + targetRegion.maxx +
-                            //                   " y " + targetRegion.miny  + " " + targetRegion.maxy +
-                            //                   " z " + targetRegion.minz  + " " + targetRegion.maxz);
+                            
+                            //targetRegion.expandZPercentage(10);
+                            //targetRegion.expandYPercentage(10);
+                            
+                            
+                            System.out.println(" target x " + targetRegion.minx  + " " + targetRegion.maxx +
+                                               " y " + targetRegion.miny  + " " + targetRegion.maxy +
+                                               " z " + targetRegion.minz  + " " + targetRegion.maxz);
                             
                             for (int c = 0; c < obj.getChildren().length; c++){
                                 ObjectInfo child = obj.getChildren()[c];
                                 Object childco = (Object)child.getObject();
-                                if((childco instanceof Curve) == true){
+                                if((childco instanceof Curve) == true){                 // Roate child curves
+                                    
                                     //System.out.println(" child " + child.getName() );
+                                    
                                     BoundingBox childBox = getTranslatedBounds(child);
                                     Vec3 childCentre = childBox.getCenter();
                                     //System.out.println("   child " + child.getName()+ " centre x " + childCentre.x +
                                     //                   " y " + childCentre.y +
                                     //                   " z " + childCentre.z );
                                     
-                                    boolean moveChild = true;
+                                    boolean moveChild = true; // Move all children until we iterate to their region on the curve.
                                     for(int x = 0; x < ignoreChildren.size(); x++){
                                         ObjectInfo oi = (ObjectInfo)ignoreChildren.elementAt(x);
                                         if(oi == child){
@@ -127,6 +137,7 @@ public class StraightenSpline {
                                     }
                                     
                                     if(moveChild){
+                                        System.out.println("  move child " + child.getName() + " angle: " + rotateXRequired);
                                         //System.out.println("       worldVertA  x " + worldVertA.x +   // correct
                                         //" y " + worldVertA.y +
                                         //" z " + worldVertA.z );
@@ -162,12 +173,50 @@ public class StraightenSpline {
                                         child.clearCachedMeshes();
                                     }
                                     
+                                    // If we cant capture the child in a segment bounds just use larger distance
+                                    // Or segment distance is getting larger
+                                    Vec3 segmentCentre = targetRegion.getCenter();
+                                    //Vec3 childCentre = childBox.getCenter();
+                                    double segmentToChildDistance = Math.sqrt(Math.pow(segmentCentre.x - childCentre.x, 2) + Math.pow(segmentCentre.y - childCentre.y, 2) + Math.pow(segmentCentre.z - childCentre.z, 2));
                                     //
+                                    //System.out.println("   seg dist " + segmentToChildDistance);
+                                    if(childSegmentDistances.containsKey(child) && ignoreChildren.contains(child) == false){
+                                        double previousObjectToSegmentDistance = (Double)childSegmentDistances.get(child);
+                                        if(segmentToChildDistance > previousObjectToSegmentDistance){
+                                            // if we are moving away from (past) the child object on our traversal across the line then consider it processed.
+                                            System.out.println("        *** PASSING " + child.getName() );
+                                            ignoreChildren.addElement(child);
+                                        }
+                                    }
+                                    childSegmentDistances.put(child, segmentToChildDistance); // Save curr segment distance to child object.
+                                    
+                                    // bounds maintinance
                                     if(targetRegion.contains(childCentre) ){
-                                        //System.out.println("        INSIDE " + child.getName() );
+                                        System.out.println("        *** INSIDE " + child.getName() );
                                         // Don't move this child object any more because it's region has been bent to the correct place.
                                         ignoreChildren.addElement(child);
                                     }
+                                }
+                                
+                                if((childco instanceof Mesh) == true){ // Straighten mesh vertecies
+                                    //System.out.println(" child mesh " + child.getName() );
+                                    
+                                    boolean move = true; // Don't touch objects that have been moved.
+                                    for(int x = 0; x < ignoreChildren.size(); x++){
+                                        ObjectInfo oi = (ObjectInfo)ignoreChildren.elementAt(x);
+                                        if(oi == child){
+                                            move = false;
+                                        }
+                                    }
+                                    
+                                    // Object must be large and not moved by previous function.
+                                    
+                                    
+                                    // Find vertecies in region.
+                                    
+                                    // TODO:
+                                    // ignoreChildren
+                                    // ignoreVerticies
                                 }
                             }
                             
