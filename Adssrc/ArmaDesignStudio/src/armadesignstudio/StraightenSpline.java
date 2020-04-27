@@ -36,6 +36,8 @@ public class StraightenSpline {
      * Description: With a selected curve object this function will straighten it out and rotate children curves
      * so that it can be used by the CNC tube notcher.
      *
+     * Note: This function only works on one axis.
+     *
      *  @param vector objects - scene objects used to find a selected curve for processing.
      */
     public void straightenSpline(Vector<ObjectInfo> objects){
@@ -58,11 +60,14 @@ public class StraightenSpline {
                     Vector ignoreChildren = new Vector();
                     HashMap childSegmentDistances = new HashMap();
                     Vector ignoreVerticies = new Vector();
+                    HashMap childVertexSegmentDistances = new HashMap();
                   
                     double linearLength = 0;
                     for(int i = 1; i < verts.length; i++){
                         Vec3 vertA = verts[i - 1];
                         Vec3 vertB = verts[i];
+                        
+                        System.out.println("Segment " + i);
                         
                         Vec3 worldVertA = new Vec3(vertA);
                         Vec3 worldVertB = new Vec3(vertB);
@@ -118,6 +123,10 @@ public class StraightenSpline {
                             for (int c = 0; c < obj.getChildren().length; c++){
                                 ObjectInfo child = obj.getChildren()[c];
                                 Object childco = (Object)child.getObject();
+                                
+                                //
+                                // Small Curve
+                                //
                                 if((childco instanceof Curve) == true){                 // Roate child curves
                                     
                                     //System.out.println(" child " + child.getName() );
@@ -185,35 +194,92 @@ public class StraightenSpline {
                                     }
                                     
                                     
-                                    
                                     // bounds maintinance
                                     if(targetRegion.contains(childCentre) ){
                                         System.out.println("        *** INSIDE " + child.getName() );
                                         // Don't move this child object any more because it's region has been bent to the correct place.
                                         ignoreChildren.addElement(child);
                                     }
-                                }
+                                } // end curve object
                                 
+                                //
+                                // Large Mesh object
+                                //
                                 if((childco instanceof Mesh) == true){ // Straighten mesh vertecies
                                     //System.out.println(" child mesh " + child.getName() );
                                     
-                                    boolean move = true; // Don't touch objects that have been moved.
-                                    for(int x = 0; x < ignoreChildren.size(); x++){
-                                        ObjectInfo oi = (ObjectInfo)ignoreChildren.elementAt(x);
-                                        if(oi == child){
-                                            move = false;
-                                        }
-                                    }
+                                    //boolean move = true; // Don't touch objects that have been moved.
+                                    //for(int x = 0; x < ignoreChildren.size(); x++){
+                                    //    ObjectInfo oi = (ObjectInfo)ignoreChildren.elementAt(x);
+                                    //    if(oi == child){
+                                    //        move = false;
+                                    //    }
+                                    //}
                                     
                                     // Object must be large and not moved by previous function.
-                                    
+                                    BoundingBox childBox = getTranslatedBounds(child);
+                                    BoundingBox splineBox = getTranslatedBounds(obj);
+                                    if( (childBox.maxx - childBox.minx) > ( (splineBox.maxx - splineBox.minx) / 2) ){
+                                        // Object is big enough to modify vertivies.
+                                        //System.out.println(" big enouigh " + child.getName()  );
+                                        
+                                        Vec3 segmentCentre = targetRegion.getCenter();
+                                        
+                                        CoordinateSystem childCs = ((ObjectInfo)child).getCoords();
+                                        Mat4 childMat4 = childCs.duplicate().fromLocal();
+                                        Mesh childMesh = (Mesh) child.getObject(); // Object3D
+                                        Vec3 [] childVerts = childMesh.getVertexPositions();
+                                        for(int d = 0; d < childVerts.length; d++){
+                                            String childVertKey = child.getName() + "." + d;
+                                            Vec3 childVert = childVerts[d];
+                                            childMat4.transform(childVert);
+                                            
+                                            boolean move = true;
+                                            for(int x = 0; x < ignoreVerticies.size(); x++){
+                                                String currIgnoreKey = (String)ignoreVerticies.elementAt(x);
+                                                if(currIgnoreKey.equals(childVertKey)){
+                                                    move = false;
+                                                }
+                                            }
+                                        
+                                            double vertDistance = Math.sqrt(Math.pow(segmentCentre.x - childVert.x, 2) + Math.pow(segmentCentre.y - childVert.y, 2) + Math.pow(segmentCentre.z - childVert.z, 2));
+                                            //System.out.println(" vertDistance: " + vertDistance);
+                                            
+                                            // scan passes vert so its done.
+                                            if(childVertexSegmentDistances.containsKey(childVertKey) && ignoreVerticies.contains(childVertKey) == false){
+                                                double previousObjectToSegmentDistance = (Double)childVertexSegmentDistances.get(childVertKey);
+                                                //System.out.println(" vertDistance " + vertDistance + " >  previousObjectToSegmentDistance " + previousObjectToSegmentDistance);
+                                                if(vertDistance > previousObjectToSegmentDistance){
+                                                    // if we are moving away from (past) the child object on our traversal across the line then consider it processed.
+                                                    //System.out.println("        *** PASSING V " + child.getName() + " " + d );
+                                                    ignoreVerticies.addElement(childVertKey);
+                                                    move = false;
+                                                }
+                                            }
+                                            childVertexSegmentDistances.put(childVertKey, vertDistance);
+                                            //System.out.println("size " + childVertexSegmentDistances.size());
+                                            
+                                            if(move){
+                                                // Move
+                                                //System.out.print(". " + vertDistance);
+                                                childVerts[d] = rotatePointX(childVert, worldVertA, rotateXRequired);  // rotate child around vec A by angle.
+                                                   
+                                                CoordinateSystem zeroCS = new CoordinateSystem();
+                                                child.setCoords(zeroCS);
+                                                ((Mesh)child.getObject()).setVertexPositions(childVerts);
+                                                child.clearCachedMeshes();
+                                            }
+                                            move = true; // reset for remaining verts in obj
+                                        }
+                                        
+                                    }
                                     
                                     // Find vertecies in region.
                                     
                                     // TODO:
                                     // ignoreChildren
                                     // ignoreVerticies
-                                }
+                                } // end mesh object
                             }
                             
                             
@@ -252,8 +318,11 @@ public class StraightenSpline {
      * getAngleX
      *
      * Description: get an angle between the vectors (a,b) and (a, b2) only on the XY axis plane. Facing down Z axis.
+     *  Note: Maybe the name X is bad for this function. Should be XY or Z?
      *
-     * BUG: Only returns positive values.  Bends in one direction.
+     * @param: Vec3 a.
+     * @param: Vec3 b.
+     * @param: Vec3 c.
      */
     double getAngleX(Vec3 a, Vec3 b, Vec3 c){
         double angle = 0;
@@ -265,31 +334,14 @@ public class StraightenSpline {
         //System.out.println("     - x1: " + x1 + " y1: " + y1 + "   x2: " + x2 + " y2: " + y2 );
         //System.out.println(" angle  " + ( x1 * x2 + y1 * y2 ));
         
-        
         double angleA = (float) Math.atan2(a.y - b.y, a.x - b.x);
-        if(angleA < 0){
-            //angleA += 360;
-        }
         float angleB = (float) Math.atan2(a.y - c.y, a.x - c.x);
-        if(angleB < 0){
-            //angleB += 360;
-        }
-        
         angle = angleB - angleA;
-        
-        double angleX = Math.acos(
+        /*double angleX = Math.acos(
                           ( x1 * x2 + y1 * y2 ) /
                           ( Math.sqrt(x1*x1 + y1*y1) * Math.sqrt(x2*x2 + y2*y2) )
-                          );
-        
-        if(angle < 0){
-            //angle = - angleX;
-        } else {
-            //angle = angleX;
-        }
-        
-        System.out.println("  angle " + angle + "  x " + angleX);
-        
+                          ); // only returns absolute angle which is not useful.*/
+        //System.out.println("  angle " + angle + "  x " + angleX);
         return angle;
     }
     
