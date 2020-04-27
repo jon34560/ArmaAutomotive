@@ -728,14 +728,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     toolsMenu.addSeparator();
       
     toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
-    toolsMenu.add(Translate.menuItem("Straighten Spline", this, "straightenSpline"));
+    toolsMenu.add(Translate.menuItem("Straighten Spline (XY Plane)", this, "straightenSpline"));
     toolsMenu.add(Translate.menuItem("Get Spline Length", this, "getSplineLength"));
       
     toolsMenu.addSeparator();
       
-    toolsMenu.add(Translate.menuItem("Perferate with Triangles", this, "perferateTrianglesCommand"));
-    toolsMenu.add(Translate.menuItem("Perferate with Squares", this, "perferateSquaresCommand"));
-    toolsMenu.add(Translate.menuItem("Perferate with Diamonds", this, "perferateDiamondsCommand"));
+    toolsMenu.add(Translate.menuItem("Perferate with Triangles (X/Y/Z Axis)", this, "perferateTrianglesCommand"));
+    toolsMenu.add(Translate.menuItem("Perferate with Squares (X/Y/Z Axis)", this, "perferateSquaresCommand"));
+    toolsMenu.add(Translate.menuItem("Perferate with Diamonds (X/Y/Z Axis)", this, "perferateDiamondsCommand"));
       
     toolsMenu.addSeparator();
 

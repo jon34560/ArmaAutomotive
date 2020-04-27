@@ -120,8 +120,13 @@ public class StraightenSpline {
                                                " y " + targetRegion.miny  + " " + targetRegion.maxy +
                                                " z " + targetRegion.minz  + " " + targetRegion.maxz);
                             
-                            for (int c = 0; c < obj.getChildren().length; c++){
-                                ObjectInfo child = obj.getChildren()[c];
+                            Vector allChildren = obj.getRecursiveChildren();
+                            System.out.println("all " + allChildren.size());
+                            for (int c = 0; c < allChildren.size(); c++){
+                                ObjectInfo child = (ObjectInfo)allChildren.elementAt(c);
+                                
+                            //for (int c = 0; c < obj.getChildren().length; c++){
+                                //ObjectInfo child = obj.getChildren()[c];
                                 Object childco = (Object)child.getObject();
                                 
                                 //

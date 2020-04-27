@@ -621,6 +621,24 @@ public class ObjectInfo
   {
     return children;
   }
+    
+    /**
+     * getRecursiveChildren
+     *
+     *  Descriotion: return a list of all children in child objects.
+     *
+     */
+    public Vector<ObjectInfo> getRecursiveChildren(){
+        Vector<ObjectInfo> returnChildren = new Vector<ObjectInfo>();
+        ObjectInfo[] c = getChildren();
+        for(int i = 0; i < c.length; i++){
+            
+            returnChildren.addElement(c[i]);
+            
+            returnChildren.addAll(c[i].getRecursiveChildren());
+        }
+        return returnChildren;
+    }
 
   /** Get the list of Tracks for this object. */
 
