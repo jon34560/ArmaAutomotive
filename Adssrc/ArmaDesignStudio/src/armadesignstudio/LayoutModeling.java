@@ -791,6 +791,9 @@ public class LayoutModeling {
         
         String dir2 = dir;
         dir2 = dir2 + System.getProperty("file.separator") + polyID;
+        
+        //System.out.println("Reading file: " + dir2);
+        
         File d2 = new File(dir2);
         
         Properties prop = new Properties();
@@ -829,8 +832,13 @@ public class LayoutModeling {
         //
     }
     
-    
+    /**
+     * setObjectGroup
+     *
+     * Description: Set an object group name
+     */
     public void setObjectGroup(ObjectInfo info){
+        
         // Layout file
         String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
         File d = new File(dir);
@@ -863,14 +871,19 @@ public class LayoutModeling {
             input = new FileInputStream(d2);
             prop.load(input);
             
-            String objCutOrder = prop.getProperty("object_group");
-            if(objCutOrder == null){
-                objCutOrder = "0";
+            String existingGroupName = info.getGroupName(); // prop.getProperty("object_group");
+            if(existingGroupName == null){
+                existingGroupName = "0";
             }
             
             String order = JOptionPane.showInputDialog(
-                                                       "Enter group name " + info.getName(), objCutOrder);
+                                                       "Enter group name " + info.getName(), existingGroupName);
             if(order != null){
+                
+                info.setGroupName(order); // Set objectInfo group name
+                
+                // prop is an old method.
+                
                 // set the properties value
                 prop.setProperty("object_group", order);
                 
@@ -887,12 +900,15 @@ public class LayoutModeling {
     }
     
     /**
-     * getObjectGroup
+     * getObjectGroup - DEPRICATE
      *
      * Description: get poly attribute value.
      */
     public String getObjectGroup(String polyID){
         String objectGroup = "";
+        
+        
+        // Old prop method
         String dir = baseDir;
         File d = new File(dir);
         if(d.exists() == false){

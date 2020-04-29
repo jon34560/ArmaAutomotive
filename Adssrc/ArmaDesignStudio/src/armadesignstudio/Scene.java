@@ -1280,11 +1280,13 @@ public class Scene
   {
     int count;
     short version = in.readShort();
+    System.out.println("Reading file version: " + version);
+      
     Hashtable<Integer, Object3D> table;
     Class cls;
     Constructor con;
 
-    if (version < 0 || version > 4)
+    if (version < 0 || version > 5)
       throw new InvalidObjectException("");
     loadingErrors = new StringBuffer();
     ambientColor = new RGBColor(in);
@@ -1412,8 +1414,9 @@ public class Scene
     count = in.readInt();
     objects = new Vector<ObjectInfo>(count);
     table = new Hashtable<Integer, Object3D>(count);
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++){
       objects.addElement(readObjectFromFile(in, table, version));
+    }
     objectIndexMap = null;
     selection = new Vector<Integer>();
 
@@ -1507,6 +1510,11 @@ public class Scene
     setTime(0.0);
   }
 
+    /**
+     * readObjectFromFile
+     *
+     * Description: Read objectInfo from file
+     */
   private ObjectInfo readObjectFromFile(DataInputStream in, Hashtable<Integer, Object3D> table, int version) throws IOException, InvalidObjectException
   {
     ObjectInfo info = new ObjectInfo(null, new CoordinateSystem(in), in.readUTF());
@@ -1542,7 +1550,7 @@ public class Scene
               }
             catch (Exception ex)
               {
-		System.out.println(" Scene exception: " + classname);
+                  System.out.println(" Scene exception: " + classname);
 
                 if (ex instanceof InvocationTargetException)
                   ((InvocationTargetException) ex).getTargetException().printStackTrace();
@@ -1610,6 +1618,33 @@ public class Scene
         ex.printStackTrace();
         throw new IOException();
       }
+      
+    // read objectInfo group
+      
+      
+      try {
+          String groupName = "";
+          if (version >= 5){
+              if(in.available() > 0) {
+                  groupName = in.readUTF();
+              }
+          }
+          if(groupName != null){
+              info.setGroupName(groupName);
+              //System.out.println("Reading group name: " + groupName);
+          }
+      //} catch (UTFDataFormatException dfex){
+      //    System.out.println(" ok ");
+      } catch (Exception ex)
+      {
+          ex.printStackTrace();
+          
+          info.setGroupName("");
+          System.out.println("Unable to read object group name information. This can happen when reading files from previous versions of ADS." );
+        //
+        //throw new IOException();
+      }
+      
     return info;
   }
 
@@ -1635,7 +1670,7 @@ public class Scene
     int i, j, index = 0;
     Hashtable<Object3D, Integer> table = new Hashtable<Object3D, Integer>(objects.size());
 
-    out.writeShort(4);
+    out.writeShort(5); // Version 4=old 5=with object group name
     ambientColor.writeToFile(out);
     fogColor.writeToFile(out);
     out.writeBoolean(fog);
@@ -1687,8 +1722,11 @@ public class Scene
     // Save the objects.
 
     out.writeInt(objects.size());
-    for (i = 0; i < objects.size(); i++)
+    for (i = 0; i < objects.size(); i++){
+        // table is a hash table of object3d
+        // index is the last object index used.
       index = writeObjectToFile(out, objects.elementAt(i), table, index);
+    }
 
     // Record the children of each object.  The format of this will be changed in the
     // next version.
@@ -1750,8 +1788,11 @@ public class Scene
     Thread.currentThread().setContextClassLoader(contextClassLoader);
   }
 
-  /** Write the information about a single object to a file. */
-
+  /**
+   * writeObjectToFile
+   *
+   * Description: Write the information about a single object to a file.
+   */
   private int writeObjectToFile(DataOutputStream out, ObjectInfo info, Hashtable<Object3D, Integer> table, int index) throws IOException
   {
     Integer key;
@@ -1784,6 +1825,10 @@ public class Scene
         out.writeUTF(info.getTracks()[i].getClass().getName());
         info.getTracks()[i].writeToStream(out, this);
       }
+    
+    // Write the object group name
+    out.writeUTF(info.getGroupName());
+      
     return index;
   }
 
@@ -1998,6 +2043,21 @@ public class Scene
         if(obj.selected == true){
           System.out.println("Object Info: ");
           Object co = (Object)obj.getObject();
+            
+            // Parent tree
+            ObjectInfo parent = obj.getParent();
+            if(parent != null){
+                System.out.println("Parent: " + parent.getName());
+                parent = parent.getParent();
+                if(parent != null){
+                    System.out.println(" -> Parent: " + parent.getName());
+                }
+            }
+            
+            
+            
+            
+            // Curve
             if((co instanceof Curve) == true){
               System.out.println("Curve");
               int points = 0;
@@ -4598,12 +4658,13 @@ public class Scene
      * Description: Select structure objects
      */
     public void copyStructureObjects(LayoutWindow window){
-        LayoutModeling layout = new LayoutModeling();
+        //LayoutModeling layout = new LayoutModeling();
         clearSelection();
         for (int i = 0; i < objects.size(); i++)
         {
             ObjectInfo info = objects.elementAt(i);
-            String structName = layout.getObjectStructure( info.getId() + "" );
+            String structName = info.getGroupName(); //  layout.getObjectStructure( info.getId() + "" );
+            
             if( structName.length() > 0 && !structName.equals("0") ){
                 //if( structName.equals("chassis") || structName.equals("roof") ){
                 //structObjects.addElement(info);

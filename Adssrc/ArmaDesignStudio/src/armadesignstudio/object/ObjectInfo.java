@@ -17,7 +17,6 @@ import armadesignstudio.animation.distortion.*;
 import armadesignstudio.material.*;
 import armadesignstudio.math.*;
 import armadesignstudio.texture.*;
-
 import java.lang.ref.*;
 import java.util.*;
 
@@ -50,8 +49,18 @@ public class ObjectInfo
   private boolean layoutViewModel = true;
   private boolean tubeLayoutViewModel = false;
     
-    private boolean childrenHiddenWhenHidden = false;
-    private int overideDisplayMode = 0;
+  private boolean childrenHiddenWhenHidden = false;
+  private int overideDisplayMode = 0;
+  private String groupName = "";
+  private double layout_origin_x;
+  private double layout_origin_y;
+  private double layout_origin_z;
+  private double layout_zDir_x;
+  private double layout_zDir_y;
+  private double layout_zDir_z;
+  private double layout_upDir_x;
+  private double layout_upDir_y;
+  private double layout_upDir_z;
 
   /** Create a new ObjectInfo. */
 
@@ -694,4 +703,11 @@ public class ObjectInfo
         return tubeLayoutViewModel;
     }
 
+    public void setGroupName(String name){
+        groupName = name;
+    }
+    
+    public String getGroupName(){
+        return groupName;
+    }
 }
