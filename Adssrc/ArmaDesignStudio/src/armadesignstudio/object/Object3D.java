@@ -38,8 +38,6 @@ public abstract class Object3D
   public static final int EXACTLY = 1;
   public static final int APPROXIMATELY = 2;
     
-  private String groupName = "";
-    
   public String name = ""; // From ObjectInfo. Not sure how else to get it.
 
   public Object3D()
@@ -628,11 +626,5 @@ public abstract class Object3D
     return this;
   }
 
-    public void setGroupName(String name){
-        groupName = name;
-    }
     
-    public String getGroupName(){
-        return groupName;
-    }
 }

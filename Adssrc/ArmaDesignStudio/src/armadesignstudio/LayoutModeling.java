@@ -62,6 +62,7 @@ public class LayoutModeling {
      */
 	public CoordinateSystem getCoords(ObjectInfo info){
 		CoordinateSystem cx = info.getCoords();
+        CoordinateSystem cModeling = info.getModelingCoords();
 		CoordinateSystem c = new CoordinateSystem();
 		//cx.copyCoords(c);
         
@@ -70,7 +71,48 @@ public class LayoutModeling {
         }
 
 		if(info.getLayoutView() == false || info.getTubeLayoutView() == true){ // Plate or Tube layout mode
-
+            {
+                Vec3 origin = new Vec3();
+                origin.x = info.getLayoutOriginX();
+                origin.y = info.getLayoutOriginY();
+                origin.z = info.getLayoutOriginZ();
+                Vec3 zDir = new Vec3();
+                zDir.x = info.getLayoutZDirX();
+                zDir.y = info.getLayoutZDirY();
+                zDir.z = info.getLayoutZDirZ();
+                Vec3 upDir = new Vec3();
+                upDir.x = info.getLayoutUpDirX();
+                upDir.y = info.getLayoutUpDirY();
+                upDir.z = info.getLayoutUpDirZ();
+                //System.out.println(" info.getLayoutOriginX() " + info.getLayoutOriginX());
+            
+                // Initalize layour data with modeling data on initalization.
+                if(origin.x == 0 && origin.y == 0 && origin.z == 0 &&
+                   zDir.x == 0 && zDir.y == 0 && zDir.z == 0 &&
+                   upDir.x == 0 && upDir.y == 0 && upDir.z == 0 &&
+                   cx != null){
+                    System.out.println("Layout view init position with modeling view.");
+                    
+                    origin.x = cModeling.getOrigin().x;
+                    origin.y = cModeling.getOrigin().y;
+                    origin.z = cModeling.getOrigin().z;
+                    zDir.x = cModeling.getZDirection().x;
+                    zDir.y = cModeling.getZDirection().y;
+                    zDir.z = cModeling.getZDirection().z;
+                    upDir.x = cModeling.getUpDirection().x;
+                    upDir.y = cModeling.getUpDirection().y;
+                    upDir.z = cModeling.getUpDirection().z;
+                }
+                
+                //System.out.println("getorigin " + origin.x + " " + origin.y + " " + origin.z);
+                //System.out.println("getzDir " + zDir.x + " " + zDir.y + " " + zDir.z);
+                //System.out.println("getupDir " + upDir.x + " " + upDir.y + " " + upDir.z);
+            
+                c = new CoordinateSystem(origin, zDir, upDir);
+            
+            }
+            
+             /*
 			// Layout file
 			String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
 			File d = new File(dir);
@@ -147,6 +189,11 @@ public class LayoutModeling {
 					upDir.x =  Double.parseDouble(prop.getProperty("upDir.x"));
 					upDir.y =  Double.parseDouble(prop.getProperty("upDir.y"));
 					upDir.z =  Double.parseDouble(prop.getProperty("upDir.z"));
+                    
+                    
+                    System.out.println(" getorigin " + origin.x + " " + origin.y + " " + origin.z);
+                    System.out.println(" getzDir " + zDir.x + " " + zDir.y + " " + zDir.z);
+                    System.out.println(" getupDir " + upDir.x + " " + upDir.y + " " + upDir.z);
 
 					c = new CoordinateSystem(origin, zDir, upDir);
 
@@ -161,6 +208,9 @@ public class LayoutModeling {
                     
 				}
 			}
+             */
+            
+             
 		}
 		return c;
 	}
@@ -173,10 +223,21 @@ public class LayoutModeling {
      *  Can be used for layout view to temporary reposition.
      */
 	public void saveLayout(ObjectInfo info, CoordinateSystem c){
+        
+        info.setLayoutOriginX(c.getOrigin().x);
+        info.setLayoutOriginY(c.getOrigin().y);
+        info.setLayoutOriginZ(c.getOrigin().z);
+        info.setLayoutZDirX(c.getZDirection().x);
+        info.setLayoutZDirY(c.getZDirection().y);
+        info.setLayoutZDirZ(c.getZDirection().z);
+        info.setLayoutUpDirX(c.getUpDirection().x);
+        info.setLayoutUpDirY(c.getUpDirection().y);
+        info.setLayoutUpDirZ(c.getUpDirection().z);
+        
+        /*
 		//CoordinateSystem c = info.getCoords();
-
 		//if(info.getLayoutView() == false || info.getTubeLayoutView() == true){ // Plate or Tube layout mode
-
+        
 			// Layout file
 			String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
 			File d = new File(dir);
@@ -264,6 +325,7 @@ public class LayoutModeling {
 				// DataOutputStream out
 			//}
 		//}
+         */
 	}
     
     
@@ -273,6 +335,25 @@ public class LayoutModeling {
      * Description: Delete layout file. Used to reset object and child positioning.
      */
     public void deleteLayout(ObjectInfo info){
+        
+        // set layout coords to view/cords.
+        CoordinateSystem cx = info.getCoords();
+        Vec3 origin = new Vec3();
+        origin.x = info.getLayoutOriginX();
+        origin.y = info.getLayoutOriginY();
+        origin.z = info.getLayoutOriginZ();
+        Vec3 zDir = new Vec3();
+        zDir.x = info.getLayoutZDirX();
+        zDir.y = info.getLayoutZDirY();
+        zDir.z = info.getLayoutZDirZ();
+        Vec3 upDir = new Vec3();
+        upDir.x = info.getLayoutUpDirX();
+        upDir.y = info.getLayoutUpDirY();
+        upDir.z = info.getLayoutUpDirZ();
+        CoordinateSystem c = new CoordinateSystem(origin, zDir, upDir);
+        info.setCoords(c);
+        
+        // Property file
         try {
             String dir = baseDir;
             File d = new File(dir);

@@ -31,8 +31,7 @@ public class ObjectInfo
 {
   public Object3D object;
   public CoordinateSystem coords;
-
-  public CoordinateSystem coords_layout = null;
+  public CoordinateSystem coords_layout = null; // is cache object
 
   public String name;
   public boolean visible, selected, parentSelected;
@@ -50,17 +49,19 @@ public class ObjectInfo
   private boolean tubeLayoutViewModel = false;
     
   private boolean childrenHiddenWhenHidden = false;
-  private int overideDisplayMode = 0;
+  private int overideDisplayMode = 0;   //
   private String groupName = "";
-  private double layout_origin_x;
-  private double layout_origin_y;
-  private double layout_origin_z;
-  private double layout_zDir_x;
-  private double layout_zDir_y;
-  private double layout_zDir_z;
-  private double layout_upDir_x;
-  private double layout_upDir_y;
-  private double layout_upDir_z;
+  private double layout_origin_x = 0;
+  private double layout_origin_y = 0;
+  private double layout_origin_z = 0;
+  private double layout_zDir_x = 0;
+  private double layout_zDir_y = 0;
+  private double layout_zDir_z = 0;
+  private double layout_upDir_x = 0;
+  private double layout_upDir_y = 0;
+  private double layout_upDir_z = 0;
+    
+    
 
   /** Create a new ObjectInfo. */
 
@@ -449,14 +450,16 @@ public class ObjectInfo
 
 
 
-  /** Get the CoordinateSystem for this object. */
-
-  // **********************
-
+  /**
+   * getCoords
+   *
+   * Get the CoordinateSystem for this object. Different coord values are returned based on the layout/modeling view.
+   *
+   */
   public CoordinateSystem getCoords()
   {
 	  LayoutModeling layout = new LayoutModeling();
-	  // DAM where to get
+	  
 	  //Scene theScene = getObject().canvas.getScene();
 	  //layout.setBaseDir(theScene.getDirectory() + "\\" + theScene.getName() + "_layout_data" );
 
@@ -496,30 +499,9 @@ public class ObjectInfo
               
           }
           return coords_layout;
-      }
-	if( layoutViewModel == false){ // Layout view
-
-		//System.out.println("layout base dir: " + layout.getBaseDir());
-		/*
-		// CoordinateSystem
-		// info.getCoords().getOrigin()
-		CoordinateSystem temp = new CoordinateSystem();
-		temp.copyCoords(coords);
-		//temp.setOrigin();
-		temp.setOrientation(2.5, 2.5, 2.5);
-
-		Vec3 orig = new Vec3(0.5, 0.5, 0.5);
-		temp.setOrigin(orig);
-		return temp;
-		*/
-
-		// Read cutting layout coords.
-		if(coords_layout == null){
-			//System.out.println("read object coords.");
-			coords_layout = new CoordinateSystem();
-			coords_layout = layout.getCoords(this);
-		}
-		return coords_layout;
+      } if( layoutViewModel == false){ // Layout view
+		
+		return getLayoutCoords();
         
 	} else {	// Modeling view
 		coords_layout = null;
@@ -531,7 +513,24 @@ public class ObjectInfo
   public void resetLayoutCoords(CoordinateSystem coords){
   	coords_layout = coords;
   }
+    
 
+    public CoordinateSystem getLayoutCoords()
+    {
+        LayoutModeling layout = new LayoutModeling();
+        // Read cutting layout coords.
+        if(coords_layout == null){
+            //System.out.println("read object coords.");
+            coords_layout = new CoordinateSystem();
+            coords_layout = layout.getCoords(this);
+        }
+        return coords_layout;
+    }
+    
+    public CoordinateSystem getModelingCoords()
+    {
+        return coords;
+    }
 
   /** Set the CoordinateSystem for this object. */
 
@@ -709,5 +708,70 @@ public class ObjectInfo
     
     public String getGroupName(){
         return groupName;
+    }
+    
+    public double getLayoutOriginX(){
+        return layout_origin_x;
+    }
+    public void setLayoutOriginX(double x){
+        this.layout_origin_x = x;
+    }
+    
+    public double getLayoutOriginY(){
+        return layout_origin_y;
+    }
+    public void setLayoutOriginY(double y){
+        this.layout_origin_y = y;
+    }
+    
+    public double getLayoutOriginZ(){
+        return layout_origin_z;
+    }
+    public void setLayoutOriginZ(double z){
+        this.layout_origin_z = z;
+    }
+    
+   
+    public double getLayoutZDirX(){
+        return layout_zDir_x;
+    }
+    public void setLayoutZDirX(double x){
+        this.layout_zDir_x = x;
+    }
+    
+    public double getLayoutZDirY(){
+        return layout_zDir_y;
+    }
+    public void setLayoutZDirY(double y){
+        this.layout_zDir_y = y;
+    }
+    
+    public double getLayoutZDirZ(){
+        return layout_zDir_z;
+    }
+    public void setLayoutZDirZ(double z){
+        this.layout_zDir_z = z;
+    }
+    
+    
+    public double getLayoutUpDirX(){
+        return layout_upDir_x;
+    }
+    public void setLayoutUpDirX(double x){
+        this.layout_upDir_x = x;
+    }
+    
+    public double getLayoutUpDirY(){
+        return layout_upDir_y;
+    }
+    public void setLayoutUpDirY(double y){
+        this.layout_upDir_y = y;
+    }
+    
+    public double getLayoutUpDirZ(){
+        return layout_upDir_z;
+    }
+    public void setLayoutUpDirZ(double z){
+        this.layout_upDir_z = z;
     }
 }

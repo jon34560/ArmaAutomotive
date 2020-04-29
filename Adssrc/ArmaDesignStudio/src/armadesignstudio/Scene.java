@@ -1286,7 +1286,7 @@ public class Scene
     Class cls;
     Constructor con;
 
-    if (version < 0 || version > 5)
+    if (version < 0 || version > 6)
       throw new InvalidObjectException("");
     loadingErrors = new StringBuffer();
     ambientColor = new RGBColor(in);
@@ -1645,6 +1645,29 @@ public class Scene
         //throw new IOException();
       }
       
+      //
+      if(version >= 6){
+          try {
+              
+              // layoutViewModel
+              
+              info.setLayoutView(in.readBoolean());
+              info.setLayoutOriginX(in.readDouble());
+              info.setLayoutOriginY(in.readDouble());
+              info.setLayoutOriginZ(in.readDouble());
+              info.setLayoutZDirX(in.readDouble());
+              info.setLayoutZDirY(in.readDouble());
+              info.setLayoutZDirZ(in.readDouble());
+              info.setLayoutUpDirX(in.readDouble());
+              info.setLayoutUpDirY(in.readDouble());
+              info.setLayoutUpDirZ(in.readDouble());
+              
+          } catch (Exception ex)
+          {
+              
+          }
+      }
+      
     return info;
   }
 
@@ -1670,7 +1693,7 @@ public class Scene
     int i, j, index = 0;
     Hashtable<Object3D, Integer> table = new Hashtable<Object3D, Integer>(objects.size());
 
-    out.writeShort(5); // Version 4=old 5=with object group name
+    out.writeShort(6); // Version 4=old 5=with object group name  6= layout view data
     ambientColor.writeToFile(out);
     fogColor.writeToFile(out);
     out.writeBoolean(fog);
@@ -1828,6 +1851,18 @@ public class Scene
     
     // Write the object group name
     out.writeUTF(info.getGroupName());
+      
+    // write layout data
+      out.writeBoolean(info.getLayoutView());
+      out.writeDouble(info.getLayoutOriginX());
+      out.writeDouble(info.getLayoutOriginY());
+      out.writeDouble(info.getLayoutOriginZ());
+      out.writeDouble(info.getLayoutZDirX());
+      out.writeDouble(info.getLayoutZDirY());
+      out.writeDouble(info.getLayoutZDirZ());
+      out.writeDouble(info.getLayoutUpDirX());
+      out.writeDouble(info.getLayoutUpDirY());
+      out.writeDouble(info.getLayoutUpDirZ());
       
     return index;
   }
