@@ -353,6 +353,7 @@ public class LayoutModeling {
         CoordinateSystem c = new CoordinateSystem(origin, zDir, upDir);
         info.setCoords(c);
         
+        /*
         // Property file
         try {
             String dir = baseDir;
@@ -368,6 +369,7 @@ public class LayoutModeling {
             //System.out.println("Error: " + dir);
             System.out.println("Error: " + ex);
         }
+         */
     }
 
 
@@ -787,7 +789,11 @@ public class LayoutModeling {
     
     
     
-    
+    /**
+     * setObjectStructure
+     *
+     * Description: (Object group vs structure name???)
+     */
     public void setObjectStructure(ObjectInfo info){
         
         // Layout file
@@ -962,6 +968,7 @@ public class LayoutModeling {
             if(order != null){
                 
                 info.setGroupName(order); // Set objectInfo group name
+                
                 
                 // prop is an old method.
                 

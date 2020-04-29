@@ -61,7 +61,15 @@ public class ObjectInfo
   private double layout_upDir_y = 0;
   private double layout_upDir_z = 0;
     
+  // CAM properties
+    private boolean cncDisabled = false;
+    private int cncPointOffset = 0;
+    private int cncPolyOrder = 0;
+    private double cncPolyDepth = 0;
+    private boolean cncReversePointOrder = false;
     
+  // FEA properties
+    private double feaMPa = 0;
 
   /** Create a new ObjectInfo. */
 
@@ -774,4 +782,50 @@ public class ObjectInfo
     public void setLayoutUpDirZ(double z){
         this.layout_upDir_z = z;
     }
+    
+    
+    
+    
+    public boolean getCncDisabled(){
+        return cncDisabled;
+    }
+    public void setCncDisabled(boolean z){
+        this.cncDisabled = z;
+    }
+    
+    public int getCncPointOffset(){
+        return cncPointOffset;
+    }
+    public void setCncPointOffset(int o){
+        this.cncPointOffset = o;
+    }
+    
+    public int getCncPolyOrder(){
+        return cncPolyOrder;
+    }
+    public void setCncPolyOrder(int o){
+        this.cncPolyOrder = o;
+    }
+      
+      public double getCncPolyDepth(){
+          return cncPolyDepth;
+      }
+      public void setCncPolyDepth(double d){
+          this.cncPolyDepth = d;
+      }
+    
+    public boolean getCncReversePointOrder(){
+        return cncReversePointOrder;
+    }
+    public void setCncReversePointOrder(boolean d){
+        this.cncReversePointOrder = d;
+    }
+    
+    public double getFeaMPa(){
+        return feaMPa;
+    }
+    public void setFeaMPa(double d){
+        this.feaMPa = d;
+    }
+    
 }

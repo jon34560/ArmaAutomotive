@@ -1286,7 +1286,7 @@ public class Scene
     Class cls;
     Constructor con;
 
-    if (version < 0 || version > 6)
+    if (version < 0 || version > 6) // set version in file.
       throw new InvalidObjectException("");
     loadingErrors = new StringBuffer();
     ambientColor = new RGBColor(in);
@@ -1645,12 +1645,9 @@ public class Scene
         //throw new IOException();
       }
       
-      //
+      // Layout data
       if(version >= 6){
           try {
-              
-              // layoutViewModel
-              
               info.setLayoutView(in.readBoolean());
               info.setLayoutOriginX(in.readDouble());
               info.setLayoutOriginY(in.readDouble());
@@ -1662,6 +1659,13 @@ public class Scene
               info.setLayoutUpDirY(in.readDouble());
               info.setLayoutUpDirZ(in.readDouble());
               
+              info.setCncDisabled(in.readBoolean());
+              info.setCncPointOffset(in.readInt());
+              info.setCncPolyOrder(in.readInt());
+              info.setCncPolyDepth(in.readDouble());
+              info.setCncReversePointOrder(in.readBoolean());
+              
+              info.setFeaMPa(in.readDouble());
           } catch (Exception ex)
           {
               
@@ -1693,7 +1697,7 @@ public class Scene
     int i, j, index = 0;
     Hashtable<Object3D, Integer> table = new Hashtable<Object3D, Integer>(objects.size());
 
-    out.writeShort(6); // Version 4=old 5=with object group name  6= layout view data
+    out.writeShort(6); // Version 4=old 5=with object group name  6= layout view, cam, fea data
     ambientColor.writeToFile(out);
     fogColor.writeToFile(out);
     out.writeBoolean(fog);
@@ -1863,6 +1867,17 @@ public class Scene
       out.writeDouble(info.getLayoutUpDirX());
       out.writeDouble(info.getLayoutUpDirY());
       out.writeDouble(info.getLayoutUpDirZ());
+      
+    // CAM data
+      out.writeBoolean(info.getCncDisabled());
+      out.writeInt(info.getCncPointOffset());
+      out.writeInt(info.getCncPolyOrder());
+      out.writeDouble(info.getCncPolyDepth());
+      out.writeBoolean(info.getCncReversePointOrder());
+      
+      // FEA data
+      out.writeDouble(info.getFeaMPa());
+      
       
     return index;
   }
