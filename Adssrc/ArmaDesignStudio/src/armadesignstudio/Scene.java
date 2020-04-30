@@ -2351,7 +2351,7 @@ public class Scene
                             // Cycle polygon start.
                             // Allows cutting faccit deteail before long lines.
                             // polygons (Vector)
-                            int start_offset = layout.getPointOffset(child.getId() + "");
+                            int start_offset = child.getCncPointOffset(); // layout.getPointOffset(child.getId() + "");
                             //System.out.println(" *** start_offset: " + start_offset);
                             //for(int pt = 0; pt < polygon.size(); pt++){
                             //}
@@ -2991,7 +2991,7 @@ public class Scene
                                 // Cycle polygon start.
                                 // Allows cutting faccit deteail before long lines.
                                 // polygons (Vector)
-                                int start_offset = layout.getPointOffset(child.getId() + "");
+                                int start_offset = child.getCncPointOffset(); // layout.getPointOffset(child.getId() + "");
                                 //System.out.println(" *** start_offset: " + start_offset);
                                 //for(int pt = 0; pt < polygon.size(); pt++){
                                 //}
@@ -3701,7 +3701,7 @@ public class Scene
                          // Cycle polygon start.
                          // Allows cutting faccit deteail before long lines.
                          // polygons (Vector)
-                         int start_offset = layout.getPointOffset(child.getId() + "");
+                         int start_offset = child.getCncPointOffset(); // layout.getPointOffset(child.getId() + "");
                          System.out.println(" *** start_offset: " + start_offset);
                          //for(int pt = 0; pt < polygon.size(); pt++){
                          //}
@@ -4106,7 +4106,7 @@ public class Scene
                             // Cycle polygon start.
                             // Allows cutting faccit deteail before long lines.
                             // polygons (Vector)
-                            int start_offset = layout.getPointOffset(child.getId() + "");
+                            int start_offset = child.getCncPointOffset(); // layout.getPointOffset(child.getId() + "");
                             //System.out.println(" *** start_offset: " + start_offset);
                             //for(int pt = 0; pt < polygon.size(); pt++){
                             //}

@@ -425,9 +425,23 @@ public class LayoutModeling {
 		return true;
 	}
 
-    
+    /**
+     * setGCodePointOffset
+     *
+     * Description: set point offset by asking the user to enter a new value.
+     */
     public void setGCodePointOffset(ObjectInfo info){
+        String objCutOrder = Integer.toString(info.getCncPointOffset()); // prop.getProperty("point_offset");
+        if(objCutOrder == null){
+            objCutOrder = "0";
+        }
         
+        String order = JOptionPane.showInputDialog("Enter point offset for " + info.getName(), objCutOrder);
+        if(order != null){
+            info.setCncPointOffset(Integer.parseInt(order));
+        }
+        
+        /*
         // Layout file
         String dir = baseDir;
         File d = new File(dir);
@@ -468,10 +482,11 @@ public class LayoutModeling {
             System.out.println("Error: " + dir);
             System.out.println("Error: " + ex);
         }
+         */
     }
     
     /**
-     * getPointOffset
+     * getPointOffset ***DEPRICAATE***
      *
      * Description: get poly attribute value.
      */
