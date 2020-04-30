@@ -49,7 +49,7 @@ public class ObjectInfo
   private boolean tubeLayoutViewModel = false;
     
   private boolean childrenHiddenWhenHidden = false;
-  private int overideDisplayMode = 0;   //
+  private int displayModeOveride = 0;   //
   private String groupName = "";
   private double layout_origin_x = 0;
   private double layout_origin_y = 0;
@@ -828,4 +828,11 @@ public class ObjectInfo
         this.feaMPa = d;
     }
     
+    
+    public int getDisplayModeOveride(){
+        return displayModeOveride;
+    }
+    public void setDisplayModeOveride(int m){
+        this.displayModeOveride = m;
+    }
 }

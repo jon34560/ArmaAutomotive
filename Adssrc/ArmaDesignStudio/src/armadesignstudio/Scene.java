@@ -1666,6 +1666,9 @@ public class Scene
               info.setCncReversePointOrder(in.readBoolean());
               
               info.setFeaMPa(in.readDouble());
+              
+              info.setDisplayModeOveride(in.readInt());
+              
           } catch (Exception ex)
           {
               
@@ -1877,6 +1880,9 @@ public class Scene
       
       // FEA data
       out.writeDouble(info.getFeaMPa());
+      
+      // Display mode overide
+      out.writeInt(info.getDisplayModeOveride());
       
       
     return index;
