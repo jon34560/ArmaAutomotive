@@ -512,8 +512,26 @@ public class LayoutModeling {
     }
 
 
+    /**
+     * setGCodePolyOrder
+     *
+     * Description:
+     */
 	public void setGCodePolyOrder(ObjectInfo info){
-		// Layout file
+        String objCutOrder = Integer.toString(info.getCncPolyOrder());
+        if(objCutOrder == null){
+            objCutOrder = "0";
+        }
+        
+        String order = JOptionPane.showInputDialog(
+            "Enter order for: " + info.getName(), objCutOrder);
+        
+        if(order != null){
+            info.setCncPolyOrder(Integer.parseInt(order));
+        }
+        
+        /*
+        // Layout file
 		String dir = baseDir; // System.getProperty("user.dir") + System.getProperty("file.separator") + "layout_settings";
 		File d = new File(dir);
 		if(d.exists() == false){
@@ -545,7 +563,10 @@ public class LayoutModeling {
 				String order = JOptionPane.showInputDialog(
 					"Enter cut depth for " + info.getName(), objCutOrder);
 				if(order != null){
-					// set the properties value
+					
+                    info.setCncPolyOrder(  );
+                    
+                    // set the properties value
 					prop.setProperty("cut_order", order);
 
 					// save properties to project root folder
@@ -558,11 +579,12 @@ public class LayoutModeling {
 			  System.out.println("Error: " + ex);
 			}
 		//}
+         */
 	}
 
     
     /**
-     * getPolyOrder
+     * getPolyOrder   ***DEPRICATE*** use ObjectInfo.getCncPolyOrder()
      *
      * Description: get poly attribute value.
      */

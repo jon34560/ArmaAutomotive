@@ -2373,7 +2373,7 @@ public class Scene
                             
                             // Insert this polygon into the correct sorted order.
                             
-                            int polyOrder = layout.getPolyOrder( "" + child.getId() );
+                            int polyOrder = child.getCncPolyOrder(); // layout.getPolyOrder( "" + child.getId() );
                             polygonOrder.put(polygon, polyOrder);
                             //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
                             
@@ -3011,7 +3011,7 @@ public class Scene
                                 
                                 // Insert this polygon into the correct sorted order.
                                 
-                                int polyOrder = layout.getPolyOrder( "" + child.getId() );
+                                int polyOrder = child.getCncPolyOrder(); // layout.getPolyOrder( "" + child.getId() );
                                 polygonOrder.put(polygon, polyOrder);
                                 //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
                                 
@@ -4126,7 +4126,7 @@ public class Scene
                             
                             // Insert this polygon into the correct sorted order.
                             
-                            int polyOrder = layout.getPolyOrder( "" + child.getId() );
+                            int polyOrder = child.getCncPolyOrder(); // layout.getPolyOrder( "" + child.getId() );
                             polygonOrder.put(polygon, polyOrder);
                             //System.out.println("  ****  " + child.getId() + "  polyOrder: " + polyOrder );
                             
