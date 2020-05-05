@@ -636,8 +636,13 @@ public class ArmaDesignStudio
     clipboardImage = images.toArray(new ImageMap[images.size()]);
   }
 
-  /** Paste the contents of the clipboard into a window. */
-
+    
+  /**
+   * pasteClipboard
+   *
+   * Paste the contents of the clipboard into a window.
+   * If a scene object is selected and it's name is not the same as the clipboard object then add the paste object as a child.
+   * */
   public static void pasteClipboard(LayoutWindow win)
   {
     if (clipboardObject == null)
@@ -725,10 +730,21 @@ public class ArmaDesignStudio
       }
 
     // Finally add the objects to the scene.
-
+    // If an object is selected, add it as a child to that selected object.
+      
     ObjectInfo obj[] = ObjectInfo.duplicateAll(clipboardObject);
-    for (int i = 0; i < obj.length; i++)
-      win.addObject(obj[i], undo);
+      for (int i = 0; i < obj.length; i++){
+          win.addObject(obj[i], undo);
+          
+          // If an object is selected, set the new paste object as a child.
+          if(sel.length > 0){
+              ObjectInfo selected = scene.getObject(sel[0]);
+              if( selected.getName().equals(obj[i].getName()) == false){ // Don't add as child if the name is the same.
+                  obj[i].setParent(selected);
+                  selected.addChild(obj[i], selected.getChildren().length);
+              }
+          }
+      }
     undo.addCommand(UndoRecord.SET_SCENE_SELECTION, new Object [] {sel});
   }
 

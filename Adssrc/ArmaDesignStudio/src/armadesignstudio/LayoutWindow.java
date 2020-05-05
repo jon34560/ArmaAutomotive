@@ -2062,6 +2062,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     updateMenus();
   }
 
+    /**
+     * pasteCommand
+     *
+     * Description: Paste a clipboard object into the scene.
+     * 
+     */
   public void pasteCommand()
   {
     int which[] = new int [ArmaDesignStudio.getClipboardSize()], num = theScene.getNumObjects();
