@@ -351,7 +351,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
     if (manager.getFocusedWindow() != getComponent() || manager.getFocusOwner() instanceof JTextComponent)
       return;
-    tools.getSelectedTool().keyPressed(e, theView[currentView]);
+      
+      if(currentView == -1){
+          System.out.println("No view active. ");
+      }
+      if(currentView > -1){
+          tools.getSelectedTool().keyPressed(e, theView[currentView]);
+      }
+      
     if (!e.isConsumed())
       KeystrokeManager.executeKeystrokes(e, this);
   }
@@ -2066,7 +2073,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
      * pasteCommand
      *
      * Description: Paste a clipboard object into the scene.
-     * 
+     *
      */
   public void pasteCommand()
   {

@@ -12,6 +12,7 @@ package armadesignstudio;
 
 import armadesignstudio.object.*;
 import armadesignstudio.math.*;
+import java.util.Vector;
 
 public class Perferate {
     private LayoutWindow window = null;
@@ -19,6 +20,17 @@ public class Perferate {
     Perferate(Scene scene, LayoutWindow window){
         System.out.println("Perferate ");
         this.window = window;
+    }
+    
+    /**
+     *
+     *
+     *
+     */
+    public boolean isCloseToPoints(Vector Vecs, double distance){
+        
+        
+        return false;
     }
     
     /**
@@ -46,6 +58,24 @@ public class Perferate {
                 
                 // What if part is not aligned to primary axis???
                 // todo sort out
+                
+                // Collect child verticies and avoid pererating near them.
+                Vector childVerts = new Vector();
+                ObjectInfo[] children = info.getChildren();
+                for(int i = 0; i < children.length; i++){
+                    ObjectInfo child = children[i];
+                    Object childCo = (Object)child.getObject();
+                    if((childCo instanceof Curve) == true){
+                        //System.out.println("Curve");
+                        Mesh mesh = (Mesh) child.getObject(); // Object3D
+                        Vec3 [] verts = mesh.getVertexPositions();
+                        for (Vec3 vert : verts){
+                            //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                            childVerts.addElement(vert);
+                        }
+                    }
+                }
+                
                 
                 // X Axis
                 if( (bounds.maxx - bounds.minx) > (bounds.maxy - bounds.miny) &&
