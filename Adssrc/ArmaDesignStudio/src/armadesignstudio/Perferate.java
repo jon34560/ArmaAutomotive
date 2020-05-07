@@ -23,14 +23,27 @@ public class Perferate {
     }
     
     /**
+     * isCloseToPoints
      *
+     * Description: check if a point is within a given distance to a list of points.
+     */
+    public boolean isCloseToPoints(Vec3 point, Vector <Vec3>points, double distance){
+        for(int i = 0; i < points.size(); i++){
+            Vec3 comparePoint = points.elementAt(i);
+            if(point.distance(comparePoint) < distance){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * removeExistingPerferations
      *
      *
      */
-    public boolean isCloseToPoints(Vector Vecs, double distance){
+    public void removeExistingPerferations(ObjectInfo info){
         
-        
-        return false;
     }
     
     /**
@@ -41,6 +54,7 @@ public class Perferate {
      * @param - double percentage of material to remove.
      */
     public void perferateTriangles(Scene scene){
+        LayoutModeling layout = new LayoutModeling();
         int selection[] = scene.getSelection();
         if(selection.length > 0){
             ObjectInfo info = scene.getObject(selection[0]);
@@ -66,10 +80,18 @@ public class Perferate {
                     ObjectInfo child = children[i];
                     Object childCo = (Object)child.getObject();
                     if((childCo instanceof Curve) == true){
+                        CoordinateSystem c;
+                        c = layout.getCoords(child);
+                        //Vec3 objOrigin = c.getOrigin();
+                        
                         //System.out.println("Curve");
                         Mesh mesh = (Mesh) child.getObject(); // Object3D
                         Vec3 [] verts = mesh.getVertexPositions();
                         for (Vec3 vert : verts){
+                            
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            mat4.transform(vert);
+                            
                             //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
                             childVerts.addElement(vert);
                         }
@@ -161,20 +183,22 @@ public class Perferate {
                                 point3 = new Vec3(xPos, yPos, zPos);
                             }
                             
-                            float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
-                            Vec3[] vertex = new Vec3[3];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
                             
+                                float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
+                                Vec3[] vertex = new Vec3[3];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                         if(x_i % 6 == 0){   // Show intermittant progress
                             window.updateImage();
@@ -269,20 +293,21 @@ public class Perferate {
                                 point3 = new Vec3(xPos, yPos, zPos);
                             }
                             
-                            float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
-                            Vec3[] vertex = new Vec3[3];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
-                            
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
+                                Vec3[] vertex = new Vec3[3];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                         if(y_i % 6 == 0){   // Show intermittant progress
                             window.updateImage();
@@ -376,20 +401,21 @@ public class Perferate {
                                 point3 = new Vec3(xPos, yPos, zPos);
                             }
                             
-                            float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
-                            Vec3[] vertex = new Vec3[3];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
-                            
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[3]; s_[0] = 0; s_[1] = 0; s_[2] = 0;
+                                Vec3[] vertex = new Vec3[3];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                         if(z_i % 6 == 0){   // Show intermittant progress
                             window.updateImage();
@@ -413,6 +439,7 @@ public class Perferate {
      *
      */
     public void perferateSquares(Scene scene){
+        LayoutModeling layout = new LayoutModeling();
         int selection[] = scene.getSelection();
         if(selection.length > 0){
             ObjectInfo info = scene.getObject(selection[0]);
@@ -429,6 +456,31 @@ public class Perferate {
                 
                 // What if part is not aligned to primary axis???
                 // todo sort out
+                
+                // Collect child verticies and avoid pererating near them.
+                Vector childVerts = new Vector();
+                ObjectInfo[] children = info.getChildren();
+                for(int i = 0; i < children.length; i++){
+                    ObjectInfo child = children[i];
+                    Object childCo = (Object)child.getObject();
+                    if((childCo instanceof Curve) == true){
+                        CoordinateSystem c;
+                        c = layout.getCoords(child);
+                        //Vec3 objOrigin = c.getOrigin();
+                        
+                        //System.out.println("Curve");
+                        Mesh mesh = (Mesh) child.getObject(); // Object3D
+                        Vec3 [] verts = mesh.getVertexPositions();
+                        for (Vec3 vert : verts){
+                            
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            mat4.transform(vert);
+                            
+                            //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                            childVerts.addElement(vert);
+                        }
+                    }
+                }
                 
                 if( (bounds.maxx - bounds.minx) > (bounds.maxy - bounds.miny) &&
                      (bounds.maxx - bounds.minx) > (bounds.maxz - bounds.minz)   ){ // X axis
@@ -495,21 +547,22 @@ public class Perferate {
                             zPos = bounds.minz + partRadius * Math.sin(angle) + zCentre;
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
-                            float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
-                            Vec3[] vertex = new Vec3[4];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            vertex[3] = point4;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            //window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
+                                Vec3[] vertex = new Vec3[4];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                vertex[3] = point4;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                //window.addObject(perferationCurve, coords, "Perferation " + ++p, null);
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                            }
                             //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
                             //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
                         }
@@ -574,20 +627,22 @@ public class Perferate {
                             zPos = bounds.minz + partRadiusExpand * Math.sin(angle) + zCentre;
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
-                            float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0;  s_[3] = 0;
-                            Vec3[] vertex = new Vec3[4];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            vertex[3] = point4;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0;  s_[3] = 0;
+                                Vec3[] vertex = new Vec3[4];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                vertex[3] = point4;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                     }
                     window.updateImage();
@@ -648,20 +703,22 @@ public class Perferate {
                             zPos = bounds.minz + zRow + (unit_distance / 2) + zShift;
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
-                            float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0;  s_[3] = 0;
-                            Vec3[] vertex = new Vec3[4];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            vertex[3] = point4;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0;  s_[3] = 0;
+                                Vec3[] vertex = new Vec3[4];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                vertex[3] = point4;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                     }
                     window.updateImage();
@@ -680,6 +737,7 @@ public class Perferate {
      * Description:
      */
     public void perferateDiamonds(Scene scene){
+        LayoutModeling layout = new LayoutModeling();
         int selection[] = scene.getSelection();
         if(selection.length > 0){
             ObjectInfo info = scene.getObject(selection[0]);
@@ -696,6 +754,31 @@ public class Perferate {
                 
                 // What if part is not aligned to primary axis???
                 // todo sort out
+                
+                // Collect child verticies and avoid pererating near them.
+                Vector childVerts = new Vector();
+                ObjectInfo[] children = info.getChildren();
+                for(int i = 0; i < children.length; i++){
+                    ObjectInfo child = children[i];
+                    Object childCo = (Object)child.getObject();
+                    if((childCo instanceof Curve) == true){
+                        CoordinateSystem c;
+                        c = layout.getCoords(child);
+                        //Vec3 objOrigin = c.getOrigin();
+                        
+                        //System.out.println("Curve");
+                        Mesh mesh = (Mesh) child.getObject(); // Object3D
+                        Vec3 [] verts = mesh.getVertexPositions();
+                        for (Vec3 vert : verts){
+                            
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            mat4.transform(vert);
+                            
+                            //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                            childVerts.addElement(vert);
+                        }
+                    }
+                }
                 
                 if( (bounds.maxx - bounds.minx) > (bounds.maxy - bounds.miny) &&
                      (bounds.maxx - bounds.minx) > (bounds.maxz - bounds.minz)   ){ // X axis
@@ -752,20 +835,22 @@ public class Perferate {
                             zPos = bounds.minz + partRadius * Math.sin(angle - 0.125) + zCentre;
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
-                            float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
-                            Vec3[] vertex = new Vec3[4];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            vertex[3] = point4;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
+                                Vec3[] vertex = new Vec3[4];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                vertex[3] = point4;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                     }
                     window.updateImage();
@@ -833,20 +918,22 @@ public class Perferate {
                             zPos = bounds.minz + partRadius * Math.sin(angle - 0.125) + zCentre;
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
-                            float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
-                            Vec3[] vertex = new Vec3[4];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            vertex[3] = point4;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
+                                Vec3[] vertex = new Vec3[4];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                vertex[3] = point4;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                     }
                 
@@ -915,20 +1002,22 @@ public class Perferate {
                             zPos = bounds.minz + zRow + ((unit_distance / 1.68)/1.1) + zShift;
                             Vec3 point4 = new Vec3(xPos, yPos, zPos);
                             
-                            float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
-                            Vec3[] vertex = new Vec3[4];
-                            vertex[0] = point1;
-                            vertex[1] = point2;
-                            vertex[2] = point3;
-                            vertex[3] = point4;
-                            Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                            CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                            ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
-                            perferationInfo.setParent(info); // Add perferation object to selection.
-                            info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
-                            window.addObject(perferationInfo, null); // Add ObjectInfo
-                            //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
-                            //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            if(isCloseToPoints(point1, childVerts, unit_distance * 2) == false){
+                                float[] s_ = new float[4]; s_[0] = 0; s_[1] = 0; s_[2] = 0; s_[3] = 0;
+                                Vec3[] vertex = new Vec3[4];
+                                vertex[0] = point1;
+                                vertex[1] = point2;
+                                vertex[2] = point3;
+                                vertex[3] = point4;
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Perferation " + ++p);
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                //window.setSelection(window.getScene().getNumObjects()-1); // Add to selected object as child
+                                //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                            }
                         }
                     }
                 
