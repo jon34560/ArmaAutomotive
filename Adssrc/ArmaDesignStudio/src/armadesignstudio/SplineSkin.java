@@ -61,6 +61,7 @@ public class SplineSkin extends Thread {
     public void autoSkin(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
         LayoutModeling layout = new LayoutModeling();
         Vector curves = new Vector();
+        HashMap completed = new HashMap();
         
         // 1 Subdivide splines to generate more points.
         for (ObjectInfo obj : objects){
@@ -122,13 +123,18 @@ public class SplineSkin extends Thread {
                     if(c != cx){
                         Vec3[] curvex = (Vec3[])curves.elementAt(cx);
                         for(int vx = 1; vx < curvex.length - 1; vx++){  // eaach point in comparison curve
+                            String completedKey = Math.min(c, cx) + "-" + Math.min(v, vx) + "_" + Math.max(c, cx) + "-" + Math.max(v, vx);
+                            
+                            
                             Vec3 vecx = (Vec3)curvex[vx];
                             
                             Vec3 midPoint = vec.midPoint(vecx);
                             double distance = vec.distance(midPoint);
                             
                             // If midpoint is closer to any other spline point ignore.
-                            if( isClosest(curves, midPoint, distance, c, cx) ){
+                            if( isClosest(curves, midPoint, distance, c, cx) &&
+                                isEvenPoints(curves, c, cx , v, vx)
+                               ){
                                 // Generate test curve for validation
                                 
                                 // Apply curvature to midpoint.
@@ -138,15 +144,20 @@ public class SplineSkin extends Thread {
                                 Vec3 aCurvature = (Vec3)vertCurveMap.get(aCurvatureKey);
                                 Vec3 bCurvature = (Vec3)vertCurveMap.get(bCurvatureKey);
                                 if(aCurvature != null && bCurvature != null){
-                                    
+                                    /*
                                     double curveX = (aCurvature.x + bCurvature.x) / 2;
-                                    midPoint.x *= 1+ curveX * distance;
+                                    midPoint.x *= 1+ (curveX * distance * 2);
                                     double curveY = (aCurvature.y + bCurvature.y) / 2;
-                                    midPoint.y *= 1+ curveY * distance;
+                                    midPoint.y *= 1+ (curveY * distance * 2);
                                     double curveZ = (aCurvature.z + bCurvature.z) / 2;
-                                    midPoint.z *= 1+curveZ * distance;
-                                    
+                                    midPoint.z *= 1+ (curveZ * distance * 2);
+                                    */
                                 }
+                                
+                                Vec3 regionCurvature = getRegionCurvature(curves, vertCurveMap, midPoint, distance); //
+                                midPoint.x *= 1+ (regionCurvature.x);
+                                midPoint.y *= 1+ (regionCurvature.y);
+                                midPoint.z *= 1+ (regionCurvature.z);
                                 
                                 
                                 Vec3[] newCurvePoints = new Vec3[3];
@@ -157,7 +168,13 @@ public class SplineSkin extends Thread {
                                 
                                 
                                 ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST");
-                                scene.addObject(midCurveInfo, null);
+                                
+                                if(completed.containsKey(completedKey) == false ){
+                                    scene.addObject(midCurveInfo, null);
+                                }
+                                
+                                
+                                completed.put(completedKey, true);
                             }
                         }
                     }
@@ -186,7 +203,7 @@ public class SplineSkin extends Thread {
     /**
      * isClosest
      *
-     * Description: Used to determine if mesh smoothing should apply. If not closest then other points would be better.
+     * Description: Used to determine if mesh smoothing should apply from current curves. If not closest curve points then other points would be better.
      */
     public boolean isClosest(Vector curves, Vec3 midpoint, double distance, int ignoreC, int ignoreCx){
         for(int c = 0; c < curves.size(); c++){
@@ -202,6 +219,81 @@ public class SplineSkin extends Thread {
             }
         }
         return true;
+    }
+    
+    /**
+     * getRegionCurvature
+     *
+     * Description:
+     */
+    public Vec3 getRegionCurvature(Vector curves, HashMap vertCurveMap, Vec3 midPoint, double distance){
+        Vec3 curvature = new Vec3();
+        int count = 0;
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curve = (Vec3[])curves.elementAt(c);
+            for(int v = 1; v < curve.length - 1; v++){
+                Vec3 vec = (Vec3)curve[v];
+                double currDistance = midPoint.distance(vec);
+                if(currDistance <= distance * 2){
+                    String curveKey = c + "_" + v;
+                    Vec3 currCurve = (Vec3)vertCurveMap.get(curveKey);
+                    
+                    // reduce curvature by distance
+                    
+                    //if(){
+                    double scale = distance / currDistance;
+                    currCurve.x *= scale;
+                    currCurve.y *= scale;
+                    currCurve.z *= scale;
+                    
+                    curvature.add(currCurve);
+                    count++;
+                }
+            }
+        }
+        // Divide
+        if(count > 0){
+            curvature.x = curvature.x / ((double)count);
+            curvature.y = curvature.y / ((double)count);
+            curvature.z = curvature.z / ((double)count);
+        }
+        return curvature;
+    }
+    
+    
+    /**
+     * isEvenPoints
+     *
+     * Description: Only connect   equal points to prevent cross lines.
+     */
+    public boolean isEvenPoints(Vector curves, int c, int cx , int v, int vx  ){
+        boolean result = false;
+        Vec3[] cCurve = (Vec3[])curves.elementAt(c);
+        Vec3[] cxCurve = (Vec3[])curves.elementAt(cx);
+        int cLength = cCurve.length;
+        int cxLength = cxCurve.length;
+        if( v == vx ){ // && v <= (cLength / 2) && vx <= (cxLength / 2)
+            result = true;
+        }
+        if( v ==  cxLength - vx ){ // && v <= (cLength / 2) && vx <= (cxLength / 2)
+            result = true;
+        }
+        if( cLength - v == vx ){ // && v <= (cLength / 2) && vx <= (cxLength / 2)
+            result = true;
+        }
+        if( cLength - v == cxLength - vx ){
+            result = true;
+        }
+        double aDistance = cCurve[v].distance(cxCurve[vx]);
+        double bDistance = cCurve[cLength-v].distance(cxCurve[vx]);
+        double cDistance = cCurve[v].distance(cxCurve[cxLength-vx]);
+        double dDistance = cCurve[cLength-v].distance(cxCurve[cxLength-vx]);
+        if(result && aDistance <= bDistance && aDistance <= cDistance && aDistance <= dDistance){
+            result = true;
+        } else {
+            result = false;
+        }
+        return result;
     }
     
     /**
