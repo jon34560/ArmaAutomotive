@@ -62,8 +62,13 @@ public class SplineSkin extends Thread {
         LayoutModeling layout = new LayoutModeling();
         Vector curves = new Vector();
         HashMap completed = new HashMap();
+        //Vec3[] newMesh;
+        Vector meshPoints = new Vector();
         
-        // 1 Subdivide splines to generate more points.
+        // Calculate bounds of selection for constant distance value
+        //BoundingBox bounds = new BoundingBox();
+        
+        // 1 Subdivide selected splines to generate more points.
         for (ObjectInfo obj : objects){
             if(obj.selected == true){
                 Object co = (Object)obj.getObject();
@@ -85,6 +90,13 @@ public class SplineSkin extends Thread {
                     // public Vec3 [] subdivideCurve(Vec3 [] curveVerts, int subdivisions){
                     curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
                     curves.addElement(curveVerts);
+                    
+                    for(int i = 0; i < curveVerts.length; i++){
+                        meshPoints.addElement(curveVerts[i]);
+                    }
+                    
+                    //BoundingBox boundingBox = getTranslatedBounds(obj);
+                    //bounds.add(boundingBox);
                 }
             }
         }
@@ -102,13 +114,21 @@ public class SplineSkin extends Thread {
                 double endsDistance = beforeVec.distance(afterVec);
                 // Difference between midpoint and actual vec.
                 Vec3 vecCurve = new Vec3(
+                                         /*
                                          (Math.max(midpoint.x, vec.x) - Math.min(midpoint.x, vec.x)) / endsDistance,
                                          (Math.max(midpoint.y, vec.y) - Math.min(midpoint.y, vec.y)) / endsDistance,
-                                         (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) / endsDistance);
+                                         (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) / endsDistance
+                                          */
+                                         (midpoint.x - vec.x) / endsDistance,
+                                         (midpoint.y - vec.y) / endsDistance,
+                                         (midpoint.z - vec.z) / endsDistance
+                                         );
                 String vecKey = c + "_" + v;
                 vertCurveMap.put(vecKey, vecCurve);
                 
-                //System.out.println("  curve "  + vecKey + " x: " + vecCurve.x +  " " + vecCurve.y + " "+ vecCurve.z + "  d: " + endsDistance);
+                //System.out.println("AutoMesh point curve "  + vecKey + " x: " + vecCurve.x +  " y: " + vecCurve.y + " z: "+ vecCurve.z + "  d: " + endsDistance);
+                System.out.println("  encode  z "  + (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) + "  d: " + endsDistance + " = zcurve:" + vecCurve.z);
+                
             }
         }
         
@@ -124,16 +144,21 @@ public class SplineSkin extends Thread {
                         Vec3[] curvex = (Vec3[])curves.elementAt(cx);
                         for(int vx = 1; vx < curvex.length - 1; vx++){  // eaach point in comparison curve
                             String completedKey = Math.min(c, cx) + "-" + Math.min(v, vx) + "_" + Math.max(c, cx) + "-" + Math.max(v, vx);
-                            
-                            
                             Vec3 vecx = (Vec3)curvex[vx];
+                            
+                            
+                            // 4 calculate mid point and offset by average of two edge point bends. skew average by distance.
                             
                             Vec3 midPoint = vec.midPoint(vecx);
                             double distance = vec.distance(midPoint);
                             
                             // If midpoint is closer to any other spline point ignore.
-                            if( isClosest(curves, midPoint, distance, c, cx) &&
-                                isEvenPoints(curves, c, cx , v, vx)
+                            // 5 if midpoint is not closer to another (non spline from endpoints) then add new 3 point spline from
+                            // ends and new midpoint.
+                            if(
+                                isClosest(curves, midPoint, distance, c, cx)
+                               //&&
+                                //isEvenPoints(curves, c, cx , v, vx)
                                ){
                                 // Generate test curve for validation
                                 
@@ -155,9 +180,17 @@ public class SplineSkin extends Thread {
                                 }
                                 
                                 Vec3 regionCurvature = getRegionCurvature(curves, vertCurveMap, midPoint, distance); //
-                                midPoint.x *= 1+ (regionCurvature.x);
-                                midPoint.y *= 1+ (regionCurvature.y);
-                                midPoint.z *= 1+ (regionCurvature.z);
+                                /*
+                                midPoint.x -= (regionCurvature.x * 1) * distance;
+                                midPoint.y -= (regionCurvature.y * 1) * distance;
+                                midPoint.z -= (regionCurvature.z * 1) * distance;
+                                */
+                                midPoint.x -= ((regionCurvature.x * 1) * distance) * 2;
+                                midPoint.y -= ((regionCurvature.y * 1) * distance) * 2;
+                                midPoint.z -= ((regionCurvature.z * 1) * distance) * 2;
+                                
+                                
+                                System.out.println(" decode regionCurvature.z: " + regionCurvature.z + " distance: " + distance + " offset " + (regionCurvature.z  * distance) );
                                 
                                 
                                 Vec3[] newCurvePoints = new Vec3[3];
@@ -166,13 +199,14 @@ public class SplineSkin extends Thread {
                                 newCurvePoints[2] = vecx;
                                 Curve newCurve = getCurve(newCurvePoints);
                                 
-                                
-                                ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST");
+                                ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST " + regionCurvature.z + " " + distance);
                                 
                                 if(completed.containsKey(completedKey) == false ){
                                     scene.addObject(midCurveInfo, null);
+                                    
+                                    meshPoints.addElement(midPoint); // point for mesh
+                                    
                                 }
-                                
                                 
                                 completed.put(completedKey, true);
                             }
@@ -183,16 +217,18 @@ public class SplineSkin extends Thread {
         }
         
         
-        
-        
-        // 4 calculate mid point and offset by average of two edge point bends. skew average by distance.
-        
-        // 5 if midpoint is not closer to another (non spline from endpoints) then add new 3 point spline from
-        // ends and new midpoint.
-        
         // 6 subdivide new splines.
+        // TODO
         
         // 7 Generaate triaangle mesh from all points selected and generated.
+        
+        Vec3 [] meshVerts = new Vec3[meshPoints.size()];
+        for(int i = 0; i < meshPoints.size(); i++){
+            meshVerts[i] = (Vec3)meshPoints.elementAt(i);
+        }
+        int faces[][];
+        //faces = new int[10][10];
+        //TriangleMesh tm = new TriangleMesh(meshVerts , faces );
         
         
         layoutWindow.updateImage();
@@ -234,17 +270,18 @@ public class SplineSkin extends Thread {
             for(int v = 1; v < curve.length - 1; v++){
                 Vec3 vec = (Vec3)curve[v];
                 double currDistance = midPoint.distance(vec);
-                if(currDistance <= distance * 2){
+                if(currDistance <= distance * 2.1){
                     String curveKey = c + "_" + v;
                     Vec3 currCurve = (Vec3)vertCurveMap.get(curveKey);
                     
                     // reduce curvature by distance
                     
-                    //if(){
                     double scale = distance / currDistance;
-                    currCurve.x *= scale;
-                    currCurve.y *= scale;
-                    currCurve.z *= scale;
+                    if(scale < 1.0){
+                        //currCurve.x *= scale;
+                        //currCurve.y *= scale;
+                        //currCurve.z *= scale;
+                    }
                     
                     curvature.add(currCurve);
                     count++;
