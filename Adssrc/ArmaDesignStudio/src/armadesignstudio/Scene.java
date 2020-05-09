@@ -1893,10 +1893,13 @@ public class Scene
     * autoSkin
     *
     * Description:
-    * Skin curves into a mesh. The oprigional skin tool only works on splines of equal segment counts.
+    * Skin curves into a mesh.
     */
-    public void autoSkin(){
-
+    public void autoSkin(LayoutWindow layoutWindow){
+        SplineSkin skin = new SplineSkin();
+        skin.autoSkin(this, layoutWindow, objects);
+        
+        /*
         // 1) Find the maximum number of vertecies from all selected curves.
         int maxPoints = 0;
 
@@ -1950,7 +1953,7 @@ public class Scene
           }
         }
 
-
+         */
     }
 
     /**

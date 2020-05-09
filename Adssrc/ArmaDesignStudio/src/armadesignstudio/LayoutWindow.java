@@ -2861,7 +2861,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
   public void autoSkin(){
       if(theScene != null){
-         theScene.autoSkin();
+         theScene.autoSkin(this);
       }
   }
     

@@ -189,6 +189,15 @@ public class Vec3
       }
   }
   
+    public final Vec3 midPoint(Vec3 otherPoint){
+        Vec3 midpoint = new Vec3(
+         (x + otherPoint.x) / 2,
+         (y + otherPoint.y) / 2,
+         (z + otherPoint.z) / 2
+        );
+        return midpoint;
+    }
+    
   /** Calculate the Euclidean distance between this vector and another one. */
   
   public final double distance(Vec3 v)
