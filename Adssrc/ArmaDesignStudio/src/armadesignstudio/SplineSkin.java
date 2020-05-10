@@ -64,6 +64,8 @@ public class SplineSkin extends Thread {
         HashMap completed = new HashMap();
         //Vec3[] newMesh;
         Vector meshPoints = new Vector();
+        ObjectInfo firstMidCurveInfo = null; // debug curves for visualization of process.
+        
         
         // Calculate bounds of selection for constant distance value
         //BoundingBox bounds = new BoundingBox();
@@ -146,9 +148,7 @@ public class SplineSkin extends Thread {
                             String completedKey = Math.min(c, cx) + "-" + Math.min(v, vx) + "_" + Math.max(c, cx) + "-" + Math.max(v, vx);
                             Vec3 vecx = (Vec3)curvex[vx];
                             
-                            
                             // 4 calculate mid point and offset by average of two edge point bends. skew average by distance.
-                            
                             Vec3 midPoint = vec.midPoint(vecx);
                             double distance = vec.distance(midPoint);
                             
@@ -195,9 +195,21 @@ public class SplineSkin extends Thread {
                                 newCurvePoints[0] = vec;
                                 newCurvePoints[1] = midPoint;
                                 newCurvePoints[2] = vecx;
+                                // 6 subdivide new splines.
                                 newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
                                 Curve newCurve = getCurve(newCurvePoints);
+                                
                                 ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST " + regionCurvature.z + " " + distance);
+                                
+                                if(firstMidCurveInfo == null){
+                                    firstMidCurveInfo = midCurveInfo;
+                                } else {
+                                    
+                                    midCurveInfo.setParent(firstMidCurveInfo);
+                                    firstMidCurveInfo.addChild(midCurveInfo, firstMidCurveInfo.getChildren().length);
+                                    
+                                }
+                                
                                 if(completed.containsKey(completedKey) == false ){
                                     scene.addObject(midCurveInfo, null);
                                     
@@ -211,13 +223,9 @@ public class SplineSkin extends Thread {
                 }
             }
         }
-        
-        
-        // 6 subdivide new splines.
-        // TODO
+    
         
         // 7 Generaate triaangle mesh from all points selected and generated.
-        
         TriangleMesh tm = pointsToMesh(meshPoints);
         ObjectInfo triangleMeshInfo = new ObjectInfo(tm, new CoordinateSystem(), "mesh ");
         
