@@ -189,23 +189,19 @@ public class SplineSkin extends Thread {
                                 midPoint.y -= ((regionCurvature.y * 1) * distance) * 2;
                                 midPoint.z -= ((regionCurvature.z * 1) * distance) * 2;
                                 
-                                
                                 System.out.println(" decode regionCurvature.z: " + regionCurvature.z + " distance: " + distance + " offset " + (regionCurvature.z  * distance) );
-                                
                                 
                                 Vec3[] newCurvePoints = new Vec3[3];
                                 newCurvePoints[0] = vec;
                                 newCurvePoints[1] = midPoint;
                                 newCurvePoints[2] = vecx;
+                                newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
                                 Curve newCurve = getCurve(newCurvePoints);
-                                
                                 ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST " + regionCurvature.z + " " + distance);
-                                
                                 if(completed.containsKey(completedKey) == false ){
                                     scene.addObject(midCurveInfo, null);
                                     
                                     meshPoints.addElement(midPoint); // point for mesh
-                                    
                                 }
                                 
                                 completed.put(completedKey, true);
@@ -222,19 +218,42 @@ public class SplineSkin extends Thread {
         
         // 7 Generaate triaangle mesh from all points selected and generated.
         
+        TriangleMesh tm = pointsToMesh(meshPoints);
+        ObjectInfo triangleMeshInfo = new ObjectInfo(tm, new CoordinateSystem(), "mesh ");
+        
+        scene.addObject(triangleMeshInfo, null);
+        
+        layoutWindow.updateImage();
+        //layoutWindow.updateMenus();
+        layoutWindow.rebuildItemList();
+    }
+    
+    /**
+     * pointsToMesh
+     *
+     * Description: Given a point cloud, caalculate edges and faces to generate a surface mesh.
+     */
+    public TriangleMesh pointsToMesh(Vector <Vec3> meshPoints){
         Vec3 [] meshVerts = new Vec3[meshPoints.size()];
-        Vector face = new Vector();
+        Vector face = new Vector();     // Vector of int[3] vec indexes
         for(int i = 0; i < meshPoints.size(); i++){
             meshVerts[i] = (Vec3)meshPoints.elementAt(i);
         }
         
         Vector facePoints = new Vector(meshPoints);
         HashMap pointsUsed = new HashMap();
+        
+        HashMap edges = new HashMap();
+        HashMap edgeIndexes = new HashMap();
+        
         for(int p = 0; p < facePoints.size(); p++){
             Vec3 point = (Vec3)facePoints.elementAt(p);
             Vec3 closestPoint = null;
             int closestPointIndex = -1;
             int secondClosestPointIndex = -1;
+            int thirdClosestPointIndex = -1;
+            int fourthClosestPointIndex = -1;
+            int fifthClosestPointIndex = -1;
             
             double distance = 999999;
             for(int i = 0; i < facePoints.size(); i++){
@@ -260,20 +279,184 @@ public class SplineSkin extends Thread {
                     //facePoints.removeElementAt(i);
                 }
             }
+            double thirdDistance = 99999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < thirdDistance && i != closestPointIndex && i != p && i != secondClosestPointIndex){
+                    thirdDistance = d;
+                    thirdClosestPointIndex = i;
+                }
+            }
+            double fourthDistance = 99999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < fourthDistance && i != closestPointIndex && i != p && i != secondClosestPointIndex && i != thirdClosestPointIndex){
+                    fourthDistance = d;
+                    fourthClosestPointIndex = i;
+                }
+            }
+            double fifthDistance = 99999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < fifthDistance && i != closestPointIndex && i != p &&
+                   i != secondClosestPointIndex &&
+                   i != thirdClosestPointIndex &&
+                   i != fourthClosestPointIndex){
+                    fifthDistance = d;
+                    fifthClosestPointIndex = i;
+                }
+            }
+            
             //if(  pointsUsed.containsKey(p) == false &&
             //   pointsUsed.containsKey(closestPointIndex) == false &&
             //   pointsUsed.containsKey(secondClosestPointIndex) == false  ){
                 
-                int[] indexes  = new int[3];
-                indexes[0] = p; indexes[1] = closestPointIndex;  indexes[2] = secondClosestPointIndex;
-                face.addElement( indexes );
-                System.out.println(" mesh face " + p + " " + closestPointIndex + " "  + secondClosestPointIndex);
+                //int[] indexes  = new int[3];
+                //indexes[0] = p; indexes[1] = closestPointIndex;  indexes[2] = secondClosestPointIndex;
+                //face.addElement( indexes ); // TEMP prototype only
+                //System.out.println(" mesh face " + p + " " + closestPointIndex + " "  + secondClosestPointIndex);
             //}
             pointsUsed.put( p, true );
             pointsUsed.put( closestPointIndex, true );
             pointsUsed.put( secondClosestPointIndex, true );
             
+            
+            String edgeKey = Math.min(p, closestPointIndex) + "_" + Math.max(p, closestPointIndex);
+            edges.put(edgeKey, true);
+            String edgeKey2 = Math.min(p, secondClosestPointIndex) + "_" + Math.max(p, secondClosestPointIndex);
+            edges.put(edgeKey2, true);
+            String edgeKey3 = Math.min(p, thirdClosestPointIndex) + "_" + Math.max(p, thirdClosestPointIndex);
+            edges.put(edgeKey3, true);
+            String edgeKey4 = Math.min(p, fourthClosestPointIndex) + "_" + Math.max(p, fourthClosestPointIndex);
+            edges.put(edgeKey4, true);
+            String edgeKey5 = Math.min(p, fifthClosestPointIndex) + "_" + Math.max(p, fifthClosestPointIndex);
+            edges.put(edgeKey5, true);
         }
+        
+        // Find faces from edges
+        Iterator edgeIterator = edges.entrySet().iterator();
+        Vector edgeKeys = new Vector();
+        while (edgeIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry)edgeIterator.next();
+            String key = (String)mapElement.getKey();
+            edgeKeys.addElement(key);
+        }
+        
+        for(int i = 0; i < edgeKeys.size(); i++){
+            String key = (String)edgeKeys.elementAt(i);
+            int a = firstInt(key);
+            int b = secondInt(key);
+            if(a != -1 && b != -1){
+                //System.out.println("  ---- a: " + a + "  b: " + b);
+                // Find another edge that match with a or b
+                for(int j = 0; j < edgeKeys.size(); j++){   // Second edge that matches.
+                    String key2 = (String)edgeKeys.elementAt(j);
+                    int a2 = firstInt(key2);
+                    int b2 = secondInt(key2);
+                    if(i != j && a2 != -1 && b2 != -1){ // valid data and different from i
+                        if(a == a2){
+                            // Find third matching edge
+                            for(int k = 0; k < edgeKeys.size(); k++){
+                                String key3 = (String)edgeKeys.elementAt(k);
+                                int a3 = firstInt(key3);
+                                int b3 = secondInt(key3);
+                                if(i != j && i != k && a3 != -1 && b3 != -1){
+                                    if((b == a3 || b == b3) && (b2 == a3 || b2 == b3)){
+                                        // Triangle: a, b, b2
+                                        int[] ints = new int[3]; //{a, b, b2};
+                                        ints[0] = a; ints[1] = b; ints[2] = b2;
+                                        Arrays.sort(ints);
+                                        //System.out.println( " test 1 " + ints[0] + "  2 " + ints[1] + "  3 " + ints[2]);
+                                        String faceKey = ints[0] + "_" + ints[1] + "_" + ints[2];
+                                        edgeIndexes.put(faceKey, true);
+                                    }
+                                }
+                            }
+                        }
+                        if(a == b2){
+                            // Find third matching edge
+                            for(int k = 0; k < edgeKeys.size(); k++){
+                                String key3 = (String)edgeKeys.elementAt(k);
+                                int a3 = firstInt(key3);
+                                int b3 = secondInt(key3);
+                                if(i != j && i != k && a3 != -1 && b3 != -1){
+                                    if((b == a3 || b == b3) && (a2 == a3 || a2 == b3)){
+                                        // Triangle: a, b, a2
+                                        int[] ints = new int[3]; //{a, b, a2};
+                                        ints[0] = a; ints[1] = b; ints[2] = a2;
+                                        Arrays.sort(ints);
+                                        //System.out.println( " test 1 " + ints[0] + "  2 " + ints[1] + "  3 " + ints[2]);
+                                        String faceKey = ints[0] + "_" + ints[1] + "_" + ints[2];
+                                        edgeIndexes.put(faceKey, true);
+                                    }
+                                }
+                            }
+                        }
+                        if(b == a2){
+                            // Find third matching edge
+                            for(int k = 0; k < edgeKeys.size(); k++){
+                                String key3 = (String)edgeKeys.elementAt(k);
+                                int a3 = firstInt(key3);
+                                int b3 = secondInt(key3);
+                                if(i != j && i != k && a3 != -1 && b3 != -1){
+                                    if((a == a3 || a == b3) && (b2 == a3 || b2 == b3)){
+                                        // Triangle: a, b, b2
+                                        int[] ints = new int[3]; //{a, b, a2};
+                                        ints[0] = a; ints[1] = b; ints[2] = b2;
+                                        Arrays.sort(ints);
+                                        //System.out.println( " test 1 " + ints[0] + "  2 " + ints[1] + "  3 " + ints[2]);
+                                        String faceKey = ints[0] + "_" + ints[1] + "_" + ints[2];
+                                        edgeIndexes.put(faceKey, true);
+                                    }
+                                }
+                            }
+                        }
+                        if(b == b2){
+                            // Find third matching edge
+                            for(int k = 0; k < edgeKeys.size(); k++){
+                                String key3 = (String)edgeKeys.elementAt(k);
+                                int a3 = firstInt(key3);
+                                int b3 = secondInt(key3);
+                                if(i != j && i != k && a3 != -1 && b3 != -1){
+                                    if((a == a3 || a == b3) && (a2 == a3 || a2 == b3)){
+                                        // Triangle: a, b, a2
+                                        int[] ints = new int[3]; //{a, b, a2};
+                                        ints[0] = a; ints[1] = b; ints[2] = a2;
+                                        Arrays.sort(ints);
+                                        //System.out.println( " test 1 " + ints[0] + "  2 " + ints[1] + "  3 " + ints[2]);
+                                        String faceKey = ints[0] + "_" + ints[1] + "_" + ints[2];
+                                        edgeIndexes.put(faceKey, true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //System.out.println(mapElement.getKey() + " : " + marks);
+        }
+        
+        // Print edge indexed
+        Iterator faceIndexesIterator = edgeIndexes.entrySet().iterator();
+        while (faceIndexesIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry)faceIndexesIterator.next();
+            String key = (String)mapElement.getKey();
+            int a = firstInt(key);
+            int b = secondInt(key);
+            int c = thirdInt(key);
+            //System.out.println("Face  " + key + " : " + a + " : " + b + " : " + c);
+            
+            int[] indexes  = new int[3];
+            indexes[0] = a; indexes[1] = b;  indexes[2] = c;
+            face.addElement( indexes ); // TEMP prototype only
+            //System.out.println(" mesh face " + p + " " + closestPointIndex + " "  + secondClosestPointIndex);
+            
+        }
+        
+        System.out.println("Faces:  " + face.size());
         
         int faces[][] = new int [face.size()][3];
         for(int i = 0; i < face.size(); i++){
@@ -285,14 +468,58 @@ public class SplineSkin extends Thread {
         //faces = new int[10][10];
         //int f[][] = new int [face.size()][3];
         
-        TriangleMesh tm = new TriangleMesh(meshVerts , faces );
-        ObjectInfo triangleMeshInfo = new ObjectInfo(tm, new CoordinateSystem(), "mesh ");
+        TriangleMesh tm = new TriangleMesh(meshVerts, faces );
         
-        scene.addObject(triangleMeshInfo, null);
-        
-        layoutWindow.updateImage();
-        //layoutWindow.updateMenus();
-        layoutWindow.rebuildItemList();
+        return tm;
+    }
+    
+    public int firstInt(String key){
+        int a = -1;
+        int sep = key.indexOf("_");
+        if(sep != -1){
+            String as = key.substring(0, sep);
+            String bs = key.substring(sep+1, key.length());
+            
+            sep = bs.indexOf("_");
+            if(sep != -1){
+                bs = bs.substring(0, sep);
+            }
+            
+            a = Integer.parseInt(as);
+            int b = Integer.parseInt(bs);
+        }
+        return a;
+    }
+    public int secondInt(String key){
+        int b = -1;
+        int sep = key.indexOf("_");
+        if(sep != -1){
+            String as = key.substring(0, sep);
+            String bs = key.substring(sep+1, key.length());
+            
+            sep = bs.indexOf("_");
+            if(sep != -1){
+                bs = bs.substring(0, sep);
+            }
+            
+            int a = Integer.parseInt(as);
+            b = Integer.parseInt(bs);
+        }
+        return b;
+    }
+    public int thirdInt(String key){
+        int c = -1;
+        int sep = key.indexOf("_");
+        if(sep != -1){
+            String as = key.substring(0, sep);
+            String bs = key.substring(sep+1, key.length());
+            sep = bs.indexOf("_");
+            if(sep != -1){
+                String cs = bs.substring(sep + 1, bs.length());
+                c = Integer.parseInt(cs);
+            }
+        }
+        return c;
     }
     
     /**
