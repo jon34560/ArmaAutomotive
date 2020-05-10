@@ -196,7 +196,7 @@ public class SplineSkin extends Thread {
                                 newCurvePoints[1] = midPoint;
                                 newCurvePoints[2] = vecx;
                                 // 6 subdivide new splines.
-                                newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
+                                //newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
                                 Curve newCurve = getCurve(newCurvePoints);
                                 
                                 ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST " + regionCurvature.z + " " + distance);
