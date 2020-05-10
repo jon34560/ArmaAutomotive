@@ -223,13 +223,72 @@ public class SplineSkin extends Thread {
         // 7 Generaate triaangle mesh from all points selected and generated.
         
         Vec3 [] meshVerts = new Vec3[meshPoints.size()];
+        Vector face = new Vector();
         for(int i = 0; i < meshPoints.size(); i++){
             meshVerts[i] = (Vec3)meshPoints.elementAt(i);
         }
-        int faces[][];
-        //faces = new int[10][10];
-        //TriangleMesh tm = new TriangleMesh(meshVerts , faces );
         
+        Vector facePoints = new Vector(meshPoints);
+        HashMap pointsUsed = new HashMap();
+        for(int p = 0; p < facePoints.size(); p++){
+            Vec3 point = (Vec3)facePoints.elementAt(p);
+            Vec3 closestPoint = null;
+            int closestPointIndex = -1;
+            int secondClosestPointIndex = -1;
+            
+            double distance = 999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < distance && i != p){
+                    distance = d;
+                    closestPoint = px;
+                    closestPointIndex = i;
+                    
+                    //facePoints.removeElementAt(i);
+                }
+            }
+            double secondDistance = 9999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < secondDistance && i != closestPointIndex && i != p){
+                    secondDistance = d;
+                    //closestPoint = px;
+                    secondClosestPointIndex = i;
+                    
+                    //facePoints.removeElementAt(i);
+                }
+            }
+            //if(  pointsUsed.containsKey(p) == false &&
+            //   pointsUsed.containsKey(closestPointIndex) == false &&
+            //   pointsUsed.containsKey(secondClosestPointIndex) == false  ){
+                
+                int[] indexes  = new int[3];
+                indexes[0] = p; indexes[1] = closestPointIndex;  indexes[2] = secondClosestPointIndex;
+                face.addElement( indexes );
+                System.out.println(" mesh face " + p + " " + closestPointIndex + " "  + secondClosestPointIndex);
+            //}
+            pointsUsed.put( p, true );
+            pointsUsed.put( closestPointIndex, true );
+            pointsUsed.put( secondClosestPointIndex, true );
+            
+        }
+        
+        int faces[][] = new int [face.size()][3];
+        for(int i = 0; i < face.size(); i++){
+            int[] faceIndexes = (int[])face.elementAt(i);
+            faces[i][0] = faceIndexes[0];
+            faces[i][1] = faceIndexes[1];
+            faces[i][2] = faceIndexes[2];
+        }
+        //faces = new int[10][10];
+        //int f[][] = new int [face.size()][3];
+        
+        TriangleMesh tm = new TriangleMesh(meshVerts , faces );
+        ObjectInfo triangleMeshInfo = new ObjectInfo(tm, new CoordinateSystem(), "mesh ");
+        
+        scene.addObject(triangleMeshInfo, null);
         
         layoutWindow.updateImage();
         //layoutWindow.updateMenus();
