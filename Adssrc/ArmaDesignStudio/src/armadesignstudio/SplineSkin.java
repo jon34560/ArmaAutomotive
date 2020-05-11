@@ -50,6 +50,29 @@ public class SplineSkin extends Thread {
     }
     
     /**
+     * autoSkinBySpace
+     *
+     * Description:
+     */
+    public void autoSkinBySpace(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
+        LayoutModeling layout = new LayoutModeling();
+        Vector curves = new Vector();
+        HashMap completed = new HashMap();
+        Vector meshPoints = new Vector();
+        ObjectInfo firstMidCurveInfo = null; // debug curves for visualization of process.
+        Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
+        
+        
+        // 1 Subdivide selected curves.
+        
+        // 2 Calculate points in empty space within the bounds of at least three curves.
+        
+        
+        
+        
+    }
+    
+    /**
      * autoSkin
      *
      * Description: Generate curved mesh from multiple curved splines. The mesh is to be smooth across all curve geometry.
@@ -62,15 +85,11 @@ public class SplineSkin extends Thread {
         LayoutModeling layout = new LayoutModeling();
         Vector curves = new Vector();
         HashMap completed = new HashMap();
-        //Vec3[] newMesh;
         Vector meshPoints = new Vector();
         ObjectInfo firstMidCurveInfo = null; // debug curves for visualization of process.
+        Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
         
-        
-        // Calculate bounds of selection for constant distance value
-        //BoundingBox bounds = new BoundingBox();
-        
-        // 1 Subdivide selected splines to generate more points.
+        // 1 Get scene selection
         for (ObjectInfo obj : objects){
             if(obj.selected == true){
                 Object co = (Object)obj.getObject();
@@ -90,20 +109,25 @@ public class SplineSkin extends Thread {
                         //verts.addElement(vert);
                     }
                     // public Vec3 [] subdivideCurve(Vec3 [] curveVerts, int subdivisions){
-                    curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
+                    //curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
                     curves.addElement(curveVerts);
-                    
-                    for(int i = 0; i < curveVerts.length; i++){
-                        meshPoints.addElement(curveVerts[i]);
-                    }
-                    
-                    //BoundingBox boundingBox = getTranslatedBounds(obj);
-                    //bounds.add(boundingBox);
                 }
             }
         }
+        
+        
+        
+        // 2 Subdivide selected splines to generate more points.
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
+            curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
+            curves.setElementAt(curveVerts, c);
+            for(int i = 0; i < curveVerts.length; i++){
+                meshPoints.addElement(curveVerts[i]);
+            }
+        }
     
-        // 2 Calculate spline vert point curve on 3 axies. (Midpoint - actual) / (edge distance).
+        // 3 Calculate spline vert point curve on 3 axies. (Midpoint - actual) / (edge distance).
         HashMap vertCurveMap = new HashMap();
         for(int c = 0; c < curves.size(); c++){
             Vec3[] curve = (Vec3[])curves.elementAt(c);
@@ -111,7 +135,6 @@ public class SplineSkin extends Thread {
                 Vec3 beforeVec = (Vec3)curve[(v - 1)];
                 Vec3 afterVec = (Vec3)curve[(v + 1)];
                 Vec3 vec = (Vec3)curve[v];
-                
                 Vec3 midpoint = beforeVec.midPoint(afterVec);
                 double endsDistance = beforeVec.distance(afterVec);
                 // Difference between midpoint and actual vec.
@@ -129,17 +152,16 @@ public class SplineSkin extends Thread {
                 vertCurveMap.put(vecKey, vecCurve);
                 
                 //System.out.println("AutoMesh point curve "  + vecKey + " x: " + vecCurve.x +  " y: " + vecCurve.y + " z: "+ vecCurve.z + "  d: " + endsDistance);
-                System.out.println("  encode  z "  + (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) + "  d: " + endsDistance + " = zcurve:" + vecCurve.z);
-                
+                //System.out.println("  encode  z "  + (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) + "  d: " + endsDistance + " = zcurve:" + vecCurve.z);
             }
         }
         
-        // 3 For each point, with a vert angle, iterate all points in other splines.
+        // 4 For each point, with a vert angle (angle between neighbours), iterate all points in other splines.
+        int addedCurves = 0;
         for(int c = 0; c < curves.size(); c++){
             Vec3[] curve = (Vec3[])curves.elementAt(c);
             for(int v = 1; v < curve.length - 1; v++){
                 Vec3 vec = (Vec3)curve[v];
-                
                 // Compare
                 for(int cx = 0; cx < curves.size(); cx++){              // each comparison curve
                     if(c != cx){
@@ -189,14 +211,16 @@ public class SplineSkin extends Thread {
                                 midPoint.y -= ((regionCurvature.y * 1) * distance) * 2;
                                 midPoint.z -= ((regionCurvature.z * 1) * distance) * 2;
                                 
-                                System.out.println(" decode regionCurvature.z: " + regionCurvature.z + " distance: " + distance + " offset " + (regionCurvature.z  * distance) );
+                                //System.out.println(" decode regionCurvature.z: " + regionCurvature.z + " distance: " + distance + " offset " + (regionCurvature.z  * distance) );
                                 
                                 Vec3[] newCurvePoints = new Vec3[3];
                                 newCurvePoints[0] = vec;
                                 newCurvePoints[1] = midPoint;
                                 newCurvePoints[2] = vecx;
+                                
                                 // 6 subdivide new splines.
-                                //newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
+                                newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
+                                /*
                                 Curve newCurve = getCurve(newCurvePoints);
                                 
                                 ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST " + regionCurvature.z + " " + distance);
@@ -204,16 +228,21 @@ public class SplineSkin extends Thread {
                                 if(firstMidCurveInfo == null){
                                     firstMidCurveInfo = midCurveInfo;
                                 } else {
-                                    
                                     midCurveInfo.setParent(firstMidCurveInfo);
                                     firstMidCurveInfo.addChild(midCurveInfo, firstMidCurveInfo.getChildren().length);
-                                    
                                 }
+                                */
                                 
                                 if(completed.containsKey(completedKey) == false ){
-                                    scene.addObject(midCurveInfo, null);
                                     
-                                    meshPoints.addElement(midPoint); // point for mesh
+                                    
+                                    insertedCurves.addElement(newCurvePoints);
+                                    
+                                    //scene.addObject(midCurveInfo, null);
+                                    
+                                    //meshPoints.addElement(midPoint); // point for mesh
+                                    
+                                    addedCurves++;
                                 }
                                 
                                 completed.put(completedKey, true);
@@ -223,17 +252,274 @@ public class SplineSkin extends Thread {
                 }
             }
         }
+        System.out.println("Added curves: " + addedCurves );
+        
+        // 5
+        // Optimization; If multiple infill points occupy the same region, remove the one with the longest span
+        // as it is likely to be inacurate?
+        // Determine region size. Iterate each point and find the next closest point, The region is the shortest span
+        double regionScale = 1.5; // higher means fewer deletions.
+        int deletedCurves = 0;
+        for(int i = insertedCurves.size() - 1; i >= 0; i--){
+            Vec3[] curve = (Vec3[])insertedCurves.elementAt(i);
+            int curveMidIndex = (int)(curve.length / 2);
+            double closestDistance = 999999;
+            Vec3[] closestCurve = null;
+            int closestIndex = -1;
+            for(int j = insertedCurves.size() - 1; j >= 0; j--){
+                Vec3[] compareCurve = (Vec3[])insertedCurves.elementAt(j);
+                int compareCurveMidIndex = (int)(compareCurve.length / 2);
+                if(i != j){
+                    double distance = curve[curveMidIndex].distance(compareCurve[compareCurveMidIndex]);
+                    if(distance < closestDistance){
+                        closestDistance = distance;
+                        closestCurve = compareCurve;
+                        closestIndex = j;
+                    }
+                }
+            }
+            if(closestCurve != null){
+                int closestCurveMidIndex = (int)(closestCurve.length / 2);
+                double aLength = curve[0].distance(curve[curveMidIndex]);
+                double bLength = closestCurve[0].distance(closestCurve[closestCurveMidIndex]);
+                double distance = curve[curveMidIndex].distance(closestCurve[closestCurveMidIndex]);
+                double shortestLength = Math.min(aLength, bLength);
+                if(aLength < bLength && (distance * regionScale) < (aLength)){
+                    insertedCurves.removeElementAt(closestIndex); // remove b
+                    deletedCurves++;
+                } else if (bLength < aLength && (distance * regionScale) < (bLength)){
+                    insertedCurves.removeElementAt(i); // remove a
+                    deletedCurves++;
+                }
+            }
+        }
+        System.out.println("Deleted curves: " + deletedCurves );
+        
+        
+        
+        //insertedCurves.addAll(autoMeshIteration(curves));
+        //insertedCurves.addAll(autoMeshIteration(curves));
     
         
-        // 7 Generaate triaangle mesh from all points selected and generated.
+        // Add curves to the scene as a debug visualization tool.
+        for(int i = 0; i < insertedCurves.size(); i++){
+            Vec3[] newCurvePoints = (Vec3[])insertedCurves.elementAt(i);
+            Curve newCurve = getCurve(newCurvePoints);
+            ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST ");
+            if(firstMidCurveInfo == null){
+                firstMidCurveInfo = midCurveInfo;
+            } else {
+                midCurveInfo.setParent(firstMidCurveInfo);
+                firstMidCurveInfo.addChild(midCurveInfo, firstMidCurveInfo.getChildren().length);
+            }
+            scene.addObject(midCurveInfo, null);
+        }
+        
+        
+        // 7 Generate triaangle mesh from all points selected and generated.
+        for(int i = 0; i < insertedCurves.size(); i++){
+            Vec3[] newCurvePoints = (Vec3[])insertedCurves.elementAt(i);
+            // calculate meshPoints as middle point in insertedCurves vector.
+            int midIndex = (int)(newCurvePoints.length / 2);
+            Vec3 midPoint = newCurvePoints[midIndex]; // 1 or middle
+            meshPoints.addElement(midPoint); // point for mesh
+        }
         TriangleMesh tm = pointsToMesh(meshPoints);
         ObjectInfo triangleMeshInfo = new ObjectInfo(tm, new CoordinateSystem(), "mesh ");
-        
         scene.addObject(triangleMeshInfo, null);
         
         layoutWindow.updateImage();
         //layoutWindow.updateMenus();
         layoutWindow.rebuildItemList();
+    }
+    
+    /**
+     *
+     *
+     */
+    public Vector<Vec3[]> autoMeshIteration(Vector curves ){
+        Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
+        HashMap completed = new HashMap();
+        
+        // 2 Subdivide selected splines to generate more points.
+            for(int c = 0; c < curves.size(); c++){
+                Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
+                curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
+                curves.setElementAt(curveVerts, c);
+                //for(int i = 0; i < curveVerts.length; i++){
+                //    meshPoints.addElement(curveVerts[i]);
+                //}
+            }
+        
+            // 3 Calculate spline vert point curve on 3 axies. (Midpoint - actual) / (edge distance).
+            HashMap vertCurveMap = new HashMap();
+            for(int c = 0; c < curves.size(); c++){
+                Vec3[] curve = (Vec3[])curves.elementAt(c);
+                for(int v = 1; v < curve.length - 1; v++){ // Ignore first and last as they don't have a curvature.
+                    Vec3 beforeVec = (Vec3)curve[(v - 1)];
+                    Vec3 afterVec = (Vec3)curve[(v + 1)];
+                    Vec3 vec = (Vec3)curve[v];
+                    Vec3 midpoint = beforeVec.midPoint(afterVec);
+                    double endsDistance = beforeVec.distance(afterVec);
+                    // Difference between midpoint and actual vec.
+                    Vec3 vecCurve = new Vec3(
+                                             /*
+                                             (Math.max(midpoint.x, vec.x) - Math.min(midpoint.x, vec.x)) / endsDistance,
+                                             (Math.max(midpoint.y, vec.y) - Math.min(midpoint.y, vec.y)) / endsDistance,
+                                             (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) / endsDistance
+                                              */
+                                             (midpoint.x - vec.x) / endsDistance,
+                                             (midpoint.y - vec.y) / endsDistance,
+                                             (midpoint.z - vec.z) / endsDistance
+                                             );
+                    String vecKey = c + "_" + v;
+                    vertCurveMap.put(vecKey, vecCurve);
+                    
+                    //System.out.println("AutoMesh point curve "  + vecKey + " x: " + vecCurve.x +  " y: " + vecCurve.y + " z: "+ vecCurve.z + "  d: " + endsDistance);
+                    //System.out.println("  encode  z "  + (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) + "  d: " + endsDistance + " = zcurve:" + vecCurve.z);
+                }
+            }
+            
+            // 4 For each point, with a vert angle (angle between neighbours), iterate all points in other splines.
+            int addedCurves = 0;
+            for(int c = 0; c < curves.size(); c++){
+                Vec3[] curve = (Vec3[])curves.elementAt(c);
+                for(int v = 1; v < curve.length - 1; v++){
+                    Vec3 vec = (Vec3)curve[v];
+                    // Compare
+                    for(int cx = 0; cx < curves.size(); cx++){              // each comparison curve
+                        if(c != cx){
+                            Vec3[] curvex = (Vec3[])curves.elementAt(cx);
+                            for(int vx = 1; vx < curvex.length - 1; vx++){  // eaach point in comparison curve
+                                String completedKey = Math.min(c, cx) + "-" + Math.min(v, vx) + "_" + Math.max(c, cx) + "-" + Math.max(v, vx);
+                                Vec3 vecx = (Vec3)curvex[vx];
+                                
+                                // 4 calculate mid point and offset by average of two edge point bends. skew average by distance.
+                                Vec3 midPoint = vec.midPoint(vecx);
+                                double distance = vec.distance(midPoint);
+                                
+                                // If midpoint is closer to any other spline point ignore.
+                                // 5 if midpoint is not closer to another (non spline from endpoints) then add new 3 point spline from
+                                // ends and new midpoint.
+                                if(
+                                    isClosest(curves, midPoint, distance, c, cx)
+                                   //&&
+                                    //isEvenPoints(curves, c, cx , v, vx)
+                                   ){
+                                    // Generate test curve for validation
+                                    
+                                    // Apply curvature to midpoint.
+                                    // TODO
+                                    String aCurvatureKey = c + "_" + v;
+                                    String bCurvatureKey = cx + "_" + vx;
+                                    Vec3 aCurvature = (Vec3)vertCurveMap.get(aCurvatureKey);
+                                    Vec3 bCurvature = (Vec3)vertCurveMap.get(bCurvatureKey);
+                                    if(aCurvature != null && bCurvature != null){
+                                        /*
+                                        double curveX = (aCurvature.x + bCurvature.x) / 2;
+                                        midPoint.x *= 1+ (curveX * distance * 2);
+                                        double curveY = (aCurvature.y + bCurvature.y) / 2;
+                                        midPoint.y *= 1+ (curveY * distance * 2);
+                                        double curveZ = (aCurvature.z + bCurvature.z) / 2;
+                                        midPoint.z *= 1+ (curveZ * distance * 2);
+                                        */
+                                    }
+                                    
+                                    Vec3 regionCurvature = getRegionCurvature(curves, vertCurveMap, midPoint, distance); //
+                                    /*
+                                    midPoint.x -= (regionCurvature.x * 1) * distance;
+                                    midPoint.y -= (regionCurvature.y * 1) * distance;
+                                    midPoint.z -= (regionCurvature.z * 1) * distance;
+                                    */
+                                    midPoint.x -= ((regionCurvature.x * 1) * distance) * 2;
+                                    midPoint.y -= ((regionCurvature.y * 1) * distance) * 2;
+                                    midPoint.z -= ((regionCurvature.z * 1) * distance) * 2;
+                                    
+                                    //System.out.println(" decode regionCurvature.z: " + regionCurvature.z + " distance: " + distance + " offset " + (regionCurvature.z  * distance) );
+                                    
+                                    Vec3[] newCurvePoints = new Vec3[3];
+                                    newCurvePoints[0] = vec;
+                                    newCurvePoints[1] = midPoint;
+                                    newCurvePoints[2] = vecx;
+                                    
+                                    // 6 subdivide new splines.
+                                    newCurvePoints = subdivideCurve(newCurvePoints, 1); // subdivide mid splines (OPTIONAL)
+                                    /*
+                                    Curve newCurve = getCurve(newCurvePoints);
+                                    
+                                    ObjectInfo midCurveInfo = new ObjectInfo(newCurve, new CoordinateSystem(), "TEST " + regionCurvature.z + " " + distance);
+                                    
+                                    if(firstMidCurveInfo == null){
+                                        firstMidCurveInfo = midCurveInfo;
+                                    } else {
+                                        midCurveInfo.setParent(firstMidCurveInfo);
+                                        firstMidCurveInfo.addChild(midCurveInfo, firstMidCurveInfo.getChildren().length);
+                                    }
+                                    */
+                                    
+                                    if(completed.containsKey(completedKey) == false ){
+                                        
+                                        
+                                        insertedCurves.addElement(newCurvePoints);
+                                        
+                                        //scene.addObject(midCurveInfo, null);
+                                        
+                                        //meshPoints.addElement(midPoint); // point for mesh
+                                        
+                                        addedCurves++;
+                                    }
+                                    
+                                    completed.put(completedKey, true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            System.out.println("Added curves: " + addedCurves );
+            
+            // 5
+            // Optimization; If multiple infill points occupy the same region, remove the one with the longest span
+            // as it is likely to be inacurate?
+            // Determine region size. Iterate each point and find the next closest point, The region is the shortest span
+            double regionScale = 1.5; // higher means fewer deletions.
+            int deletedCurves = 0;
+            for(int i = insertedCurves.size() - 1; i >= 0; i--){
+                Vec3[] curve = (Vec3[])insertedCurves.elementAt(i);
+                int curveMidIndex = (int)(curve.length / 2);
+                double closestDistance = 999999;
+                Vec3[] closestCurve = null;
+                int closestIndex = -1;
+                for(int j = insertedCurves.size() - 1; j >= 0; j--){
+                    Vec3[] compareCurve = (Vec3[])insertedCurves.elementAt(j);
+                    int compareCurveMidIndex = (int)(compareCurve.length / 2);
+                    if(i != j){
+                        double distance = curve[curveMidIndex].distance(compareCurve[compareCurveMidIndex]);
+                        if(distance < closestDistance){
+                            closestDistance = distance;
+                            closestCurve = compareCurve;
+                            closestIndex = j;
+                        }
+                    }
+                }
+                if(closestCurve != null){
+                    int closestCurveMidIndex = (int)(closestCurve.length / 2);
+                    double aLength = curve[0].distance(curve[curveMidIndex]);
+                    double bLength = closestCurve[0].distance(closestCurve[closestCurveMidIndex]);
+                    double distance = curve[curveMidIndex].distance(closestCurve[closestCurveMidIndex]);
+                    double shortestLength = Math.min(aLength, bLength);
+                    if(aLength < bLength && (distance * regionScale) < (aLength)){
+                        insertedCurves.removeElementAt(closestIndex); // remove b
+                        deletedCurves++;
+                    } else if (bLength < aLength && (distance * regionScale) < (bLength)){
+                        insertedCurves.removeElementAt(i); // remove a
+                        deletedCurves++;
+                    }
+                }
+            }
+            System.out.println("Deleted curves: " + deletedCurves );
+        
+        return insertedCurves;
     }
     
     /**
