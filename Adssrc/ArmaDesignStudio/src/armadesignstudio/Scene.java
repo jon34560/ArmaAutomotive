@@ -1955,6 +1955,11 @@ public class Scene
 
          */
     }
+    
+    public void autoSkinByVoids(LayoutWindow layoutWindow){
+        SplineSkin skin = new SplineSkin();
+        skin.autoSkinByVoids(this, layoutWindow, objects);
+    }
 
     /**
      * splineGridSkin

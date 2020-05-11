@@ -750,6 +750,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // TODO
     // new SkinDialog(window, curves);
     toolsMenu.add(Translate.menuItem("Auto Skin", this, "autoSkin"));
+      toolsMenu.add(Translate.menuItem("Auto Skin by Voids", this, "autoSkinByVoids"));
       
       toolsMenu.add(Translate.menuItem("Spline Grid Skin", this, "splineGridSkin"));
 
@@ -2864,6 +2865,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
          theScene.autoSkin(this);
       }
   }
+    
+    public void autoSkinByVoids(){
+        if(theScene != null){
+           theScene.autoSkinByVoids(this);
+        }
+    }
     
     public void splineGridSkin(){
         if(theScene != null){

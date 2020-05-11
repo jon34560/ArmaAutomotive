@@ -52,24 +52,122 @@ public class SplineSkin extends Thread {
     /**
      * autoSkinBySpace
      *
-     * Description:
+     * Description: create smoothed mesh from a selection of curves. Use evenly spaced voids to calculate where midpoints should be.
      */
-    public void autoSkinBySpace(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
+    public void autoSkinByVoids(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
         LayoutModeling layout = new LayoutModeling();
         Vector curves = new Vector();
         HashMap completed = new HashMap();
         Vector meshPoints = new Vector();
         ObjectInfo firstMidCurveInfo = null; // debug curves for visualization of process.
         Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
+        System.out.println("autoSkinByVoids " );
+        
+        // 1 Get scene selection
+        for (ObjectInfo obj : objects){
+            if(obj.selected == true){
+                Object co = (Object)obj.getObject();
+                if((co instanceof Curve) == true){
+                    Mesh mesh = (Mesh) obj.getObject(); // Object3D
+                    Vec3 [] curveVerts = mesh.getVertexPositions();
+                    //Vector<Vec3> verts = new Vector<Vec3>();
+
+                    // translate local coords with obj location.
+                    CoordinateSystem c;
+                    c = layout.getCoords(obj);
+                    Vec3 objOrigin = c.getOrigin();
+                    for (Vec3 vert : curveVerts){
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vert);
+                        //System.out.println("    vert: " + vert.x + " " + vert.y + "  " + vert.z );
+                        //verts.addElement(vert);
+                    }
+                    // public Vec3 [] subdivideCurve(Vec3 [] curveVerts, int subdivisions){
+                    //curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
+                    curves.addElement(curveVerts);
+                }
+            }
+        }
         
         
-        // 1 Subdivide selected curves.
+        // 2 Subdivide selected splines to generate more points.
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
+            curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
+            curves.setElementAt(curveVerts, c);
+            for(int i = 0; i < curveVerts.length; i++){
+                meshPoints.addElement(curveVerts[i]);
+            }
+        }
+        
+        // 3 Calculate spline vert point curve on 3 axies. (Midpoint - actual) / (edge distance).
+        HashMap vertCurveMap = new HashMap();
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curve = (Vec3[])curves.elementAt(c);
+            for(int v = 1; v < curve.length - 1; v++){ // Ignore first and last as they don't have a curvature.
+                Vec3 beforeVec = (Vec3)curve[(v - 1)];
+                Vec3 afterVec = (Vec3)curve[(v + 1)];
+                Vec3 vec = (Vec3)curve[v];
+                Vec3 midpoint = beforeVec.midPoint(afterVec);
+                double endsDistance = beforeVec.distance(afterVec);
+                // Difference between midpoint and actual vec.
+                Vec3 vecCurve = new Vec3(
+                                         /*
+                                         (Math.max(midpoint.x, vec.x) - Math.min(midpoint.x, vec.x)) / endsDistance,
+                                         (Math.max(midpoint.y, vec.y) - Math.min(midpoint.y, vec.y)) / endsDistance,
+                                         (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) / endsDistance
+                                          */
+                                         (midpoint.x - vec.x) / endsDistance,
+                                         (midpoint.y - vec.y) / endsDistance,
+                                         (midpoint.z - vec.z) / endsDistance
+                                         );
+                String vecKey = c + "_" + v;
+                vertCurveMap.put(vecKey, vecCurve);
+                
+                //System.out.println("AutoMesh point curve "  + vecKey + " x: " + vecCurve.x +  " y: " + vecCurve.y + " z: "+ vecCurve.z + "  d: " + endsDistance);
+                //System.out.println("  encode  z "  + (Math.max(midpoint.z, vec.z) - Math.min(midpoint.z, vec.z)) + "  d: " + endsDistance + " = zcurve:" + vecCurve.z);
+            }
+        }
+        
         
         // 2 Calculate points in empty space within the bounds of at least three curves.
+        // for each combination of three or two curves calculate the mid point.
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
+            for(int c2 = 0; c2 < curves.size(); c2++){
+                if(c != c2){
+                    Vec3[] curveVerts2 = (Vec3[])curves.elementAt(c2);
+                    
+                    int cMidIndex = (int)(curveVerts.length / 2);
+                    int c2MidIndex = (int)(curveVerts2.length / 2);
+                    
+                    Vec3 aMidVec = curveVerts[cMidIndex];
+                    Vec3 bMidVec = curveVerts2[cMidIndex];
+                    
+                    Vec3 midPoint = aMidVec.midPoint(bMidVec);
+                    
+                    
+                    Vec3[] newCurvePoints = new Vec3[3];
+                    newCurvePoints[0] = aMidVec;
+                    newCurvePoints[1] = midPoint;
+                    newCurvePoints[2] = bMidVec;
+                    Curve curve = getCurve(newCurvePoints);
+                    ObjectInfo midCurveInfo = new ObjectInfo(curve, new CoordinateSystem(), "TEST ");
+                    scene.addObject(midCurveInfo, null);
+                    
+                }
+            }
+        }
         
         
+        // 3 create curve
+        
+        // 4 add mesh
         
         
+        layoutWindow.updateImage();
+        //layoutWindow.updateMenus();
+        layoutWindow.rebuildItemList();
     }
     
     /**
@@ -114,7 +212,6 @@ public class SplineSkin extends Thread {
                 }
             }
         }
-        
         
         
         // 2 Subdivide selected splines to generate more points.
@@ -234,8 +331,6 @@ public class SplineSkin extends Thread {
                                 */
                                 
                                 if(completed.containsKey(completedKey) == false ){
-                                    
-                                    
                                     insertedCurves.addElement(newCurvePoints);
                                     
                                     //scene.addObject(midCurveInfo, null);
