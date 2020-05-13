@@ -731,6 +731,7 @@ public class ArmaDesignStudio
 
     // Finally add the objects to the scene.
     // If an object is selected, add it as a child to that selected object.
+      // JDT: Bug with children objects.
       
     ObjectInfo obj[] = ObjectInfo.duplicateAll(clipboardObject);
       for (int i = 0; i < obj.length; i++){
@@ -738,10 +739,15 @@ public class ArmaDesignStudio
           
           // If an object is selected, set the new paste object as a child.
           if(sel.length > 0){
-              ObjectInfo selected = scene.getObject(sel[0]);
-              if( selected.getName().equals(obj[i].getName()) == false){ // Don't add as child if the name is the same.
-                  obj[i].setParent(selected);
-                  selected.addChild(obj[i], selected.getChildren().length);
+              ObjectInfo selected = scene.getObject(sel[0]); // target
+              
+              ObjectInfo[] selChildren = selected.getChildren();
+              ObjectInfo[] clipboardChildren = obj[i].getChildren();
+              //System.out.println("len: " + selChildren.length + " - " + selected.getName());
+              
+              if( selected.getName().equals(obj[i].getName()) == false && clipboardChildren.length == 0){ // Don't add as child if the name is the same. (or child)
+                  //obj[i].setParent(selected);
+                  //selected.addChild(obj[i], selected.getChildren().length);
               }
           }
       }

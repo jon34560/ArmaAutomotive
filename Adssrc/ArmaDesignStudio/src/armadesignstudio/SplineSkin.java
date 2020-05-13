@@ -146,6 +146,8 @@ public class SplineSkin extends Thread {
                     
                     Vec3 midPoint = aMidVec.midPoint(bMidVec);
                     
+                    // Hash these
+                    // duplicates
                     
                     Vec3[] newCurvePoints = new Vec3[3];
                     newCurvePoints[0] = aMidVec;
@@ -168,6 +170,11 @@ public class SplineSkin extends Thread {
         layoutWindow.updateImage();
         //layoutWindow.updateMenus();
         layoutWindow.rebuildItemList();
+    }
+    
+    public Vector<Vec3[]> smartSubdivideCurves(Vector<Vec3[]> curves){
+        
+        return null;
     }
     
     /**
