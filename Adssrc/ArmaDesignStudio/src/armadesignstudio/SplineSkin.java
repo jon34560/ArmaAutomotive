@@ -172,9 +172,99 @@ public class SplineSkin extends Thread {
         layoutWindow.rebuildItemList();
     }
     
+    /**
+     * smartSubdivideCurves
+     *
+     * Description: subdivide to segments that line up with perpendicular intersecting curves for better mesh generaation.
+     *
+     */
     public Vector<Vec3[]> smartSubdivideCurves(Vector<Vec3[]> curves){
+        Vector<Vec3[]> result = new Vector<Vec3[]>();
+        Vector<Vec3[]> tempCurves = new Vector<Vec3[]>();
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
+            Vec3[] copy = new Vec3[curveVerts.length];
+            for(int v = 0; v < curveVerts.length; v++){
+                copy[v] = new Vec3( curveVerts[v] );
+            }
+            tempCurves.addElement(copy);
+        }
         
-        return null;
+        for(int c = 0; c < tempCurves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])tempCurves.elementAt(c);
+            curveVerts = subdivideCurve(curveVerts, 5); // 3 or 4
+            tempCurves.setElementAt(curveVerts, c);
+        }
+        
+        // How many other curves intersect with each curve.
+        HashMap<Integer, HashMap<Integer, Boolean>> curveIntersections = new HashMap<Integer, HashMap<Integer, Boolean>>();
+        for(int c = 0; c < tempCurves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])tempCurves.elementAt(c);
+            double intersectRange = 999999; if(curveVerts.length > 1){intersectRange = curveVerts[0].distance(curveVerts[1]);}
+            for( int cv = 0; cv < curveVerts.length; cv++ ){
+                Vec3 vec = curveVerts[cv];
+                for(int c2 = 0; c2 < tempCurves.size(); c2++){
+                    if(c != c2){
+                        Vec3[] curveVerts2 = (Vec3[])tempCurves.elementAt(c2);
+                        for( int c2v = 0; c2v < curveVerts2.length; c2v++ ){
+                            Vec3 vec2 = curveVerts2[c2v];
+                            
+                            double vecDistance = vec.distance(vec2);
+                            if( vecDistance < intersectRange * 2){
+                                
+                                // Curve c has an intersecting curve of c2.
+                                HashMap<Integer, Boolean> intersections = curveIntersections.get(c);
+                                if(intersections == null){
+                                    intersections = new HashMap<Integer, Boolean>();
+                                }
+                                intersections.put(c2, true);
+                                curveIntersections.put(c, intersections);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Create data structure representing desired number of points for each curve.
+        HashMap<Integer, Integer> curveIntersectionCounts = new HashMap<Integer, Integer>();
+        Iterator hmIterator = curveIntersections.entrySet().iterator();
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry)hmIterator.next();
+            int curveIndex = (int)mapElement.getKey();
+            //System.out.println("Curve " + curveIndex );
+            
+            HashMap<Integer, Boolean> intersections = (HashMap<Integer, Boolean>)mapElement.getValue();
+            Iterator hmIntersectIterator = intersections.entrySet().iterator();
+            int count = 0;
+            while (hmIntersectIterator.hasNext()) {
+                Map.Entry intersectMapElement = (Map.Entry)hmIntersectIterator.next();
+                int intersectIndex = (int)intersectMapElement.getKey();
+                //System.out.println("    -> " + intersectIndex);
+                count++;
+            }
+            curveIntersectionCounts.put(curveIndex, count);
+        }
+        
+        for(int c = 0; c < curves.size(); c++){
+            Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
+            int intersections = curveIntersectionCounts.get(c);
+            int targetPoints = (intersections * 2) - 1;
+            int existingPoints = curveVerts.length;
+            
+            while(curveVerts.length < targetPoints){
+                curveVerts = subdivideCurve(curveVerts, 1);
+                curves.setElementAt(curveVerts, c);
+            }
+            
+            //curveVerts = subdivideCurve(curveVerts, 1);
+            //curves.setElementAt(curveVerts, c);
+            
+            System.out.println("Curve: " + c + " points: " + existingPoints + " target:  " + targetPoints + " result " + curveVerts.length );
+        }
+        
+        return curves;
     }
     
     /**
@@ -222,10 +312,14 @@ public class SplineSkin extends Thread {
         
         
         // 2 Subdivide selected splines to generate more points.
+        
+        smartSubdivideCurves(curves);
+        // curves to meshPoints
+        
         for(int c = 0; c < curves.size(); c++){
             Vec3[] curveVerts = (Vec3[])curves.elementAt(c);
-            curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
-            curves.setElementAt(curveVerts, c);
+            //curveVerts = subdivideCurve(curveVerts, 2); // 3 or 4
+            //curves.setElementAt(curveVerts, c);
             for(int i = 0; i < curveVerts.length; i++){
                 meshPoints.addElement(curveVerts[i]);
             }
