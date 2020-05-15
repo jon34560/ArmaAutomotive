@@ -530,7 +530,7 @@ public class SplineSkin extends Thread {
     }
     
     /**
-     *
+     * In progress experiment
      *
      */
     public Vector<Vec3[]> autoMeshIteration(Vector curves ){
@@ -723,16 +723,15 @@ public class SplineSkin extends Thread {
      *
      * Description: Given a point cloud, caalculate edges and faces to generate a surface mesh.
      */
-    public TriangleMesh pointsToMesh(Vector <Vec3> meshPoints){
+    public TriangleMesh pointsToMesh(Vector<Vec3> meshPoints){
         Vec3 [] meshVerts = new Vec3[meshPoints.size()];
-        Vector face = new Vector();     // Vector of int[3] vec indexes
+        Vector face = new Vector();                             // Vector of int[3] vec indexes
         for(int i = 0; i < meshPoints.size(); i++){
             meshVerts[i] = (Vec3)meshPoints.elementAt(i);
         }
         
         Vector facePoints = new Vector(meshPoints);
         HashMap pointsUsed = new HashMap();
-        
         HashMap edges = new HashMap();
         HashMap edgeIndexes = new HashMap();
         
@@ -744,6 +743,10 @@ public class SplineSkin extends Thread {
             int thirdClosestPointIndex = -1;
             int fourthClosestPointIndex = -1;
             int fifthClosestPointIndex = -1;
+            int sixthClosestPointIndex = -1;
+            int seventhClosestPointIndex = -1;
+            
+            
             
             double distance = 999999;
             for(int i = 0; i < facePoints.size(); i++){
@@ -799,6 +802,33 @@ public class SplineSkin extends Thread {
                     fifthClosestPointIndex = i;
                 }
             }
+            double sixthDistance = 99999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < sixthDistance && i != closestPointIndex && i != p &&
+                   i != secondClosestPointIndex &&
+                   i != thirdClosestPointIndex &&
+                   i != fourthClosestPointIndex &&
+                   i != fifthClosestPointIndex ){
+                    sixthDistance = d;
+                    sixthClosestPointIndex = i;
+                }
+            }
+            double seventhDistance = 99999999;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                if(d < seventhDistance && i != closestPointIndex && i != p &&
+                   i != secondClosestPointIndex &&
+                   i != thirdClosestPointIndex &&
+                   i != fourthClosestPointIndex &&
+                   i != fifthClosestPointIndex &&
+                   i != sixthClosestPointIndex ){
+                    seventhDistance = d;
+                    seventhClosestPointIndex = i;
+                }
+            }
             
             //if(  pointsUsed.containsKey(p) == false &&
             //   pointsUsed.containsKey(closestPointIndex) == false &&
@@ -824,6 +854,10 @@ public class SplineSkin extends Thread {
             edges.put(edgeKey4, true);
             String edgeKey5 = Math.min(p, fifthClosestPointIndex) + "_" + Math.max(p, fifthClosestPointIndex);
             edges.put(edgeKey5, true);
+            String edgeKey6 = Math.min(p, sixthClosestPointIndex) + "_" + Math.max(p, sixthClosestPointIndex);
+            edges.put(edgeKey6, true);
+            String edgeKey7 = Math.min(p, seventhClosestPointIndex) + "_" + Math.max(p, seventhClosestPointIndex);
+            edges.put(edgeKey6, true);
         }
         
         // Find faces from edges
