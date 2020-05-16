@@ -189,6 +189,39 @@ public class Vec3
       }
   }
   
+    
+    /**
+     * getAngle
+     *
+     * Description: get an angle between the vectors (a,b) and (a, b2) only on the
+     *
+     *
+     * @param: Vec3 a.
+     * @param: Vec3 b.
+     * @param: Vec3 c.
+     */
+    public Vec3 getAngle(Vec3 a, Vec3 b, Vec3 c){ //
+        Vec3 result = new Vec3();
+        double angle = 0;
+        // Scale to a.
+        double x1 = b.x - a.x;     // 1 = b
+        double x2 = c.x - a.x;     // 2 = b2
+        double y1 = b.y - a.y;
+        double y2 = c.y - a.y;
+        //System.out.println("     - x1: " + x1 + " y1: " + y1 + "   x2: " + x2 + " y2: " + y2 );
+        //System.out.println(" angle  " + ( x1 * x2 + y1 * y2 ));
+        double angleA = (float) Math.atan2(a.y - b.y, a.x - b.x);
+        float angleB = (float) Math.atan2(a.y - c.y, a.x - c.x);
+        angle = angleB - angleA;
+        /*double angleX = Math.acos(
+                          ( x1 * x2 + y1 * y2 ) /
+                          ( Math.sqrt(x1*x1 + y1*y1) * Math.sqrt(x2*x2 + y2*y2) )
+                          ); // only returns absolute angle which is not useful.*/
+        //System.out.println("  angle " + angle + "  x " + angleX);
+        return result;
+    }
+    
+    
     public final Vec3 midPoint(Vec3 otherPoint){
         Vec3 midpoint = new Vec3(
          (x + otherPoint.x) / 2,

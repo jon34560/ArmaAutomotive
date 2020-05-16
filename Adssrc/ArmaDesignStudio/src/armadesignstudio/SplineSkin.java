@@ -737,7 +737,14 @@ public class SplineSkin extends Thread {
         
         for(int p = 0; p < facePoints.size(); p++){
             Vec3 point = (Vec3)facePoints.elementAt(p);
-            Vec3 closestPoint = null;
+            Vec3 closestPoint = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            Vec3 closestPoint2 = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            Vec3 closestPoint3 = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            Vec3 closestPoint4 = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            Vec3 closestPoint5 = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            Vec3 closestPoint6 = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            Vec3 closestPoint7 = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            
             int closestPointIndex = -1;
             int secondClosestPointIndex = -1;
             int thirdClosestPointIndex = -1;
@@ -745,10 +752,15 @@ public class SplineSkin extends Thread {
             int fifthClosestPointIndex = -1;
             int sixthClosestPointIndex = -1;
             int seventhClosestPointIndex = -1;
+            int eighthClosestPointIndex = -1;
+            
+            Vector<Vec3> comparePoints = new Vector<Vec3>();
+            // distance
+            Vec3 point2Angle = new Vec3();
+            // normalize();
             
             
-            
-            double distance = 999999;
+            double distance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
@@ -756,77 +768,118 @@ public class SplineSkin extends Thread {
                     distance = d;
                     closestPoint = px;
                     closestPointIndex = i;
-                    
-                    //facePoints.removeElementAt(i);
                 }
             }
-            double secondDistance = 9999999;
+            double secondDistance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
-                if(d < secondDistance && i != closestPointIndex && i != p){
+                double d_1_2 = px.distance(closestPoint);
+                if(d < secondDistance &&
+                   i != closestPointIndex &&
+                   distance < (d_1_2/2) &&                  // point1 and point2 must be farther away from each other than p-point1.
+                   i != p){
                     secondDistance = d;
-                    //closestPoint = px;
+                    closestPoint2 = px;
                     secondClosestPointIndex = i;
-                    
-                    //facePoints.removeElementAt(i);
                 }
             }
-            double thirdDistance = 99999999;
+            double thirdDistance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
-                if(d < thirdDistance && i != closestPointIndex && i != p && i != secondClosestPointIndex){
+                double d_con = Math.min(px.distance(closestPoint), px.distance(closestPoint2));
+                if(d < thirdDistance &&
+                   i != closestPointIndex &&
+                   i != p &&
+                   i != secondClosestPointIndex &&
+                   secondDistance > (d_con/2)
+                   ){
                     thirdDistance = d;
                     thirdClosestPointIndex = i;
+                    closestPoint3 = px;
                 }
             }
-            double fourthDistance = 99999999;
+            double fourthDistance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
-                if(d < fourthDistance && i != closestPointIndex && i != p && i != secondClosestPointIndex && i != thirdClosestPointIndex){
+                double d_con = Math.min(Math.min(px.distance(closestPoint), px.distance(closestPoint2)), px.distance(closestPoint3));
+                if(d < fourthDistance &&
+                   i != closestPointIndex &&
+                   i != p &&
+                   i != secondClosestPointIndex &&
+                   i != thirdClosestPointIndex &&
+                   thirdDistance > (d_con/2)
+                   ){
                     fourthDistance = d;
                     fourthClosestPointIndex = i;
+                    closestPoint4 = px;
                 }
             }
-            double fifthDistance = 99999999;
+            double fifthDistance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
+                double d_con = Math.min(Math.min(Math.min(px.distance(closestPoint), px.distance(closestPoint2)), px.distance(closestPoint3)), px.distance(closestPoint4));
                 if(d < fifthDistance && i != closestPointIndex && i != p &&
                    i != secondClosestPointIndex &&
                    i != thirdClosestPointIndex &&
-                   i != fourthClosestPointIndex){
+                   i != fourthClosestPointIndex &&
+                   fourthDistance > (d_con/2)){
                     fifthDistance = d;
                     fifthClosestPointIndex = i;
+                    closestPoint5 = px;
                 }
             }
-            double sixthDistance = 99999999;
+            double sixthDistance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
+                double d_con = Math.min(Math.min(Math.min(Math.min(px.distance(closestPoint), px.distance(closestPoint2)), px.distance(closestPoint3)), px.distance(closestPoint4)), px.distance(closestPoint5));
                 if(d < sixthDistance && i != closestPointIndex && i != p &&
                    i != secondClosestPointIndex &&
                    i != thirdClosestPointIndex &&
                    i != fourthClosestPointIndex &&
-                   i != fifthClosestPointIndex ){
+                   i != fifthClosestPointIndex &&
+                   fifthDistance > (d_con/2)){
                     sixthDistance = d;
                     sixthClosestPointIndex = i;
+                    closestPoint6 = px;
                 }
             }
-            double seventhDistance = 99999999;
+            double seventhDistance = Double.MAX_VALUE;
             for(int i = 0; i < facePoints.size(); i++){
                 Vec3 px = (Vec3)facePoints.elementAt(i);
                 double d = point.distance(px);
+                double d_con = Math.min(Math.min(Math.min(Math.min(Math.min(px.distance(closestPoint), px.distance(closestPoint2)), px.distance(closestPoint3)), px.distance(closestPoint4)), px.distance(closestPoint5)), px.distance(closestPoint6));
                 if(d < seventhDistance && i != closestPointIndex && i != p &&
                    i != secondClosestPointIndex &&
                    i != thirdClosestPointIndex &&
                    i != fourthClosestPointIndex &&
                    i != fifthClosestPointIndex &&
-                   i != sixthClosestPointIndex ){
+                   i != sixthClosestPointIndex &&
+                   sixthDistance > (d_con/2)){
                     seventhDistance = d;
                     seventhClosestPointIndex = i;
+                    closestPoint7 = px;
+                }
+            }
+            double eighthDistance = Double.MAX_VALUE;
+            for(int i = 0; i < facePoints.size(); i++){
+                Vec3 px = (Vec3)facePoints.elementAt(i);
+                double d = point.distance(px);
+                
+                if(d < eighthDistance && i != closestPointIndex && i != p &&
+                   i != secondClosestPointIndex &&
+                   i != thirdClosestPointIndex &&
+                   i != fourthClosestPointIndex &&
+                   i != fifthClosestPointIndex &&
+                   i != sixthClosestPointIndex
+                   ){
+                    eighthDistance = d;
+                    eighthClosestPointIndex = i;
+                    //closestPoint8 = px;
                 }
             }
             
@@ -839,9 +892,9 @@ public class SplineSkin extends Thread {
                 //face.addElement( indexes ); // TEMP prototype only
                 //System.out.println(" mesh face " + p + " " + closestPointIndex + " "  + secondClosestPointIndex);
             //}
-            pointsUsed.put( p, true );
-            pointsUsed.put( closestPointIndex, true );
-            pointsUsed.put( secondClosestPointIndex, true );
+            //pointsUsed.put( p, true );
+            //pointsUsed.put( closestPointIndex, true );
+            //pointsUsed.put( secondClosestPointIndex, true );
             
             
             String edgeKey = Math.min(p, closestPointIndex) + "_" + Math.max(p, closestPointIndex);
@@ -857,7 +910,9 @@ public class SplineSkin extends Thread {
             String edgeKey6 = Math.min(p, sixthClosestPointIndex) + "_" + Math.max(p, sixthClosestPointIndex);
             edges.put(edgeKey6, true);
             String edgeKey7 = Math.min(p, seventhClosestPointIndex) + "_" + Math.max(p, seventhClosestPointIndex);
-            edges.put(edgeKey6, true);
+            edges.put(edgeKey7, true);
+            String edgeKey8 = Math.min(p, eighthClosestPointIndex) + "_" + Math.max(p, eighthClosestPointIndex);
+            edges.put(edgeKey8, true);
         }
         
         // Find faces from edges
