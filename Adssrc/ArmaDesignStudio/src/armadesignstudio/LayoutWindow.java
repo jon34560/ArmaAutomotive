@@ -622,19 +622,21 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   {
     editMenu = Translate.menu("edit");
     menubar.add(editMenu);
-    editMenuItem = new BMenuItem [9];
+    editMenuItem = new BMenuItem [10];
     editMenu.add(editMenuItem[0] = Translate.menuItem("undo", this, "undoCommand"));
     editMenu.add(editMenuItem[1] = Translate.menuItem("redo", this, "redoCommand"));
     editMenu.addSeparator();
     editMenu.add(editMenuItem[2] = Translate.menuItem("cut", this, "cutCommand"));
     editMenu.add(editMenuItem[3] = Translate.menuItem("copy", this, "copyCommand"));
     editMenu.add(editMenuItem[4] = Translate.menuItem("paste", this, "pasteCommand"));
-    editMenu.add(editMenuItem[5] = Translate.menuItem("clear", this, "clearCommand"));
-    editMenu.add(editMenuItem[6] = Translate.menuItem("selectChildren", this, "actionPerformed"));
+      editMenu.add(editMenuItem[5] = Translate.menuItem("Paste as child", this, "pasteAsChildCommand"));
+      
+    editMenu.add(editMenuItem[6] = Translate.menuItem("clear", this, "clearCommand"));
+    editMenu.add(editMenuItem[7] = Translate.menuItem("selectChildren", this, "actionPerformed"));
     editMenu.add(Translate.menuItem("selectAll", this, "selectAllCommand"));
     editMenu.addSeparator();
-    editMenu.add(editMenuItem[7] = Translate.menuItem("duplicate", this, "duplicateCommand"));
-    editMenu.add(editMenuItem[8] = Translate.menuItem("sever", this, "severCommand"));
+    editMenu.add(editMenuItem[8] = Translate.menuItem("duplicate", this, "duplicateCommand"));
+    editMenu.add(editMenuItem[9] = Translate.menuItem("sever", this, "severCommand"));
     editMenu.addSeparator();
     editMenu.add(Translate.menuItem("preferences", this, "preferencesCommand"));
   }
@@ -898,7 +900,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   private void createPopupMenu()
   {
     popupMenu = new BPopupMenu();
-    popupMenuItem = new BMenuItem [15];
+    popupMenuItem = new BMenuItem [16];
     popupMenu.add(popupMenuItem[0] = Translate.menuItem("editObject", this, "editObjectCommand", null));
     popupMenu.add(popupMenuItem[1] = Translate.menuItem("objectLayout", this, "objectLayoutCommand", null));
     popupMenu.add(popupMenuItem[2] = Translate.menuItem("setTextureAndMaterial", this, "setTextureCommand", null));
@@ -915,9 +917,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     popupMenu.add(popupMenuItem[10] = Translate.menuItem("cut", this, "cutCommand", null));
     popupMenu.add(popupMenuItem[11] = Translate.menuItem("copy", this, "copyCommand", null));
     popupMenu.add(popupMenuItem[12] = Translate.menuItem("paste", this, "pasteCommand", null));
-    popupMenu.add(popupMenuItem[13] = Translate.menuItem("clear", this, "clearCommand", null));
+      popupMenu.add(popupMenuItem[13] = Translate.menuItem("Paste as child", this, "pasteAsChildCommand"));
+    popupMenu.add(popupMenuItem[14] = Translate.menuItem("clear", this, "clearCommand", null));
     popupMenu.addSeparator();
-    popupMenu.add(popupMenuItem[14] = Translate.menuItem("zoomToObject", this, "zoomToObject", null)); 
+    popupMenu.add(popupMenuItem[15] = Translate.menuItem("zoomToObject", this, "zoomToObject", null));
   }
 
   // JDT
@@ -2081,11 +2084,22 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     int which[] = new int [ArmaDesignStudio.getClipboardSize()], num = theScene.getNumObjects();
     for (int i = 0; i < which.length; i++)
       which[i] = num+i;
-    ArmaDesignStudio.pasteClipboard(this);
+    ArmaDesignStudio.pasteClipboard(this, false);
     setSelection(which);
     rebuildItemList();
     updateImage();
   }
+    
+    public void pasteAsChildCommand()
+    {
+      int which[] = new int [ArmaDesignStudio.getClipboardSize()], num = theScene.getNumObjects();
+      for (int i = 0; i < which.length; i++)
+        which[i] = num+i;
+      ArmaDesignStudio.pasteClipboard(this, true);
+      setSelection(which);
+      rebuildItemList();
+      updateImage();
+    }
 
   public void clearCommand()
   {

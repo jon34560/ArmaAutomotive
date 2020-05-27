@@ -396,7 +396,9 @@ public class TriMeshSimplifier implements Runnable
         con.c = temp1.x*temp2.y - temp1.y*temp2.x;
         con.d = -(con.a*v[edge[i].v1].r.x + con.b*v[edge[i].v1].r.y + con.c*v[edge[i].v1].r.z);
         vertex[edge[i].v1].zone.con[vertex[edge[i].v1].zone.constraints++] = con;
-        vertex[edge[i].v2].zone.con[vertex[edge[i].v2].zone.constraints++] = con;
+          //System.out.println(" vert " + vertex.length + " i " + edge[i].v2);
+          //System.out.println(" edge " + vertex.length + " v2 " + edge[i].v2);
+          vertex[edge[i].v2].zone.con[vertex[edge[i].v2].zone.constraints++] = con; // out of bounds error
       }
 
     // Record the initial cost associated with each edge, and bring the lowest cost edge

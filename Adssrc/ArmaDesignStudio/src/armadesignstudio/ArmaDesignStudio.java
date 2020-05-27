@@ -1,5 +1,5 @@
 /* Copyright (C) 1999-2013 by Peter Eastman
-   Copyright (C) 1999-2013 by Peter Eastman
+   Copyright (C) 2020 by Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -643,7 +643,7 @@ public class ArmaDesignStudio
    * Paste the contents of the clipboard into a window.
    * If a scene object is selected and it's name is not the same as the clipboard object then add the paste object as a child.
    * */
-  public static void pasteClipboard(LayoutWindow win)
+  public static void pasteClipboard(LayoutWindow win, boolean asChild)
   {
     if (clipboardObject == null)
       return;
@@ -746,8 +746,10 @@ public class ArmaDesignStudio
               //System.out.println("len: " + selChildren.length + " - " + selected.getName());
               
               if( selected.getName().equals(obj[i].getName()) == false && clipboardChildren.length == 0){ // Don't add as child if the name is the same. (or child)
-                  //obj[i].setParent(selected);
-                  //selected.addChild(obj[i], selected.getChildren().length);
+                  if(asChild){
+                      obj[i].setParent(selected);
+                      selected.addChild(obj[i], selected.getChildren().length);
+                  }
               }
           }
       }
