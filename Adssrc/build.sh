@@ -1,4 +1,4 @@
-#ant -buildfile Translators.xml
+#
+# Run the ant build process
+#
 ant -buildfile ArmaDesignStudio.xml
-
-#ant -buildfile OpenCarDesignStudio.xml
