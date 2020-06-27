@@ -2964,7 +2964,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void connectedCurvesToMeshCommand(){
         if(theScene != null){
-           theScene.connectedCurvesToMeshCommand(this);
+           theScene.connectedCurvesToMesh(this);
         }
     }
     

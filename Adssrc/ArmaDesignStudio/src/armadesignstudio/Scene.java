@@ -1956,9 +1956,9 @@ public class Scene
          */
     }
     
-    public void connectedCurvesToMeshCommand(LayoutWindow layoutWindow){
+    public void connectedCurvesToMesh(LayoutWindow layoutWindow){
         SplineSkin skin = new SplineSkin();
-        skin.connectedCurvesToMeshCommand(this, layoutWindow, objects);
+        skin.connectedCurvesToMesh(this, layoutWindow, objects);
     }
     
     public void autoSkinByVoids(LayoutWindow layoutWindow){
