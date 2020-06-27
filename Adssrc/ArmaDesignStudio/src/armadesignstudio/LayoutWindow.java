@@ -2345,9 +2345,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
             
             UndoRecord undo = new UndoRecord(theWindow, false);
             
-            Camera cam = view.getCamera();
+            Camera cam = new Camera();
             ydir = cam.getViewToWorld().timesDirection(Vec3.vy());
-            zdir = cam.getViewToWorld().timesDirection(new Vec3(0.0, 0.0, -1.0));
+            zdir = cam.getViewToWorld().timesDirection(new Vec3(0.0, 0.0, 1.0));
             coords = new CoordinateSystem(orig, zdir, ydir);
             
             int counter = 0;

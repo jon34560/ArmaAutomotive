@@ -2187,6 +2187,18 @@ public class Scene
                 JOptionPane.showMessageDialog(null, "Mesh Points: " + points, "Object Info", JOptionPane.WARNING_MESSAGE);
                 
             }
+            
+            if((co instanceof PointJoinObject) == true){
+                System.out.println("PointJoinObject  ");
+                
+                PointJoinObject join = (PointJoinObject) obj.getObject(); // Object3D
+                Vec3 [] verts = join.getVertexPositions();
+                for (Vec3 vert : verts){
+                    System.out.println("  vec  " + vert.x + " " + vert.y + " " + vert.z);
+                }
+                
+            }
+            
         }
       }
   }

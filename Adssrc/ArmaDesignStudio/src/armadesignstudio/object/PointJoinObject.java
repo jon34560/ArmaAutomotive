@@ -236,13 +236,16 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
             // Translate to world coordinates
             for(int i = 0; i < vertsASubdivided.length; i++){
                 Vec3 vertA = (Vec3)vertsASubdivided[i];
-                cs = ((ObjectInfo)objA).getCoords();
+                //cs = ((ObjectInfo)objA).getCoords();
+                cs = layout.getCoords(objA);
+                
                 Mat4 mat4 = cs.duplicate().fromLocal();
                 mat4.transform(vertA);
             }
             for(int i = 0; i < vertsBSubdivided.length; i++){
                 Vec3 vertB = (Vec3)vertsBSubdivided[i];
-                cs = ((ObjectInfo)objB).getCoords();
+                //cs = ((ObjectInfo)objB).getCoords();
+                cs = layout.getCoords(objB);
                 Mat4 mat4 = cs.duplicate().fromLocal();
                 mat4.transform(vertB);
             }
@@ -328,7 +331,7 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                 
                 // if point not set but subpoint is.
                 
-                if(  obj.getObject() instanceof Curve ){
+                if( obj.getObject() instanceof Curve ){
                     //System.out.println(" CURVE " );
                     Curve curve = (Curve)obj.getObject();
                     Vec3[] subdividedPoints = curve.getSubdividedVertices();
