@@ -1,19 +1,25 @@
 <launch4jConfig>
   <headerType>gui</headerType>
-  <jar>ArmaDesignStudio.jar</jar>
-  <dontWrapJar>true</dontWrapJar>
+  <jar>../ArmaDesignStudio.jar</jar>
+  <fileVersion>3.1</fileVersion>
+  <dontWrapJar>false</dontWrapJar>
   <outfile>./ArmaDesignStudioApp.exe</outfile>
-  <errTitle>ArmaDesignStudio</errTitle>
+  <errTitle>Arma Design Studio</errTitle>
   <chdir>.</chdir>
   <icon>SimpleApp.ico</icon>
-  <restartOnCrash>true</restartOnCrash>
+  <restartOnCrash>false</restartOnCrash>
   <jre>
     <minVersion>1.6.0</minVersion>
   </jre>
+  
+  <bundledJreAsFallback>true</bundledJreAsFallback>
+  
+  <initialHeapSize>1024</initialHeapSize>
+  
   <splash>
     <file>splash.bmp</file>
     <waitForWindow>true</waitForWindow>
-    <timeout>60</timeout>
+    <timeout>30</timeout>
     <timeoutErr>true</timeoutErr>
   </splash>
 </launch4jConfig>

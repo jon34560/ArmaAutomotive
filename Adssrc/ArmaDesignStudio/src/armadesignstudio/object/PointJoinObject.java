@@ -193,11 +193,100 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
     }
     
     /**
-     * setVertexPositions
+     * updateLocation
+     *
+     * Description: Set the join object based on the current curve positions.
+     */
+    public void updateLocation()
+    {
+        System.out.println("updateLocation() ");
+        if(theScene == null){
+            System.out.println("PointJoinObject.updateLocation() no scene.");
+            return;
+        }
+        LayoutModeling layout = new LayoutModeling();
+        
+        if(true){
+        //return;
+        }
+        
+        Vec3 v[] = new Vec3[2];
+        v[0] = new Vec3(-2.0, 0.0, 0.0);
+        v[1] = new Vec3(-2.0, 0.0, 0.0);
+        
+        // Get curve objects
+        ObjectInfo objA = theScene.getObjectById(objectA).duplicate();
+        ObjectInfo objB = theScene.getObjectById(objectB).duplicate();
+        
+        System.out.println(" pointJoin - " +  objA.getName() + " - " + objB.getName() );
+        
+        Object co = (Object)objA.getObject();
+        if((co instanceof Curve) == true){
+            CoordinateSystem cs = ((ObjectInfo)objA).getCoords();
+            //System.out.println("Curve");
+
+            Curve curveA = (Curve)objA.getObject().duplicate();
+            Curve curveB = (Curve)objB.getObject().duplicate();
+            Vec3 [] vertsA = curveA.getVertexPositions();
+            Vec3 [] vertsB = curveB.getVertexPositions();
+            // Subdivide
+            Vec3[] vertsASubdivided = curveA.getSubdividedVertices();
+            Vec3[] vertsBSubdivided = curveB.getSubdividedVertices();
+            
+            // Translate to world coordinates
+            for(int i = 0; i < vertsASubdivided.length; i++){
+                Vec3 vertA = (Vec3)vertsASubdivided[i];
+                cs = ((ObjectInfo)objA).getCoords();
+                Mat4 mat4 = cs.duplicate().fromLocal();
+                mat4.transform(vertA);
+            }
+            for(int i = 0; i < vertsBSubdivided.length; i++){
+                Vec3 vertB = (Vec3)vertsBSubdivided[i];
+                cs = ((ObjectInfo)objB).getCoords();
+                Mat4 mat4 = cs.duplicate().fromLocal();
+                mat4.transform(vertB);
+            }
+          
+            double closestDistance = Double.MAX_VALUE;
+            int closestAIndex = -1;
+            int closestBIndex = -1;
+            Vec3 closestAVec = new Vec3();
+            Vec3 closestBVec = new Vec3();
+            
+            for (int a = 0; a < vertsASubdivided.length; a++){
+                Vec3 vertA = vertsASubdivided[a];
+                for (int b = 0; b < vertsBSubdivided.length; b++){
+                    Vec3 vertB = vertsBSubdivided[b];
+                    double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
+                    //System.out.println("distance: " + distance);
+                    if(distance < closestDistance){
+                        closestDistance = distance;
+                        closestAIndex = a;
+                        closestBIndex = b;
+                        closestAVec = vertA;
+                        closestBVec = vertB;
+                    }
+                }
+            }
+            if(closestAIndex > -1 && closestBIndex > -1){
+                v[0] = new Vec3(closestAVec.x, closestAVec.y, closestAVec.z);
+                v[1] = new Vec3(closestBVec.x, closestBVec.y, closestBVec.z);
+                setVertex(v);
+                clearCachedMesh();
+                
+                System.out.println("    vertA: " + v[0].x + " " + v[0].y + " " + v[0].z );
+                System.out.println("    vertB: " + v[1].x + " " + v[1].y + " " + v[1].z );
+            }
+        }
+    }
+    
+    /**
+     * setVertexPositions     DEPRICATE
      * Description: Set vertex positions based on other objects.
      */
     public void setVertexPositions()
     {
+        System.out.println("setVertexPositions. ");
         if(theScene == null){
             System.out.println("PointJoinObject no scene. ");
             return;
@@ -280,9 +369,9 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         
         //System.out.println("    A: " + v[0].x + " " + v[0].y  + " " + v[0].z );
         //System.out.println("    B: " + v[1].x + " " + v[1].y  + " " + v[1].z );
-        setVertex(v);
+        //setVertex(v);
         
-        clearCachedMesh();
+        //clearCachedMesh();
     }
     
     
@@ -438,6 +527,8 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
         //System.out.println(" read joint " + objectA + " " + objectB + " " + objectAPoint + " " + objectBPoint);
         
         setVertexPositions();
+        
+        updateLocation();
         
         //vertex = new MeshVertex [in.readInt()];
         //smoothness = new float [vertex.length];

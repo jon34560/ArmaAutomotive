@@ -946,10 +946,10 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
         CoordinateSystem c;
         c = layout.getCoords(objClone);
         double scale = 1.0;
-        Mesh mesh = (Mesh) objClone.getObject(); // Object3D
-        Vec3 [] verts = mesh.getVertexPositions();
         
-        if(verts.length >= 1){
+        Mesh mesh = (Mesh) objClone.getObject();
+        Vec3 [] verts = mesh.getVertexPositions();
+        if(verts.length >= 2){
             
             //renderNumber(2, verts[2], theCamera);
             //double width = (Math.max(verts[0].x, verts[1].x) - Math.min(verts[0].x, verts[1].x));
@@ -957,17 +957,26 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             //double distanceScale = width / 3; // one third
             //boolean vertical = false;
             
-                
             //Vec2 p0 = theCamera.getObjectToScreen().timesXY(verts[0]);
             //Vec2 p1 = theCamera.getObjectToScreen().timesXY(verts[1]);
             //pixelWidth = (int)Math.abs(p0.y - p1.y);
             
-            
             // line connecting point verticies.
-            Vec3 vert1 = new Vec3( verts[0].x, verts[0].y, verts[0].z); // point 2
-            Vec3 vert2 = new Vec3( verts[1].x, verts[1].y, verts[1].z); // point 3
+            double size = 0.05;
+            Vec3 vert1 = new Vec3( verts[0].x - size, verts[0].y, verts[0].z); // point 2
+            Vec3 vert2 = new Vec3( verts[1].x + size, verts[1].y, verts[1].z); // point 3
             renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
             
+            vert1 = new Vec3( verts[0].x, verts[0].y - size, verts[0].z); // point 2
+            vert2 = new Vec3( verts[1].x, verts[1].y + size, verts[1].z); // point 3
+            renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
+            
+            vert1 = new Vec3( verts[0].x, verts[0].y, verts[0].z - size); // point 2
+            vert2 = new Vec3( verts[1].x, verts[1].y, verts[1].z + size); // point 3
+            renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
+            
+            
+            //System.out.println("   draw vert: " + verts[0].x + " " + verts[0].y + "  " + verts[0].z );
         }
     }
     

@@ -663,6 +663,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     objectMenu.addSeparator();
     objectMenu.add(Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
+    objectMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
+      
       
     objectMenu.addSeparator();
     objectMenu.add(Translate.menuItem("Find Object", this, "findObjectCommand"));
@@ -2259,6 +2261,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         //System.out.println("    B: " + v[1].x + " " + v[1].y  + " " + v[1].z );
         createPointJoin.setVertex(v);
         
+        
         // Save pointJoin object to project file.
         
         // copy AddToScene function from DimensionTool
@@ -2293,6 +2296,70 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         
         // Reload screen
         // TODO
+    }
+    
+    /**
+     * connectCurvesCommand
+     *
+     * Description: Connect points between two curves.
+     */
+    public void connectCurvesCommand(){
+        int [] selection = theScene.getSelection();
+        PointJoinObject createPointJoin = new PointJoinObject(); // theScene.getCreatePointJoinObject();
+        createPointJoin.setScene(theScene);
+        if(selection.length < 2){
+            System.out.println("Error: Select two curves ");
+        }
+        
+        for(int i = 0; i < selection.length; i++){
+            ObjectInfo obj = theScene.getObject(selection[i]);
+            
+            // TODO: ensure the selected objects are curves.
+            
+            System.out.println(" obj: " + obj.getName() );
+            
+            if(i == 0){
+                System.out.println(" A "  );
+                createPointJoin.objectA = obj.getId();
+            }
+            if(i == 1){
+                System.out.println(" B "  );
+                createPointJoin.objectB = obj.getId();
+            }
+        }
+        
+        if(selection.length >= 2){
+            Vec3 v[] = new Vec3[2];
+            v[0] = new Vec3(1.0, 0.0, 0.0);
+            v[1] = new Vec3(1.0, 0.0, 0.0);
+            createPointJoin.setVertex(v);
+            
+            createPointJoin.updateLocation(); // set join markup based on the curves.
+            
+            CoordinateSystem coords;
+            Vec3 vertex[], orig, ydir, zdir;
+            orig = new Vec3();
+            
+            ViewerCanvas view = theView[currentView];
+            EditingWindow theWindow = null;
+            
+            UndoRecord undo = new UndoRecord(theWindow, false);
+            
+            Camera cam = view.getCamera();
+            ydir = cam.getViewToWorld().timesDirection(Vec3.vy());
+            zdir = cam.getViewToWorld().timesDirection(new Vec3(0.0, 0.0, -1.0));
+            coords = new CoordinateSystem(orig, zdir, ydir);
+            
+            int counter = 0;
+            
+            ObjectInfo info = new ObjectInfo(createPointJoin, coords, "CurveJoin "+(counter++));
+            info.addTrack(new PositionTrack(info), 0);
+            info.addTrack(new RotationTrack(info), 1);
+            
+            ((LayoutWindow)this).addObject(info, undo);
+        
+            updateImage();
+        }
     }
 
   /**
