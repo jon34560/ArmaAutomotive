@@ -49,6 +49,12 @@ public class SplineSkin extends Thread {
         // Curve.subdivideCurve(int times)
     }
     
+    public void connectedCurvesToMeshCommand(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
+        System.out.println("connectedCurvesToMeshCommand " );
+        
+        
+    }
+    
     /**
      * autoSkinBySpace
      *

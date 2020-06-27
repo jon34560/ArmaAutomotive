@@ -755,8 +755,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // new SkinDialog(window, curves);
     toolsMenu.add(Translate.menuItem("Auto Skin", this, "autoSkin"));
       toolsMenu.add(Translate.menuItem("Auto Skin by Voids", this, "autoSkinByVoids"));
-      
       toolsMenu.add(Translate.menuItem("Spline Grid Skin", this, "splineGridSkin"));
+      toolsMenu.add(Translate.menuItem("Mesh from connected curves.", this, "connectedCurvesToMeshCommand"));
+      
+      
 
     toolsMenu.addSeparator();
     toolsMenu.add(Translate.menuItem("createScriptObject", this, "createScriptObjectCommand"));
@@ -2958,6 +2960,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
            theScene.splineGridSkin(this);
         }
     }
+    
+    
+    public void connectedCurvesToMeshCommand(){
+        if(theScene != null){
+           theScene.connectedCurvesToMeshCommand(this);
+        }
+    }
+    
 
     public void joinMultipleSplines(){
         if(theScene != null){
