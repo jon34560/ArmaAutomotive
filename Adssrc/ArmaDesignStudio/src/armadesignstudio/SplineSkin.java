@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 by Jon Taylor
+/* Copyright (C) 2019, 2020 by Jon Taylor
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -52,11 +52,22 @@ public class SplineSkin extends Thread {
     /**
      * connectedCurvesToMeshCommand
      *
+     * Description:
      */
     public void connectedCurvesToMesh(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
         System.out.println("connectedCurvesToMeshCommand " );
+        LayoutModeling layout = new LayoutModeling();
+        Vector meshPoints = new Vector();
         
+        Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
         
+        // 1
+        for (ObjectInfo obj : objects){
+            Object co = (Object)obj.getObject();
+            if((co instanceof Curve) == true){
+                
+            }
+        }
     }
     
     /**

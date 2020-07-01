@@ -154,4 +154,5 @@ public interface CanvasDrawer
   public void toggleBackgroundGradient();
     
     public void renderForceObject( ObjectInfo obj, Camera theCamera );
+    public void renderMirrorPlaneObject( ObjectInfo obj, Camera theCamera );
 }

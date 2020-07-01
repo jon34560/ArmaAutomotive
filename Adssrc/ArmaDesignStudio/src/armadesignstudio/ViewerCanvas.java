@@ -1038,6 +1038,12 @@ public abstract class ViewerCanvas extends CustomWidget
     public void renderFluidPointObject(ObjectInfo obj, Camera theCamera){
         drawer.renderFluidPoint(obj, theCamera);
     }
+    
+    public void renderMirrorPlaneObject(ObjectInfo obj, Camera theCamera)
+    {
+      drawer.renderMirrorPlaneObject(obj, theCamera);
+    }
+    
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

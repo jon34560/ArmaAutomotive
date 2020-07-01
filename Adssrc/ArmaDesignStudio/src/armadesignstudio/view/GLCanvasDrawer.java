@@ -54,6 +54,7 @@ public class GLCanvasDrawer implements CanvasDrawer
   private static boolean useTextureRectangle;
     
   public double sceneScale = 1.0; // JDT
+    public boolean backgroundGradient = true;
 
   public GLCanvasDrawer(ViewerCanvas view)
   {
@@ -497,6 +498,16 @@ public class GLCanvasDrawer implements CanvasDrawer
         //drawString("CFD: 0.0", (int) 20, (int) 20, fontSize, new Color(0.0f, 0.0f, 0.0f));
     }
     
+    public void renderForceObject( ObjectInfo obj, Camera theCamera ){
+    }
+    
+    public void renderMirrorPlaneObject( ObjectInfo obj, Camera theCamera ){
+    }
+    
+    
+    public void toggleBackgroundGradient(){
+        backgroundGradient = !backgroundGradient;
+    }
 
   /** Render an object with flat shading in subtractive (transparent) mode. */
   

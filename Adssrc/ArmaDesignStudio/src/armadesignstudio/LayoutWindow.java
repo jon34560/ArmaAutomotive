@@ -237,10 +237,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     tools.addTool(new CreateForceTool(this));
     tools.addTool(new CreateVoidTool(this));
       
-    tools.addTool(new CreateAlignLeftTool(this));
-    tools.addTool(new CreateAlignRightTool(this));
-    tools.addTool(new CreateAlignUpTool(this));
-    tools.addTool(new CreateAlignDownTool(this));
+    //tools.addTool(new CreateAlignLeftTool(this));
+    //tools.addTool(new CreateAlignRightTool(this));
+    //tools.addTool(new CreateAlignUpTool(this));
+    //tools.addTool(new CreateAlignDownTool(this));
+      
+      tools.addTool(new CreateMirrorPlaneTool(this));
+      
       
     if (ArmaDesignStudio.getPreferences().getUseCompoundMeshTool())
       defaultTool = compoundTool;
