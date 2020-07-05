@@ -243,6 +243,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     //tools.addTool(new CreateAlignDownTool(this));
       
       tools.addTool(new CreateMirrorPlaneTool(this));
+      tools.addTool(new CreateExportRegionTool(this));
       
       
     if (ArmaDesignStudio.getPreferences().getUseCompoundMeshTool())

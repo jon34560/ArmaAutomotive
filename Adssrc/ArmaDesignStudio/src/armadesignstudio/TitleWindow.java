@@ -26,11 +26,11 @@ public class TitleWindow extends BWindow
 
   public TitleWindow()
   {
-    int imageNumber = new Random(System.currentTimeMillis()).nextInt(8);
+    int imageNumber = new Random(System.currentTimeMillis()).nextInt(3);
     ImageIcon image = new ImageIcon(getClass().getResource("/armadesignstudio/titleImages/titleImage"+imageNumber+".jpg"));
     String text = "<html><div align=\"center\">"+
         "Arma Design Studio v"+ArmaDesignStudio.getVersion()+
-        "<br>Copyright 2018-2019 Arma Automotive and" +
+        "<br>Copyright 2018-2020 Arma Automotive and" +
         "<br> parts 1999-2015 by Peter Eastman and others"+
         "<br>(See the README file for details.)"+
         "<br>This program may be freely distributed under"+
