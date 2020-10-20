@@ -236,7 +236,7 @@ public class ArmaDesignStudio
 
   public static String getVersion()
   {
-    return getMajorVersion()+".1";
+    return getMajorVersion()+".2";
   }
 
   /** Get the major part of the version number of Arma Design Studio. */

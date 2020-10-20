@@ -52,22 +52,63 @@ public class SplineSkin extends Thread {
     /**
      * connectedCurvesToMeshCommand
      *
-     * Description:
+     * Description: Create mesh from connected curves
+     *  TODO: order of points along curve may need to be reversed in pairs.
      */
     public void connectedCurvesToMesh(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
         System.out.println("connectedCurvesToMeshCommand " );
         LayoutModeling layout = new LayoutModeling();
         Vector meshPoints = new Vector();
         
-        Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
+        //Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
+        Vector< PointJoinObject > connections = new Vector<>();
+        Vector< Curve > curves = new Vector<>();
+        Vector< ObjectInfo > curveOIs = new Vector<>();
         
-        // 1
+        //Vector< Vector < > > connections = new Vector<  >();
+        //HashMap <Integer, >
+        
+        // 1 Find relevent curves and connections.
         for (ObjectInfo obj : objects){
             Object co = (Object)obj.getObject();
+            // PointJoinObject
             if((co instanceof Curve) == true){
-                
+                //curves.addElement(co);
+                curveOIs.addElement(obj);
+            }
+            if(co instanceof PointJoinObject){
+                PointJoinObject pjo = (PointJoinObject)co;
+                // pjo.objectA
+                // pjo.objectB
+                connections.addElement(pjo);
             }
         }
+        
+        // 2 Subdivide curves.
+        
+        //
+        for(int i = 0; i < curveOIs.size(); i++){
+            ObjectInfo curveOI = (ObjectInfo)curveOIs.elementAt(i);
+            int curveId = curveOI.getId();  // objectInfo.getId();
+            
+            // what other curves (and points) is this connected to.
+            
+            for(int x = 0; x < connections.size(); x++){
+                PointJoinObject pjo = (PointJoinObject)connections.elementAt(x);
+                if(pjo.objectA == curveId){
+                    System.out.println(" * " );
+                }
+                if(pjo.objectB == curveId){
+                    System.out.println(" & " );
+                }
+            }
+            
+            
+            // create duplicate of curve
+            
+        }
+        
+        
     }
     
     /**

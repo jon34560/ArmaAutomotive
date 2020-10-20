@@ -382,7 +382,7 @@ public abstract class Object3D
   public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
   {
       if(obj != null){
-          this.name = obj.name; // JDT rearchitect this later.
+          this.name = obj.name; // JDT re architect this later.
       }
       
     if (!obj.isVisible())
