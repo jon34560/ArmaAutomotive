@@ -95,7 +95,7 @@ bool DataModel::getvehicleCheckTellTaleStatus()
 	return vehicleCheckTellTaleStatus;
 }
 
-bool DataModel::isMenuDisplayNeeded()
+bool DataModel::isMenuDisplayed() // isMenuDisplayNeeded()
 {
 	return bMenuDisplayNeeded;
 }

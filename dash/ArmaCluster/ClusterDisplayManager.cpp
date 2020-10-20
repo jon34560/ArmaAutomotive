@@ -5,7 +5,7 @@ void ClusterDisplayManager::initialize()
 	rpmRenderObj = new RpmRenderer();
 	clusterBackgroundObj = new ClusterBackgroundRenderer();
 	clusterSubDialsObj = new SubDials();
-	tellTailesObj = new TellTailesRenderer();
+	tellTailesObj = new IconRenderer();
 	textOverlayObj = new TextOverlayRenderer();
 	speedDisplayObj = new SpeedDisplay();
 
@@ -28,6 +28,11 @@ void ClusterDisplayManager::doRender()
 
 }
 
+/*
+* keyPressed
+*
+* Desription: 
+*/
 void ClusterDisplayManager::keyPressed(int key)
 {
 	if (key == 'z') {	// Change RPM dial display mode

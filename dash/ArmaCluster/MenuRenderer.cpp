@@ -113,6 +113,10 @@ void MenuRenderer::doRender()
 	glPopMatrix();
 }
 
+/**
+* keyPressed
+* Description: Called by TextOverlayRenderer
+*/
 void MenuRenderer::keyPressed(int key)
 {
 	if (key == KEY_RIGHT)
@@ -152,7 +156,6 @@ void MenuRenderer::keyPressed(int key)
 			selectedRectStartY = 537;
 			selBoxIndexLevel2 = 1;
 		}
-
 	}
 	if (nSelBoxHorizLevelIndex == 0)
 	{

@@ -2,7 +2,7 @@
 #include "RpmRenderer.h"
 #include "ClusterBackgroundRenderer.h"
 #include "SubDials.h"
-#include "TellTalesRenderer.h"
+#include "IconRenderer.h"
 #include "TextOverlayRenderer.h"
 #include "SpeedDisplay.h"
 #include "MenuRenderer.h"

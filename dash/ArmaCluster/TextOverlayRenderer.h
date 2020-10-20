@@ -2,11 +2,13 @@
 
 # include "ObjectRendererBase.h" // ???
 #include "MenuRenderer.h"
+#include "ClockRenderer.h"
 
 class TextOverlayRenderer : public ObjectRendererBase
 {
 private:
 	MenuRenderer menuRendererObj;
+	ClockRenderer clockRendererObj;
 	int displayMode = 0;
 public:
 	TextOverlayRenderer();

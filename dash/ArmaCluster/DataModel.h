@@ -60,7 +60,7 @@ public:
 	bool getrightTurnTellTaleStatus();
 	void setvehicleCheckTellTaleStatus(bool status);
 	bool getvehicleCheckTellTaleStatus();
-	bool isMenuDisplayNeeded();
+	bool isMenuDisplayed(); //  isMenuDisplayNeeded();
 	void setMenuDisplayStatus(bool status);
 
 	

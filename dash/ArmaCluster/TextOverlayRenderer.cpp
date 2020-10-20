@@ -37,10 +37,7 @@ using namespace std;
 #define  KEY_RIGHT                     0x0066
 #define  MAIN_MENU_CNT                 7
 
-
 vector<string> mainMenuItems;
-
-
 vector<string> subMenu1_2;
 vector<string> subMenu1_3;
 vector<string> subMenu1_4;
@@ -70,6 +67,10 @@ TextOverlayRenderer::~TextOverlayRenderer()
 
 }
 
+/*
+* initalize
+* Description: 
+*/
 void TextOverlayRenderer::initialize()
 {
 	menuRendererObj.initialize();
@@ -235,7 +236,7 @@ void TextOverlayRenderer::doRender()
 	}
 	endRenderText();
 
-	if (DataModel::getInstance()->isMenuDisplayNeeded())
+	if (DataModel::getInstance()->isMenuDisplayed())
 	{
 		menuRendererObj.setSubMenuMaxLimits(ptrSubMenuLevel1->size(), ptrSubMenuLevel1->at(activeMenuSelection[1]).size() - 1);
 		drawMainMenu();
@@ -245,14 +246,22 @@ void TextOverlayRenderer::doRender()
 	}
 	else
 	{
-		// Just print settings
+		// Just print settings text
+		/*
 		beginRenderText(1920, 720);
 		{
 			glColor3f(1.0f, 1.0f, 1.0f);
-			renderText(80 - 27, 170 , BITMAP_FONT_TYPE_HELVETICA_18,"Settings");
+			renderText(80 - 27, 170, BITMAP_FONT_TYPE_HELVETICA_18, "Settings");
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		endRenderText();
+		*/
+
+		// Draw clock 
+		//clockRendererObj.doRender();
+		clockRendererObj.drawClock();
+
+
 		activeMenuSelection[0] = 0;
 		activeMenuSelection[1] = 0;
 		activeMenuSelection[2] = 0;
@@ -320,7 +329,7 @@ void TextOverlayRenderer::drawMainMenu()
 
 void TextOverlayRenderer::keyPressed(int key)
 {
-	if (key == KEY_LEFT)
+	if (key == KEY_LEFT) // left arrow, set selection indexes
 	{
 		if (2 == menuRendererObj.getHorizLevelIndex())
 		{
@@ -331,8 +340,21 @@ void TextOverlayRenderer::keyPressed(int key)
 		{
 			activeMenuSelection[1] = 0;
 		}
+
+		//OutputDebugStringW(L"Left key.\n");
+
+		// If left (nSelBoxHorizLevelIndex == 0) and top most (selBoxIndex == 0) and menu deisplayed then hide menu. 
+		if (DataModel::getInstance()->isMenuDisplayed() 
+			&& menuRendererObj.getHorizLevelIndex() == 0 // never called
+			) {
+			// hide menu. or menu dismissed.
+			DataModel::getInstance()->setMenuDisplayStatus(false); // error display is set true later on.
+			return;
+		}
+
+
 	}
-	if (DataModel::getInstance()->isMenuDisplayNeeded())
+	if (DataModel::getInstance()->isMenuDisplayed())
 	{
 		// Main menu movement
 		if (0 == menuRendererObj.getHorizLevelIndex())
