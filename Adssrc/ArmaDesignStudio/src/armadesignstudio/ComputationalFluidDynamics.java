@@ -1,4 +1,4 @@
-/* Copyright (C) 2018, 2019 by Jon Taylor
+/* Copyright (C) 2018 - 2020 by Jon Taylor
  
  This program is free software; you can redistribute it and/or modify it under the
  terms of the GNU General Public License as published by the Free Software
@@ -14,6 +14,7 @@ import java.util.*;
 import armadesignstudio.math.*;
 import armadesignstudio.object.*;
 import armadesignstudio.view.CanvasDrawer;
+import javax.swing.*; // For JOptionPane
 
 /**
  * ComputationalFluidDynamics
@@ -1323,6 +1324,232 @@ public class ComputationalFluidDynamics extends Thread {
         return volume;
     }
     
+    /**
+     * Frontal Area
+     *
+     * Description: Calculate scene object frontal area.
+     *  TODO: subdivide meshes.
+     */
+    public double frontalArea(){
+        double area = 0;
+        double volume = 0;
+        LayoutModeling layout = new LayoutModeling();
+        BoundingBox bounds = new BoundingBox(99999, -99999, 99999, -99999, 99999, -99999);
+        bounds.minx = 99999;
+        bounds.maxx = -99999;
+        bounds.miny = 99999;
+        bounds.maxy = -99999;
+        bounds.minz = 99999;
+        bounds.maxz = -99999;
+        
+        int segments = 100;
+        
+        // find objects bounds and collect all object face geometry
+        Vector sceneTriangles = new Vector();
+        for (ObjectInfo obj : objects){
+            if(obj.getName().indexOf("Camera") < 0 &&
+               obj.getName().indexOf("Light") < 0 &&
+               obj.getName().equals("") == false &&
+               obj.isVisible()
+               ){
+                if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                    CoordinateSystem c;
+                    c = layout.getCoords(obj);
+                    //Vec3 objOrigin = c.getOrigin();
+                    TriangleMesh triangleMesh = null;
+                    triangleMesh = obj.getObject().convertToTriangleMesh(0.0);
+                    
+                    // scene bounds by verts
+                    MeshVertex[] verts = triangleMesh.getVertices();
+                    for(int f = 0; f < verts.length; f++){
+                        Vec3 vert = new Vec3(verts[f].r);
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vert);
+                        if(vert.x < bounds.minx){ bounds.minx = vert.x; }
+                        if(vert.x > bounds.maxx){ bounds.maxx = vert.x; }
+                        if(vert.y < bounds.miny){ bounds.miny = vert.y; }
+                        if(vert.y > bounds.maxy){ bounds.maxy = vert.y; }
+                        if(vert.z < bounds.minz){ bounds.minz = vert.z; }
+                        if(vert.z > bounds.maxz){ bounds.maxz = vert.z; }
+                    }
+                    
+                    // faces
+                    TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                    for(int f = 0; f < faces.length; f++){
+                        TriangleMesh.Face face = faces[f];
+                        Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                        Vec3 vec2 = new Vec3(verts[face.v2].r);
+                        Vec3 vec3 = new Vec3(verts[face.v3].r);
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vec1);
+                        mat4.transform(vec2);
+                        mat4.transform(vec3);
+                        Vec3[] triangle = new Vec3[3];
+                        triangle[0] = vec1;
+                        triangle[1] = vec2;
+                        triangle[2] = vec3;
+                        sceneTriangles.addElement(triangle);
+                        
+                        //System.out.println(" vec1  " + vec1.x  + " y " + vec1.y + " z " + vec1.z   );
+                        
+                        // TODO: optimization, put bounding boxes in array instead of triangles
+                    }
+                }
+            }
+        }
+        System.out.println(" bounds  x " + bounds.minx + " " + bounds.maxx + " y " + bounds.miny + " " + bounds.maxy + " z " + bounds.minz + "  "+ bounds.maxz  );
+        volume = ( bounds.maxx - bounds.minx ) * ( bounds.maxy - bounds.miny ) * ( bounds.maxz - bounds.minz );
+        
+        //System.out.println(" volume: " + volume  );
+        
+        double xSegmentWidth = (bounds.maxx - bounds.minx) / segments;
+        double ySegmentWidth = (bounds.maxy - bounds.miny) / segments;
+        double zSegmentWidth = (bounds.maxz - bounds.minz) / segments;
+        System.out.println("xSegmentWidth: " + xSegmentWidth + " ySegmentWidth: " + ySegmentWidth + " zSegmentWidth: " + zSegmentWidth);
+        
+        double cubeVolume = xSegmentWidth * ySegmentWidth * zSegmentWidth;
+        
+        double cubesOccupied[][][] = new double[segments][segments][segments];
+        
+        // init cubes occupied state
+        for(int z = 0; z < segments; z++){ //
+            for(int x = 0; x < segments; x++){
+                for(int y = 0; y < segments; y++){
+                    cubesOccupied[x][y][z] = 1;
+                }
+            }
+        }
+        
+        double frontalAreaGrid[][] = new double[segments][segments];
+        for(int x = 0; x < segments; x++){
+            for(int y = 0; y < segments; y++){
+                frontalAreaGrid[x][y] = 1;
+            }
+        }
+        
+        
+        // Frontal pass
+        int frontalAreaOccupiedGridCount = 0;
+        for(int x = 0; x < segments; x++){
+            for(int y = segments - 1; y >= 0; y--){
+                boolean frontalRegionOccupied = false;
+                
+                for(int z = 0; z < segments && frontalRegionOccupied == false; z++){
+                        
+                    BoundingBox cubeBounds = new BoundingBox(bounds);
+                    cubeBounds.minx = bounds.minx + (x * xSegmentWidth);
+                    cubeBounds.maxx = bounds.minx + ((x+1) * xSegmentWidth);
+                    cubeBounds.minz = bounds.minz + (z * zSegmentWidth);
+                    cubeBounds.maxz = bounds.minz + ((z+1) * zSegmentWidth);
+                    cubeBounds.miny = bounds.miny + (y * zSegmentWidth);
+                    cubeBounds.maxy = bounds.miny + ((y + 1) * zSegmentWidth); // ???
+                    boolean occupied = false;
+                    
+                    
+                    // detect collisions.
+                    for(int f = 0; f < sceneTriangles.size() && occupied == false; f++){
+                        Vec3[] triangle = (Vec3[])sceneTriangles.elementAt(f);
+                        Vec3 vec1 = triangle[0];
+                        Vec3 vec2 = triangle[1];
+                        Vec3 vec3 = triangle[2];
+                        
+                        //System.out.println(" vec1  " + vec1.x  + " y " + vec1.y + " z " + vec1.z  + "   cube x" + cubeBounds.minx + " " + cubeBounds.maxx );
+                        
+                        BoundingBox faceBounds = new BoundingBox(bounds);
+                        faceBounds.minx = Math.min(Math.min(vec1.x, vec2.x), vec3.x);
+                        faceBounds.maxx = Math.max(Math.max(vec1.x, vec2.x), vec3.x);
+                        faceBounds.miny = Math.min(Math.min(vec1.y, vec2.y), vec3.y);
+                        faceBounds.maxy = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
+                        faceBounds.minz = Math.min(Math.min(vec1.z, vec2.z), vec3.z);
+                        faceBounds.maxz = Math.max(Math.max(vec1.z, vec2.z), vec3.z);
+                        //if(cubeBounds.maxx >= faceBounds.minx && cubeBounds.minx <= faceBounds.maxx &&
+                        //   cubeBounds.maxy >= faceBounds.miny && cubeBounds.miny <= faceBounds.maxy &&
+                        //   cubeBounds.maxz >= faceBounds.minz && cubeBounds.minz <= faceBounds.maxz
+                        //   ){
+                        
+                        if(
+                               (vec1.x >= cubeBounds.minx && vec1.x <= cubeBounds.maxx &&
+                                vec1.y >= cubeBounds.miny && vec1.y <= cubeBounds.maxy &&
+                                vec1.z >= cubeBounds.minz && vec1.z <= cubeBounds.maxz)
+                           ||
+                               (vec2.x >= cubeBounds.minx && vec2.x <= cubeBounds.maxx &&
+                                vec2.y >= cubeBounds.miny && vec2.y <= cubeBounds.maxy &&
+                                vec2.z >= cubeBounds.minz && vec2.z <= cubeBounds.maxz)
+                           ||
+                               (vec3.x >= cubeBounds.minx && vec3.x <= cubeBounds.maxx &&
+                                vec3.y >= cubeBounds.miny && vec3.y <= cubeBounds.maxy &&
+                                vec3.z >= cubeBounds.minz && vec3.z <= cubeBounds.maxz)
+                           ){ // face vertecy in cube
+                            
+                            //System.out.println("+     x: " + x + " y: " + y + " z: " + z + " "  );
+                            occupied = true;
+                        }
+                        
+                        
+                        
+                        //boolean inXPlane_1 = vec1.z >= cubeBounds.minz && vec1.z <= cubeBounds.maxz && vec1.y >= cubeBounds.miny && vec1.y <= cubeBounds.maxy;
+                        
+                        boolean inX =
+                        (faceBounds.minx >= cubeBounds.minx || faceBounds.maxx >= cubeBounds.minx) &&   // a face x point is > cube min
+                        (faceBounds.minx <= cubeBounds.maxx || faceBounds.maxx <= cubeBounds.maxx);     // a face x point in < cube max
+                        boolean inY =
+                        (faceBounds.miny >= cubeBounds.miny || faceBounds.maxy >= cubeBounds.miny) &&
+                        (faceBounds.miny <= cubeBounds.maxy || faceBounds.maxy <= cubeBounds.maxy);
+                        boolean inZ =
+                        (faceBounds.minz >= cubeBounds.minz || faceBounds.maxz >= cubeBounds.minz) &&
+                        (faceBounds.minz <= cubeBounds.maxz || faceBounds.maxz <= cubeBounds.maxz);
+                        
+                        boolean inXPlane = inZ && inY;
+                        boolean inYPlane = inZ && inX;
+                        boolean inZPlane = inY && inX;
+                    
+                        boolean spanXPlane = (faceBounds.minx <= cubeBounds.minx && faceBounds.maxx >= cubeBounds.maxx);
+                        boolean spanYPlane = (faceBounds.miny <= cubeBounds.miny && faceBounds.maxy >= cubeBounds.maxy);
+                        boolean spanZPlane = (faceBounds.minz <= cubeBounds.minz && faceBounds.maxz >= cubeBounds.maxz);
+                        
+                        //System.out.println(" - "+  inXPlane + " , " + inYPlane + " , " + inZPlane + " span " + spanXPlane + " , " + spanYPlane + " , " + spanZPlane);
+                        
+                        if(inX && inY && inZ){
+                            occupied = true;
+                        }
+                        if(( inXPlane && spanXPlane) || (inYPlane && spanYPlane) || (inZPlane && spanZPlane)){
+                            //System.out.println( "    ****** " );
+                        //    occupied = true;
+                        }
+                        if((spanXPlane && spanYPlane && inZ) || (spanXPlane && spanZPlane && inY) || (spanYPlane && spanZPlane && inX)){
+                            //System.out.println( "    XXXXXX " );
+                        //    occupied = true;
+                        }
+                        if((spanXPlane && spanYPlane && spanZPlane) || (spanXPlane && spanZPlane && spanYPlane) || (spanYPlane && spanZPlane && spanXPlane)){
+                            //System.out.println( "    ZZZZZZ " );
+                        //    occupied = true;
+                        }
+                        
+                        if((inX && inY && spanZPlane) || (inX && inZ && spanYPlane) || (inY && inZ && spanXPlane)){
+                            //System.out.println( "    ...... " );
+                        //    occupied = true;
+                        }
+                    }
+                    
+                    if(occupied){
+                        frontalRegionOccupied = true;
+                    }
+                    
+                } // z
+                if(frontalRegionOccupied){
+                    frontalAreaOccupiedGridCount++;
+                }
+            }
+        }
+        int total = segments * segments;
+        area = xSegmentWidth * ySegmentWidth * frontalAreaOccupiedGridCount;
+        System.out.println("total cells: "+ total + " occupied cells: " + frontalAreaOccupiedGridCount + " area: " + area);
+        
+        // Notify dialog.
+        JOptionPane.showMessageDialog(null, "Frontal Area: " + area,  "Frontal Area" , JOptionPane.ERROR_MESSAGE );
+        
+        return area;
+    }
     
     
     /**

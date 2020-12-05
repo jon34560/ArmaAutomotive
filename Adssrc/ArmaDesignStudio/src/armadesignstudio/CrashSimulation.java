@@ -52,6 +52,7 @@ import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
+import armadesignstudio.fea.*;
 
 /** This class implements the dialog box which is used for the "Object Layout" and
     "Transform Object" commands.  It allows the user enter values for the position,
@@ -82,6 +83,8 @@ public class CrashSimulation extends BDialog
     
     LayoutWindow window;
     Vector<ObjectInfo> objects;
+    
+    private Fea fea;
 
     public CrashSimulation(BFrame parent)
     {
@@ -97,10 +100,13 @@ public class CrashSimulation extends BDialog
         setVisible(true);
         
         window = ((LayoutWindow)parent);
+        
+        fea = new Fea();
     }
     
     public void setObjects(Vector<ObjectInfo> objects){
         this.objects = objects;
+        fea.setObjects(objects);
     }
 
     public boolean clickedOk()
@@ -239,7 +245,7 @@ public class CrashSimulation extends BDialog
     }
 
     public ImpactThread impactThread = new ImpactThread();
-    public class ImpactThread  extends Thread {
+    public class ImpactThread extends Thread {
         ObjectInfo obj;
         public ImpactThread(){}
         public void setObject(ObjectInfo obj){
@@ -247,37 +253,13 @@ public class CrashSimulation extends BDialog
         }
         public void run() {
             
-            /*
-            final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
-            JProgressBar dpb = new JProgressBar(0, 100);
-            progressDialog.add(BorderLayout.CENTER, dpb);
-            JLabel progressLabel = new JLabel("Progress...");
-            progressDialog.add(BorderLayout.NORTH, progressLabel);
-            progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-            progressDialog.setSize(300, 75);
-            progressDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            // progressDialog.setLocationRelativeTo(parentFrame);
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            progressDialog.setLocation((int)(screenSize.getWidth() / 2) - (300/2), (int) ((screenSize.getHeight()/(float)2) - ((float)75/(float)2.0)));
-            progressDialog.addWindowListener(new WindowAdapter(){
-                public void windowClosed(WindowEvent e)
-                {
-                    System.out.println("jdialog window closed event received");
-                    running = false;
-                }
-                public void windowClosing(WindowEvent e)
-                {
-                    System.out.println("jdialog window closing event received");
-                    running = false;
-                }
-            });
-            progressDialog.setVisible(true);
-             */
-            
             solver(); // New FEA Solver.
+            fea.initalize(obj);
             
             while(obj != null && inerta > 0.001){
                 impact(obj);
+                
+                fea.impact(obj);
                 try {
                     Thread.sleep(50);
                 } catch (Exception e){

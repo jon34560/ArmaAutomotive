@@ -1002,7 +1002,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         cfdMenu.add(Translate.menuItem("Run", this, "runCFD"));
         cfdMenu.add(Translate.menuItem("Stop", this, "stopCFD"));
         
-        //cfdMenu.addSeparator();
+        cfdMenu.addSeparator();
+        
+        cfdMenu.add(Translate.menuItem("Frontal Area", this, "frontalArea"));
         //cfdMenu.add(Translate.menuItem("Copy Structure Objects", this, "copyStructureObjects"));
         //cfdMenu.add(Translate.menuItem("Generate Structure Mesh", this, "generateStructureMesh"));
         //cfdMenu.addSeparator();
@@ -3848,6 +3850,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void stopCFD(){
         if(theScene != null){
             theScene.stopCFD(this);
+        }
+    }
+    
+    public void frontalArea(){
+        if(theScene != null){
+            theScene.frontalArea(this);
         }
     }
     

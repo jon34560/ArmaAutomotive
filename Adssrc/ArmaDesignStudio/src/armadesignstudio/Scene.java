@@ -5415,6 +5415,18 @@ public class Scene
         }
     }
     
+    /**
+     * frontalArea
+     * Description: Menu item frontal area called. Pass request to CFD class.
+     */
+    public void frontalArea(LayoutWindow window){
+        if(cfd == null){
+            cfd = new ComputationalFluidDynamics();
+            cfd.setObjects(objects);
+        }
+        cfd.frontalArea();
+    }
+    
     public void setObjectGroup(){
         LayoutModeling layout = new LayoutModeling();
         for (ObjectInfo obj : objects){

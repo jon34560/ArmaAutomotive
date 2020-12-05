@@ -10,7 +10,6 @@
  
  */
 
-
 package armadesignstudio.fea;
 
 import armadesignstudio.ui.*;
@@ -18,20 +17,112 @@ import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;
 import java.util.*;
-
 import javax.swing.JComboBox;
 import armadesignstudio.object.*;
 import armadesignstudio.math.*;
+import armadesignstudio.*;
 
 public class Fea
 {
+    Vector<ObjectInfo> objects;
+    ObjectInfo obj;
+    
+    Vector<FeaPoint> points;
+    HashMap<Integer, FeaPoint> pointMap;
+    HashMap<Integer, FeaConnection> connectionMap;
+    
     public Fea()
     {
         
     }
     
-    public void impact(){
+    /**
+    * impact
+    *  Description: Create data structures used to manage calculations in impact deformation.
+    */
+    public void initalize(ObjectInfo meshObj){
+        System.out.println("Fea initalize. ");
+        Object3D triangleMesh = null;
+        if(meshObj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+            triangleMesh = meshObj.getObject().convertToTriangleMesh(0.05);
+            if(triangleMesh instanceof TriangleMesh){
+                TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                MeshVertex[] edgeVerts = ((TriangleMesh)triangleMesh).getVertices();
+                
+                //
+                //Object meshObject = (Object)meshObj.getObject();
+                //Vec3 [] verts = mesh.getVertexPositions();
+                
+                // Get list of all verts connected to the currVec by edges.
+                for(int v = 0; v < edges.length; v++){
+                    TriangleMesh.Edge edge = edges[v];
+                    
+                    // edge.v1 edge.v2
+                    
+                    //connectionMap.put( , );
+                }
+                
+                //int index = 0;
+                //for (Vec3 vert : edgeVerts){ // iterate object points
+                for(int i = 0; i < edgeVerts.length; i++){
+                    Vec3 vertex = edgeVerts[i].r;
+                    
+                    FeaPoint feaPoint = new FeaPoint();
+                //    feaPoint.pointId = index;
+                //    feaPoint.preLocation = new Vec3(vertex.x, vertex.y, vertex.z);
+                //    feaPoint.postLocation = new Vec3();
+                //    feaPoint.inputForces
+                    
+                    
+                //    feaPoint.connections
+                    
+                //    pointMap.put(i, feaPoint);
+                    
+                    
+                    
+                    //index++;
+                }
+            }
+        }
+            
+            /*
+            for (ObjectInfo info : objects){
+                Object co = (Object)info.getObject();
+                if((co instanceof ForceObject) == true){
+             
+                    System.out.println(" Force Vector ");
+                    Mesh mesh = (Mesh) info.getObject(); // Object3D
+                    Vec3 [] verts = mesh.getVertexPositions();
+                    for (Vec3 vert : verts){
+                        System.out.println("   - " + vert.x + " " + vert.y + " " + vert.z);
+                        
+                        
+                        //points
+                        
+                    }
+                }
+            }
+             */
+    }
+    
+    public void orderPoints(){
         
+    }
+    
+    /**
+     * impact
+     *  Description:
+     */
+    public void impact(ObjectInfo meshObj){
+        LayoutModeling layout = new LayoutModeling();
+        
+        Object3D triangleMesh = null; // && triangleMesh != null
+        if(meshObj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+            
+            triangleMesh = meshObj.getObject().convertToTriangleMesh(0.05);
+            
+        
+        }
     }
     
     
@@ -47,4 +138,10 @@ public class Fea
         
     }
     
+    public void setObjects(Vector<ObjectInfo> objects){
+        this.objects = objects;
+    }
+    public void setObject(ObjectInfo obj){
+        this.obj = obj;
+    }
 }
