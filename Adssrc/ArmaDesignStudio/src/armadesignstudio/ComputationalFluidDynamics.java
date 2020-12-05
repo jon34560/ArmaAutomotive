@@ -1328,7 +1328,7 @@ public class ComputationalFluidDynamics extends Thread {
      * Frontal Area
      *
      * Description: Calculate scene object frontal area.
-     *  TODO: subdivide meshes.
+     *  TODO: use vector collisions.
      */
     public double frontalArea(){
         double area = 0;
@@ -1342,7 +1342,7 @@ public class ComputationalFluidDynamics extends Thread {
         bounds.minz = 99999;
         bounds.maxz = -99999;
         
-        int segments = 100;
+        int segments = 14;
         
         // find objects bounds and collect all object face geometry
         Vector sceneTriangles = new Vector();
@@ -1398,9 +1398,9 @@ public class ComputationalFluidDynamics extends Thread {
             }
         }
         System.out.println(" bounds  x " + bounds.minx + " " + bounds.maxx + " y " + bounds.miny + " " + bounds.maxy + " z " + bounds.minz + "  "+ bounds.maxz  );
-        volume = ( bounds.maxx - bounds.minx ) * ( bounds.maxy - bounds.miny ) * ( bounds.maxz - bounds.minz );
         
-        //System.out.println(" volume: " + volume  );
+        volume = ( bounds.maxx - bounds.minx ) * ( bounds.maxy - bounds.miny ) * ( bounds.maxz - bounds.minz );
+        System.out.println(" volume: " + volume  );
         
         double xSegmentWidth = (bounds.maxx - bounds.minx) / segments;
         double ySegmentWidth = (bounds.maxy - bounds.miny) / segments;
@@ -1428,121 +1428,91 @@ public class ComputationalFluidDynamics extends Thread {
         }
         
         
-        // Frontal pass
+        // Frontal pass (Depricate this method of calculation.)
         int frontalAreaOccupiedGridCount = 0;
         for(int x = 0; x < segments; x++){
-            for(int y = segments - 1; y >= 0; y--){
+            for(int y = 0; y < segments; y++){
                 boolean frontalRegionOccupied = false;
                 
-                for(int z = 0; z < segments && frontalRegionOccupied == false; z++){
+                double depth = 0;
+                
+                for (ObjectInfo obj : objects){
+                    if(obj.getName().indexOf("Camera") < 0 &&
+                       obj.getName().indexOf("Light") < 0 &&
+                       obj.getName().equals("") == false &&
+                       obj.isVisible()
+                       
+                       ){
                         
-                    BoundingBox cubeBounds = new BoundingBox(bounds);
-                    cubeBounds.minx = bounds.minx + (x * xSegmentWidth);
-                    cubeBounds.maxx = bounds.minx + ((x+1) * xSegmentWidth);
-                    cubeBounds.minz = bounds.minz + (z * zSegmentWidth);
-                    cubeBounds.maxz = bounds.minz + ((z+1) * zSegmentWidth);
-                    cubeBounds.miny = bounds.miny + (y * zSegmentWidth);
-                    cubeBounds.maxy = bounds.miny + ((y + 1) * zSegmentWidth); // ???
-                    boolean occupied = false;
-                    
-                    
-                    // detect collisions.
-                    for(int f = 0; f < sceneTriangles.size() && occupied == false; f++){
-                        Vec3[] triangle = (Vec3[])sceneTriangles.elementAt(f);
-                        Vec3 vec1 = triangle[0];
-                        Vec3 vec2 = triangle[1];
-                        Vec3 vec3 = triangle[2];
+                        CoordinateSystem c;
+                        c = layout.getCoords(obj);
+                        Vec3 objOrigin = c.getOrigin();
+                
+                        BoundingBox cubeBounds = new BoundingBox(bounds);
+                        cubeBounds.minx = bounds.minx + (x * xSegmentWidth);
+                        cubeBounds.maxx = bounds.minx + ((x+1) * xSegmentWidth);
+                        //cubeBounds.minz = bounds.minz + (z * zSegmentWidth);
+                        //cubeBounds.maxz = bounds.minz + ((z+1) * zSegmentWidth);
+                        cubeBounds.miny = bounds.miny + (y * ySegmentWidth);
+                        cubeBounds.maxy = bounds.miny + ((y + 1) * ySegmentWidth); // ???
                         
-                        //System.out.println(" vec1  " + vec1.x  + " y " + vec1.y + " z " + vec1.z  + "   cube x" + cubeBounds.minx + " " + cubeBounds.maxx );
                         
-                        BoundingBox faceBounds = new BoundingBox(bounds);
-                        faceBounds.minx = Math.min(Math.min(vec1.x, vec2.x), vec3.x);
-                        faceBounds.maxx = Math.max(Math.max(vec1.x, vec2.x), vec3.x);
-                        faceBounds.miny = Math.min(Math.min(vec1.y, vec2.y), vec3.y);
-                        faceBounds.maxy = Math.max(Math.max(vec1.y, vec2.y), vec3.y);
-                        faceBounds.minz = Math.min(Math.min(vec1.z, vec2.z), vec3.z);
-                        faceBounds.maxz = Math.max(Math.max(vec1.z, vec2.z), vec3.z);
-                        //if(cubeBounds.maxx >= faceBounds.minx && cubeBounds.minx <= faceBounds.maxx &&
-                        //   cubeBounds.maxy >= faceBounds.miny && cubeBounds.miny <= faceBounds.maxy &&
-                        //   cubeBounds.maxz >= faceBounds.minz && cubeBounds.minz <= faceBounds.maxz
-                        //   ){
+                        double x_loc = bounds.minx + (x * xSegmentWidth);
+                        double y_loc = bounds.miny + (y * ySegmentWidth);
+                        Vec3 point_loc = new Vec3(x_loc, y_loc, 0);
                         
-                        if(
-                               (vec1.x >= cubeBounds.minx && vec1.x <= cubeBounds.maxx &&
-                                vec1.y >= cubeBounds.miny && vec1.y <= cubeBounds.maxy &&
-                                vec1.z >= cubeBounds.minz && vec1.z <= cubeBounds.maxz)
-                           ||
-                               (vec2.x >= cubeBounds.minx && vec2.x <= cubeBounds.maxx &&
-                                vec2.y >= cubeBounds.miny && vec2.y <= cubeBounds.maxy &&
-                                vec2.z >= cubeBounds.minz && vec2.z <= cubeBounds.maxz)
-                           ||
-                               (vec3.x >= cubeBounds.minx && vec3.x <= cubeBounds.maxx &&
-                                vec3.y >= cubeBounds.miny && vec3.y <= cubeBounds.maxy &&
-                                vec3.z >= cubeBounds.minz && vec3.z <= cubeBounds.maxz)
-                           ){ // face vertecy in cube
+                        
+                        TriangleMesh triangleMesh = null;
+                        triangleMesh = obj.getObject().convertToTriangleMesh(0.05);
+                        //triangleMesh = ((TriangleMesh)obj.getObject()).duplicate()  .convertToTriangleMesh(0.05);
+                        MeshVertex[] verts = triangleMesh.getVertices();
+                        TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                        
+                        TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                        
+                        //System.out.println("faces: " + faces.length);
+                        for(int f = 0; f < faces.length; f++){ //  && running
+                            TriangleMesh.Face face = faces[f];
+                            Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                            Vec3 vec2 = new Vec3(verts[face.v2].r);
+                            Vec3 vec3 = new Vec3(verts[face.v3].r);
                             
-                            //System.out.println("+     x: " + x + " y: " + y + " z: " + z + " "  );
-                            occupied = true;
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            mat4.transform(vec1);
+                            mat4.transform(vec2);
+                            mat4.transform(vec3);
+                            
+                            if(inside_frontal_trigon(point_loc, vec1, vec2, vec3)){
+                                
+                                double currDepth = trigon_depth(point_loc, vec1, vec2, vec3);
+                                if(currDepth > depth){
+                                    depth = currDepth;
+                                }
+                                //System.out.println("x " + x +  " y " + y + "  depth: " + depth);
+                                frontalRegionOccupied = true;
+                                
+                                
+                            } else {
+                                //System.out.println("x " + x +  " y " + y + "  outside " );
+                            }
                         }
+                                
                         
-                        
-                        
-                        //boolean inXPlane_1 = vec1.z >= cubeBounds.minz && vec1.z <= cubeBounds.maxz && vec1.y >= cubeBounds.miny && vec1.y <= cubeBounds.maxy;
-                        
-                        boolean inX =
-                        (faceBounds.minx >= cubeBounds.minx || faceBounds.maxx >= cubeBounds.minx) &&   // a face x point is > cube min
-                        (faceBounds.minx <= cubeBounds.maxx || faceBounds.maxx <= cubeBounds.maxx);     // a face x point in < cube max
-                        boolean inY =
-                        (faceBounds.miny >= cubeBounds.miny || faceBounds.maxy >= cubeBounds.miny) &&
-                        (faceBounds.miny <= cubeBounds.maxy || faceBounds.maxy <= cubeBounds.maxy);
-                        boolean inZ =
-                        (faceBounds.minz >= cubeBounds.minz || faceBounds.maxz >= cubeBounds.minz) &&
-                        (faceBounds.minz <= cubeBounds.maxz || faceBounds.maxz <= cubeBounds.maxz);
-                        
-                        boolean inXPlane = inZ && inY;
-                        boolean inYPlane = inZ && inX;
-                        boolean inZPlane = inY && inX;
                     
-                        boolean spanXPlane = (faceBounds.minx <= cubeBounds.minx && faceBounds.maxx >= cubeBounds.maxx);
-                        boolean spanYPlane = (faceBounds.miny <= cubeBounds.miny && faceBounds.maxy >= cubeBounds.maxy);
-                        boolean spanZPlane = (faceBounds.minz <= cubeBounds.minz && faceBounds.maxz >= cubeBounds.maxz);
-                        
-                        //System.out.println(" - "+  inXPlane + " , " + inYPlane + " , " + inZPlane + " span " + spanXPlane + " , " + spanYPlane + " , " + spanZPlane);
-                        
-                        if(inX && inY && inZ){
-                            occupied = true;
-                        }
-                        if(( inXPlane && spanXPlane) || (inYPlane && spanYPlane) || (inZPlane && spanZPlane)){
-                            //System.out.println( "    ****** " );
-                        //    occupied = true;
-                        }
-                        if((spanXPlane && spanYPlane && inZ) || (spanXPlane && spanZPlane && inY) || (spanYPlane && spanZPlane && inX)){
-                            //System.out.println( "    XXXXXX " );
-                        //    occupied = true;
-                        }
-                        if((spanXPlane && spanYPlane && spanZPlane) || (spanXPlane && spanZPlane && spanYPlane) || (spanYPlane && spanZPlane && spanXPlane)){
-                            //System.out.println( "    ZZZZZZ " );
-                        //    occupied = true;
-                        }
-                        
-                        if((inX && inY && spanZPlane) || (inX && inZ && spanYPlane) || (inY && inZ && spanXPlane)){
-                            //System.out.println( "    ...... " );
-                        //    occupied = true;
-                        }
-                    }
-                    
-                    if(occupied){
-                        frontalRegionOccupied = true;
-                    }
-                    
-                } // z
+                    } //
+                }
                 if(frontalRegionOccupied){
                     frontalAreaOccupiedGridCount++;
+                    //System.out.println("x " + x +  " y " + y + "depth: " + depth );
+                } else {
+                    //System.out.println("x " + x +  " y " + y + " void. "  );
                 }
+                
             }
         }
+        System.out.println("frontalAreaOccupiedGridCount: " + frontalAreaOccupiedGridCount );
         int total = segments * segments;
-        area = xSegmentWidth * ySegmentWidth * frontalAreaOccupiedGridCount;
+        area = (xSegmentWidth * ySegmentWidth) * frontalAreaOccupiedGridCount ;
         System.out.println("total cells: "+ total + " occupied cells: " + frontalAreaOccupiedGridCount + " area: " + area);
         
         // Notify dialog.
@@ -1596,6 +1566,16 @@ public class ComputationalFluidDynamics extends Thread {
     }
     
     
+    double trigon_depth(Vec3 s, Vec3 a, Vec3 b, Vec3 c){
+        double depth = -100;
+        
+        Vec3 planeNormal = calcNormal(a, b, c);
+        Vec3 intersect = intersectPoint(new Vec3(0,0,1), s, planeNormal, a);
+        depth = intersect.z;
+        
+        return depth;
+    }
+    
     /**
      * calcNormal
      *
@@ -1648,4 +1628,16 @@ public class ComputationalFluidDynamics extends Thread {
         if((c.x-b.x)*(s.z-b.z)-(c.z-b.z)*(s.x-b.x) > 0 != s_ab) return false;
         return true;
     }
+    
+    
+    boolean inside_frontal_trigon(Vec3 s, Vec3 a, Vec3 b, Vec3 c)
+    {
+        double as_x = s.x-a.x;
+        double as_y = s.y-a.y;
+        boolean s_ab = (b.x-a.x)*as_y-(b.y-a.y)*as_x > 0;
+        if((c.x-a.x)*as_y-(c.y-a.y)*as_x > 0 == s_ab) return false;
+        if((c.x-b.x)*(s.y-b.y)-(c.y-b.y)*(s.x-b.x) > 0 != s_ab) return false;
+        return true;
+    }
+    
 }
