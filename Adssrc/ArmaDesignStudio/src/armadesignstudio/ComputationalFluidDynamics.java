@@ -191,6 +191,7 @@ public class ComputationalFluidDynamics extends Thread {
                 fluidPoint.updatePreviousPoints(); // prev points form trail
                 
                 int v = 0;
+                double distanceToFace = 999;
                 //for(int v = 0; v < 1; v++ ){ //  points.length
                     
                     // Detect collisions.
@@ -266,8 +267,24 @@ public class ComputationalFluidDynamics extends Thread {
                                            location.z >= faceBounds.minz - 0.01 && location.z <= faceBounds.maxz + 0.01){
                                             collide = true;
                                         }
-                                    }
-                                }
+                                        
+                                        
+                                        
+                                        // calculate distance to collision surface
+                                        //
+                                        if(inside_frontal_trigon(location, vec1, vec2, vec3)){
+                                            // ***
+                                            double currDistance = trigon_depth(location, vec1, vec2, vec3);
+                                            if(currDistance < distanceToFace){
+                                                distanceToFace = currDistance;
+                                            }
+                                            
+                                            // set distance in variable of FluidPointObject fluidPoint
+                                        }
+                                         
+                                        
+                                    } // faces
+                                } // fluid point in object bounds (optimization)
                             } else {
                                 // Default collision method.
                                 
@@ -281,12 +298,17 @@ public class ComputationalFluidDynamics extends Thread {
                                 
                             }
                             
-                        }
-                    }
+                        } // detectable/usable object
+                    } // Objects
                 
                     // Collision detection, Mesh objects. collide
                 
-                
+                    if(distanceToFace > 100){ // ray casting no collide detected. (Bounds detection can be larger in area than actual)
+                        collide = false;
+                        //System.out.println("distanceToFace: " + distanceToFace);
+                    } else {
+                        //System.out.println("distanceToFace: " + distanceToFace);
+                    }
                     
                     // Detect pressure from adjacent fluid points that are too close or too far.
                     // Too close psi > 1.0, too far psi < 1.0
@@ -309,6 +331,10 @@ public class ComputationalFluidDynamics extends Thread {
                 
                     drag = 0;
                     
+                    // TODO: calculate point psi also based on distance to collision
+                
+                
+                
                     // Calculate point psi values based on proximity of adjacent points.
                     for(int f = 0; f < pointObjects.size() && running; f++){ // optimise later with index data structures.
                         if(f != i){
@@ -743,7 +769,7 @@ public class ComputationalFluidDynamics extends Thread {
                 //}
                 
                 fluidPoint.setVertexPositions(points);
-            }
+            } //     Point Objects
             
             // Respawn fluid point at beginning
             for(int x = 0; x < pointsPerLength; x++){
@@ -1342,7 +1368,7 @@ public class ComputationalFluidDynamics extends Thread {
         bounds.minz = 99999;
         bounds.maxz = -99999;
         
-        int segments = 14;
+        int segments = 50;
         
         // find objects bounds and collect all object face geometry
         Vector sceneTriangles = new Vector();
