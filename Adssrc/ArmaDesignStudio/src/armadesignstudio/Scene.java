@@ -1286,7 +1286,7 @@ public class Scene
     Class cls;
     Constructor con;
 
-    if (version < 0 || version > 6) // set version in file.
+    if (version < 0 || version > 7) // set version in file.
       throw new InvalidObjectException("");
     loadingErrors = new StringBuffer();
     ambientColor = new RGBColor(in);
@@ -1700,7 +1700,7 @@ public class Scene
     int i, j, index = 0;
     Hashtable<Object3D, Integer> table = new Hashtable<Object3D, Integer>(objects.size());
 
-    out.writeShort(6); // Version 4=old 5=with object group name  6= layout view, cam, fea data
+    out.writeShort(7); // Version 4=old, 5=with object group name, 6= layout view, cam, fea data, 7 = curve support mode
     ambientColor.writeToFile(out);
     fogColor.writeToFile(out);
     out.writeBoolean(fog);

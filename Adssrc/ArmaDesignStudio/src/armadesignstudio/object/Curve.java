@@ -31,6 +31,7 @@ public class Curve extends Object3D implements Mesh
   protected float smoothness[];
   protected boolean closed;
   protected int smoothingMethod;
+  protected boolean supportMode;
   protected WireframeMesh cachedWire;
   protected BoundingBox bounds;
   protected Vec3[] cachedSubdividedVertices;
@@ -39,7 +40,9 @@ public class Curve extends Object3D implements Mesh
     new Property(Translate.text("menu.smoothingMethod"), new Object[] {
       Translate.text("menu.none"), Translate.text("menu.interpolating"), Translate.text("menu.approximating")
     }, Translate.text("menu.shading")),
-    new Property(Translate.text("menu.closedEnds"), true)
+    new Property(Translate.text("menu.closedEnds"), true),
+    new Property("Support Curve", false)
+    
   };
 
   public Curve(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
@@ -53,7 +56,36 @@ public class Curve extends Object3D implements Mesh
     this.smoothingMethod = smoothingMethod;
     closed = isClosed;
     cachedSubdividedVertices = null;
+      supportMode = false;
   }
+    
+    
+    // overide because of custom color
+    public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
+    {
+        Camera theCamera = canvas.getCamera();
+        
+        RenderingMesh mesh = obj.getPreviewMesh();
+        if (mesh != null)
+        {
+            
+        } else {
+            
+            //
+            Color color = ViewerCanvas.lineColor;
+            if(supportMode){
+                color = new Color(185, 185, 185);
+            }
+            
+            canvas.renderWireframe(obj.getWireframePreview(), theCamera, color);
+            
+            
+            // Tell Curve object to draw edit verticies markers if enabled.
+            ((Curve)obj.object).drawEditObject(canvas);
+            
+        }
+            
+    }
     
     /**
      * drawEditObject
@@ -308,6 +340,16 @@ public class Curve extends Object3D implements Mesh
   {
     return closed;
   }
+    
+    public void setSupportMode(boolean isSupport)
+    {
+      supportMode = isSupport;
+    }
+
+    public boolean isSupportMode()
+    {
+      return supportMode;
+    }
 
   public void setSize(double xsize, double ysize, double zsize)
   {
@@ -872,8 +914,9 @@ public class Curve extends Object3D implements Mesh
     int i;
     short version = in.readShort();
 
-    if (version != 0)
-      throw new InvalidObjectException("");
+    //if (version != 0)
+    //  throw new InvalidObjectException("");
+      
     vertex = new MeshVertex [in.readInt()];
     smoothness = new float [vertex.length];
     for (i = 0; i < vertex.length; i++)
@@ -883,6 +926,14 @@ public class Curve extends Object3D implements Mesh
       }
     closed = in.readBoolean();
     smoothingMethod = in.readInt();
+      
+    // If version
+      if(version >= 7){
+          supportMode = in.readBoolean();
+          System.out.println(" curve " + supportMode);
+      } else {
+          System.out.println(" curve version: " + version);
+      }
   }
 
   public void writeToFile(DataOutputStream out, Scene theScene) throws IOException
@@ -891,7 +942,7 @@ public class Curve extends Object3D implements Mesh
 
     int i;
 
-    out.writeShort(0);
+    out.writeShort(7); // 0
     out.writeInt(vertex.length);
     for (i = 0; i < vertex.length; i++)
       {
@@ -900,6 +951,10 @@ public class Curve extends Object3D implements Mesh
       }
     out.writeBoolean(closed);
     out.writeInt(smoothingMethod);
+      
+    // If version
+      out.writeBoolean(supportMode);
+      System.out.println("writeToFile curve " + supportMode);
   }
 
   public Property[] getProperties()
@@ -911,12 +966,16 @@ public class Curve extends Object3D implements Mesh
   {
     if (index == 0)
     {
-      if (smoothingMethod == 0)
+      if (smoothingMethod == 0){
         return PROPERTIES[0].getAllowedValues()[0];
-      else
+      } else {
         return PROPERTIES[0].getAllowedValues()[smoothingMethod-1];
+      }
     }
-    return Boolean.valueOf(closed);
+      if(index == 2){
+          return Boolean.valueOf(supportMode);
+      }
+    return Boolean.valueOf(closed);  // ????
   }
 
   public void setPropertyValue(int index, Object value)
@@ -927,6 +986,8 @@ public class Curve extends Object3D implements Mesh
       for (int i = 0; i < values.length; i++)
         if (values[i].equals(value))
           setSmoothingMethod(i == 0 ? 0 : i+1);
+    } else if(index == 2){
+        setSupportMode(((Boolean) value).booleanValue());
     }
     else
     {

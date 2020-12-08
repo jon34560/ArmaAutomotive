@@ -30,7 +30,7 @@ public class CreateSupportCurveTool extends EditingTool
   private Vector<Vec3> clickPoint;
   private Vector<Float> smoothness;
   private int smoothing;
-  private SupportCurve theCurve;
+  private Curve theCurve;
   private CoordinateSystem coords;
 
   public static final int HANDLE_SIZE = 3;
@@ -171,7 +171,8 @@ public class CreateSupportCurveTool extends EditingTool
           {
             vertex[i] = coords.toLocal().times(vertex[i]);
           }
-        theCurve = new SupportCurve(vertex, s, smoothing, false);
+        theCurve = new Curve(vertex, s, smoothing, false);
+        theCurve.setSupportMode(true);
         if (e.getClickCount() == 2)
           {
             theCurve.setClosed(e.isControlDown());
