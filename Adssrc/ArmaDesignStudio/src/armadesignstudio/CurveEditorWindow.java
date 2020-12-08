@@ -78,7 +78,11 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
           //obj = converted;
       }
       
-    createMeshMenu((Curve) obj.getObject());
+    //if(obj.getObject() instanceof SupportCurve ){
+    //      createMeshMenu((SupportCurve) obj.getObject());
+    
+          createMeshMenu((Curve) obj.getObject());
+    
     createViewMenu();
     recursivelyAddListeners(this);
     UIUtilities.applyDefaultFont(content);
