@@ -748,6 +748,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     toolsMenu.add(Translate.menuItem("Get Spline Length", this, "getSplineLength"));
       
     toolsMenu.addSeparator();
+    // Tube / CAM Notching functions
+    
+      toolsMenu.add(Translate.menuItem("Auto Notch Tube Intersections.", this, "notchTubeIntersectionsCommand"));
       
     toolsMenu.add(Translate.menuItem("Perferate with Triangles (X/Y/Z Axis)", this, "perferateTrianglesCommand"));
     toolsMenu.add(Translate.menuItem("Perferate with Squares (X/Y/Z Axis)", this, "perferateSquaresCommand"));
@@ -2994,6 +2997,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         }
     }
 
+    
+    public void notchTubeIntersectionsCommand(){
+        NotchIntersections notch = new NotchIntersections(theScene, this);
+        notch.notchIntersections( theScene ); // pass scene objects
+    }
 
     public void perferateTrianglesCommand(){
         Perferate perferate = new Perferate(theScene, this);

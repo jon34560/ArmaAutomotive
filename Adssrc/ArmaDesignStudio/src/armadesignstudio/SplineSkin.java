@@ -64,6 +64,8 @@ public class SplineSkin extends Thread {
         Vector< PointJoinObject > connections = new Vector<>();
         Vector< Curve > curves = new Vector<>();
         Vector< ObjectInfo > curveOIs = new Vector<>();
+        Vector< Curve > supportCurves = new Vector<>();
+        Vector< ObjectInfo > supportCurveOIs = new Vector<>();
         
         //Vector< Vector < > > connections = new Vector<  >();
         //HashMap <Integer, >
@@ -74,7 +76,11 @@ public class SplineSkin extends Thread {
             // PointJoinObject
             if((co instanceof Curve) == true){
                 //curves.addElement(co);
-                curveOIs.addElement(obj);
+                if((   (Curve)co  ).isSupportMode()){
+                    supportCurveOIs.addElement(obj);
+                } else {
+                    curveOIs.addElement(obj);
+                }
             }
             if(co instanceof PointJoinObject){
                 PointJoinObject pjo = (PointJoinObject)co;
@@ -86,12 +92,13 @@ public class SplineSkin extends Thread {
         
         // 2 Subdivide curves.
         
+        
         //
         for(int i = 0; i < curveOIs.size(); i++){
             ObjectInfo curveOI = (ObjectInfo)curveOIs.elementAt(i);
             int curveId = curveOI.getId();  // objectInfo.getId();
             
-            // what other curves (and points) is this connected to.
+            // what other curves (and points) is this connected to. (Depricate, use support curves to determine mesh regions)
             
             for(int x = 0; x < connections.size(); x++){
                 PointJoinObject pjo = (PointJoinObject)connections.elementAt(x);
@@ -110,6 +117,43 @@ public class SplineSkin extends Thread {
         
         
     }
+    
+    
+    public Vector<ObjectInfo> getDominantCurves(){
+        Vector<ObjectInfo> curves = new Vector();
+        /*
+        for (ObjectInfo obj : objects){
+            Object co = (Object)obj.getObject();
+            // PointJoinObject
+            if((co instanceof Curve) == true){
+                if( (co(Curve)).isSupportMode() == false ){
+                    curves.addElement(obj);
+                }
+            }
+        }
+         
+         */
+        return curves;
+    }
+    
+    public Vector<ObjectInfo> getSupportCurves( ){
+        Vector<ObjectInfo> curves = new Vector();
+        
+        return curves;
+    }
+    
+    public Vector<ObjectInfo> getSupportCurvesForDominantCurve(ObjectInfo dominantCurve,
+                                                               Vector<ObjectInfo> supportCurves,
+                                                               Vector< PointJoinObject > connections){
+        Vector<ObjectInfo> curves = new Vector();
+        
+        for(int x = 0; x < connections.size(); x++){
+            
+        }
+        
+        return curves;
+    }
+    
     
     /**
      * autoSkinBySpace
