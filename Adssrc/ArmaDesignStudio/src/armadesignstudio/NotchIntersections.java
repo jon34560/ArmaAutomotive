@@ -42,7 +42,7 @@ public class NotchIntersections {
         if(selection.length > 0){
             // Get scene edges to use when detecting intersection of selection.
             
-            ObjectInfo info = scene.getObject(selection[0]);
+            ObjectInfo info = scene.getObject(selection[0]).duplicate();
             
             System.out.println("obj " + info);
             Object co = (Object)info.getObject();
@@ -74,7 +74,13 @@ public class NotchIntersections {
                 Vector<ObjectInfo> sceneObjectInfos = scene.getObjects();
                 for(int i = 0; i < sceneObjectInfos.size(); i++){
                     //if(i != selection[0]){ // doesn't support multiple selection.
-                        ObjectInfo objectInfo = sceneObjectInfos.elementAt(i);
+                    ObjectInfo objectInfo = sceneObjectInfos.elementAt(i);
+                    Object obj = objectInfo.getObject();
+                    //System.out.println("class: " + obj.getClass().getName());
+                    if((obj instanceof armadesignstudio.object.SceneCamera) == false &&
+                       (obj instanceof armadesignstudio.object.DirectionalLight) == false){
+                    
+                        //objectInfo = objectInfo.duplicate();
                         CoordinateSystem objectCS;
                         objectCS = layout.getCoords(objectInfo);
                         //BoundingBox compareBounds = compareOI.getTranslatedBounds();
@@ -101,7 +107,7 @@ public class NotchIntersections {
                                 }
                             }
                         //}
-                    //}
+                    }
                 }
                 
                 
@@ -121,67 +127,77 @@ public class NotchIntersections {
                 // Get edges of other objects that could intersect with the selected object.
                 sceneObjectInfos = scene.getObjects();
                 for(int i = 0; i < sceneObjectInfos.size(); i++){
-                    if(i != selection[0]){ // doesn't support multiple selection.
-                        ObjectInfo compareOI = sceneObjectInfos.elementAt(i);
-                        BoundingBox compareBounds = compareOI.getTranslatedBounds();
-                        boolean intersects = bounds.intersects(compareBounds);
-                        if(intersects){
-                            System.out.println(" intersect: " + compareOI.getName());
+                    ObjectInfo compareOI = sceneObjectInfos.elementAt(i);
+                    Object obj = compareOI.getObject();
+                    //System.out.println("class: " + obj.getClass().getName());
+                    if((obj instanceof armadesignstudio.object.SceneCamera) == false &&
+                       (obj instanceof armadesignstudio.object.DirectionalLight) == false){
+                        
+                        if(i != selection[0]){ // doesn't support multiple selection.
                             
-                            Vector<Vec3> notchPoints = new Vector<Vec3>();
-                            
-                            for(int f = 0; f < selectedObjectEdges.size(); f++){
-                                EdgeStruct selectedEdgeStruct = selectedObjectEdges.elementAt(f);
+                            //compareOI = compareOI.duplicate();
+                            BoundingBox compareBounds = compareOI.getTranslatedBounds();
+                            boolean intersects = bounds.intersects(compareBounds);
+                            if(intersects){
+                                System.out.println(" intersect: " + compareOI.getName());
                                 
-                                Vector<Vec3> selectedIntermediates = intermediatePoints(selectedEdgeStruct.vec1, selectedEdgeStruct.vec2);
-                            
-                                // Closest point
-                                Vec3 closestPoint = null;
-                                double closestPointDistance = 999;
+                                Vector<Vec3> notchPoints = new Vector<Vec3>();
                                 
-                                for(int e = 0; e < edgeStructs.size(); e++){
-                                    EdgeStruct edgeStruct = edgeStructs.elementAt(e);
-                                    if(edgeStruct.objectID == i){ // edges of collided object
-                                        Vector<Vec3> compareIntermediates = intermediatePoints(edgeStruct.vec1, edgeStruct.vec2);
-                                        for(int a = 0; a < selectedIntermediates.size(); a++){
-                                            for(int b = 0; b < compareIntermediates.size(); b++){
-                                                Vec3 av = selectedIntermediates.elementAt(a);
-                                                Vec3 bv = compareIntermediates.elementAt(b);
-                                                double distance = av.distance(bv);
-                                                if(distance < closestPointDistance){
-                                                    closestPoint = av; // closest point along the selected object edges.
+                                for(int f = 0; f < selectedObjectEdges.size(); f++){
+                                    EdgeStruct selectedEdgeStruct = selectedObjectEdges.elementAt(f);
+                                    
+                                    Vector<Vec3> selectedIntermediates = intermediatePoints(selectedEdgeStruct.vec1, selectedEdgeStruct.vec2);
+                                
+                                    double maxDistance = selectedEdgeStruct.vec1.distance(selectedEdgeStruct.vec2) / 12;
+                                    
+                                    // Closest point
+                                    Vec3 closestPoint = null;
+                                    double closestPointDistance = 999;
+                                    
+                                    for(int e = 0; e < edgeStructs.size(); e++){
+                                        EdgeStruct edgeStruct = edgeStructs.elementAt(e);
+                                        if(edgeStruct.objectID == i){ // edges of collided object
+                                            Vector<Vec3> compareIntermediates = intermediatePoints(edgeStruct.vec1, edgeStruct.vec2);
+                                            for(int a = 0; a < selectedIntermediates.size(); a++){
+                                                for(int b = 0; b < compareIntermediates.size(); b++){
+                                                    Vec3 av = selectedIntermediates.elementAt(a);
+                                                    Vec3 bv = compareIntermediates.elementAt(b);
+                                                    double distance = av.distance(bv);
+                                                    if(distance < closestPointDistance && distance < maxDistance){
+                                                        closestPoint = av; // closest point along the selected object edges.
+                                                    }
                                                 }
                                             }
+                                            
                                         }
-                                        
                                     }
-                                }
-                                if(closestPoint != null){
-                                    notchPoints.addElement(closestPoint);
-                                }
-                            
-                            }
-                            // Create curve from notchPoints
-                            // TODO
-                            if(notchPoints.size() > 0){
-                                float[] s_ = new float[notchPoints.size()]; // s_[0] = 0; s_[1] = 0; s_[2] = 0;
-                                for(int ii = 0; ii < notchPoints.size(); ii++){
-                                    s_[ii] = 0;
-                                }
-                                Vec3[] vertex = new Vec3[notchPoints.size()];
-                                for(int ii = 0; ii < notchPoints.size(); ii++){
-                                    Vec3 point = notchPoints.elementAt(ii);
-                                    vertex[ii] = point;
-                                }
-                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
-                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
-                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Notch " ); // + ++p
-                                perferationInfo.setParent(info); // Add perferation object to selection.
-                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                    if(closestPoint != null){
+                                        notchPoints.addElement(closestPoint);
+                                    }
                                 
-                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                                }
+                                // Create curve from notchPoints
+                                // TODO
+                                if(notchPoints.size() > 0){
+                                    float[] s_ = new float[notchPoints.size()]; // s_[0] = 0; s_[1] = 0; s_[2] = 0;
+                                    for(int ii = 0; ii < notchPoints.size(); ii++){
+                                        s_[ii] = 0;
+                                    }
+                                    Vec3[] vertex = new Vec3[notchPoints.size()];
+                                    for(int ii = 0; ii < notchPoints.size(); ii++){
+                                        Vec3 point = notchPoints.elementAt(ii);
+                                        vertex[ii] = point;
+                                    }
+                                    Curve notchCurve = new Curve(vertex, s_, 0, true); // false
+                                    CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                    ObjectInfo notchInfo = new ObjectInfo(notchCurve, coords, "Notch " ); // + ++p
+                                    notchInfo.setParent(info); // Add perferation object to selection.
+                                    info.addChild(notchInfo, info.getChildren().length); // info.getChildren().length+1
+                                    
+                                    window.addObject(notchInfo, null); // Add ObjectInfo
+                                }
+                                
                             }
-                            
                         }
                     }
                 }
@@ -240,6 +256,9 @@ public class NotchIntersections {
                 }
                 
                 */
+                
+                window.updateImage();
+                window.updateTree(); // Tell the tree it has changed.
                 
             }
             
