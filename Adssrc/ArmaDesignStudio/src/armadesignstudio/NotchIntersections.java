@@ -22,31 +22,324 @@ public class NotchIntersections {
         this.window = window;
     }
     
+    class EdgeStruct {
+        public EdgeStruct(int id, Vec3 vec1, Vec3 vec2){
+            objectID = id; this.vec1 = vec1; this.vec2 = vec2;
+        }
+        public int objectID = -1;
+        public Vec3 vec1 = null;
+        public Vec3 vec2 = null;
+    }
     
+    /**
+     * notchIntersections
+     *
+     * Description: Create a notch spline around a tube object where it intersects with other objects.
+     */
     public void notchIntersections(Scene scene){
-        
         LayoutModeling layout = new LayoutModeling();
         int selection[] = scene.getSelection();
         if(selection.length > 0){
+            // Get scene edges to use when detecting intersection of selection.
+            
             ObjectInfo info = scene.getObject(selection[0]);
             
             System.out.println("obj " + info);
             Object co = (Object)info.getObject();
+            /*
             if((co instanceof Mesh) == true){
-            
                 // Find object orientation
-                
                 BoundingBox bounds = getTranslatedBounds(info);
                 System.out.println("bounds " + bounds.minx + " " + bounds.maxx + " " +
                                    bounds.miny + " " + bounds.maxy + " " +
                                    bounds.minz + " " + bounds.maxz + " " );
                 
+                // Iterate through each edge segment.
+                
+                // Iterate through other objects to find intersections.
+                
             } else {
                 System.out.println("Selected object is not a mesh. " );
             }
-        }
+             */
             
+            //Object3D o3d = object.getObject().duplicate();
+            
+            if(info.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){ // If selected is a suitable object
+                
+                //
+                // Load scene object edges vectors into data structures.
+                //
+                Vector<EdgeStruct> edgeStructs = new Vector<EdgeStruct>();
+                Vector<ObjectInfo> sceneObjectInfos = scene.getObjects();
+                for(int i = 0; i < sceneObjectInfos.size(); i++){
+                    //if(i != selection[0]){ // doesn't support multiple selection.
+                        ObjectInfo objectInfo = sceneObjectInfos.elementAt(i);
+                        CoordinateSystem objectCS;
+                        objectCS = layout.getCoords(objectInfo);
+                        //BoundingBox compareBounds = compareOI.getTranslatedBounds();
+                        //boolean intersects = bounds.intersects(compareBounds);
+                        //if(intersects){
+                            //System.out.println(" intersect: " + compareOI.getName());
+                            TriangleMesh triangleMesh = null;
+                            triangleMesh = objectInfo.getObject().convertToTriangleMesh(0.05);
+                            if(triangleMesh != null){
+                                MeshVertex[] objectVerts = triangleMesh.getVertices();
+                                TriangleMesh.Edge[] objectEdges = ((TriangleMesh)triangleMesh).getEdges();
+                                for(int ce = 0; ce < objectEdges.length; ce++){ //  && running
+                                    TriangleMesh.Edge objectEdge = objectEdges[ce];
+                                    Vec3 vec1 = new Vec3(objectVerts[objectEdge.v1].r);
+                                    Vec3 vec2 = new Vec3(objectVerts[objectEdge.v2].r);
+                                    Mat4 mat4 = objectCS.duplicate().fromLocal();
+                                    mat4.transform(vec1);
+                                    mat4.transform(vec2);
+                                    EdgeStruct edgeStruct = new EdgeStruct(i, vec1, vec2);
+                                    edgeStructs.addElement(edgeStruct);
+                                    
+                                    //System.out.println("Edge " + i + "  x: " + vec1.x + "  y: " + vec1.y +   "  z: " +
+                                    //                   vec2.z + "-  x: " + vec2.x + "  y: " + vec2.y +   "  z: " + vec2.z);
+                                }
+                            }
+                        //}
+                    //}
+                }
+                
+                
+                // get edges of selected object
+                Vector<EdgeStruct> selectedObjectEdges = new Vector<EdgeStruct>();
+                for(int e = 0; e < edgeStructs.size(); e++){
+                    EdgeStruct edgeStruct = edgeStructs.elementAt(e);
+                    if(edgeStruct.objectID == selection[0]){
+                        selectedObjectEdges.addElement(edgeStruct);
+                    }
+                }
+                        
+             
+                BoundingBox bounds = info.getTranslatedBounds();
+                
+                
+                // Get edges of other objects that could intersect with the selected object.
+                sceneObjectInfos = scene.getObjects();
+                for(int i = 0; i < sceneObjectInfos.size(); i++){
+                    if(i != selection[0]){ // doesn't support multiple selection.
+                        ObjectInfo compareOI = sceneObjectInfos.elementAt(i);
+                        BoundingBox compareBounds = compareOI.getTranslatedBounds();
+                        boolean intersects = bounds.intersects(compareBounds);
+                        if(intersects){
+                            System.out.println(" intersect: " + compareOI.getName());
+                            
+                            Vector<Vec3> notchPoints = new Vector<Vec3>();
+                            
+                            for(int f = 0; f < selectedObjectEdges.size(); f++){
+                                EdgeStruct selectedEdgeStruct = selectedObjectEdges.elementAt(f);
+                                
+                                Vector<Vec3> selectedIntermediates = intermediatePoints(selectedEdgeStruct.vec1, selectedEdgeStruct.vec2);
+                            
+                                // Closest point
+                                Vec3 closestPoint = null;
+                                double closestPointDistance = 999;
+                                
+                                for(int e = 0; e < edgeStructs.size(); e++){
+                                    EdgeStruct edgeStruct = edgeStructs.elementAt(e);
+                                    if(edgeStruct.objectID == i){ // edges of collided object
+                                        Vector<Vec3> compareIntermediates = intermediatePoints(edgeStruct.vec1, edgeStruct.vec2);
+                                        for(int a = 0; a < selectedIntermediates.size(); a++){
+                                            for(int b = 0; b < compareIntermediates.size(); b++){
+                                                Vec3 av = selectedIntermediates.elementAt(a);
+                                                Vec3 bv = compareIntermediates.elementAt(b);
+                                                double distance = av.distance(bv);
+                                                if(distance < closestPointDistance){
+                                                    closestPoint = av; // closest point along the selected object edges.
+                                                }
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                if(closestPoint != null){
+                                    notchPoints.addElement(closestPoint);
+                                }
+                            
+                            }
+                            // Create curve from notchPoints
+                            // TODO
+                            if(notchPoints.size() > 0){
+                                float[] s_ = new float[notchPoints.size()]; // s_[0] = 0; s_[1] = 0; s_[2] = 0;
+                                for(int ii = 0; ii < notchPoints.size(); ii++){
+                                    s_[ii] = 0;
+                                }
+                                Vec3[] vertex = new Vec3[notchPoints.size()];
+                                for(int ii = 0; ii < notchPoints.size(); ii++){
+                                    Vec3 point = notchPoints.elementAt(ii);
+                                    vertex[ii] = point;
+                                }
+                                Curve perferationCurve = new Curve(vertex, s_, 0, true); // false
+                                CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                                ObjectInfo perferationInfo = new ObjectInfo(perferationCurve, coords, "Notch " ); // + ++p
+                                perferationInfo.setParent(info); // Add perferation object to selection.
+                                info.addChild(perferationInfo, info.getChildren().length); // info.getChildren().length+1
+                                
+                                window.addObject(perferationInfo, null); // Add ObjectInfo
+                            }
+                            
+                        }
+                    }
+                }
+                            
+                
+                //TriangleMesh triangleMesh = null;
+                //triangleMesh = info.getObject().convertToTriangleMesh(0.05);
+                
+                //System.out.println("bounds: x: " + bounds.minx + " " + bounds.maxx +
+                //                   " y: " + bounds.miny + " " + bounds.maxy +
+                //                   " z: " + bounds.minz + " " + bounds.maxz);
+                /*
+                CoordinateSystem c;
+                c = layout.getCoords(info);
+                MeshVertex[] verts = triangleMesh.getVertices();
+                TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                for(int e = 0; e < edges.length; e++){
+                    TriangleMesh.Edge edge = edges[e];
+                    
+                    Vec3 vec1 = new Vec3(verts[edge.v1].r);
+                    Vec3 vec2 = new Vec3(verts[edge.v2].r);
+                    Mat4 mat4 = c.duplicate().fromLocal();
+                    mat4.transform(vec1);
+                    mat4.transform(vec2);
+                    
+                    Vector midPoints = intermediatePoints(vec1, vec2);
+                                                
+                    //System.out.println("Edge x: " + vec1.x + "  y: " + vec1.y +   "  z: " +
+                    //                   vec2.z + "-  x: " + vec2.x + "  y: " + vec2.y +   "  z: " + vec2.z + "   " + e);
+                    
+                    double edgeLength = vec1.distance(vec2);
+                    //System.out.println("edgeLength: " + edgeLength);
+                    
+                    // Generate list of intermediate points along edge.
+                    Vector intermediatePoints = intermediatePoints(vec1, vec2);
+                    
+                    
+                                //TriangleMesh compareTriangleMesh = null;
+                                //compareTriangleMesh = compareOI.getObject().convertToTriangleMesh(0.05);
+                                //MeshVertex[] compareVerts = compareTriangleMesh.getVertices();
+                                //TriangleMesh.Edge[] compareEdges = ((TriangleMesh)compareTriangleMesh).getEdges();
+                                //for(int ce = 0; ce < compareEdges.length; ce++){ //  && running
+                                    //TriangleMesh.Edge compareEdge = compareEdges[ce];
+                                    //Vec3 vec1 = new Vec3(verts[edge.v1].r);
+                                    //Vec3 vec2 = new Vec3(verts[edge.v2].r);
+                                //}
+                                
+                            //if(info.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                            
+                            //    System.out.println("Check for intersection with: " + compareOI.getName() + " " +  compareOI.getClass().getName());
+                            
+                            //}
+                        }
+                    }
+                    
+                }
+                
+                */
+                
+            }
+            
+            // Generate curve
+            
+            /*
+            Vec3 a = new Vec3(1, 0, 0);
+            Vec3 b = new Vec3(100, 1, -1);
+            Vector<Vec3> intermediates = intermediatePoints(a, b);
+            for(int i = 0; i < intermediates.size(); i++){
+                Vec3 intermediate = intermediates.elementAt(i);
+                System.out.println(" _ " + intermediate.x + "  y " + intermediate.y + " z " + intermediate.z);
+            }
+            */
+        }
     }
+    
+    
+    /**
+     * intermediatePoints
+     *
+     * Description: generate a list of equally spaced  intermediate points in a line between two points.
+     */
+    public Vector<Vec3> intermediatePoints(Vec3 vec1, Vec3 vec2){
+        Vector<Vec3> points = new Vector<Vec3>();
+        
+        Vec3 midPoint = vec1.midPoint(vec2);
+        
+        Vec3 midPoint2 = vec1.midPoint(midPoint);
+        Vec3 midPoint3 = midPoint.midPoint(vec2);
+        
+        Vec3 midPoint4 = vec1.midPoint(midPoint2);
+        Vec3 midPoint5 = midPoint2.midPoint(midPoint);
+        Vec3 midPoint6 = midPoint.midPoint(midPoint3);
+        Vec3 midPoint7 = midPoint3.midPoint(vec2);
+        
+        Vec3 midPoint8 = vec1.midPoint(midPoint4);
+        Vec3 midPoint9 = midPoint4.midPoint(midPoint2);
+        Vec3 midPoint10 = midPoint2.midPoint(midPoint5);
+        Vec3 midPoint11 = midPoint5.midPoint(midPoint);
+        Vec3 midPoint12 = midPoint.midPoint(midPoint6);
+        Vec3 midPoint13 = midPoint6.midPoint(midPoint3);
+        Vec3 midPoint14 = midPoint3.midPoint(midPoint7);
+        Vec3 midPoint15 = midPoint7.midPoint(vec2);
+        
+        Vec3 midPoint16 = vec1.midPoint(midPoint8);
+        Vec3 midPoint17 = midPoint8.midPoint(midPoint4);
+        Vec3 midPoint18 = midPoint4.midPoint(midPoint9);
+        Vec3 midPoint19 = midPoint9.midPoint(midPoint2);
+        Vec3 midPoint20 = midPoint2.midPoint(midPoint10);
+        Vec3 midPoint21 = midPoint10.midPoint(midPoint5);
+        Vec3 midPoint22 = midPoint5.midPoint(midPoint11);
+        Vec3 midPoint23 = midPoint11.midPoint(midPoint);
+        Vec3 midPoint24 = midPoint.midPoint(midPoint12);
+        Vec3 midPoint25 = midPoint12.midPoint(midPoint6);
+        Vec3 midPoint26 = midPoint6.midPoint(midPoint13);
+        Vec3 midPoint27 = midPoint13.midPoint(midPoint3);
+        Vec3 midPoint28 = midPoint3.midPoint(midPoint14);
+        Vec3 midPoint29 = midPoint14.midPoint(midPoint7);
+        Vec3 midPoint30 = midPoint7.midPoint(midPoint15);
+        Vec3 midPoint31 = midPoint15.midPoint(vec2);
+        
+        points.addElement(vec1);
+        points.addElement(midPoint16 );
+        points.addElement(midPoint8);
+        points.addElement(midPoint17 );
+        points.addElement(midPoint4);
+        points.addElement(midPoint18 );
+        points.addElement(midPoint9);
+        points.addElement(midPoint19 );
+        points.addElement(midPoint2);
+        points.addElement(midPoint20 );
+        points.addElement(midPoint10);
+        points.addElement(midPoint21);
+        points.addElement(midPoint5);
+        points.addElement(midPoint22);
+        points.addElement(midPoint11);
+        points.addElement(midPoint23);
+        points.addElement(midPoint);
+        points.addElement(midPoint24);
+        points.addElement(midPoint12);
+        points.addElement(midPoint25);
+        points.addElement(midPoint6);
+        points.addElement(midPoint26);
+        points.addElement(midPoint13);
+        points.addElement(midPoint27);
+        points.addElement(midPoint3);
+        points.addElement(midPoint28);
+        points.addElement(midPoint14);
+        points.addElement(midPoint29);
+        points.addElement(midPoint7);
+        points.addElement(midPoint30);
+        points.addElement(midPoint15);
+        points.addElement(midPoint31);
+        points.addElement(vec2);
+        return points;
+    }
+    
+    
+    
     
     
     /**
