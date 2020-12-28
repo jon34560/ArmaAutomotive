@@ -835,4 +835,62 @@ public class ObjectInfo
     public void setDisplayModeOveride(int m){
         this.displayModeOveride = m;
     }
+    
+    
+    
+    /**
+    * getBounds
+    *
+    * Description: ObjectInfo.getBounds doesn't apply transfomations making its results inaccurate.
+    */
+    public BoundingBox getTranslatedBounds(){ // ObjectInfo object
+        BoundingBox bounds = new BoundingBox(0,0,0,0,0,0); //  objectBoundsCache.get(object);
+        //if(bounds != null){
+        //    return bounds;
+        //}
+        LayoutModeling layout = new LayoutModeling();
+        Object3D o3d = this.getObject().duplicate();
+        bounds = o3d.getBounds();           // THIS DOES NOT WORK
+        //bounds.minx = Float.MAX_VALUE; bounds.maxx = Float.MIN_VALUE;
+        //bounds.miny = Float.MAX_VALUE; bounds.maxy = Float.MIN_VALUE;
+        //bounds.minz = Float.MAX_VALUE; bounds.maxz = Float.MIN_VALUE;
+        
+        bounds.minx = 999; bounds.maxx = -999;
+        bounds.miny = 999; bounds.maxy = -999;
+        bounds.minz = 999; bounds.maxz = -999;
+        
+        CoordinateSystem c;
+        c = layout.getCoords(this);
+        Vec3 objOrigin = c.getOrigin();
+        if((o3d instanceof Mesh) == true){
+            Mesh mesh = (Mesh) o3d; // obj.getObject(); // Object3D
+            Vec3 [] verts = mesh.getVertexPositions();
+            for(int i = 0; i < verts.length; i++){
+                Vec3 point = verts[i];
+                Mat4 mat4 = c.duplicate().fromLocal();
+                mat4.transform(point);
+                if(point.x < bounds.minx){
+                    bounds.minx = point.x;
+                }
+                if(point.x > bounds.maxx){
+                    bounds.maxx = point.x;
+                }
+                if(point.y < bounds.miny){
+                    bounds.miny = point.y;
+                }
+                if(point.y > bounds.maxy){
+                    bounds.maxy = point.y;
+                }
+                if(point.z < bounds.minz){
+                    bounds.minz = point.z;
+                }
+                if(point.z > bounds.maxz){
+                    bounds.maxz = point.z;
+                }
+            }
+        }
+        //objectBoundsCache.put(object, bounds);
+        return bounds;
+    }
+    
 }
