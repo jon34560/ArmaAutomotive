@@ -933,6 +933,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     popupMenu.add(popupMenuItem[14] = Translate.menuItem("clear", this, "clearCommand", null));
     popupMenu.addSeparator();
     popupMenu.add(popupMenuItem[15] = Translate.menuItem("zoomToObject", this, "zoomToObject", null));
+      
+    popupMenu.add(popupMenuItem[15] = Translate.menuItem("alignObjectToCollided", this, "alignObjectToCollided", null));
+      
   }
 
   // JDT
@@ -1760,6 +1763,17 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
   private void zoomToObject(){
 	System.out.println("Zoom to object function not implemented. ");
+  }
+    
+    /**
+     * alignObjectToCollided
+     * Description: Quickly align an object to 
+     */
+  private void alignObjectToCollided(){
+      System.out.println("alignObjectToCollided to object function not implemented. ");
+      
+      
+      
   }
 
   private void actionPerformed(CommandEvent e)
