@@ -38,4 +38,7 @@ public interface ViewerControl
    */
 
   String getName();
+    
+    
+    //void setVisible(boolean visible);
 }

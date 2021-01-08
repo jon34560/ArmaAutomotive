@@ -150,17 +150,20 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
           return new Dimension(0, 0);
         }
       };
-      viewPanel[i].add(row = new RowContainer(), BorderContainer.NORTH);
-      viewPanel[i].add(theView[i] = new SceneViewer(theScene, row, this), BorderContainer.CENTER);
+      viewPanel[i].add(row = new RowContainer(), BorderContainer.NORTH); // ??? Why is RowContainer adde to viewPanel[i]
+      viewPanel[i].add(theView[i] = new SceneViewer(i, theScene, row, this), BorderContainer.CENTER); // pass in 'i'
       theView[i].setGrid(theScene.getGridSpacing(), theScene.getGridSubdivisions(), theScene.getShowGrid(), theScene.getSnapToGrid());
       theView[i].addEventLink(MousePressedEvent.class, listen);
       theView[i].addEventLink(KeyPressedEvent.class, keyListener);
       theView[i].setPopupMenuManager(this);
     }
+      
+      // Set the default view orientation.
     theView[1].setOrientation(2);
     theView[2].setOrientation(4);
     theView[3].setOrientation(6);
     theView[3].setPerspective(true);
+      
     
     //theView[1].setBackground(new Color(255, 0, 0)); // no effect
     //  viewPanel[0].setBackground(new Color(255, 0, 0)); 
@@ -1767,7 +1770,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     /**
      * alignObjectToCollided
-     * Description: Quickly align an object to 
+     * Description: Quickly align an object to
      */
   private void alignObjectToCollided(){
       System.out.println("alignObjectToCollided to object function not implemented. ");

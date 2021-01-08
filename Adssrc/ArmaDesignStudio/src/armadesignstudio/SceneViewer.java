@@ -31,30 +31,32 @@ public class SceneViewer extends ViewerCanvas
   Point clickPoint, dragPoint;
   ObjectInfo clickedObject;
   int deselect;
+    //int position = 0;
     
     String screenText = "";
     ComputationalFluidDynamics cfd = null;
     
   //PointJoinObject pointJoin = new PointJoinObject();
     
-  public SceneViewer(Scene s, RowContainer p, EditingWindow fr)
+  public SceneViewer(int position, Scene s, RowContainer p, EditingWindow fr)
   {
-    this(s, p, fr, false);
+    this(position, s, p, fr, false);
 
     //CanvasDrawer drawer = super.drawer;
     CanvasDrawer d = getCanvasDrawer();
     d.setScale( s.getScale() );
   }
 
-  public SceneViewer(Scene s, RowContainer p, EditingWindow fr, boolean forceSoftwareRendering)
+  public SceneViewer(int position, Scene s, RowContainer p, EditingWindow fr, boolean forceSoftwareRendering)
   {
     super(ArmaDesignStudio.getPreferences().getUseOpenGL() && isOpenGLAvailable() && !forceSoftwareRendering);
+    this.position = position;
     theScene = s;
     parentFrame = fr;
     addEventLink(MouseClickedEvent.class, this, "mouseClicked");
     draggingBox = draggingSelectionBox = false;
     cameras = new Vector<ObjectInfo>();
-    buildChoices(p);
+    buildChoices(p); // needs to have position set
     rebuildCameraList();
     setRenderMode(ArmaDesignStudio.getPreferences().getDefaultDisplayMode());
   }
@@ -863,4 +865,6 @@ public class SceneViewer extends ViewerCanvas
         CanvasDrawer d = getCanvasDrawer();
         d.toggleBackgroundGradient();
     }
+    
+    
 }

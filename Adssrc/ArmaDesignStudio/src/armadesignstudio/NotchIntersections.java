@@ -223,7 +223,7 @@ public class NotchIntersections {
                                     // tab and slot this notched joint.
                                     notchTabAndSlot(info, compareOI, notchPoints); // pass in objects and notch geometry
                                 }
-                                
+                                // BIG: This is not currently working.
                                 if(notchPoints2.size() > 1){
                                     System.out.println(" notchPoints2.size() "+ notchPoints2.size());
                                     float[] s_ = new float[notchPoints2.size()]; // s_[0] = 0; s_[1] = 0; s_[2] = 0;
@@ -313,6 +313,7 @@ public class NotchIntersections {
      *
      * Description: generate a list of equally spaced  intermediate points in a line between two points.
      *  Started out hard coded, then rolled up into a loop. Will clean up later.
+     *  TODO: optional later add parameter to determine how many intermediate points.
      */
     public Vector<Vec3> intermediatePoints(Vec3 vec1, Vec3 vec2){
         Vector<Vec3> points = new Vector<Vec3>();
@@ -391,7 +392,7 @@ public class NotchIntersections {
         points.addElement(vec2);
         
         
-        for(int subdivs = 0; subdivs < 5; subdivs++){
+        for(int subdivs = 0; subdivs < 4; subdivs++){
             Vector<Vec3> expandedPoints = new Vector<Vec3>();
             for(int i = 1; i < points.size(); i++){
                 Vec3 a = points.elementAt(i-1);

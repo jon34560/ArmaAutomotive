@@ -48,6 +48,8 @@ public abstract class ViewerCanvas extends CustomWidget
   private static boolean openGLAvailable;
   private static List<ViewerControl> controls = new ArrayList<ViewerControl>();
   
+  protected int position = 0;
+    
   static
   {
     try
@@ -169,10 +171,21 @@ public abstract class ViewerCanvas extends CustomWidget
       Widget w = controls.get(i).createWidget(this);
       if (w != null)
       {
-        row.add(w);
-        controlMap.put(controls.get(i), w);
+          // view canvas elements are added in the ArmaDesignStudio class to be applied to all but some are filtered out bere by position.
+          // If view
+          if( this.position != 0 && controls.get(i) instanceof armadesignstudio.view.ViewerFrontButtonControl){
+          } else if( this.position != 1 && controls.get(i) instanceof armadesignstudio.view.ViewerLeftButtonControl){
+          } else if( this.position != 2 && controls.get(i) instanceof armadesignstudio.view.ViewerTopButtonControl){
+              
+          } else {
+              row.add(w);
+              controlMap.put(controls.get(i), w);
+          }
       }
     }
+      
+      
+      
     viewChanged(false);
   }
   
@@ -1162,4 +1175,5 @@ public abstract class ViewerCanvas extends CustomWidget
   {
     return Collections.unmodifiableMap(controlMap);
   }
+    
 }

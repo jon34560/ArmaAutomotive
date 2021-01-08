@@ -200,6 +200,12 @@ public class ArmaDesignStudio
     ViewerCanvas.addViewerControl(new ViewerOrientationControl());
     ViewerCanvas.addViewerControl(new ViewerPerspectiveControl());
     ViewerCanvas.addViewerControl(new ViewerScaleControl());
+      
+      ViewerCanvas.addViewerControl(new ViewerFrontButtonControl()); // Only applies to the first position ViewerCanvas->SceneViewer (filtered in ViewerCanvas.buildChoices)
+      ViewerCanvas.addViewerControl(new ViewerLeftButtonControl());
+      ViewerCanvas.addViewerControl(new ViewerTopButtonControl());
+      
+      
     List plugins = PluginRegistry.getPlugins(Plugin.class);
     for (int i = 0; i < plugins.size(); i++)
     {
