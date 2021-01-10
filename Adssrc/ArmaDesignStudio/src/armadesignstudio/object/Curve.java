@@ -1,5 +1,5 @@
 /* Copyright (C) 1999-2008 by Peter Eastman
-                 2019 Jon Taylor - Arma Automotive
+                 2019-2021 Jon Taylor - Arma Automotive
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import buoy.widget.*;
 import java.io.*;
 import java.awt.*; // Color
 import buoy.event.*; // WidgetMouseEvent
+import java.lang.Double;
 
 /** The Curve class represents a continuous curve defined by a series of control vertices. 
     It may be either open or closed, and may either interpolate or approximate the control
@@ -32,16 +33,24 @@ public class Curve extends Object3D implements Mesh
   protected boolean closed;
   protected int smoothingMethod;
   protected boolean supportMode;
+  protected double fixedLength; // if non negative, set length.
+  protected boolean perpendicular; // orient the curve to be perpendicular to connected curves.
+    
   protected WireframeMesh cachedWire;
   protected BoundingBox bounds;
   protected Vec3[] cachedSubdividedVertices;
 
   private static final Property PROPERTIES[] = new Property [] {
-    new Property(Translate.text("menu.smoothingMethod"), new Object[] {
-      Translate.text("menu.none"), Translate.text("menu.interpolating"), Translate.text("menu.approximating")
-    }, Translate.text("menu.shading")),
+    new Property(Translate.text("menu.smoothingMethod"),
+                 new Object[] {
+                    Translate.text("menu.none"),
+                    Translate.text("menu.interpolating"),
+                    Translate.text("menu.approximating")
+                 }, Translate.text("menu.shading")),
     new Property(Translate.text("menu.closedEnds"), true),
-    new Property("Support Curve", false)
+    new Property("Support Curve", false),
+    new Property("Fixed Length", Double.MIN_VALUE, Double.MAX_VALUE, -1.0), // min, max, default
+    new Property("Perpendicular", false)
     
   };
 
@@ -57,6 +66,8 @@ public class Curve extends Object3D implements Mesh
     closed = isClosed;
     cachedSubdividedVertices = null;
       supportMode = false;
+      fixedLength = -1;
+      perpendicular = false;
   }
     
     
@@ -350,6 +361,28 @@ public class Curve extends Object3D implements Mesh
     {
       return supportMode;
     }
+    
+    public void setFixedLength(double len)
+    {
+        fixedLength = len;
+    }
+
+    public double getFixedLength()
+    {
+      return fixedLength;
+    }
+    
+    public void setPerpendicular(boolean p)
+    {
+        perpendicular = p;
+    }
+
+    public boolean isPerpendicular()
+    {
+      return perpendicular;
+    }
+    
+    
 
   public void setSize(double xsize, double ysize, double zsize)
   {
@@ -930,9 +963,14 @@ public class Curve extends Object3D implements Mesh
     // If version
       if(version >= 7){
           supportMode = in.readBoolean();
-          System.out.println(" curve " + supportMode);
+          //System.out.println(" curve " + supportMode);
       } else {
-          System.out.println(" curve version: " + version);
+          //System.out.println(" curve version: " + version);
+      }
+      
+      if(version >= 8){
+          fixedLength = in.readDouble();
+          perpendicular = in.readBoolean();
       }
   }
 
@@ -942,7 +980,7 @@ public class Curve extends Object3D implements Mesh
 
     int i;
 
-    out.writeShort(7); // 0
+    out.writeShort(8); // 0  7
     out.writeInt(vertex.length);
     for (i = 0; i < vertex.length; i++)
       {
@@ -954,7 +992,10 @@ public class Curve extends Object3D implements Mesh
       
     // If version
       out.writeBoolean(supportMode);
-      System.out.println("writeToFile curve " + supportMode);
+      //System.out.println("writeToFile curve " + supportMode);
+      
+      out.writeDouble(fixedLength);
+      out.writeBoolean(perpendicular);
   }
 
   public Property[] getProperties()
@@ -975,6 +1016,12 @@ public class Curve extends Object3D implements Mesh
       if(index == 2){
           return Boolean.valueOf(supportMode);
       }
+      if(index == 3){
+          return Double.valueOf(fixedLength);
+      }
+      if(index == 4){
+          return Boolean.valueOf(perpendicular);
+      }
     return Boolean.valueOf(closed);  // ????
   }
 
@@ -988,8 +1035,15 @@ public class Curve extends Object3D implements Mesh
           setSmoothingMethod(i == 0 ? 0 : i+1);
     } else if(index == 2){
         setSupportMode(((Boolean) value).booleanValue());
-    }
-    else
+    } else if(index == 3){
+        //System.out.println(" value " + value.getClass().getName() );
+        if( value instanceof java.lang.Double ){
+            setFixedLength( ((Double)value).doubleValue() );
+        }
+        //setFixedLength( new Double(value).doubleValue() );
+    } else if(index == 4){
+        setPerpendicular(((Boolean) value).booleanValue());
+    } else
     {
       setClosed(((Boolean) value).booleanValue());
     }
