@@ -351,6 +351,7 @@ public abstract class MeshEditorWindow extends ObjectEditorWindow implements Mes
 
   public void setPointsCommand()
   {
+      //System.out.println(" setPointsCommand() ");
     int i, j = 0, num = 0;
     final Mesh theMesh = (Mesh) getObject().getObject();
     Mesh oldMesh = (Mesh) theMesh.duplicate();

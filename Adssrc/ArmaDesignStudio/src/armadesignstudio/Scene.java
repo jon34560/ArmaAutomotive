@@ -2062,7 +2062,7 @@ public class Scene
                         double distance = Math.sqrt(Math.pow(vertA.x - vertB.x, 2) + Math.pow(vertA.y - vertB.y, 2) + Math.pow(vertA.z - vertB.z, 2));
                         linearLength += distance;
                     }
-                    if((  (Curve) co ).isClosed()){ // If spline is closed loop add distance from verticies on the ends.
+                    if(((Curve)co).isClosed()){ // If spline is closed loop add distance from verticies on the ends.
                         Vec3 vertA = verts[verts.length - 1];
                         Vec3 vertB = verts[0];
                         Vec3 worldVertA = new Vec3(vertA);

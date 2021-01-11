@@ -259,9 +259,14 @@ public abstract class ObjectEditorWindow extends BFrame implements EditingWindow
 
   protected void keyPressed(KeyPressedEvent e)
   {
+      //System.out.println("  .. ObjectEditorWindow KP ");
     KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-    if (manager.getFocusedWindow() != getComponent() || manager.getFocusOwner() instanceof TextComponent)
+    if (manager.getFocusedWindow() != getComponent() || manager.getFocusOwner() instanceof TextComponent){
+        System.out.println("  . ");
       return;
+    }
+    //System.out.println(" - "+ tools.getSelectedTool().getClass().getName() );
+      
     tools.getSelectedTool().keyPressed(e, theView[currentView]);
     if (!e.isConsumed())
       KeystrokeManager.executeKeystrokes(e, this);

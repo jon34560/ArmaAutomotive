@@ -95,6 +95,7 @@ public class KeystrokeManager
 
   public static void executeKeystrokes(KeyEvent event, EditingWindow window)
   {
+      //System.out.println("KeystrokeManager executeKeystrokes() ");
     if (keyIndex == null)
     {
       // We need to build an index for quickly looking up KeystrokeRecords.

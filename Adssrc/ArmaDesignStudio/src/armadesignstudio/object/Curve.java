@@ -54,7 +54,12 @@ public class Curve extends Object3D implements Mesh
     
   };
 
-  public Curve(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
+    public Curve(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed)
+    {
+        this(v, smoothness, smoothingMethod, isClosed, false, -1, false);
+    }
+    
+  public Curve(Vec3 v[], float smoothness[], int smoothingMethod, boolean isClosed, boolean support, double fixedLen, boolean perp)
   {
     int i;
 
@@ -65,9 +70,9 @@ public class Curve extends Object3D implements Mesh
     this.smoothingMethod = smoothingMethod;
     closed = isClosed;
     cachedSubdividedVertices = null;
-      supportMode = false;
-      fixedLength = -1;
-      perpendicular = false;
+      supportMode = support;
+      fixedLength = fixedLen;
+      perpendicular = perp;
   }
     
     
@@ -216,7 +221,8 @@ public class Curve extends Object3D implements Mesh
         v[i] = new Vec3(vertex[i].r);
         s[i] = smoothness[i];
       }
-    return new Curve(v, s, smoothingMethod, closed);
+    //return new Curve(v, s, smoothingMethod, closed);
+    return new Curve(v, s, smoothingMethod, closed, supportMode, fixedLength, perpendicular);
   }
 
   public void copyObject(Object3D obj)

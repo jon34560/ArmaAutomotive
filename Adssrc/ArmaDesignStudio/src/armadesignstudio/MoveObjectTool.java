@@ -1,5 +1,5 @@
 /* Copyright (C) 1999-2009 by Peter Eastman
- 2020 by Jon Taylor - Arma Automotive
+ 2020 by Jon Taylor - Arma Automotive Inc.
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -179,7 +179,7 @@ public class MoveObjectTool extends EditingTool
     /**
      * keyPressed
      *
-     * Description:
+     * Description: key pressed, move when object selected in main canvas views.
      */
   public void keyPressed(KeyPressedEvent e, ViewerCanvas view)
   {
@@ -194,7 +194,7 @@ public class MoveObjectTool extends EditingTool
     Vec3 v = null;
     int key = e.getKeyCode();
       
-    //System.out.println("MoveObjectTool.keyPressed() " + key);
+      //System.out.println("MoveObjectTool.keyPressed() " + key);
 
     // Pressing an arrow key is equivalent to dragging the first selected object by one pixel.
 

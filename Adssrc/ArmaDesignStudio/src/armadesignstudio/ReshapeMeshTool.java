@@ -122,8 +122,14 @@ public class ReshapeMeshTool extends MeshEditingTool
     baseVertPos = null;
   }
 
+    /**
+     * keyPressed
+     * Description: Called by ObjectEditorWindow.keyPressed() when moving verts in editor window.
+     */
   public void keyPressed(KeyPressedEvent e, ViewerCanvas view)
   {
+    //System.out.println("ReshapeMeshTool.keyPressed() " + controller.getObject().getObject().getClass().getName() );
+      
     Mesh mesh = (Mesh) controller.getObject().getObject();
     Vec3 vert[] = mesh.getVertexPositions();
     int i, selectDist[] = controller.getSelectionDistance();
@@ -175,6 +181,38 @@ public class ReshapeMeshTool extends MeshEditingTool
     theWindow.setUndoRecord(new UndoRecord(theWindow, false, UndoRecord.COPY_VERTEX_POSITIONS, new Object [] {mesh, vert}));
     v = findDraggedPositions(vert[i], vert, dx, dy, (MeshViewer) view, e.isControlDown(), selectDist);
     mesh.setVertexPositions(v);
+      
+      // If Curve has fixed Length, detect change and recalculate point.
+      if(controller.getObject().getObject() instanceof armadesignstudio.object.Curve){
+          ObjectInfo info = (ObjectInfo)controller.getObject();
+          Curve curve = ((Curve)controller.getObject().getObject());
+          double fixedLength = curve.getFixedLength();
+          //System.out.println("   curve: " + fixedLength);
+          if(fixedLength > 0){
+              //Mesh mesh = (Mesh) info.getObject();
+              //Vec3 [] verts = mesh.getVertexPositions();
+              if(vert.length > 0){
+                  Vec3 vertA = vert[0];
+                  Vec3 vertB = vert[vert.length - 1];
+              
+                  double currentDistance = vertA.distance(vertB);
+                  
+                  System.out.println("   currentDistance: " + currentDistance);
+                  //System.out.println("   i: " + i);
+                  
+                  if(currentDistance > fixedLength){
+                      
+                      // selected vert, move vert[i] such that length is fixedLength
+                      
+                      
+                      System.out.println("   Long: " + vert[i].x + " " + vert[i].y + " " + vert[i].z );
+                  }
+                  
+              }
+          }
+      }
+      
+      
     controller.objectChanged();
     theWindow.updateImage();
   }

@@ -669,9 +669,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 
     objectMenu.add(Translate.menuItem("Auto Align Selection to Scene", this, "autoAlignTransformCommand"));
       
-    objectMenu.addSeparator();
-    objectMenu.add(Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand"));
-    objectMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
+    //objectMenu.addSeparator();
+    //objectMenu.add(Translate.menuItem("Join Object Vertices", this, "joinObjectVerticesCommand")); // depricate
+    //objectMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand")); // move to tools menu
       
       
     objectMenu.addSeparator();
@@ -694,8 +694,6 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       objectDisplayMenu.add(objectDisplayItem[2] = Translate.checkboxMenuItem("transparentDisplay", this, "objectDisplayModeCommand", false));
       
       
-    
-
     objectMenu.addSeparator();
     objectMenu.add(objectMenuItem[8] = Translate.menuItem("hideSelection", this, "actionPerformed"));
     objectMenu.add(objectMenuItem[9] = Translate.menuItem("showSelection", this, "actionPerformed"));
@@ -767,10 +765,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     toolsMenu.add(Translate.menuItem("Auto Skin", this, "autoSkin"));
       toolsMenu.add(Translate.menuItem("Auto Skin by Voids", this, "autoSkinByVoids"));
       toolsMenu.add(Translate.menuItem("Spline Grid Skin", this, "splineGridSkin"));
-      toolsMenu.add(Translate.menuItem("Mesh from connected curves.", this, "connectedCurvesToMeshCommand"));
       
+      toolsMenu.addSeparator();
+      toolsMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
+      toolsMenu.add(Translate.menuItem("Mesh from Connected Curves.", this, "connectedCurvesToMeshCommand"));
       
-
     toolsMenu.addSeparator();
     toolsMenu.add(Translate.menuItem("createScriptObject", this, "createScriptObjectCommand"));
     toolsMenu.add(Translate.menuItem("editScript", this, "actionPerformed"));
@@ -2243,6 +2242,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
      * joinObjectVerticesCommand
      *
      * Description: Join two selected object verticies using a JoinPointObject.
+     *
+     * Depricate: Use Connect Points instead. This function is not reliable or fully implemented.
      */
     public void joinObjectVerticesCommand(){
         PointJoinObject createPointJoin = theScene.getCreatePointJoinObject();

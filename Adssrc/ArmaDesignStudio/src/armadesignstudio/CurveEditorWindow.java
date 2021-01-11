@@ -169,8 +169,10 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
     objInfo.clearCachedMeshes();
   }
   
+    //
   public void setMesh(Mesh mesh)
   {
+      //System.out.println(" setMesh ");
     Curve obj = (Curve) mesh;
     setObject(obj);
     if (selected.length != obj.getVertices().length)
@@ -273,6 +275,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
   
   protected void doOk()
   {
+      System.out.println(" doOk() ");
     Curve theMesh = (Curve) objInfo.getObject();
     oldMesh.copyObject(theMesh);
     oldMesh = null;
