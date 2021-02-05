@@ -262,7 +262,7 @@ public abstract class ObjectEditorWindow extends BFrame implements EditingWindow
       //System.out.println("  .. ObjectEditorWindow KP ");
     KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
     if (manager.getFocusedWindow() != getComponent() || manager.getFocusOwner() instanceof TextComponent){
-        System.out.println("  . ");
+        //System.out.println("  . ");
       return;
     }
     //System.out.println(" - "+ tools.getSelectedTool().getClass().getName() );

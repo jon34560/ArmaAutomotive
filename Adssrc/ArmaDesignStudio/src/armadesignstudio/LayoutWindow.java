@@ -612,6 +612,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     exportMenu.add(Translate.menuItem("Group Points (.csv)", this, "exportObjectCSV"));
       
     exportMenu.add(Translate.menuItem("Stereolithography (.stl)", this, "exportSTL"));
+      exportMenu.add(Translate.menuItem("Initial Graphics Exchange Specification (.iges)", this, "exportIGES"));
+      
       
       
     if (importMenu.getChildCount() > 0)
@@ -744,6 +746,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     toolsMenu.addSeparator();
       
+      // Pair Distance Align
+      toolsMenu.add(Translate.menuItem("Pair Distance Align", this, "pairDistanceAlign"));
+      
+      toolsMenu.addSeparator();
+      
     toolsMenu.add(Translate.menuItem("Join Multiple Splines", this, "joinMultipleSplines"));
     toolsMenu.add(Translate.menuItem("Straighten Spline (XY Plane)", this, "straightenSpline"));
     toolsMenu.add(Translate.menuItem("Get Spline Length", this, "getSplineLength"));
@@ -767,8 +774,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       toolsMenu.add(Translate.menuItem("Spline Grid Skin", this, "splineGridSkin"));
       
       toolsMenu.addSeparator();
+      //toolsMenu.add(Translate.menuItem("Move and Connect Curves", this, "moveConnectCurvesCommand"));
       toolsMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
-      toolsMenu.add(Translate.menuItem("Mesh from Connected Curves.", this, "connectedCurvesToMeshCommand"));
+      toolsMenu.add(Translate.menuItem("Mesh from Connected Curves", this, "connectedCurvesToMeshCommand"));
       
     toolsMenu.addSeparator();
     toolsMenu.add(Translate.menuItem("createScriptObject", this, "createScriptObjectCommand"));
@@ -2328,6 +2336,20 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         // TODO
     }
     
+    
+    /**
+     * moveConnectCurvesCommand
+     *
+     * Derscription: move curves such that the verts use the same coordinates then add a point join object like connectCurvesCommand() does
+     */
+    public void moveConnectCurvesCommand(){
+        int [] selection = theScene.getSelection();
+        
+        
+        System.out.println("moveConnectCurvesCommand " );
+        
+    }
+    
     /**
      * connectCurvesCommand
      *
@@ -2996,6 +3018,35 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         }
     }
     
+    /**
+     * pairDistanceAlign
+     *
+     */
+    public void pairDistanceAlign(){
+        if(theScene != null){
+            //
+            int selection [] = theScene.getSelection();
+            if(selection.length > 1){
+                ObjectInfo a = theScene.getObject(selection[0]);
+                ObjectInfo b = theScene.getObject(selection[1]);
+                PairDistanceAlign dialog = new PairDistanceAlign(this, a, b);
+            } else {
+                
+                // LOG
+            }
+            
+            
+           
+        
+            
+            
+            
+            //info = this.getObject(sel[0]);
+            
+            
+            
+        }
+    }
 
     public void joinMultipleSplines(){
         if(theScene != null){
@@ -3909,5 +3960,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         if(theScene != null){
             theScene.exportSTL();
         }
+    }
+    
+    public void exportIGES(){
+        ExportIGES iges = new ExportIGES();
+        
+        iges.export(theScene);
     }
 }
