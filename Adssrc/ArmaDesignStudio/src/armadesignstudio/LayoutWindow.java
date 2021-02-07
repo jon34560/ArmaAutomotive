@@ -1736,10 +1736,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
           ObjectInfo b = theScene.getObject(sel[1]);
           pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
       } else if(pairDistanceAlignDialog != null) {
+          pairDistanceAlignDialog.delectObject();
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
       }
-      System.out.println("setSelection");
+      //System.out.println("setSelection");
   }
 
   /** Set an object to be selected. */
@@ -1758,10 +1759,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
           ObjectInfo b = theScene.getObject(sel[1]);
           pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
       } else if(pairDistanceAlignDialog != null) {
+          pairDistanceAlignDialog.delectObject();
+          
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
+          
       }
-      System.out.println("addToSelection");
+      //System.out.println("addToSelection");
   }
 
   /** Deselect all objects. */

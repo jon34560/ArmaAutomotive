@@ -65,6 +65,7 @@ public class PairDistanceAlign extends BDialog
   private ValueField zDistField;
     
 
+  private ObjectInfo highlightedObject;
     /**
      * PairDistanceAlign
      *
@@ -76,11 +77,18 @@ public class PairDistanceAlign extends BDialog
       Scene scene = window.getScene();
       int selection[] = window.getSelectedIndices();
         
+        //highlightedObject = null;
         
         CoordinateSystem aCoords = a.getCoords();
         CoordinateSystem bCoords = b.getCoords();
         Vec3 aOrigin = aCoords.getOrigin();
         Vec3 bOrigin = bCoords.getOrigin();
+        
+        
+        // Get bounds to draw as highlighted.
+        //BoundingBox aBounds = a.getTranslatedBounds();
+        a.setRenderMoveHighlight(true);
+        highlightedObject = a;
         
     
         FormContainer content = new FormContainer(4, 10);
@@ -97,8 +105,8 @@ public class PairDistanceAlign extends BDialog
         
         //BRadioButton arb = null;
         //BRadioButton brb = null;
-        content.add(new BLabel("A Base:"), 2, 0);
-        content.add(new BLabel("B Base:"), 2, 1);
+        content.add(new BLabel("Move A:"), 2, 0);
+        content.add(new BLabel("Move B:"), 2, 1);
         content.add(radioA, 3, 0);
         content.add(radioB, 3, 1);
         
@@ -143,6 +151,13 @@ public class PairDistanceAlign extends BDialog
         setVisible(true);
     }
     
+    
+    //
+    public void delectObject(){
+        if(highlightedObject != null){
+            highlightedObject.setRenderMoveHighlight(false);
+        }
+    }
     
 
     // Create the extruded object.

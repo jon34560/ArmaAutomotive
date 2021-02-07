@@ -442,6 +442,65 @@ public abstract class Object3D
             ((Curve)obj.object).drawEditObject(canvas);
         }
     }
+      
+      
+      // Pair Align Move Highlight
+      if(obj.getRenderMoveHighlight()){
+          //System.out.println("***");
+          
+          BoundingBox bounds = obj.getBounds(); // getTranslatedBounds();
+          
+          Color c = new Color((float)1.0, (float)0.1, (float)0.1); // .getRGB();
+          //canvas.renderBox(translatedBounds.minx , translatedBounds.miny, translatedBounds.maxx, translatedBounds.maxy, 1, c);
+          
+          double margin = (bounds.maxx - bounds.minx) / 15;
+          //canvas.renderLine(new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.minz - margin),
+          //                   new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.maxz + margin),
+          //                   theCamera, c);
+          
+          // Vertical
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.minz - margin),
+                             new Vec3(bounds.minx - margin, bounds.maxy + margin, bounds.minz - margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.maxx + margin, bounds.miny - margin, bounds.minz - margin),
+                             new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.minz - margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.maxz + margin),
+                             new Vec3(bounds.minx - margin, bounds.maxy + margin, bounds.maxz + margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.maxx + margin, bounds.miny - margin, bounds.maxz + margin),
+                             new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.maxz + margin),
+                             theCamera, c);
+          
+          // Horizontal
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.minz - margin),
+                             new Vec3(bounds.maxx + margin, bounds.miny - margin, bounds.minz - margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.maxy + margin, bounds.minz - margin),
+                             new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.minz - margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.maxz + margin),
+                             new Vec3(bounds.maxx + margin, bounds.miny - margin, bounds.maxz + margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.maxy + margin, bounds.maxz + margin),
+                             new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.maxz + margin),
+                             theCamera, c);
+          
+          // Depth
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.minz - margin),
+                             new Vec3(bounds.minx - margin, bounds.miny - margin, bounds.maxz + margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.maxx + margin, bounds.miny - margin, bounds.minz - margin),
+                             new Vec3(bounds.maxx + margin, bounds.miny - margin, bounds.maxz + margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.minx - margin, bounds.maxy + margin, bounds.minz - margin),
+                             new Vec3(bounds.minx - margin, bounds.maxy + margin, bounds.maxz + margin),
+                             theCamera, c);
+          canvas.renderLine(new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.minz - margin),
+                             new Vec3(bounds.maxx + margin, bounds.maxy + margin, bounds.maxz + margin),
+                             theCamera, c);
+          
+      }
   }
 
   /** The following method writes the object's data to an output stream.  Subclasses should

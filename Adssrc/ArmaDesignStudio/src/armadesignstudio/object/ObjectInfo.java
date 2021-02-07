@@ -70,6 +70,9 @@ public class ObjectInfo
     
   // FEA properties
     private double feaMPa = 0;
+    
+  // Pair align move highlight object to be moved.
+  private boolean renderMoveHighlight = false;
 
   /** Create a new ObjectInfo. */
 
@@ -837,6 +840,13 @@ public class ObjectInfo
     }
     
     
+    
+    public boolean getRenderMoveHighlight(){
+        return renderMoveHighlight;
+    }
+    public void setRenderMoveHighlight(boolean d){
+        this.renderMoveHighlight = d;
+    }
     
     /**
     * getBounds
