@@ -956,6 +956,8 @@ public class Scene
       selection.addElement(which);
     info.selected = true;
     updateSelectionInfo();
+      
+      
   }
 
   /**
@@ -969,6 +971,9 @@ public class Scene
     for (int i = 0; i < objects.size(); i++)
       objects.elementAt(i).selected = false;
     updateSelectionInfo();
+      
+      // Dismiss pair distance align dialog
+      //
   }
 
   /**

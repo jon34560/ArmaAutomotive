@@ -53,6 +53,18 @@ public class UIUtilities
       y = 0;
     dlg.setBounds(new Rectangle(x, y, r2.width, r2.height));
   }
+    
+  public static void lowerRightDialog(BDialog dlg, WindowWidget parent)
+  {
+      Rectangle r1 = parent.getBounds(), r2 = dlg.getBounds();
+      int x = r1.width - r2.width; //  r1.x+(r1.width-r2.width)/2;
+      int y = r1.height - r2.height; // r1.y+(r1.height-r2.height)/2;
+      if (x < 0)
+        x = 0;
+      if (y < 0)
+        y = 0;
+      dlg.setBounds(new Rectangle(x, y, r2.width, r2.height));
+  }
 
   /** Ensure that a WindowWidget fits entirely on the screen, making it smaller if necessary. */
 

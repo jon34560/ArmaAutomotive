@@ -61,15 +61,26 @@ public class PairDistanceAlign extends BDialog
   private ValueField bPrimaryField;
     
   private ValueField xDistField;
-    private ValueField yDistField;
-    private ValueField zDistField;
+  private ValueField yDistField;
+  private ValueField zDistField;
     
+
+    /**
+     * PairDistanceAlign
+     *
+     */
     public PairDistanceAlign(LayoutWindow window, ObjectInfo a, ObjectInfo b)
     {
-      super(window, "Pair Distance Align", true);
+      super(window, "Pair Distance Align", /* modal */ false);
       this.window = window;
       Scene scene = window.getScene();
       int selection[] = window.getSelectedIndices();
+        
+        
+        CoordinateSystem aCoords = a.getCoords();
+        CoordinateSystem bCoords = b.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
         
     
         FormContainer content = new FormContainer(4, 10);
@@ -91,25 +102,26 @@ public class PairDistanceAlign extends BDialog
         content.add(radioA, 3, 0);
         content.add(radioB, 3, 1);
         
-        
-        content.add(new BLabel("X Distance:"), 2, 2);
-        content.add(new BLabel("Y Distance:"), 2, 3);
-        content.add(new BLabel("Z Distance:"), 2, 4);
+        content.add(new BLabel("Distance:"), 0, 2);
+        content.add(new BLabel("X:"), 2, 2);
+        content.add(new BLabel("Y:"), 2, 3);
+        content.add(new BLabel("Z:"), 2, 4);
         // TODO: get distances and populate fields.
         
         
         
-        content.add(xDistField = new ValueField(1.0, ValueField.POSITIVE+ValueField.INTEGER, 5), 3, 2);
-        content.add(yDistField = new ValueField(0.0, ValueField.NONE, 5), 3, 3);
-        content.add(zDistField = new ValueField(0.1, ValueField.POSITIVE, 5), 3, 4);
+        content.add(xDistField = new ValueField(aOrigin.x - bOrigin.x, ValueField.NONE, 5), 3, 2);
+        content.add(yDistField = new ValueField(aOrigin.y - bOrigin.y, ValueField.NONE, 5), 3, 3);
+        content.add(zDistField = new ValueField(aOrigin.z - bOrigin.z, ValueField.NONE, 5), 3, 4);
         
         // Align X
         // Align Y
         // Align Z
         
-        content.add(new BLabel("X Align:"), 2, 5);
-        content.add(new BLabel("Y Align:"), 2, 6);
-        content.add(new BLabel("Z Align:"), 2, 7);
+        content.add(new BLabel("Align:"), 0, 5);
+        content.add(new BLabel("X:"), 2, 5);
+        content.add(new BLabel("Y:"), 2, 6);
+        content.add(new BLabel("Z:"), 2, 7);
         BCheckBox alignXcb = new BCheckBox();
         BCheckBox alignYcb = new BCheckBox();
         BCheckBox alignZcb = new BCheckBox();
@@ -125,7 +137,8 @@ public class PairDistanceAlign extends BDialog
         buttons.add(cancelButton = Translate.button("cancel", this, "dispose"));
         //makeObject();
         pack();
-        UIUtilities.centerDialog(this, window);
+        //UIUtilities.centerDialog(this, window);
+        UIUtilities.lowerRightDialog(this, window);
         //updateComponents();
         setVisible(true);
     }
