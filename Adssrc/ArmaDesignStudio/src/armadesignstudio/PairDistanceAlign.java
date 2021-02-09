@@ -40,9 +40,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 
+//import javax.faces.event.*;
 //import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import buoy.event.*;
+
 
 
 public class PairDistanceAlign extends BDialog
@@ -64,8 +69,10 @@ public class PairDistanceAlign extends BDialog
   private ValueField yDistField;
   private ValueField zDistField;
     
-
-  private ObjectInfo highlightedObject;
+  private static ObjectInfo highlightedObject;
+  private ObjectInfo oia;
+  private ObjectInfo oib;
+    
     /**
      * PairDistanceAlign
      *
@@ -78,6 +85,7 @@ public class PairDistanceAlign extends BDialog
       int selection[] = window.getSelectedIndices();
         
         //highlightedObject = null;
+        setObjects(a, b);
         
         CoordinateSystem aCoords = a.getCoords();
         CoordinateSystem bCoords = b.getCoords();
@@ -122,6 +130,16 @@ public class PairDistanceAlign extends BDialog
         content.add(yDistField = new ValueField(aOrigin.y - bOrigin.y, ValueField.NONE, 5), 3, 3);
         content.add(zDistField = new ValueField(aOrigin.z - bOrigin.z, ValueField.NONE, 5), 3, 4);
         
+        //xDistField.add
+        //xDistField.addEventLink( this.getClass(). java.lang.Class eventType,
+        //                         java.lang.Object target,
+        //                         java.lang.reflect.Method method)
+        
+        xDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceX" );
+        
+        //xDistField.getValue();
+        
+        
         // Align X
         // Align Y
         // Align Z
@@ -151,11 +169,53 @@ public class PairDistanceAlign extends BDialog
         setVisible(true);
     }
     
+    /**
+     * setObjects
+     *
+     */
+    public void setObjects(ObjectInfo a, ObjectInfo b){
+        // xDistField = new ValueField(aOrigin.x - bOrigin.x, ValueField.NONE, 5)
+        this.oia = a;
+        this.oib = b;
+    }
+    
     
     //
-    public void delectObject(){
+    public void deselectObject(){
         if(highlightedObject != null){
             highlightedObject.setRenderMoveHighlight(false);
+            System.out.println("*** Deselect.");
+        } else {
+            System.out.println("*** Deselect: object is null. ");
+        }
+    }
+    
+    
+    /**
+     * updateDistanceX
+     *
+     * Description:
+     */
+    private void updateDistanceX(){
+        double xDist = xDistField.getValue();
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        if( highlightedObject == oia){ // Move A
+            double bX = bOrigin.x;
+            aOrigin.x = bX + xDist;
+            aCoords.setOrigin(aOrigin);
+            // Update view
+            window.updateImage();
+            //System.out.println(" Update A ");
+        } else {                        // Move B
+            double aX = aOrigin.x;
+            bOrigin.x = aX + xDist;
+            bCoords.setOrigin(bOrigin);
+            // Update view
+            window.updateImage();
+            //System.out.println(" Update B ");
         }
     }
     

@@ -1734,9 +1734,15 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       if(sel.length == 2){
           ObjectInfo a = theScene.getObject(sel[0]);
           ObjectInfo b = theScene.getObject(sel[1]);
-          pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
+          if(pairDistanceAlignDialog == null){
+              pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
+          } else {
+              pairDistanceAlignDialog.setObjects(a, b);
+              pairDistanceAlignDialog.setVisible(true);
+          }
       } else if(pairDistanceAlignDialog != null) {
-          pairDistanceAlignDialog.delectObject();
+          pairDistanceAlignDialog.deselectObject();
+          pairDistanceAlignDialog.setVisible(false);
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
       }
@@ -1757,15 +1763,21 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       if(sel.length == 2){
           ObjectInfo a = theScene.getObject(sel[0]);
           ObjectInfo b = theScene.getObject(sel[1]);
-          pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
-      } else if(pairDistanceAlignDialog != null) {
-          pairDistanceAlignDialog.delectObject();
           
+          if(pairDistanceAlignDialog == null){
+              pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
+          } else {
+              pairDistanceAlignDialog.setObjects(a, b);
+              pairDistanceAlignDialog.setVisible(true);
+          }
+      } else if(pairDistanceAlignDialog != null) {
+          pairDistanceAlignDialog.deselectObject();
+          pairDistanceAlignDialog.setVisible(false);
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
           
       }
-      //System.out.println("addToSelection");
+      System.out.println("addToSelection");
   }
 
   /** Deselect all objects. */
@@ -1778,10 +1790,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     updateMenus();
       
       if(pairDistanceAlignDialog != null) {
+          pairDistanceAlignDialog.deselectObject();
+          pairDistanceAlignDialog.setVisible(false);
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
       }
-      
   }
 
   /** Deselect a single object. */
@@ -3066,7 +3079,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
             if(selection.length > 1){
                 ObjectInfo a = theScene.getObject(selection[0]);
                 ObjectInfo b = theScene.getObject(selection[1]);
-                pairDistanceAlignDialog = new PairDistanceAlign(this, a, b);
+                
+                if(pairDistanceAlignDialog == null){
+                    pairDistanceAlignDialog = new PairDistanceAlign(this, a, b);
+                } else {
+                    pairDistanceAlignDialog.setObjects(a, b);
+                }
             } else {
                 
                 // LOG
