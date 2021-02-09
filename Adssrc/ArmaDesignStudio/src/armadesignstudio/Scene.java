@@ -974,6 +974,7 @@ public class Scene
       
       // Dismiss pair distance align dialog
       //
+      //System.out.println("* Scene.clearSelection() ");
   }
 
   /**

@@ -76,6 +76,7 @@ public class PairDistanceAlign extends BDialog
     /**
      * PairDistanceAlign
      *
+     * Description:
      */
     public PairDistanceAlign(LayoutWindow window, ObjectInfo a, ObjectInfo b)
     {
@@ -92,19 +93,16 @@ public class PairDistanceAlign extends BDialog
         Vec3 aOrigin = aCoords.getOrigin();
         Vec3 bOrigin = bCoords.getOrigin();
         
-        
         // Get bounds to draw as highlighted.
         //BoundingBox aBounds = a.getTranslatedBounds();
         a.setRenderMoveHighlight(true);
         highlightedObject = a;
         
-    
         FormContainer content = new FormContainer(4, 10);
         setContent(BOutline.createEmptyBorder(content, UIUtilities.getStandardDialogInsets()));
         
         content.setDefaultLayout(new LayoutInfo(LayoutInfo.WEST, LayoutInfo.NONE, new Insets(0, 0, 0, 5), null));
         content.add(new BLabel("Selection:"), 0, 0, 2, 1);
-        
         
         RadioButtonGroup group = new RadioButtonGroup();
         
@@ -124,21 +122,12 @@ public class PairDistanceAlign extends BDialog
         content.add(new BLabel("Z:"), 2, 4);
         // TODO: get distances and populate fields.
         
-        
-        
         content.add(xDistField = new ValueField(aOrigin.x - bOrigin.x, ValueField.NONE, 5), 3, 2);
         content.add(yDistField = new ValueField(aOrigin.y - bOrigin.y, ValueField.NONE, 5), 3, 3);
         content.add(zDistField = new ValueField(aOrigin.z - bOrigin.z, ValueField.NONE, 5), 3, 4);
-        
-        //xDistField.add
-        //xDistField.addEventLink( this.getClass(). java.lang.Class eventType,
-        //                         java.lang.Object target,
-        //                         java.lang.reflect.Method method)
-        
-        xDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceX" );
-        
-        //xDistField.getValue();
-        
+        xDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceX");
+        yDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceY");
+        zDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceZ");
         
         // Align X
         // Align Y
@@ -154,6 +143,9 @@ public class PairDistanceAlign extends BDialog
         content.add(alignXcb, 3, 5);
         content.add(alignYcb, 3, 6);
         content.add(alignZcb, 3, 7);
+        alignXcb.addEventLink(ValueChangedEvent.class, this, "updateAlignX");
+        alignYcb.addEventLink(ValueChangedEvent.class, this, "updateAlignY");
+        alignZcb.addEventLink(ValueChangedEvent.class, this, "updateAlignZ");
         
         
         RowContainer buttons = new RowContainer();
@@ -217,6 +209,67 @@ public class PairDistanceAlign extends BDialog
             window.updateImage();
             //System.out.println(" Update B ");
         }
+    }
+    
+    private void updateDistanceY(){
+        double yDist = yDistField.getValue();
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        if(highlightedObject == oia){ // Move A
+            double bY = bOrigin.y;
+            aOrigin.y = bY + yDist;
+            aCoords.setOrigin(aOrigin);
+            // Update view
+            window.updateImage();
+            //System.out.println(" Update A ");
+        } else {                        // Move B
+            double aY = aOrigin.y;
+            bOrigin.y = aY + yDist;
+            bCoords.setOrigin(bOrigin);
+            // Update view
+            window.updateImage();
+            //System.out.println(" Update B ");
+        }
+    }
+    
+    private void updateDistanceZ(){
+        double zDist = zDistField.getValue();
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        if(highlightedObject == oia){ // Move A
+            double bZ = bOrigin.z;
+            aOrigin.z = bZ + zDist;
+            aCoords.setOrigin(aOrigin);
+            // Update view
+            window.updateImage();
+            //System.out.println(" Update A ");
+        } else {                        // Move B
+            double aZ = aOrigin.z;
+            bOrigin.z = aZ + zDist;
+            bCoords.setOrigin(bOrigin);
+            // Update view
+            window.updateImage();
+            //System.out.println(" Update B ");
+        }
+    }
+    
+    private void updateAlignX(){
+        System.out.println(" updateAlignX() ");
+        
+    }
+    
+    private void updateAlignY(){
+        System.out.println(" updateAlignY() ");
+        
+    }
+    
+    private void updateAlignZ(){
+        System.out.println(" updateAlignZ() ");
+        
     }
     
 
