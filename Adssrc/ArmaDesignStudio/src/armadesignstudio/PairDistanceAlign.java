@@ -65,9 +65,16 @@ public class PairDistanceAlign extends BDialog
   private ValueField aPrimaryField;
   private ValueField bPrimaryField;
     
+  private BRadioButton radioA;
+  private BRadioButton radioB;
+    
   private ValueField xDistField;
   private ValueField yDistField;
   private ValueField zDistField;
+    
+  private BCheckBox alignXcb;
+  private BCheckBox alignYcb;
+  private BCheckBox alignZcb;
     
   private static ObjectInfo highlightedObject;
   private ObjectInfo oia;
@@ -106,8 +113,15 @@ public class PairDistanceAlign extends BDialog
         
         RadioButtonGroup group = new RadioButtonGroup();
         
-        BRadioButton radioA = new BRadioButton( "A", false, group );
-        BRadioButton radioB = new BRadioButton( "B", false, group );
+        boolean aState = false;
+        boolean bState = false;
+        if( highlightedObject == oia){ // Move A
+            aState = true;
+        } else {
+            bState = true;
+        }
+        radioA = new BRadioButton( "A", aState, group );
+        radioB = new BRadioButton( "B", bState, group );
         
         //BRadioButton arb = null;
         //BRadioButton brb = null;
@@ -115,6 +129,8 @@ public class PairDistanceAlign extends BDialog
         content.add(new BLabel("Move B:"), 2, 1);
         content.add(radioA, 3, 0);
         content.add(radioB, 3, 1);
+        radioA.addEventLink(ValueChangedEvent.class, this, "updateMoveA");
+        radioB.addEventLink(ValueChangedEvent.class, this, "updateMoveB");
         
         content.add(new BLabel("Distance:"), 0, 2);
         content.add(new BLabel("X:"), 2, 2);
@@ -137,9 +153,9 @@ public class PairDistanceAlign extends BDialog
         content.add(new BLabel("X:"), 2, 5);
         content.add(new BLabel("Y:"), 2, 6);
         content.add(new BLabel("Z:"), 2, 7);
-        BCheckBox alignXcb = new BCheckBox();
-        BCheckBox alignYcb = new BCheckBox();
-        BCheckBox alignZcb = new BCheckBox();
+         alignXcb = new BCheckBox();
+         alignYcb = new BCheckBox();
+         alignZcb = new BCheckBox();
         content.add(alignXcb, 3, 5);
         content.add(alignYcb, 3, 6);
         content.add(alignZcb, 3, 7);
@@ -171,6 +187,10 @@ public class PairDistanceAlign extends BDialog
         this.oib = b;
     }
     
+    public void setPoints(Vec3 a, Vec3 b){
+        
+    }
+    
     
     //
     public void deselectObject(){
@@ -182,6 +202,51 @@ public class PairDistanceAlign extends BDialog
         }
     }
     
+    
+    private void updateMoveA(){
+        // radioA
+        // highlightedObject
+        // oia
+        // oib
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        
+        oia.setRenderMoveHighlight(true);
+        oib.setRenderMoveHighlight(false);
+        highlightedObject = oia;
+        
+        // Update dialog
+        xDistField.setValue(aOrigin.x - bOrigin.x);
+        yDistField.setValue(aOrigin.y - bOrigin.y);
+        zDistField.setValue(aOrigin.z - bOrigin.z);
+        
+        window.updateImage();
+    }
+    
+    /**
+     * updateMoveB
+     *
+     */
+    private void updateMoveB(){
+        // radioB
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        
+        oia.setRenderMoveHighlight(false);
+        oib.setRenderMoveHighlight(true);
+        highlightedObject = oib;
+        
+        // Update dialog
+        xDistField.setValue(bOrigin.x - aOrigin.x);
+        yDistField.setValue(bOrigin.y - aOrigin.y);
+        zDistField.setValue(bOrigin.z - aOrigin.z);
+        
+        window.updateImage();
+    }
     
     /**
      * updateDistanceX
@@ -258,19 +323,70 @@ public class PairDistanceAlign extends BDialog
     }
     
     private void updateAlignX(){
-        System.out.println(" updateAlignX() ");
-        
+        //System.out.println(" updateAlignX() " + alignXcb.getState() );
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        if(highlightedObject == oia){ // Move A
+            double bX = bOrigin.x;
+            aOrigin.x = bX;
+            aCoords.setOrigin(aOrigin);
+            // Update view
+            window.updateImage();
+        } else { // Move B
+            double aX = aOrigin.x;
+            bOrigin.x = aX;
+            bCoords.setOrigin(bOrigin);
+            // Update view
+            window.updateImage();
+        }
     }
     
     private void updateAlignY(){
-        System.out.println(" updateAlignY() ");
-        
+        //System.out.println(" updateAlignX() " + alignXcb.getState() );
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        if(highlightedObject == oia){ // Move A
+            double bY = bOrigin.y;
+            aOrigin.y = bY;
+            aCoords.setOrigin(aOrigin);
+            // Update view
+            window.updateImage();
+        } else { // Move B
+            double aY = aOrigin.y;
+            bOrigin.y = aY;
+            bCoords.setOrigin(bOrigin);
+            // Update view
+            window.updateImage();
+        }
     }
     
     private void updateAlignZ(){
-        System.out.println(" updateAlignZ() ");
-        
+        //System.out.println(" updateAlignX() " + alignXcb.getState() );
+        CoordinateSystem aCoords = oia.getCoords();
+        CoordinateSystem bCoords = oib.getCoords();
+        Vec3 aOrigin = aCoords.getOrigin();
+        Vec3 bOrigin = bCoords.getOrigin();
+        if(highlightedObject == oia){ // Move A
+            double bZ = bOrigin.z;
+            aOrigin.z = bZ;
+            aCoords.setOrigin(aOrigin);
+            // Update view
+            window.updateImage();
+        } else { // Move B
+            double aZ = aOrigin.z;
+            bOrigin.z = aZ;
+            bCoords.setOrigin(bOrigin);
+            // Update view
+            window.updateImage();
+        }
     }
+    
+    
+    
     
 
     // Create the extruded object.
