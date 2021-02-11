@@ -48,8 +48,6 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import buoy.event.*;
 
-
-
 public class PairDistanceAlign extends BDialog
 {
   private LayoutWindow window;
@@ -79,6 +77,10 @@ public class PairDistanceAlign extends BDialog
   private static ObjectInfo highlightedObject;
   private ObjectInfo oia;
   private ObjectInfo oib;
+    
+  private static Vec3 highlightedPoint;
+  private Vec3 va = null;
+  private Vec3 vb = null;
     
     /**
      * PairDistanceAlign
@@ -177,6 +179,109 @@ public class PairDistanceAlign extends BDialog
         setVisible(true);
     }
     
+    
+    // LayoutWindow is BFrame
+    // ObjectEditorWindow
+    // EditingWindow is ???
+    
+    // CurveEditorWindow is MeshEditorWindow
+    // MeshEditorWindow is ObjectEditorWindow
+    // ObjectEditorWindow is BFrame
+    public PairDistanceAlign(CurveEditorWindow window, Vec3 a, Vec3 b)
+    {
+      super(window, "Pair Distance Align", /* modal */ false);
+      //this.window = window;
+      Scene scene = window.getScene();
+      //int selection[] = window.getSelectedIndices();
+        
+        //highlightedObject = null;
+        setPoints(a, b);
+        
+        //CoordinateSystem aCoords = a.getCoords();
+        //CoordinateSystem bCoords = b.getCoords();
+        Vec3 aOrigin = a; // aCoords.getOrigin();
+        Vec3 bOrigin = b; // bCoords.getOrigin();
+        
+        // Get bounds to draw as highlighted.
+        //BoundingBox aBounds = a.getTranslatedBounds();
+        //a.setRenderMoveHighlight(true);
+        //highlightedObject = a;
+        highlightedPoint = a;
+        
+        FormContainer content = new FormContainer(4, 10);
+        setContent(BOutline.createEmptyBorder(content, UIUtilities.getStandardDialogInsets()));
+        
+        content.setDefaultLayout(new LayoutInfo(LayoutInfo.WEST, LayoutInfo.NONE, new Insets(0, 0, 0, 5), null));
+        content.add(new BLabel("Selection:"), 0, 0, 2, 1);
+        
+        RadioButtonGroup group = new RadioButtonGroup();
+        
+        boolean aState = false;
+        boolean bState = false;
+        //if( highlightedObject == oia){ // Move A
+        if(va == highlightedPoint){
+            aState = true;
+        } else {
+            bState = true;
+        }
+        radioA = new BRadioButton( "A", aState, group );
+        radioB = new BRadioButton( "B", bState, group );
+        
+        //BRadioButton arb = null;
+        //BRadioButton brb = null;
+        content.add(new BLabel("Move A:"), 2, 0);
+        content.add(new BLabel("Move B:"), 2, 1);
+        content.add(radioA, 3, 0);
+        content.add(radioB, 3, 1);
+        radioA.addEventLink(ValueChangedEvent.class, this, "updateMoveA");
+        radioB.addEventLink(ValueChangedEvent.class, this, "updateMoveB");
+        
+        content.add(new BLabel("Distance:"), 0, 2);
+        content.add(new BLabel("X:"), 2, 2);
+        content.add(new BLabel("Y:"), 2, 3);
+        content.add(new BLabel("Z:"), 2, 4);
+        // TODO: get distances and populate fields.
+        
+        content.add(xDistField = new ValueField(aOrigin.x - bOrigin.x, ValueField.NONE, 5), 3, 2);
+        content.add(yDistField = new ValueField(aOrigin.y - bOrigin.y, ValueField.NONE, 5), 3, 3);
+        content.add(zDistField = new ValueField(aOrigin.z - bOrigin.z, ValueField.NONE, 5), 3, 4);
+        xDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceX");
+        yDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceY");
+        zDistField.addEventLink(ValueChangedEvent.class, this, "updateDistanceZ");
+        
+        // Align X
+        // Align Y
+        // Align Z
+        
+        content.add(new BLabel("Align:"), 0, 5);
+        content.add(new BLabel("X:"), 2, 5);
+        content.add(new BLabel("Y:"), 2, 6);
+        content.add(new BLabel("Z:"), 2, 7);
+         alignXcb = new BCheckBox();
+         alignYcb = new BCheckBox();
+         alignZcb = new BCheckBox();
+        content.add(alignXcb, 3, 5);
+        content.add(alignYcb, 3, 6);
+        content.add(alignZcb, 3, 7);
+        alignXcb.addEventLink(ValueChangedEvent.class, this, "updateAlignX");
+        alignYcb.addEventLink(ValueChangedEvent.class, this, "updateAlignY");
+        alignZcb.addEventLink(ValueChangedEvent.class, this, "updateAlignZ");
+        
+        
+        RowContainer buttons = new RowContainer();
+        content.add(buttons, 0, 9, 4, 1, new LayoutInfo());
+        
+        buttons.add(okButton = Translate.button("ok", this, "doOk"));
+        buttons.add(cancelButton = Translate.button("cancel", this, "dispose"));
+        //makeObject();
+        pack();
+        //UIUtilities.centerDialog(this, window);
+        UIUtilities.lowerRightDialog(this, window);
+        //updateComponents();
+        setVisible(true);
+    }
+    
+    
     /**
      * setObjects
      *
@@ -188,7 +293,8 @@ public class PairDistanceAlign extends BDialog
     }
     
     public void setPoints(Vec3 a, Vec3 b){
-        
+        this.va = a;
+        this.vb = b;
     }
     
     
@@ -200,6 +306,11 @@ public class PairDistanceAlign extends BDialog
         } else {
             System.out.println("*** Deselect: object is null. ");
         }
+    }
+    
+    public void deselectPoints(){
+        System.out.println("*** Deselect points.");
+        
     }
     
     
@@ -255,24 +366,29 @@ public class PairDistanceAlign extends BDialog
      */
     private void updateDistanceX(){
         double xDist = xDistField.getValue();
-        CoordinateSystem aCoords = oia.getCoords();
-        CoordinateSystem bCoords = oib.getCoords();
-        Vec3 aOrigin = aCoords.getOrigin();
-        Vec3 bOrigin = bCoords.getOrigin();
-        if( highlightedObject == oia){ // Move A
-            double bX = bOrigin.x;
-            aOrigin.x = bX + xDist;
-            aCoords.setOrigin(aOrigin);
-            // Update view
-            window.updateImage();
-            //System.out.println(" Update A ");
-        } else {                        // Move B
-            double aX = aOrigin.x;
-            bOrigin.x = aX + xDist;
-            bCoords.setOrigin(bOrigin);
-            // Update view
-            window.updateImage();
-            //System.out.println(" Update B ");
+        if(oia != null){
+            CoordinateSystem aCoords = oia.getCoords();
+            CoordinateSystem bCoords = oib.getCoords();
+            Vec3 aOrigin = aCoords.getOrigin();
+            Vec3 bOrigin = bCoords.getOrigin();
+            if( highlightedObject == oia){ // Move A
+                double bX = bOrigin.x;
+                aOrigin.x = bX + xDist;
+                aCoords.setOrigin(aOrigin);
+                // Update view
+                window.updateImage();
+                //System.out.println(" Update A ");
+            } else {                        // Move B
+                double aX = aOrigin.x;
+                bOrigin.x = aX + xDist;
+                bCoords.setOrigin(bOrigin);
+                // Update view
+                window.updateImage();
+                //System.out.println(" Update B ");
+            }
+        }
+        if(va != null){
+            System.out.println(" updateDistanceX point");
         }
     }
     

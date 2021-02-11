@@ -16,7 +16,6 @@ import armadesignstudio.ui.*;
 import armadesignstudio.keystroke.*;
 import buoy.event.*;
 import buoy.widget.*;
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -55,6 +54,7 @@ public abstract class ObjectEditorWindow extends BFrame implements EditingWindow
     objInfo.getCoords().setOrigin(new Vec3());
     objInfo.getCoords().setOrientation(Vec3.vz(), Vec3.vy());
     objInfo.clearDistortion();
+      System.out.println("ObjectEditorWindow");
   }
 
   /**

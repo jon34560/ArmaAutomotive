@@ -39,6 +39,8 @@ public class Curve extends Object3D implements Mesh
   protected WireframeMesh cachedWire;
   protected BoundingBox bounds;
   protected Vec3[] cachedSubdividedVertices;
+    
+  private int renderPointIndexHighlight = -1; // JDT
 
   private static final Property PROPERTIES[] = new Property [] {
     new Property(Translate.text("menu.smoothingMethod"),
@@ -76,6 +78,15 @@ public class Curve extends Object3D implements Mesh
   }
     
     
+    
+    public int getRenderPointIndexHighlight(){
+        return renderPointIndexHighlight;
+    }
+    public void setRenderPointIndexHighlight(int d){
+        this.renderPointIndexHighlight = d;
+    }
+    
+    
     // overide because of custom color
     public void renderObject(ObjectInfo obj, ViewerCanvas canvas, Vec3 viewDir)
     {
@@ -98,6 +109,23 @@ public class Curve extends Object3D implements Mesh
             
             // Tell Curve object to draw edit verticies markers if enabled.
             ((Curve)obj.object).drawEditObject(canvas);
+            
+            
+            // renderPointHighlight
+            if(((Curve)obj.object).getRenderPointIndexHighlight() > -1){
+                
+                Color c = new Color((float)1.0, (float)0.1, (float)0.1);
+                double margin = 1;
+                
+                MeshVertex v[] = ((Mesh) obj).getVertices();
+                
+                Vec3 highlitedPoint = v[((Curve)obj.object).getRenderPointIndexHighlight()].r;
+                
+                canvas.renderLine(new Vec3(highlitedPoint.x - margin, highlitedPoint.y - margin, highlitedPoint.z - margin),
+                                   new Vec3(highlitedPoint.x - margin, highlitedPoint.y + margin, highlitedPoint.z - margin),
+                                   theCamera, c);
+                
+            }
             
         }
             

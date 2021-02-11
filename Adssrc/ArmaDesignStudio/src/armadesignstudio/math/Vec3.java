@@ -18,6 +18,9 @@ public class Vec3
 {
   public double x, y, z;
   public int f;
+    
+    // Pair align move highlight object to be moved.
+    private boolean renderMoveHighlight = false;
 
   /** Create a new Vec3 whose x, y, and z components are all equal to 0.0. */
 
@@ -302,4 +305,10 @@ public class Vec3
     out.writeDouble(y);
     out.writeDouble(z);
   }
+    
+  public void setRenderMoveHighlight(boolean highlight){
+      this.renderMoveHighlight = highlight;
+  }
+    
+    
 }

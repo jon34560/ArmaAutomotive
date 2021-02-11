@@ -937,6 +937,8 @@ public class Scene
     for (int i = 0; i < which.length; i++)
       addToSelection(which[i]);
     updateSelectionInfo();
+      
+      //System.out.println("Scene.setSelection() ");
   }
 
   /**
@@ -957,7 +959,7 @@ public class Scene
     info.selected = true;
     updateSelectionInfo();
       
-      
+      //System.out.println("Scene.addToSelection() ");
   }
 
   /**
@@ -1010,6 +1012,8 @@ public class Scene
             parent = parent.getParent();
           }
       }
+      
+      //System.out.println("* Scene.updateSelectionInfo() ");
   }
 
   /** Get the number of objects in this scene. */

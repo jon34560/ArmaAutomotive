@@ -1,4 +1,5 @@
 /* Copyright (C) 1999-2008 by Peter Eastman
+  Copyright 2021 by Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -29,6 +30,8 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
   private int selectionDistance[], maxDistance;
   private boolean topology;
   boolean selected[];
+    
+  private PairDistanceAlign pairDistanceAlignDialog;
 
   public CurveEditorWindow(EditingWindow parent, String title, ObjectInfo obj, Runnable onClose, boolean allowTopology)
   {
@@ -194,7 +197,54 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
     findSelectionDistance();
     updateMenus();
     updateImage();
+      
+      //System.out.println("CurveEditorWindow.setSelection() " + selected.length);
+      
+      Curve theCurve = (Curve) getObject().getObject();
+      
+      Vec3 va = null;
+      Vec3 vb = null;
+      int vertSelCount = 0;
+      for(int i = 0; i < selected.length; i++){
+          boolean pointSel = selected[i];
+          //System.out.println(" p " + i + " - " + pointSel );
+          if(pointSel){
+              if(vertSelCount == 0){
+                  
+                  MeshVertex v[] = ((Mesh) theCurve).getVertices();
+                  va = v[i].r;
+                  
+                  //va = theCurve.getVertices()[i];
+              } else if(vertSelCount == 1) {
+                  
+                  MeshVertex v[] = ((Mesh) theCurve).getVertices();
+                  vb = v[i].r;
+                  
+                  //vb = theCurve.getVertices()[i];
+              }
+              vertSelCount++;
+          }
+      }
+      System.out.println("*** count: " + vertSelCount );
+      if(vertSelCount == 2){
+          
+          if(pairDistanceAlignDialog == null){
+              
+              pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, va, vb);
+          }
+      } else if(pairDistanceAlignDialog != null) {
+          pairDistanceAlignDialog.deselectPoints();
+          pairDistanceAlignDialog.setVisible(false);
+          pairDistanceAlignDialog.dispose();
+          pairDistanceAlignDialog = null;
+      }
+      
   }
+    
+  //public int[] getSelectedIndices(){
+  //    int [] indicies = new int[];
+  //    return indicies;
+  //}
 
   public int[] getSelectionDistance()
   {

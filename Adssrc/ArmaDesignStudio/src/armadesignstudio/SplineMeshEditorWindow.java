@@ -240,6 +240,8 @@ public class SplineMeshEditorWindow extends MeshEditorWindow implements EditingW
     for (ViewerCanvas view : theView)
       view.repaint();
     repaint();
+      
+      //System.out.println("SpineMeshEditorWindow.setSelection()");
   }
 
   public int[] getSelectionDistance()
