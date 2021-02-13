@@ -1,4 +1,4 @@
-/* Copyright (C) 2019, 2020 by Jon Taylor
+/* Copyright (C) 2019, 2020, 2021 by Jon Taylor
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -54,6 +54,11 @@ public class SplineSkin extends Thread {
      *
      * Description: Create mesh from connected curves
      *  TODO: order of points along curve may need to be reversed in pairs.
+     *
+     *  @param Scene - objects, selection?
+     *  @param LayoutWindow - view
+     *  @param Vector<ObjectInfo> - world objects.
+     *
      */
     public void connectedCurvesToMesh(Scene scene, LayoutWindow layoutWindow, Vector<ObjectInfo> objects){
         System.out.println("connectedCurvesToMeshCommand " );
@@ -63,57 +68,134 @@ public class SplineSkin extends Thread {
         //Vector<Vec3[]> insertedCurves = new Vector<Vec3[]>();
         Vector< PointJoinObject > connections = new Vector<>();
         Vector< Curve > curves = new Vector<>();
-        Vector< ObjectInfo > curveOIs = new Vector<>();
+        Vector< ObjectInfo > dominantCurveOIs = new Vector<>();
         Vector< Curve > supportCurves = new Vector<>();
         Vector< ObjectInfo > supportCurveOIs = new Vector<>();
         
         //Vector< Vector < > > connections = new Vector<  >();
         //HashMap <Integer, >
         
-        // 1 Find relevent curves and connections.
+        // 1 Find relevent  curves and connections.
         for (ObjectInfo obj : objects){
             Object co = (Object)obj.getObject();
             // PointJoinObject
             if((co instanceof Curve) == true){
                 //curves.addElement(co);
                 if((   (Curve)co  ).isSupportMode()){
-                    supportCurveOIs.addElement(obj);
+                    supportCurveOIs.addElement(obj);                // Collect list of support curves
                 } else {
-                    curveOIs.addElement(obj);
+                    dominantCurveOIs.addElement(obj);               // Collect list of dominant curves
                 }
             }
             if(co instanceof PointJoinObject){
                 PointJoinObject pjo = (PointJoinObject)co;
                 // pjo.objectA
                 // pjo.objectB
-                connections.addElement(pjo);
+                connections.addElement(pjo);                        // Collect list of connections
             }
         }
         
         // 2 Subdivide curves.
         
+        // Data structures
+        // Dominant curve parallel pairs (connected by support curve)   Vector<String> = min(dom_curve_A_id)_max(dom_curve_B_id)
+        Vector<String> dominantParralelCurveIDs = new Vector<String>();
+        // Support curves connecting two dominant curves                min(dom_curve_A_id)_max(dom_curve_B_id) -> Vector<ObjectInfo> support curve IO
+        HashMap<String, Vector<ObjectInfo>> spanningSupportCurves = new HashMap<String, Vector<ObjectInfo>>(); // (key, Vector<ObjectInfo>)
         
-        //
-        for(int i = 0; i < curveOIs.size(); i++){
-            ObjectInfo curveOI = (ObjectInfo)curveOIs.elementAt(i);
+        // Collect connected parralel and connected support curves into data structures.
+        for(int i = 0; i < dominantCurveOIs.size(); i++){
+            ObjectInfo curveOI = (ObjectInfo)dominantCurveOIs.elementAt(i);
             int curveId = curveOI.getId();  // objectInfo.getId();
             
             // what other curves (and points) is this connected to. (Depricate, use support curves to determine mesh regions)
             
             for(int x = 0; x < connections.size(); x++){
                 PointJoinObject pjo = (PointJoinObject)connections.elementAt(x);
+                int supConnectedCurve = -1;
                 if(pjo.objectA == curveId){
-                    System.out.println(" * " );
+                    supConnectedCurve = pjo.objectB;
                 }
                 if(pjo.objectB == curveId){
-                    System.out.println(" & " );
+                    supConnectedCurve = pjo.objectA;
                 }
-            }
-            
-            
-            // create duplicate of curve
-            
+                if(supConnectedCurve > -1){
+                    for(int j = 0; j < supportCurveOIs.size(); j++){                    // connected Support curves
+                        ObjectInfo compareCurveOI = (ObjectInfo)supportCurveOIs.elementAt(j);
+                        int compareCurveId = compareCurveOI.getId();
+                        if(supConnectedCurve == compareCurveId){
+                            
+                            System.out.println("  Found sup curve "+ compareCurveId +" that connects to "+curveId+" end B");
+                            
+                            for(int y = 0; y < connections.size(); y++){
+                                if(x != y){
+                                    PointJoinObject pjo2 = (PointJoinObject)connections.elementAt(y);
+                                    int domConnectedCurve = -1;
+                                    if(pjo2.objectA == compareCurveId){
+                                        domConnectedCurve = pjo2.objectB;
+                                    }
+                                    if(pjo2.objectB == compareCurveId){
+                                        domConnectedCurve = pjo2.objectA;
+                                    }
+                                    if(domConnectedCurve > -1){
+                                        // Find dominant curve connected to compareCurveId, Then create mesh
+                                        for(int k = 0; k < dominantCurveOIs.size(); k++){ // dominant curves
+                                            if(i != k){
+                                                ObjectInfo parallelDomCurveOI = (ObjectInfo)dominantCurveOIs.elementAt(k);
+                                                int parallelCurveId = parallelDomCurveOI.getId();
+                                                if(domConnectedCurve == parallelCurveId){
+                                                    String parallelDominantCurveKey = Math.min(curveId, parallelCurveId) + "_" + Math.max(curveId, parallelCurveId);
+                                                    dominantParralelCurveIDs.addElement(parallelDominantCurveKey);
+                                                    System.out.println("   parallel dom curves " +
+                                                                       curveId + " - " + parallelCurveId + " = " + parallelDominantCurveKey);
+                                                    
+                                                    // spanningSupportCurves
+                                                    Vector currentSpanningSupportCurves = spanningSupportCurves.get(parallelDominantCurveKey);
+                                                    if(currentSpanningSupportCurves == null){
+                                                        currentSpanningSupportCurves = new Vector();
+                                                    }
+                                                    if(currentSpanningSupportCurves.contains(compareCurveOI) == false){
+                                                        currentSpanningSupportCurves.addElement(compareCurveOI);
+                                                    }
+                                                    spanningSupportCurves.put(parallelDominantCurveKey, currentSpanningSupportCurves);
+                                                    
+                                                }
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } // end
+            } // connections
+        } // dominantCurveOIs
+        
+        
+        // Print out collected data
+        for(int i = 0; i < dominantParralelCurveIDs.size(); i++){
+            String parallelDominantCurves = dominantParralelCurveIDs.elementAt(i);
+            System.out.println("parallelDominantCurves: " + parallelDominantCurves);
         }
+        // spanningSupportCurves
+        for (String name: spanningSupportCurves.keySet()){
+            String key = name.toString();
+            Vector value = spanningSupportCurves.get(name);
+            System.out.println("spanningSupportCurves: " + key );
+              for(int i = 0; i < value.size(); i++){
+                  ObjectInfo supportCurve = (ObjectInfo)value.elementAt(i);
+                  System.out.println("        : " + supportCurve.getId() );
+              }
+        }
+        
+        
+        // create duplicate of curves and subdivide them for smooth meshing
+        // Datastructure
+        HashMap<int, ObjectInfo> subdivided 
+        
+        
+        
         
         
     }

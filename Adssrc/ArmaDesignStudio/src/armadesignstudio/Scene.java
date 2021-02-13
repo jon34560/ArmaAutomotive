@@ -1966,6 +1966,12 @@ public class Scene
          */
     }
     
+    
+    /**
+     * connectedCurvesToMesh
+     *  Description: Called by LayoutWIndow.
+     *  @param LayoutWindow
+     */
     public void connectedCurvesToMesh(LayoutWindow layoutWindow){
         SplineSkin skin = new SplineSkin();
         skin.connectedCurvesToMesh(this, layoutWindow, objects);

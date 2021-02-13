@@ -112,6 +112,7 @@ public class Curve extends Object3D implements Mesh
             
             
             // renderPointHighlight
+            int highlightPointIndex = ((Curve)obj.object).getRenderPointIndexHighlight();
             if(((Curve)obj.object).getRenderPointIndexHighlight() > -1){
                 
                 Color c = new Color((float)1.0, (float)0.1, (float)0.1);
@@ -120,12 +121,14 @@ public class Curve extends Object3D implements Mesh
                 MeshVertex v[] = ((Mesh) obj).getVertices();
                 
                 Vec3 highlitedPoint = v[((Curve)obj.object).getRenderPointIndexHighlight()].r;
+                //System.out.println(" point " + highlitedPoint.x + " " + highlitedPoint.y  + " " + highlitedPoint.z);
                 
                 canvas.renderLine(new Vec3(highlitedPoint.x - margin, highlitedPoint.y - margin, highlitedPoint.z - margin),
                                    new Vec3(highlitedPoint.x - margin, highlitedPoint.y + margin, highlitedPoint.z - margin),
                                    theCamera, c);
                 
             }
+            //System.out.println("highlightPointIndex: " + highlightPointIndex);
             
         }
             

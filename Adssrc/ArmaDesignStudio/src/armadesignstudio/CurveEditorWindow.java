@@ -204,6 +204,8 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
       
       Vec3 va = null;
       Vec3 vb = null;
+      int aindex = -1;
+      int bindex = -1;
       int vertSelCount = 0;
       for(int i = 0; i < selected.length; i++){
           boolean pointSel = selected[i];
@@ -213,12 +215,14 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
                   
                   MeshVertex v[] = ((Mesh) theCurve).getVertices();
                   va = v[i].r;
+                  aindex = i;
                   
                   //va = theCurve.getVertices()[i];
               } else if(vertSelCount == 1) {
                   
                   MeshVertex v[] = ((Mesh) theCurve).getVertices();
                   vb = v[i].r;
+                  bindex = i;
                   
                   //vb = theCurve.getVertices()[i];
               }
@@ -231,8 +235,14 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
           if(pairDistanceAlignDialog == null){
               
               pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, va, vb);
+              
+              theCurve.setRenderPointIndexHighlight( aindex );
+              System.out.println(" setRenderPointIndexHighlight aindex " + aindex);
+              //window.updateImage();
+              updateImage();
           }
       } else if(pairDistanceAlignDialog != null) {
+          theCurve.setRenderPointIndexHighlight(-1);
           pairDistanceAlignDialog.deselectPoints();
           pairDistanceAlignDialog.setVisible(false);
           pairDistanceAlignDialog.dispose();
