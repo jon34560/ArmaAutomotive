@@ -72,20 +72,28 @@ public class SplineSkin extends Thread {
         Vector< Curve > supportCurves = new Vector<>();
         Vector< ObjectInfo > supportCurveOIs = new Vector<>();
         
+        HashMap<Integer, Curve> subdividedCurves = new HashMap<Integer, Curve>();
+        // Curve.subdivideCurve(int times)
+        
         //Vector< Vector < > > connections = new Vector<  >();
         //HashMap <Integer, >
         
-        // 1 Find relevent  curves and connections.
+        // 1 Find relevent dominant curves, support curves and connections.
         for (ObjectInfo obj : objects){
             Object co = (Object)obj.getObject();
             // PointJoinObject
             if((co instanceof Curve) == true){
                 //curves.addElement(co);
-                if((   (Curve)co  ).isSupportMode()){
+                if(((Curve)co).isSupportMode()){
                     supportCurveOIs.addElement(obj);                // Collect list of support curves
+                    
                 } else {
                     dominantCurveOIs.addElement(obj);               // Collect list of dominant curves
+                    
                 }
+                
+                Curve subdividedCurve = ((Curve)co).subdivideCurve(2);
+                subdividedCurves.put(obj.getId(), subdividedCurve);
             }
             if(co instanceof PointJoinObject){
                 PointJoinObject pjo = (PointJoinObject)co;
@@ -95,7 +103,7 @@ public class SplineSkin extends Thread {
             }
         }
         
-        // 2 Subdivide curves.
+        // 2 determine curve connections.
         
         // Data structures
         // Dominant curve parallel pairs (connected by support curve)   Vector<String> = min(dom_curve_A_id)_max(dom_curve_B_id)
@@ -107,9 +115,7 @@ public class SplineSkin extends Thread {
         for(int i = 0; i < dominantCurveOIs.size(); i++){
             ObjectInfo curveOI = (ObjectInfo)dominantCurveOIs.elementAt(i);
             int curveId = curveOI.getId();  // objectInfo.getId();
-            
             // what other curves (and points) is this connected to. (Depricate, use support curves to determine mesh regions)
-            
             for(int x = 0; x < connections.size(); x++){
                 PointJoinObject pjo = (PointJoinObject)connections.elementAt(x);
                 int supConnectedCurve = -1;
@@ -124,9 +130,7 @@ public class SplineSkin extends Thread {
                         ObjectInfo compareCurveOI = (ObjectInfo)supportCurveOIs.elementAt(j);
                         int compareCurveId = compareCurveOI.getId();
                         if(supConnectedCurve == compareCurveId){
-                            
-                            System.out.println("  Found sup curve "+ compareCurveId +" that connects to "+curveId+" end B");
-                            
+                            //System.out.println("  Found sup curve "+ compareCurveId +" that connects to "+curveId+" end B");
                             for(int y = 0; y < connections.size(); y++){
                                 if(x != y){
                                     PointJoinObject pjo2 = (PointJoinObject)connections.elementAt(y);
@@ -145,11 +149,12 @@ public class SplineSkin extends Thread {
                                                 int parallelCurveId = parallelDomCurveOI.getId();
                                                 if(domConnectedCurve == parallelCurveId){
                                                     String parallelDominantCurveKey = Math.min(curveId, parallelCurveId) + "_" + Math.max(curveId, parallelCurveId);
-                                                    dominantParralelCurveIDs.addElement(parallelDominantCurveKey);
-                                                    System.out.println("   parallel dom curves " +
-                                                                       curveId + " - " + parallelCurveId + " = " + parallelDominantCurveKey);
+                                                    if(dominantParralelCurveIDs.contains(parallelDominantCurveKey) == false){
+                                                        dominantParralelCurveIDs.addElement(parallelDominantCurveKey);
+                                                    }
+                                                    //System.out.println("   parallel dom curves " +
+                                                    //                   curveId + " - " + parallelCurveId + " = " + parallelDominantCurveKey);
                                                     
-                                                    // spanningSupportCurves
                                                     Vector currentSpanningSupportCurves = spanningSupportCurves.get(parallelDominantCurveKey);
                                                     if(currentSpanningSupportCurves == null){
                                                         currentSpanningSupportCurves = new Vector();
@@ -158,11 +163,9 @@ public class SplineSkin extends Thread {
                                                         currentSpanningSupportCurves.addElement(compareCurveOI);
                                                     }
                                                     spanningSupportCurves.put(parallelDominantCurveKey, currentSpanningSupportCurves);
-                                                    
                                                 }
                                             }
                                         }
-                                        
                                     }
                                 }
                             }
@@ -177,8 +180,8 @@ public class SplineSkin extends Thread {
         for(int i = 0; i < dominantParralelCurveIDs.size(); i++){
             String parallelDominantCurves = dominantParralelCurveIDs.elementAt(i);
             System.out.println("parallelDominantCurves: " + parallelDominantCurves);
+            
         }
-        // spanningSupportCurves
         for (String name: spanningSupportCurves.keySet()){
             String key = name.toString();
             Vector value = spanningSupportCurves.get(name);
@@ -188,12 +191,89 @@ public class SplineSkin extends Thread {
                   System.out.println("        : " + supportCurve.getId() );
               }
         }
+        // subdividedCurves
         
         
         // create duplicate of curves and subdivide them for smooth meshing
-        // Datastructure
-        HashMap<int, ObjectInfo> subdivided 
         
+        
+        
+        // Datastructure
+        
+        // For each pair of dominant curves, span support curves across the subdivided
+        
+        for(int i = 0; i < dominantParralelCurveIDs.size(); i++){
+            String parallelDominantCurves = dominantParralelCurveIDs.elementAt(i);
+            //System.out.println("parallelDominantCurves: " + parallelDominantCurves);
+            int delim = parallelDominantCurves.indexOf("_");
+            if(delim != -1){
+                String a = parallelDominantCurves.substring(0, delim);
+                String b = parallelDominantCurves.substring(delim + 1);
+                System.out.println("-" + a + "-" + b + "-");
+                int aIndex = Integer.parseInt(a);
+                int bIndex = Integer.parseInt(b);
+                
+                ObjectInfo dominantCurveOIA = scene.getObjectById(aIndex);
+                ObjectInfo dominantCurveOIB = scene.getObjectById(bIndex);
+                
+                Curve subdividedA = subdividedCurves.get(aIndex);
+                Curve subdividedB = subdividedCurves.get(bIndex);
+                
+                ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
+                subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
+                scene.addObject(subACurveInfo, null);
+                ObjectInfo subBCurveInfo = new ObjectInfo(subdividedB, new CoordinateSystem(), "subdivided curve B " + i);
+                subBCurveInfo.setCoords( dominantCurveOIB.getCoords().duplicate() );
+                scene.addObject(subBCurveInfo, null);
+                            
+                
+                MeshVertex av[] = ((Mesh) subdividedA).getVertices();
+                MeshVertex bv[] = ((Mesh) subdividedB).getVertices();
+                
+                
+                // determine if reverse pairs
+                boolean reversePairing = false;
+                if( av[0].r.distance(bv[0].r) > av[0].r.distance(bv[ bv.length - 1 ].r)){
+                    reversePairing = true;
+                }
+                System.out.println("   Reverse: " + reversePairing);
+                
+                
+                // get support curves.
+                
+                //
+                // Interpolate between dominant curves.
+                //
+                Vec3[] testSpline = new Vec3[2];
+        
+                testSpline[0] = new Vec3(av[0].r);                  // 0 goes to domA
+                CoordinateSystem c;
+                c = dominantCurveOIA.getCoords().duplicate();
+                Mat4 mat4 = c.duplicate().fromLocal();
+                mat4.transform( testSpline[0] );
+                
+                testSpline[1] = new Vec3(bv[0].r);                  // 1 goes to domB
+                c = dominantCurveOIB.getCoords().duplicate();
+                mat4 = c.duplicate().fromLocal();
+                mat4.transform( testSpline[1] );
+                if(reversePairing){
+                    testSpline[1] = new Vec3(bv[ bv.length - 1 ].r);
+                    c = dominantCurveOIB.getCoords().duplicate(); // layoutWindow.getCoords(dominantCurveOIB);
+                    mat4 = c.duplicate().fromLocal();
+                    mat4.transform( testSpline[1] );
+                }
+                Curve testCurve = getCurve(testSpline);
+                ObjectInfo testCurveInfo = new ObjectInfo(testCurve, new CoordinateSystem(), "test " + i);
+                scene.addObject(testCurveInfo, null);
+                
+                
+                
+            }
+            
+        }
+        layoutWindow.updateImage();
+        layoutWindow.updateMenus();
+        layoutWindow.rebuildItemList();
         
         
         
