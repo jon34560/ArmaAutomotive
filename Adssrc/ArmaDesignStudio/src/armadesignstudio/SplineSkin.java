@@ -300,7 +300,7 @@ public class SplineSkin extends Thread {
      * TODO: Use blend of closest curve not just closest.
      *
      * @param Vec3[] - 2 point curve defines region (and endpoints) new support curve is to be added.
-     * @param String - key pairing of two connected dominant curves to use.
+     * @param Vector<ObjectInfo> - List of support curves used to define curvature between the dominant curves based on proximity.
      */
     public Curve createSupportCurve(Vec3[] regionSpline, Vector<ObjectInfo> supportCurves){
         Curve curve = null; // new Curve();
@@ -335,7 +335,7 @@ public class SplineSkin extends Thread {
             
         }
         if(closestSupportCurve != null){
-            System.out.println("    closest support " + closestSupportCurve.getId() + " d:  " + closestSupportCurveDistance + " d2: " + secondClosestSupportCurveDistance);
+            //System.out.println("    closest support " + closestSupportCurve.getId() + " d:  " + closestSupportCurveDistance + " d2: " + secondClosestSupportCurveDistance);
             // Have closest curve to model the new one, Now bring the geometry in.
             
             Curve c = (Curve)closestSupportCurve.getObject();
@@ -347,6 +347,16 @@ public class SplineSkin extends Thread {
             //for(int i = 0; i < mesh.length; i++){
                 //System.out.println( "  s " + mesh[i].r.x + " " + mesh[i].r.y + " " + mesh[i].r.z);
             //}
+            
+            MeshVertex[] mesh2 = null;
+            Vec3 secondClosestCurveMid = null;
+            if(secondClosestSupportCurve != null){
+                Curve c2 = (Curve)secondClosestSupportCurve.getObject();
+                mesh2 = c2.getVertices();
+                
+                secondClosestCurveMid = mesh2[0].r.midPoint(mesh2[mesh.length-1].r);
+            }
+            
             if(mesh.length == 3){
                 
                 // Calculate straign midpoint to get offset
@@ -362,7 +372,8 @@ public class SplineSkin extends Thread {
                 newSupportSpline[1] = newMid;
                 
                 curve = getCurve(newSupportSpline);
-                
+             
+                /*
             } else if(mesh.length == 4){
                 Vec3[] newSupportSpline = new Vec3[4];
                 newSupportSpline[0] = regionSpline[0];
@@ -374,6 +385,7 @@ public class SplineSkin extends Thread {
                 Vec3 mid1Delta = midPoint.minus(mesh[1].r);
                 Vec3 mid2Delta = midPoint.minus(mesh[2].r);
                 
+                // TODO: Loop through these (wind up)
                 Vec3 newMid1 = regionSpline[0].midPoint(regionSpline[1]);
                 newMid1 = newMid1.minus(mid1Delta);
                 newSupportSpline[1] = newMid1;
@@ -383,7 +395,21 @@ public class SplineSkin extends Thread {
                 newSupportSpline[2] = newMid2;
                 
                 curve = getCurve(newSupportSpline);
-
+                 */
+            } else if(mesh.length > 3){
+                Vec3[] newSupportSpline = new Vec3[mesh.length];
+                newSupportSpline[0] = regionSpline[0];
+                newSupportSpline[mesh.length-1] = regionSpline[1];
+                Vec3 spanMid = regionSpline[0].midPoint(regionSpline[1]);
+                Vec3 midPoint = mesh[0].r.midPoint(mesh[mesh.length-1].r); // support midpoint
+                for(int i = 0; i < mesh.length - 2; i++){
+                    Vec3 currMidDelta = midPoint.minus(mesh[1 + i].r);
+                    Vec3 currNewMid = regionSpline[0].midPoint(regionSpline[1]);
+                    currNewMid = currNewMid.minus(currMidDelta);
+                    newSupportSpline[1 + i] = currNewMid;
+                }
+                curve = getCurve(newSupportSpline);
+                
             } else {
                 curve = getCurve(regionSpline);
             }
@@ -393,10 +419,7 @@ public class SplineSkin extends Thread {
             // Vec3 getAngle(Vec3 a, Vec3 b, Vec3 c)
             
             
-            //regionSpline
-            //curve = getCurve(regionSpline);
         }
-       
         return curve;
     }
     
