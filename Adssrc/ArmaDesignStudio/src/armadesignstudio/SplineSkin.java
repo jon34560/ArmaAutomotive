@@ -244,29 +244,55 @@ public class SplineSkin extends Thread {
                 //
                 // Interpolate between dominant curves.
                 //
-                Vec3[] testSpline = new Vec3[2];
-        
-                testSpline[0] = new Vec3(av[0].r);                  // 0 goes to domA
-                CoordinateSystem c;
-                c = dominantCurveOIA.getCoords().duplicate();
-                Mat4 mat4 = c.duplicate().fromLocal();
-                mat4.transform( testSpline[0] );
                 
-                testSpline[1] = new Vec3(bv[0].r);                  // 1 goes to domB
-                c = dominantCurveOIB.getCoords().duplicate();
-                mat4 = c.duplicate().fromLocal();
-                mat4.transform( testSpline[1] );
-                if(reversePairing){
-                    testSpline[1] = new Vec3(bv[ bv.length - 1 ].r);
-                    c = dominantCurveOIB.getCoords().duplicate(); // layoutWindow.getCoords(dominantCurveOIB);
+                for(int j = 0; j < subdividedA.getVertices().length && j < subdividedB.getVertices().length; j++){
+                    int domIndex = j;
+                    float pairLengthScale = subdividedA.getVertices().length / subdividedB.getVertices().length;
+                    
+                    int domAIndex = j; // (int) subdividedA.getVertices().length * ;
+                    int domBIndex = j;
+                    if(subdividedA.getVertices().length > subdividedB.getVertices().length){  // a longer
+                        domAIndex = (int)(((float)j / (float)subdividedB.getVertices().length) * (float)subdividedA.getVertices().length);
+                        
+                        if(j == subdividedB.getVertices().length - 1){ // Connect to end of dominant curve
+                            domAIndex = subdividedA.getVertices().length - 1;
+                        }
+                    } else if(subdividedA.getVertices().length < subdividedB.getVertices().length){ // b longer
+                        domBIndex = (int)(((float)j / (float)subdividedA.getVertices().length) * (float)subdividedB.getVertices().length);
+                        
+                        if(j == subdividedA.getVertices().length - 1){
+                            domBIndex = subdividedB.getVertices().length - 1;
+                        }
+                    }
+                    
+                    System.out.println("    a " + subdividedA.getVertices().length + " b " + subdividedB.getVertices().length +
+                                       " ai " +domAIndex + " bi: " + domBIndex );
+                
+                    // TEMP this is just a straight line, next use interpolating support lines based on distance spanning the dom lines
+                    Vec3[] testSpline = new Vec3[2];
+            
+                    testSpline[0] = new Vec3(av[domAIndex].r);                  // 0 goes to domA   domIndex
+                    CoordinateSystem c;
+                    c = dominantCurveOIA.getCoords().duplicate();
+                    Mat4 mat4 = c.duplicate().fromLocal();
+                    mat4.transform( testSpline[0] );
+                    
+                    testSpline[1] = new Vec3(bv[domBIndex].r);                  // 1 goes to domB   domIndex
+                    c = dominantCurveOIB.getCoords().duplicate();
                     mat4 = c.duplicate().fromLocal();
                     mat4.transform( testSpline[1] );
+                    if(reversePairing){
+                        testSpline[1] = new Vec3(bv[ (bv.length - 1) - domBIndex ].r);
+                        c = dominantCurveOIB.getCoords().duplicate(); // layoutWindow.getCoords(dominantCurveOIB);
+                        mat4 = c.duplicate().fromLocal();
+                        mat4.transform( testSpline[1] );
+                    }
+                    Curve testCurve = getCurve(testSpline);
+                    ObjectInfo testCurveInfo = new ObjectInfo(testCurve, new CoordinateSystem(), "test " + i);
+                    scene.addObject(testCurveInfo, null);
+                
+                
                 }
-                Curve testCurve = getCurve(testSpline);
-                ObjectInfo testCurveInfo = new ObjectInfo(testCurve, new CoordinateSystem(), "test " + i);
-                scene.addObject(testCurveInfo, null);
-                
-                
                 
             }
             
