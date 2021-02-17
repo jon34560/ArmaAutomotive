@@ -1977,6 +1977,11 @@ public class Scene
         skin.connectedCurvesToMesh(this, layoutWindow, objects);
     }
     
+    public void connectedCurvesToQuadMesh(LayoutWindow layoutWindow){
+        SplineSkin skin = new SplineSkin();
+        skin.connectedCurvesToQuadMesh(this, layoutWindow, objects);
+    }
+    
     public void autoSkinByVoids(LayoutWindow layoutWindow){
         SplineSkin skin = new SplineSkin();
         skin.autoSkinByVoids(this, layoutWindow, objects);

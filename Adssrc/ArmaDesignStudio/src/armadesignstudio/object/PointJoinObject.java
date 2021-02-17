@@ -279,6 +279,9 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                 
                 System.out.println("    vertA: " + v[0].x + " " + v[0].y + " " + v[0].z );
                 System.out.println("    vertB: " + v[1].x + " " + v[1].y + " " + v[1].z );
+                
+                objectASubPoint = closestAIndex;
+                objectBSubPoint = closestBIndex;
             }
         }
     }

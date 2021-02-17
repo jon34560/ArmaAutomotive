@@ -121,6 +121,12 @@ public class SplineMesh extends Object3D implements Mesh
         int HANDLE_SIZE = 5;
         boolean isSelected = false;
         int sel[];
+        if(canvas == null){
+            System.out.println(" *** CANVAS NULL *** ");
+        }
+        if(canvas.getScene() == null){
+            System.out.println(" *** CANVAS SCENE NULL *** ");
+        }
         sel = canvas.getScene().getSelection(); // check if no selection?
         for (int i = 0; i < sel.length; i++)
         {

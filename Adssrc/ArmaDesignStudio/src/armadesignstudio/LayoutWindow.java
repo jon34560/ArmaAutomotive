@@ -779,6 +779,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       //toolsMenu.add(Translate.menuItem("Move and Connect Curves", this, "moveConnectCurvesCommand"));
       toolsMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
       toolsMenu.add(Translate.menuItem("Mesh from Connected Curves", this, "connectedCurvesToMeshCommand"));
+      toolsMenu.add(Translate.menuItem("Mesh (quad) from Connected Curves", this, "connectedCurvesToQuadMeshCommand"));
       
     toolsMenu.addSeparator();
     toolsMenu.add(Translate.menuItem("createScriptObject", this, "createScriptObjectCommand"));
@@ -3065,6 +3066,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void connectedCurvesToMeshCommand(){
         if(theScene != null){
            theScene.connectedCurvesToMesh(this);
+        }
+    }
+    
+    public void connectedCurvesToQuadMeshCommand(){
+        if(theScene != null){
+           theScene.connectedCurvesToQuadMesh(this);
         }
     }
     
