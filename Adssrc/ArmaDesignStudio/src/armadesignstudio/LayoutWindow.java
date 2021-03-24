@@ -1731,12 +1731,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
       
       // If selection.size() == 2 - pair distance align dialog
+      /*
       int sel[] = theScene.getSelection();
       if(sel.length == 2){
           ObjectInfo a = theScene.getObject(sel[0]);
           ObjectInfo b = theScene.getObject(sel[1]);
           if(pairDistanceAlignDialog == null){
-              pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
+              pairDistanceAlignDialog = new PairDistanceAlign(   this, a, b);
           } else {
               pairDistanceAlignDialog.setObjects(a, b);
               pairDistanceAlignDialog.setVisible(true);
@@ -1747,6 +1748,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
       }
+    */
       //System.out.println("setSelection");
   }
 
@@ -1760,13 +1762,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     updateMenus();
       
       // If selection.size() == 2 - pair distance align dialog
+      /*
       int sel[] = theScene.getSelection();
       if(sel.length == 2){
           ObjectInfo a = theScene.getObject(sel[0]);
           ObjectInfo b = theScene.getObject(sel[1]);
           
           if(pairDistanceAlignDialog == null){
-              pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, a, b);
+              pairDistanceAlignDialog = new PairDistanceAlign(   this, a, b);
           } else {
               pairDistanceAlignDialog.setObjects(a, b);
               pairDistanceAlignDialog.setVisible(true);
@@ -1779,6 +1782,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
           
       }
       System.out.println("addToSelection");
+        */
   }
 
   /** Deselect all objects. */
@@ -1790,12 +1794,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     theScore.rebuildList();
     updateMenus();
       
+      /*
       if(pairDistanceAlignDialog != null) {
           pairDistanceAlignDialog.deselectObject();
           pairDistanceAlignDialog.setVisible(false);
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
       }
+       */
   }
 
   /** Deselect a single object. */

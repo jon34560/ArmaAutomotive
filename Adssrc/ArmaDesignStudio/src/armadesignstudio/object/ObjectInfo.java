@@ -903,4 +903,64 @@ public class ObjectInfo
         return bounds;
     }
     
+    
+    /**
+     * getTop
+     * Description: Get the top most vec point for this object.
+     */
+    public Vec3 getTopVec3(){
+        LayoutModeling layout = new LayoutModeling();
+        CoordinateSystem coords = this.getCoords();
+        Vec3 topVec = new Vec3(coords.getOrigin());
+        Object3D o3d = this.getObject().duplicate();
+        double maxValue = -9999;
+        CoordinateSystem c;
+        c = layout.getCoords(this);
+        Vec3 objOrigin = c.getOrigin();
+        if((o3d instanceof Mesh) == true){
+            Mesh mesh = (Mesh) o3d; // obj.getObject(); // Object3D
+            Vec3 [] verts = mesh.getVertexPositions();
+            for(int i = 0; i < verts.length; i++){
+                Vec3 point = verts[i];
+                Mat4 mat4 = c.duplicate().fromLocal();
+                mat4.transform(point);
+                if(point.y > maxValue){
+                    maxValue = point.y;
+                    
+                    topVec = new Vec3(point);
+                    System.out.println("+ " + maxValue);
+                }
+            }
+        }
+        //System.out.println(" ");
+        return topVec;
+    }
+    
+    public Vec3 getBottomVec3(){
+        LayoutModeling layout = new LayoutModeling();
+        CoordinateSystem coords = this.getCoords();
+        Vec3 botVec = new Vec3(coords.getOrigin());
+        Object3D o3d = this.getObject().duplicate();
+        double minValue = 9999;
+        CoordinateSystem c;
+        c = layout.getCoords(this);
+        Vec3 objOrigin = c.getOrigin();
+        if((o3d instanceof Mesh) == true){
+            Mesh mesh = (Mesh) o3d; // obj.getObject(); // Object3D
+            Vec3 [] verts = mesh.getVertexPositions();
+            for(int i = 0; i < verts.length; i++){
+                Vec3 point = verts[i];
+                Mat4 mat4 = c.duplicate().fromLocal();
+                mat4.transform(point);
+                if(point.y < minValue){
+                    minValue = point.y;
+                    
+                    botVec = new Vec3(point);
+                    System.out.println("- " + minValue);
+                }
+            }
+        }
+        //System.out.println(" ");
+        return botVec;
+    }
 }

@@ -50,37 +50,49 @@ import buoy.event.*;
 
 public class PairDistanceAlign extends BDialog
 {
-  private LayoutWindow window;
-  private BComboBox objChoice, pathChoice;
-  private RadioButtonGroup pathGroup;
-  private BRadioButton pathBox, xBox, yBox, zBox, vectorBox;
-  private BCheckBox orientBox;
-  private ValueField distField, xField, yField, zField, segField, angleField, tolField;
-  private BButton okButton, cancelButton;
-  private ObjectPreviewCanvas preview;
-  private Vector objects, paths;
+    private LayoutWindow window;
+    private BComboBox objChoice, pathChoice;
+    private RadioButtonGroup pathGroup;
+    private BRadioButton pathBox, xBox, yBox, zBox, vectorBox;
+    private BCheckBox orientBox;
+    private ValueField distField, xField, yField, zField, segField, angleField, tolField;
+    private BButton okButton, cancelButton;
+    private ObjectPreviewCanvas preview;
+    private Vector objects, paths;
+
+    private ValueField aPrimaryField;
+    private ValueField bPrimaryField;
+
+    private BRadioButton radioA;
+    private BRadioButton radioB;
+
+    private ValueField xDistField;
+    private ValueField yDistField;
+    private ValueField zDistField;
+
+    private BCheckBox alignXcb;
+    private BCheckBox alignYcb;
+    private BCheckBox alignZcb;
+
+    private BRadioButton alignFromCentreRadio;
+    private BRadioButton alignFromTopRadio;
+    private BRadioButton alignFromBottomRadio;
+    private BRadioButton alignFromLeftRadio;
+    private BRadioButton alignFromRightRadio;
     
-  private ValueField aPrimaryField;
-  private ValueField bPrimaryField;
+    private BRadioButton alignToCentreRadio;
+    private BRadioButton alignToTopRadio;
+    private BRadioButton alignToBottomRadio;
+    private BRadioButton alignToLeftRadio;
+    private BRadioButton alignToRightRadio;
     
-  private BRadioButton radioA;
-  private BRadioButton radioB;
-    
-  private ValueField xDistField;
-  private ValueField yDistField;
-  private ValueField zDistField;
-    
-  private BCheckBox alignXcb;
-  private BCheckBox alignYcb;
-  private BCheckBox alignZcb;
-    
-  private static ObjectInfo highlightedObject;
-  private ObjectInfo oia;
-  private ObjectInfo oib;
-    
-  private static Vec3 highlightedPoint;
-  private Vec3 va = null;
-  private Vec3 vb = null;
+    private static ObjectInfo highlightedObject;
+    private ObjectInfo oia;
+    private ObjectInfo oib;
+
+    private static Vec3 highlightedPoint;
+    private Vec3 va = null;
+    private Vec3 vb = null;
     
     /**
      * PairDistanceAlign
@@ -107,7 +119,7 @@ public class PairDistanceAlign extends BDialog
         a.setRenderMoveHighlight(true);
         highlightedObject = a;
         
-        FormContainer content = new FormContainer(4, 10);
+        FormContainer content = new FormContainer(4, 17);
         setContent(BOutline.createEmptyBorder(content, UIUtilities.getStandardDialogInsets()));
         
         content.setDefaultLayout(new LayoutInfo(LayoutInfo.WEST, LayoutInfo.NONE, new Insets(0, 0, 0, 5), null));
@@ -165,9 +177,36 @@ public class PairDistanceAlign extends BDialog
         alignYcb.addEventLink(ValueChangedEvent.class, this, "updateAlignY");
         alignZcb.addEventLink(ValueChangedEvent.class, this, "updateAlignZ");
         
+        // align from
+        content.add(new BLabel("From:"), 0, 8);
+        RadioButtonGroup alignFromGroup = new RadioButtonGroup();
+        alignFromCentreRadio = new BRadioButton( "Centre", true, alignFromGroup);
+        alignFromTopRadio = new BRadioButton( "Top", false, alignFromGroup );
+        alignFromBottomRadio = new BRadioButton( "Bottom", false, alignFromGroup );
+        alignFromLeftRadio = new BRadioButton( "Left", false, alignFromGroup );
+        alignFromRightRadio = new BRadioButton( "Right", false, alignFromGroup );
+        content.add(alignFromTopRadio, 2, 9);
+        content.add(alignFromCentreRadio, 2, 10);
+        content.add(alignFromBottomRadio, 2, 11);
+        content.add(alignFromLeftRadio, 0, 10); // 0 or 1
+        content.add(alignFromRightRadio, 3, 10);
+        
+        // align to
+        content.add(new BLabel("To:"), 0, 12);
+        RadioButtonGroup alignToGroup = new RadioButtonGroup();
+        alignToCentreRadio = new BRadioButton( "Centre", true, alignToGroup);
+        alignToTopRadio = new BRadioButton( "Top", false, alignToGroup );
+        alignToBottomRadio = new BRadioButton( "Bottom", false, alignToGroup );
+        alignToLeftRadio = new BRadioButton( "Left", false, alignToGroup );
+        alignToRightRadio = new BRadioButton( "Right", false, alignToGroup );
+        content.add(alignToTopRadio, 2, 13);
+        content.add(alignToCentreRadio, 2, 14);
+        content.add(alignToBottomRadio, 2, 15);
+        content.add(alignToLeftRadio, 0, 14); // 0 or 1
+        content.add(alignToRightRadio, 3, 14);
         
         RowContainer buttons = new RowContainer();
-        content.add(buttons, 0, 9, 4, 1, new LayoutInfo());
+        content.add(buttons, 0, 16, 4, 1, new LayoutInfo());
         
         buttons.add(okButton = Translate.button("ok", this, "doOk"));
         buttons.add(cancelButton = Translate.button("cancel", this, "dispose"));
@@ -459,19 +498,43 @@ public class PairDistanceAlign extends BDialog
         }
     }
     
+    /**
+     * updateAlignY
+     */
     private void updateAlignY(){
         //System.out.println(" updateAlignX() " + alignXcb.getState() );
         CoordinateSystem aCoords = oia.getCoords();
         CoordinateSystem bCoords = oib.getCoords();
         Vec3 aOrigin = aCoords.getOrigin();
         Vec3 bOrigin = bCoords.getOrigin();
+        
         if(highlightedObject == oia){ // Move A
+            
+            if(alignFromTopRadio.getState() == true){
+                aOrigin.y = oia.getTopVec3().y;
+                System.out.println(" fromTop a");
+            }
+            if(alignToBottomRadio.getState() == true){
+                bOrigin.y = oib.getBottomVec3().y;
+                System.out.println(" toBottom a");
+            }
+            
             double bY = bOrigin.y;
             aOrigin.y = bY;
             aCoords.setOrigin(aOrigin);
             // Update view
             window.updateImage();
         } else { // Move B
+            
+            if(alignFromTopRadio.getState() == true){
+                bOrigin.y = oib.getTopVec3().y;
+                System.out.println(" from top b ");
+            }
+            if(alignToBottomRadio.getState() == true){
+                aOrigin.y = oia.getBottomVec3().y;
+                System.out.println(" toBottom  b ");
+            }
+            
             double aY = aOrigin.y;
             bOrigin.y = aY;
             bCoords.setOrigin(bOrigin);

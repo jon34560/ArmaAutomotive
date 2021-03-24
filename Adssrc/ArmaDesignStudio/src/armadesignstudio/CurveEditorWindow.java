@@ -229,12 +229,12 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
               vertSelCount++;
           }
       }
+      /*
       System.out.println("*** count: " + vertSelCount );
       if(vertSelCount == 2){
-          
           if(pairDistanceAlignDialog == null){
               
-              pairDistanceAlignDialog = new PairDistanceAlign(  /* layout window */ this, va, vb);
+              pairDistanceAlignDialog = new PairDistanceAlign(   this, va, vb);
               
               theCurve.setRenderPointIndexHighlight( aindex );
               System.out.println(" setRenderPointIndexHighlight aindex " + aindex);
@@ -248,7 +248,7 @@ public class CurveEditorWindow extends MeshEditorWindow implements EditingWindow
           pairDistanceAlignDialog.dispose();
           pairDistanceAlignDialog = null;
       }
-      
+      */
   }
     
   //public int[] getSelectedIndices(){
