@@ -58,9 +58,11 @@ public class SplineMesh extends Object3D implements Mesh
     this.vclosed = vclosed;
     setSkeleton(new Skeleton());
     MeshVertex vert[][] = new MeshVertex [v.length][v[0].length];
-    for (int i = 0; i < v.length; i++)
-      for (int j = 0; j < v[0].length; j++)
-        vert[i][j] = new MeshVertex(v[i][j]);
+    for (int i = 0; i < v.length; i++){                             // 
+        for (int j = 0; j < v[0].length; j++){
+            vert[i][j] = new MeshVertex(v[i][j]);
+        }
+    }
     setShape(vert, usmoothness, vsmoothness);
   }
   

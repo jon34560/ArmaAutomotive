@@ -324,6 +324,12 @@ public class SplineSkin extends Thread {
                         domAIndex += aStart;
                         domBIndex += bStart;
                         //System.out.println(" - domAIndex " + domAIndex + " domBIndex " + domBIndex );
+                        if(domAIndex >= av.length){                      // Bounds check
+                            domAIndex = av.length - 1;
+                        }
+                        if(domBIndex >= bv.length){                      // Bounds check
+                            domBIndex = bv.length - 1;
+                        }
                         
                         /*
                         int domIndex = j;
@@ -1073,7 +1079,11 @@ public class SplineSkin extends Thread {
                     currNewMid = currNewMid.minus(currMidDelta);
                     
                     if(mesh2 != null && i < mesh2.length){                                   // as long as second support curve has points
-                        Vec3 currSecondMidDelta = secondMid.minus(mesh2[1 + i].r);
+                        int secondSupportCurveIndex = i;
+                        if(secondSupportCurveIndex >= mesh2.length - 1){
+                            secondSupportCurveIndex = mesh2.length - 2;
+                        }
+                        Vec3 currSecondMidDelta = secondMid.minus(mesh2[1 + secondSupportCurveIndex].r);              // ERROR
                         //Vec3 secondMidDelta = secondMid.minus(mesh2[1 + i].r);
                         //Vec3 currSecondNewMid = regionSpline[0].midPoint(regionSpline[1]);
                         Vec3 currSecondNewMid = regionSpline[0].midPoint(regionSpline[1]);
@@ -2992,6 +3002,9 @@ public class SplineSkin extends Thread {
         ObjectInfo curve[] = new ObjectInfo[curves.size()];
         boolean reverse[] = new boolean [curves.size()];
         Vec3 centerOffset;
+        
+        int longestCurvePoints = 0;
+        
         for(int i = 0; i < curves.size(); i++){
             Vec3 [] verts = (Vec3 [])curves.elementAt(i);
             //System.out.println(" curve "+ i + " length " + verts.length );
@@ -2999,6 +3012,10 @@ public class SplineSkin extends Thread {
             ObjectInfo curveObject = new ObjectInfo(c, new CoordinateSystem(), "name " + i);
             curve[i] = curveObject;
             reverse[i] = false;
+            
+            if(verts.length > longestCurvePoints){
+                longestCurvePoints = verts.length;
+            }
         }
         
         Vec3 v[][] = new Vec3 [curve.length][], center = new Vec3();
@@ -3011,6 +3028,9 @@ public class SplineSkin extends Thread {
             Curve cv = (Curve) curve[i].getObject();
             MeshVertex vert[] = cv.getVertices();
             v[i] = new Vec3 [vert.length];
+            if(vert.length < longestCurvePoints){
+                v[i] = new Vec3 [longestCurvePoints];
+            }
             float smooth[] = cv.getSmoothness();
             if (cv.getSmoothingMethod() > smoothMethod)
                 smoothMethod = cv.getSmoothingMethod();
@@ -3022,6 +3042,11 @@ public class SplineSkin extends Thread {
                 if (cv.getSmoothingMethod() != Mesh.NO_SMOOTHING && k < vs.length){
                     //System.out.println("vs.length: " + vs.length + "  k: " + k);
                     vs[j] += smooth[k];                                             // error
+                }
+            }
+            if(vert.length < longestCurvePoints){                                   // if curves are not same length, just copy until they are.
+                for(int ex = vert.length - 1; ex < longestCurvePoints; ex++){
+                    v[i][ex] = v[i][vert.length-1];
                 }
             }
             us[i] = 1.0f;
