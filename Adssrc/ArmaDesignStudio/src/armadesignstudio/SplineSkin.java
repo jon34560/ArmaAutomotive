@@ -916,6 +916,7 @@ public class SplineSkin extends Thread {
                 secondClosestCurveMid = mesh2[0].r.midPoint(mesh2[mesh2.length-1].r);
             }
             
+            /*
             if(mesh.length == 3){
                 // Calculate straign midpoint to get offset
                 Vec3 midPoint = mesh[0].r.midPoint(mesh[mesh.length-1].r);                      // closest support midpoint
@@ -982,7 +983,8 @@ public class SplineSkin extends Thread {
                 }
                 
                 curve = getCurve(newSupportSpline);
-             
+             */
+            
                 /*
             } else if(mesh.length == 4){
                 Vec3[] newSupportSpline = new Vec3[4];
@@ -1006,7 +1008,8 @@ public class SplineSkin extends Thread {
                 
                 curve = getCurve(newSupportSpline);
                  */
-            } else if(mesh.length > 3){
+            //} else
+                if(mesh.length > 2){
                 
                 // BUGS
                 // 1) support curve direction order not correct when pair are reversed.
@@ -1023,30 +1026,47 @@ public class SplineSkin extends Thread {
                     secondMid = mesh2[0].r.midPoint(mesh2[mesh2.length-1].r);
                 }
                 
-                // If pairs of support curves are reveresed, then correct orientation or one so they connect.
-                Vec3 supportA = new Vec3(midPoint);                                             // closest support curve mid point
-                CoordinateSystem cs;
-                cs = closestSupportCurve.getCoords();
-                Mat4 mat4 = cs.duplicate().fromLocal();
-                mat4.transform(supportA);
                 
-                Vec3 supportB = new Vec3(secondClosestCurveMid);                                // second closest support curve mid point
-                CoordinateSystem bcs;
-                bcs = secondClosestSupportCurve.getCoords();
-                Mat4 bmat4 = bcs.duplicate().fromLocal();
-                bmat4.transform(supportB);
+                // If pairs of support curves are reveresed, then correct orientation or one so they connect.
+                // *** Not implemented ***
+                
+                
+                
+                
+                //Vec3 supportA = new Vec3(midPoint);                                             // closest support curve mid point
+                //CoordinateSystem cs;
+                //cs = closestSupportCurve.getCoords();
+                //Mat4 mat4 = cs.duplicate().fromLocal();
+                //mat4.transform(supportA);
+                
+                //Vec3 supportB = new Vec3(secondClosestCurveMid);                                // second closest support curve mid point
+                //CoordinateSystem bcs;
+                //bcs = secondClosestSupportCurve.getCoords();
+                //Mat4 bmat4 = bcs.duplicate().fromLocal();
+                //bmat4.transform(supportB);
                 
                 Vec3 currRegionSpanMid = new Vec3(regionSpline[0].midPoint(regionSpline[1]));   // point mid of region
-                isSecondSupportCurveOppositeDirection = oppositeDirection(
-                                                                          currRegionSpanMid,    // Mid point of region
-                                                                          supportA,             // Support A
-                                                                          supportB);            // Support B
-                //if(isSecondSupportCurveOppositeDirection){
-                //    System.out.println(" isSecondSupportCurveOppositeDirection true " );
-                //} else {
-                //    System.out.println(" isSecondSupportCurveOppositeDirection false " );
-                //}
-                // DOES NOT WORK
+                //isSecondSupportCurveOppositeDirection = oppositeDirection(
+                //                                                          currRegionSpanMid,    // Mid point of region
+                //                                                          supportA,             // Support A
+                //                                                          supportB);            // Support B
+                double congruentDistance = mesh[0].r.distance(mesh2[0].r) + mesh[mesh.length-1].r.distance(mesh2[mesh2.length-1].r);
+                double reversedDistance = mesh[0].r.distance(mesh2[mesh2.length-1].r) + mesh[mesh.length-1].r.distance(mesh2[0].r);
+                if(reversedDistance < congruentDistance){
+                    // Reversed
+                    isSecondSupportCurveOppositeDirection = true;
+                } else {
+                    isSecondSupportCurveOppositeDirection = false;
+                }
+                if(isSecondSupportCurveOppositeDirection){
+                    System.out.println(" isSecondSupportCurveOppositeDirection true " );
+                    // reverse points in second support curve
+                    // mesh2 (MeshVertex[] mesh2 )
+                    
+                    Collections.reverse(Arrays.asList(mesh2));
+               
+                }
+                
                 
                 // Blend
                 // What is the distance vs support distance
