@@ -302,7 +302,7 @@ public class SplineSkin extends Thread {
                     Vector newSupportCurvePoints = new Vector();
                     
                     //for(int j = aStart; j < aEnd && j < subdividedB.getVertices().length; j++){ // This is incorrect. Don't span entire curve.
-                    for(int j = 0; j < length; j++){
+                    for(int j = 0; j <= length; j++){                                // shortest length from a | b
                         
                         float pairLengthScale = aLength / bLength;
                         
@@ -912,8 +912,8 @@ public class SplineSkin extends Thread {
             
             if(mesh.length == 3){
                 // Calculate straign midpoint to get offset
-                Vec3 midPoint = mesh[0].r.midPoint(mesh[mesh.length-1].r); // support midpoint
-                Vec3 midDelta = midPoint.minus(mesh[1].r);
+                Vec3 midPoint = mesh[0].r.midPoint(mesh[mesh.length-1].r);                      // closest support midpoint
+                Vec3 midDelta = midPoint.minus(mesh[1].r);                                      // difference between closest support mid and centre point
                 
                 Vec3[] newSupportSpline = new Vec3[3];
                 newSupportSpline[0] = regionSpline[0];
@@ -924,24 +924,24 @@ public class SplineSkin extends Thread {
                 newSupportSpline[1] = newMid;
                 
                 if(secondClosestCurveMid != null){
-                    Vec3 supportA = new Vec3(midPoint);
+                    Vec3 supportA = new Vec3(midPoint);                                         // closest support curve mid point
                     CoordinateSystem cs;
                     cs = closestSupportCurve.getCoords();
                     Mat4 mat4 = cs.duplicate().fromLocal();
                     mat4.transform(supportA);
                     
-                    Vec3 supportB = new Vec3(secondClosestCurveMid);
+                    Vec3 supportB = new Vec3(secondClosestCurveMid);                            // second closest support curve mid point
                     CoordinateSystem bcs;
                     bcs = secondClosestSupportCurve.getCoords();
                     Mat4 bmat4 = bcs.duplicate().fromLocal();
                     bmat4.transform(supportB);
                     
-                    Vec3 currRegionSpan = new Vec3(regionSpline[0].midPoint(regionSpline[1]));
+                    Vec3 currRegionSpan = new Vec3(regionSpline[0].midPoint(regionSpline[1]));  // point mid of region
                     
                     isSecondSupportCurveOppositeDirection = oppositeDirection(
-                                                                              currRegionSpan,
-                                                                              supportA,         // Support A
-                                                                              supportB);        // Support B
+                                                                              currRegionSpan,   // Mid point of region
+                                                                              supportA,         // Support A Point
+                                                                              supportB);        // Support B Point
                     //System.out.println("     Opposite: " + isSecondSupportCurveOppositeDirection);
                     if(isSecondSupportCurveOppositeDirection){
                         //System.out.println("     ***: " );
@@ -1008,20 +1008,39 @@ public class SplineSkin extends Thread {
                 // 3) Meshing between different length support curves is broken.
                 
                 Vec3[] newSupportSpline = new Vec3[mesh.length];
-                newSupportSpline[0] = regionSpline[0];                      // start point
-                newSupportSpline[mesh.length-1] = regionSpline[1];          // end point
+                newSupportSpline[0] = regionSpline[0];                                          // start point
+                newSupportSpline[mesh.length-1] = regionSpline[1];                              // end point
                 Vec3 spanMid = regionSpline[0].midPoint(regionSpline[1]);
-                Vec3 midPoint = mesh[0].r.midPoint(mesh[mesh.length-1].r);  // support midpoint
+                Vec3 midPoint = mesh[0].r.midPoint(mesh[mesh.length-1].r);                      // support midpoint
                 Vec3 secondMid = midPoint;
                 if(mesh2 != null && mesh2.length > 1){
                     secondMid = mesh2[0].r.midPoint(mesh2[mesh2.length-1].r);
                 }
                 
                 // If pairs of support curves are reveresed, then correct orientation or one so they connect.
-                //isSecondSupportCurveOppositeDirection = oppositeDirection(
-                //                                                          spanMid,
-                //                                                          supportA,         // Support A
-                //                                                          supportB);        // Support B
+                Vec3 supportA = new Vec3(midPoint);                                             // closest support curve mid point
+                CoordinateSystem cs;
+                cs = closestSupportCurve.getCoords();
+                Mat4 mat4 = cs.duplicate().fromLocal();
+                mat4.transform(supportA);
+                
+                Vec3 supportB = new Vec3(secondClosestCurveMid);                                // second closest support curve mid point
+                CoordinateSystem bcs;
+                bcs = secondClosestSupportCurve.getCoords();
+                Mat4 bmat4 = bcs.duplicate().fromLocal();
+                bmat4.transform(supportB);
+                
+                Vec3 currRegionSpanMid = new Vec3(regionSpline[0].midPoint(regionSpline[1]));   // point mid of region
+                isSecondSupportCurveOppositeDirection = oppositeDirection(
+                                                                          currRegionSpanMid,    // Mid point of region
+                                                                          supportA,             // Support A
+                                                                          supportB);            // Support B
+                //if(isSecondSupportCurveOppositeDirection){
+                //    System.out.println(" isSecondSupportCurveOppositeDirection true " );
+                //} else {
+                //    System.out.println(" isSecondSupportCurveOppositeDirection false " );
+                //}
+                // DOES NOT WORK
                 
                 // Blend
                 // What is the distance vs support distance
@@ -1041,10 +1060,10 @@ public class SplineSkin extends Thread {
                 //if(blendClosestScale < 0.5){
                     //blendClosestScale = 0.5;
                 //}
-                if(mesh2 != null){
-                    System.out.println("  closest " + closestSupportCurveDistance + " second " + secondClosestSupportCurveDistance);
-                    System.out.println("blendClosestScale: " + blendClosestScale + " i " + closestCurveIndex);
-                }
+                //if(mesh2 != null){
+                //    System.out.println("  closest " + closestSupportCurveDistance + " second " + secondClosestSupportCurveDistance);
+                //    System.out.println("blendClosestScale: " + blendClosestScale + " i " + closestCurveIndex);
+                //}
                 
                 for(int i = 0; i < mesh.length - 2; i++){                                   // iterate mesh (closest support curve points, excluding start and end)
                     Vec3 currMidDelta = midPoint.minus(mesh[1 + i].r);
