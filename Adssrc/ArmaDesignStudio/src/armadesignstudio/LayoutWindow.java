@@ -778,9 +778,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       toolsMenu.addSeparator();
       //toolsMenu.add(Translate.menuItem("Move and Connect Curves", this, "moveConnectCurvesCommand"));
       toolsMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
-      toolsMenu.add(Translate.menuItem("Mesh from Connected Curves", this, "connectedCurvesToMeshCommand"));
+      toolsMenu.add(Translate.menuItem("Mesh from Connected Curves (Beta)", this, "connectedCurvesToMeshCommand"));
       toolsMenu.add(Translate.menuItem("Mesh (quad) from Connected Curves", this, "connectedCurvesToQuadMeshCommand"));
       toolsMenu.add(Translate.menuItem("Mesh (quad) from Connected Curves (Debug)", this, "connectedCurvesToQuadMeshCommandDebug"));
+      toolsMenu.add(Translate.menuItem("Mesh (quad) from Connected Curves High Detail", this, "connectedCurvesToQuadMeshHDCommand"));
       
     toolsMenu.addSeparator();
     toolsMenu.add(Translate.menuItem("createScriptObject", this, "createScriptObjectCommand"));
@@ -3078,13 +3079,22 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void connectedCurvesToQuadMeshCommand(){
         if(theScene != null){
-           theScene.connectedCurvesToQuadMesh(this, false);
+            //theScene.removeSplineMesh();
+           theScene.connectedCurvesToQuadMesh(this, false, 0);
         }
     }
     
     public void connectedCurvesToQuadMeshCommandDebug(){
         if(theScene != null){
-           theScene.connectedCurvesToQuadMesh(this, true);
+            //theScene.removeSplineMesh();
+           theScene.connectedCurvesToQuadMesh(this, true, 0);
+        }
+    }
+    
+    public void connectedCurvesToQuadMeshHDCommand(){
+        if(theScene != null){
+            //theScene.removeSplineMesh();
+           theScene.connectedCurvesToQuadMesh(this, false, 2);
         }
     }
     

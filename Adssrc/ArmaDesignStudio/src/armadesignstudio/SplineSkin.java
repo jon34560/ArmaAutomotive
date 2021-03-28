@@ -58,6 +58,7 @@ public class SplineSkin extends Thread {
      * Bug: last dominant end not correct.
      * Bug: Bending support curves with more than 3 points is not supported
      *  TODO: rather than mesh all curves, mesh a sel
+     *  TODO: remove old mesh objects
      *
      *  @param Scene - objects, selection?
      *  @param LayoutWindow - view
@@ -67,7 +68,8 @@ public class SplineSkin extends Thread {
     public void connectedCurvesToQuadMesh(Scene scene,
                                           LayoutWindow layoutWindow,
                                           Vector<ObjectInfo> objects,
-                                          boolean debug){
+                                          boolean debug,
+                                          int subdivisions){
         Vector< PointJoinObject > connections = new Vector<>();
         Vector< ObjectInfo > supportCurveOIs = new Vector<>();
         Vector< ObjectInfo > dominantCurveOIs = new Vector<>();
@@ -84,8 +86,14 @@ public class SplineSkin extends Thread {
                 } else {
                     dominantCurveOIs.addElement(obj);               // Collect list of dominant curves
                 }
+                
                 Curve subdividedCurve = ((Curve)co).subdivideCurve(3); // 2
+                if(subdivisions > 0){
+                    //subdividedCurve = subdividedCurve.subdivideCurve(1); // buggy
+                    //subdividedCurve = ((Curve)co).subdivideCurve(4); // buggy
+                }
                 subdividedCurves.put(obj.getId(), subdividedCurve);
+                
             }
             if(co instanceof PointJoinObject){
                 PointJoinObject pjo = (PointJoinObject)co;
@@ -202,7 +210,7 @@ public class SplineSkin extends Thread {
                 
                 // determine if reverse pairs
                 boolean reversePairing = false;                                     // may not work requires segments
-                if( av[0].r.distance(bv[0].r) > av[0].r.distance(bv[ bv.length - 1 ].r)){
+                if(av[0].r.distance(bv[0].r) > av[0].r.distance(bv[bv.length - 1].r)){
                     reversePairing = true;
                 }
                 
@@ -229,18 +237,18 @@ public class SplineSkin extends Thread {
                             pjo.updateLocation(); // performance bottleneck
                         }
                         //
-                        if( pjo.objectA == supportId && pjo.objectB == aIndex ){  // pjob is domA
-                            dominantAConnectionIndexes.addElement( pjo.objectBSubPoint ); //
+                        if(pjo.objectA == supportId && pjo.objectB == aIndex){          // pjob is domA
+                            dominantAConnectionIndexes.addElement(pjo.objectBSubPoint); //
                         }
-                        if( pjo.objectA == aIndex && pjo.objectB == supportId ){  // pjoa is domA
-                            dominantAConnectionIndexes.addElement( pjo.objectASubPoint );
+                        if(pjo.objectA == aIndex && pjo.objectB == supportId ){         // pjoa is domA
+                            dominantAConnectionIndexes.addElement(pjo.objectASubPoint);
                         }
                         
-                        if( pjo.objectA == bIndex && pjo.objectB == supportId ){   // pjoa is domB
-                            dominantBConnectionIndexes.addElement( pjo.objectASubPoint );
+                        if(pjo.objectA == bIndex && pjo.objectB == supportId ){         // pjoa is domB
+                            dominantBConnectionIndexes.addElement(pjo.objectASubPoint);
                         }
-                        if( pjo.objectB == bIndex && pjo.objectA == supportId ){  // pjob is domB
-                            dominantBConnectionIndexes.addElement( pjo.objectBSubPoint );
+                        if(pjo.objectB == bIndex && pjo.objectA == supportId ){         // pjob is domB
+                            dominantBConnectionIndexes.addElement(pjo.objectBSubPoint);
                         }
                     }
                     
@@ -254,14 +262,12 @@ public class SplineSkin extends Thread {
                     // Get Connections for these supportCurves. Point connections have index information into the dominant curves.
                 }
                 if(debug){
-                    
                     for(int j = 0; j < dominantAConnectionIndexes.size(); j++){
                         System.out.println(" dominant A con ind:  " + dominantAConnectionIndexes.elementAt(j) );
                     }
                     for(int j = 0; j < dominantBConnectionIndexes.size(); j++){
                         System.out.println(" dominant B con ind:  " + dominantBConnectionIndexes.elementAt(j) );
                     }
-                    
                 }
                 // These need to be sorted
                 
@@ -410,6 +416,10 @@ public class SplineSkin extends Thread {
                     
                         // Add a curve that is modeled from the support curves between these dominant curves.
                         Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves));
+                        insertSupportCurve = insertSupportCurve.subdivideCurve(2);
+                        if(subdivisions > 0){
+                            insertSupportCurve = insertSupportCurve.subdivideCurve(1);
+                        }
                         ObjectInfo fillCurveInfo = new ObjectInfo(insertSupportCurve, new CoordinateSystem(), "fill " + i);
                         
                         if(debug){
@@ -428,7 +438,7 @@ public class SplineSkin extends Thread {
                     
                     // Create mesh
                     
-                    skinMesh(newSupportCurvePoints, scene,  layoutWindow, "MESH"); // Generate
+                    skinMesh(newSupportCurvePoints, scene,  layoutWindow, "SPLINEMESH"); // Generate
                     
                 }
                 //System.out.println(" *** subdividedA.getVertices().length " + subdividedA.getVertices().length +
@@ -3018,12 +3028,27 @@ public class SplineSkin extends Thread {
         mesh.setTexture(tex, tex.getDefaultMapping(mesh));
         mesh.makeRightSideOut();
         
-        ObjectInfo meshObjectInfo = new ObjectInfo(mesh, new CoordinateSystem(), "mesh " + name);
+        ObjectInfo meshObjectInfo = new ObjectInfo(mesh, new CoordinateSystem(), name);
         scene.addObject(meshObjectInfo, null); // SplineMesh(Object3D) -> ObjectInfo
         
         layoutWindow.updateImage();
         layoutWindow.updateMenus();
         layoutWindow.rebuildItemList();
+    }
+    
+    /**
+     * removeSplineMesh
+     * Description: Delete all spline mesh objects from the scene.
+     */
+    public void removeSplineMesh(Scene scene){
+        Vector<ObjectInfo> sceneObjects = scene.getObjects();
+        for(int i = sceneObjects.size() - 1; i >= 0; i--){
+            ObjectInfo oi = (ObjectInfo)sceneObjects.elementAt(i);
+            if(oi.getName().contains("SPLINEMESH")){
+                
+                scene.removeObjectInfo(oi);
+            }
+        }
     }
     
     /**

@@ -556,6 +556,20 @@ public class Scene
             }
         }
     }
+    
+    /**
+     * removeObjectInfo
+     * Description:
+     */
+    public void removeObjectInfo(ObjectInfo oi){
+        for (int i = 0; i < objects.size(); i++)
+        {
+            ObjectInfo info = objects.elementAt(i);
+            if(oi == info){
+                removeObject(i, null);
+            }
+        }
+    }
 
   /** Delete an object from the scene.  If undo is not null, appropriate commands will be
       added to it to undo this operation. */
@@ -1977,9 +1991,14 @@ public class Scene
         skin.connectedCurvesToMesh(this, layoutWindow, objects);
     }
     
-    public void connectedCurvesToQuadMesh(LayoutWindow layoutWindow, boolean debug){
+    /**
+     * connectedCurvesToQuadMesh
+     * Description: 
+     */
+    public void connectedCurvesToQuadMesh(LayoutWindow layoutWindow, boolean debug, int subdivisions){
         SplineSkin skin = new SplineSkin();
-        skin.connectedCurvesToQuadMesh(this, layoutWindow, objects, debug);
+        skin.removeSplineMesh(this);
+        skin.connectedCurvesToQuadMesh(this, layoutWindow, objects, debug, subdivisions);
     }
     
     public void autoSkinByVoids(LayoutWindow layoutWindow){
