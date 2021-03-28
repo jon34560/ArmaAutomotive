@@ -312,6 +312,13 @@ public class SplineSkin extends Thread {
                         System.out.println(" * bstart > bend");
                     }
                     
+                    if(aEnd > subdividedA.getVertices().length-1){          // bounds check
+                        aEnd = subdividedA.getVertices().length -1;
+                    }
+                    if(bEnd > subdividedB.getVertices().length-1){          // bounds check
+                        bEnd = subdividedB.getVertices().length -1;
+                    }
+                    
                     if(debug){
                         System.out.println("   aStart " + aStart + "  aEnd "+ aEnd + " aLen: " + subdividedA.getVertices().length +
                                            "  -  bStart " + bStart + " bEnd " + bEnd + " bLen: " + subdividedB.getVertices().length);
