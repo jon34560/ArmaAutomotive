@@ -73,7 +73,7 @@ public class SplineSkin extends Thread {
         Vector< ObjectInfo > dominantCurveOIs = new Vector<>();
         HashMap<Integer, Curve> subdividedCurves = new HashMap<Integer, Curve>();
         
-        // 1 Find relevent dominant curves, support curves and connections.
+        // 1 Find relevent dominant curves, support curves and connections in the given list/scene.
         for (ObjectInfo obj : objects){
             Object co = (Object)obj.getObject();
             // PointJoinObject
@@ -103,7 +103,9 @@ public class SplineSkin extends Thread {
         // Support curves connecting two dominant curves                min(dom_curve_A_id)_max(dom_curve_B_id) -> Vector<ObjectInfo> support curve IO
         HashMap<String, Vector<ObjectInfo>> spanningSupportCurves = new HashMap<String, Vector<ObjectInfo>>(); // (key, Vector<ObjectInfo>)
         
+        //
         // Collect connected parralel and connected support curves into data structures.
+        //
         for(int i = 0; i < dominantCurveOIs.size(); i++){
             ObjectInfo curveOI = (ObjectInfo)dominantCurveOIs.elementAt(i);
             int curveId = curveOI.getId();  // objectInfo.getId();
@@ -167,9 +169,10 @@ public class SplineSkin extends Thread {
             } // connections
         } // dominantCurveOIs
         
-        // For each pair, segment
         
+        //
         // For each pair of dominant curves, create span support curves across the subdivided
+        //
         for(int i = 0; i < dominantParralelCurveIDs.size(); i++){
             String parallelDominantCurves = dominantParralelCurveIDs.elementAt(i);
             //System.out.println("parallelDominantCurves: " + parallelDominantCurves);
@@ -189,10 +192,10 @@ public class SplineSkin extends Thread {
                 
                 ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
                 subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
-            //    scene.addObject(subACurveInfo, null);
+                //    scene.addObject(subACurveInfo, null);
                 ObjectInfo subBCurveInfo = new ObjectInfo(subdividedB, new CoordinateSystem(), "subdivided curve B " + i);
                 subBCurveInfo.setCoords( dominantCurveOIB.getCoords().duplicate() );
-            //    scene.addObject(subBCurveInfo, null);
+                //    scene.addObject(subBCurveInfo, null);
                     
                 MeshVertex av[] = ((Mesh) subdividedA).getVertices();
                 MeshVertex bv[] = ((Mesh) subdividedB).getVertices();
@@ -205,14 +208,13 @@ public class SplineSkin extends Thread {
                 
                 // Find square segments
                 // Find pairs of closts non opposite support curves
-                for(int x = 0; x < connections.size(); x++){
+                //for(int x = 0; x < connections.size(); x++){
                     //PointJoinObject pjoA = (PointJoinObject)connections.elementAt(x-1);
-                    PointJoinObject pjoB = (PointJoinObject)connections.elementAt(x);
+                    //PointJoinObject pjoB = (PointJoinObject)connections.elementAt(x);
                     // objectA int
                     // objectAPoint int
                     // objectASubPoint int
-                    
-                }
+                //}
                 Vector<Integer> dominantAConnectionIndexes = new Vector<Integer>();
                 Vector<Integer> dominantBConnectionIndexes = new Vector<Integer>();
                 
@@ -251,19 +253,22 @@ public class SplineSkin extends Thread {
                     
                     // Get Connections for these supportCurves. Point connections have index information into the dominant curves.
                 }
-                for(int j = 0; j < dominantAConnectionIndexes.size(); j++){
-                    System.out.println(" dA con  " + dominantAConnectionIndexes.elementAt(j) );
-                }
-                for(int j = 0; j < dominantBConnectionIndexes.size(); j++){
-                    System.out.println(" dB con  " + dominantBConnectionIndexes.elementAt(j) );
+                if(debug){
+                    
+                    for(int j = 0; j < dominantAConnectionIndexes.size(); j++){
+                        System.out.println(" dominant A con ind:  " + dominantAConnectionIndexes.elementAt(j) );
+                    }
+                    for(int j = 0; j < dominantBConnectionIndexes.size(); j++){
+                        System.out.println(" dominant B con ind:  " + dominantBConnectionIndexes.elementAt(j) );
+                    }
+                    
                 }
                 // These need to be sorted
                 
                 
-                
+                // Pair dominant curves
                 //int aLength = dominantAConnectionIndexes.size();
                 //int bLength = dominantBConnectionIndexes.size();
-                
                 for(int jj = 1; jj < dominantAConnectionIndexes.size() && jj < dominantBConnectionIndexes.size(); jj++){ // pair segments
                     int aStart = dominantAConnectionIndexes.elementAt(jj-1);
                     int aEnd = dominantAConnectionIndexes.elementAt(jj);
@@ -271,34 +276,45 @@ public class SplineSkin extends Thread {
                     int bEnd = dominantBConnectionIndexes.elementAt(jj);
                     //aEnd += 1;
                     //bEnd += 1;
-                    if(aEnd > subdividedA.getVertices().length-1){ // bounds check
+                    if(aEnd > subdividedA.getVertices().length-1){          // bounds check
                         aEnd = subdividedA.getVertices().length -1;
                     }
-                    if(bEnd > subdividedB.getVertices().length-1){
+                    if(bEnd > subdividedB.getVertices().length-1){          // bounds check
                         bEnd = subdividedB.getVertices().length -1;
                     }
                     
-                    if(aStart > aEnd){
+                    if(aStart > aEnd){                                      // order, start before end
                         //int temp = aEnd;
                         //aEnd = aStart;
                         //aStart = temp;
                         int s = aStart;
                         int e = aEnd;
-                        aStart = subdividedA.getVertices().length - aStart ;
-                        aEnd = subdividedA.getVertices().length - aEnd;
+                        
+                        aEnd = s;
+                        aStart = e;
+                        
+                    //    aStart = subdividedA.getVertices().length - aStart;
+                    //    aEnd = subdividedA.getVertices().length - aEnd;
+                        System.out.println(" * astart > aend");
                     }
-                    if(bStart > bEnd){
+                    if(bStart > bEnd){                                      // order, start before end
                         //int temp = bEnd;
                         //bEnd = bStart;
                         //bStart = temp;
                         int s = bStart;
                         int e = bEnd;
-                        bStart = subdividedB.getVertices().length - bStart ;
-                        bEnd = subdividedB.getVertices().length - bEnd;
+                        
+                        bEnd = s;
+                        bStart = e;
+                        
+                    //    bStart = subdividedB.getVertices().length - bStart;
+                    //    bEnd = subdividedB.getVertices().length - bEnd;
+                        System.out.println(" * bstart > bend");
                     }
                     
                     if(debug){
-                        System.out.println(" *** aStart " + aStart + "  aEnd "+ aEnd + " - bStart " + bStart + " bEnd " + bEnd  );
+                        System.out.println("   aStart " + aStart + "  aEnd "+ aEnd + " aLen: " + subdividedA.getVertices().length +
+                                           "  -  bStart " + bStart + " bEnd " + bEnd + " bLen: " + subdividedB.getVertices().length);
                     }
                     int aLength = aEnd - aStart;
                     int bLength = bEnd - bStart;
