@@ -680,7 +680,7 @@ public class SplineMesh extends Object3D implements Mesh
                 if (temp.length2() > tol*tol)
                   newrefine[k] = newrefine[(k-1+newrefine.length)%newrefine.length] = newrefine[(k+1)%newrefine.length] = true;
               }
-          news[k] = Math.min(s[i]*2.0f, 1.0f);
+          news[k] = Math.min(s[i]*2.0f, 1.0f); // bounds error
           if (!closed && i == refine.length-1)
             break;
           

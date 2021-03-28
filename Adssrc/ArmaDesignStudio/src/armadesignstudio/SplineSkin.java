@@ -295,7 +295,9 @@ public class SplineSkin extends Thread {
                         
                     //    aStart = subdividedA.getVertices().length - aStart;
                     //    aEnd = subdividedA.getVertices().length - aEnd;
-                        System.out.println(" * astart > aend");
+                        if(debug){
+                            System.out.println(" * astart > aend");
+                        }
                     }
                     if(bStart > bEnd){                                      // order, start before end
                         //int temp = bEnd;
@@ -309,7 +311,9 @@ public class SplineSkin extends Thread {
                         
                     //    bStart = subdividedB.getVertices().length - bStart;
                     //    bEnd = subdividedB.getVertices().length - bEnd;
-                        System.out.println(" * bstart > bend");
+                        if(debug){
+                            System.out.println(" * bstart > bend");
+                        }
                     }
                     
                     if(aEnd > subdividedA.getVertices().length-1){          // bounds check
@@ -2956,8 +2960,13 @@ public class SplineSkin extends Thread {
             }
         }
         
-        Vec3 v[][] = new Vec3 [curve.length][], center = new Vec3();
-        float us[] = new float [curve.length], vs[] = new float [((Curve) curve[0].getObject()).getVertices().length];
+        // v[curves][each_curve_points]
+        Vec3 v[][] = new Vec3 [curve.length][];
+        Vec3 center = new Vec3();
+        float us[] = new float [curve.length];
+        //float vs[] = new float [((Curve) curve[0].getObject()).getVertices().length]; // ???
+        float vs[] = new float [longestCurvePoints]; // work in progress
+        
         int smoothMethod = Mesh.INTERPOLATING;
         boolean closed = false;
 
@@ -2966,7 +2975,7 @@ public class SplineSkin extends Thread {
             Curve cv = (Curve) curve[i].getObject();
             MeshVertex vert[] = cv.getVertices();
             v[i] = new Vec3 [vert.length];
-            if(vert.length < longestCurvePoints){
+            if(vert.length < longestCurvePoints){                                   // expand v[][i]
                 v[i] = new Vec3 [longestCurvePoints];
             }
             float smooth[] = cv.getSmoothness();
@@ -2985,6 +2994,7 @@ public class SplineSkin extends Thread {
             if(vert.length < longestCurvePoints){                                   // if curves are not same length, just copy until they are.
                 for(int ex = vert.length - 1; ex < longestCurvePoints; ex++){
                     v[i][ex] = v[i][vert.length-1];
+                    //System.out.println("expanding curve points for meshing by duplicating the last point. ");
                 }
             }
             us[i] = 1.0f;
