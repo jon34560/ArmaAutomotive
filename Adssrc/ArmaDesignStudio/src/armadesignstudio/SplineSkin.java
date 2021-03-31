@@ -228,9 +228,19 @@ public class SplineSkin extends Thread {
                 
                 // determine if reverse pairs
                 boolean reversePairing = false;                                     // may not work requires segments
-                if(av[0].r.distance(bv[0].r) > av[0].r.distance(bv[bv.length - 1].r)){
+                //if(av[0].r.distance(bv[0].r) > av[0].r.distance(bv[bv.length - 1].r)){
+                //    reversePairing = true;
+                //}
+                
+                //
+                if(av[0].r.distance(bv[0].r) + av[av.length - 1].r.distance(bv[bv.length - 1].r) // a start -> b start + a end -> b end
+                   >
+                   av[0].r.distance(bv[bv.length - 1].r) + av[av.length - 1].r.distance(bv[0].r) // a start -> b end + a end -> b start
+                   ){
                     reversePairing = true;
+                    System.out.println(" dominant curve reversed ");
                 }
+                
                 
                 // Find square segments
                 // Find pairs of closts non opposite support curves
