@@ -966,7 +966,7 @@ public class SplineSkin extends Thread {
             //if((co instanceof Curve) == true){
                 
             //Vec3[] verts =
-            MeshVertex[] mesh = c.getVertices();
+            MeshVertex[] mesh = c.getVertices();            // Support curve point data needs curve object transform applied
             for(int i = 0; i < mesh.length; i++){
             //    System.out.println( "  s " + mesh[i].r.x + " " + mesh[i].r.y + " " + mesh[i].r.z);
                 //if(debug){
@@ -981,8 +981,8 @@ public class SplineSkin extends Thread {
             MeshVertex[] mesh2 = null;
             Vec3 secondClosestCurveMid = null;
             if(secondClosestSupportCurve != null){
-                Curve c2 = (Curve)secondClosestSupportCurve.getObject().duplicate();
-                mesh2 = c2.getVertices();
+                Curve c2 = (Curve)secondClosestSupportCurve.getObject().duplicate();    // duplicate because points modified by translation
+                mesh2 = c2.getVertices();                   // Support curve point data needs curve object transform applied
                 
                 // Translate
                 CoordinateSystem c2CS;
