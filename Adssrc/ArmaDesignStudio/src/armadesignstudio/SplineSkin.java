@@ -327,8 +327,14 @@ public class SplineSkin extends Thread {
                         aEnd = s;
                         aStart = e;
                         
-                    //    aStart = subdividedA.getVertices().length - aStart;
-                    //    aEnd = subdividedA.getVertices().length - aEnd;
+                        if(reversePairing){
+                            //aStart = subdividedA.getVertices().length - s;   // no mesh appears
+                            //aEnd = subdividedA.getVertices().length - aEnd;
+                            bStart = subdividedB.getVertices().length - bStart;   // works
+                            bEnd = subdividedB.getVertices().length - bEnd;
+                            System.out.println(" * a->b reverse");
+                        }
+                        
                         if(debug){
                             System.out.println(" * astart > aend");
                         }
@@ -342,12 +348,25 @@ public class SplineSkin extends Thread {
                         
                         bEnd = s;
                         bStart = e;
-                        
-                    //    bStart = subdividedB.getVertices().length - bStart;
-                    //    bEnd = subdividedB.getVertices().length - bEnd;
+                        if(reversePairing){
+                            //aStart = subdividedA.getVertices().length - aStart;
+                            //aEnd = subdividedA.getVertices().length - aEnd;
+                            //bStart = subdividedB.getVertices().length - bStart;   // nothing good
+                            //bEnd = subdividedB.getVertices().length - bEnd;
+                            //System.out.println(" * a->b reverse");
+                        }
                         if(debug){
                             System.out.println(" * bstart > bend");
                         }
+                    }
+                    
+                    if(reversePairing){
+                        //aStart = subdividedA.getVertices().length - aStart;   // no mesh appears
+                        //aEnd = subdividedA.getVertices().length - aEnd;
+                        
+                        //bStart = subdividedB.getVertices().length - bStart;   // nothing good
+                        //bEnd = subdividedB.getVertices().length - bEnd;
+                    
                     }
                     
                     if(aEnd > subdividedA.getVertices().length-1){          // bounds check
@@ -377,12 +396,18 @@ public class SplineSkin extends Thread {
                         if(aLength > bLength){  // a longer
                             domAIndex = (int)(((float)j / (float)bLength) * (float)aLength);
                             
+                            if(debug){
+                                System.out.println(" a>b domAIndex= " +  domAIndex );
+                            }
                             //if(j == subdividedB.getVertices().length - 1){ // Connect to end of dominant curve (NO, DEPRICATE)
                                 //domAIndex = subdividedA.getVertices().length - 1;
                             //}
                         } else if(aLength < bLength){ // b longer
                             domBIndex = (int)(((float)j / (float)aLength) * (float)bLength);
                             
+                            if(debug){
+                                System.out.println(" a<b domBIndex= " +  domBIndex );
+                            }
                             //if(j == subdividedA.getVertices().length - 1){
                                 //domBIndex = subdividedB.getVertices().length - 1;
                             //}
