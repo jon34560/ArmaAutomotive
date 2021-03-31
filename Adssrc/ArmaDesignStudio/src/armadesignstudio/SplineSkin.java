@@ -92,8 +92,24 @@ public class SplineSkin extends Thread {
                     //subdividedCurve = subdividedCurve.subdivideCurve(1); // buggy
                     //subdividedCurve = ((Curve)co).subdivideCurve(4); // buggy
                 }
-                subdividedCurves.put(obj.getId(), subdividedCurve);
                 
+                
+                // Transform points of subdivided curves with object matrix.
+                CoordinateSystem c;
+                c = obj.getCoords().duplicate();
+                Mat4 mat4 = c.duplicate().fromLocal();
+                MeshVertex subv[] = ((Mesh)subdividedCurve).getVertices();
+                Vec3 translatedPoints[] = new Vec3[subv.length];
+                for(int i = 0; i < subv.length; i++){
+                    Vec3 point = ((MeshVertex)subv[i]).r;
+                    mat4.transform(point);
+                    //subv[i].r = point;
+                    translatedPoints[i] = point;
+                }
+                //subdividedCurve.setVertexPositions(translatedPoints);
+                
+                
+                subdividedCurves.put(obj.getId(), subdividedCurve);
             }
             if(co instanceof PointJoinObject){
                 PointJoinObject pjo = (PointJoinObject)co;
@@ -198,6 +214,8 @@ public class SplineSkin extends Thread {
                 Curve subdividedA = subdividedCurves.get(aIndex);
                 Curve subdividedB = subdividedCurves.get(bIndex);
                 
+                // Translate subdivided?
+                
                 ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
                 subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
                 //    scene.addObject(subACurveInfo, null);
@@ -226,7 +244,7 @@ public class SplineSkin extends Thread {
                 Vector<Integer> dominantAConnectionIndexes = new Vector<Integer>();
                 Vector<Integer> dominantBConnectionIndexes = new Vector<Integer>();
                 
-                Vector<ObjectInfo> supportCurves = spanningSupportCurves.get(parallelDominantCurves) ;
+                Vector<ObjectInfo> supportCurves = spanningSupportCurves.get(parallelDominantCurves);   // a_b
                 for(int j = 0; j < supportCurves.size(); j++){
                     ObjectInfo supportCurve = (ObjectInfo)supportCurves.elementAt(j);
                     int supportId = supportCurve.getId();
@@ -398,24 +416,24 @@ public class SplineSkin extends Thread {
                         CoordinateSystem c;
                         c = dominantCurveOIA.getCoords().duplicate();
                         Mat4 mat4 = c.duplicate().fromLocal();
-                        mat4.transform( testSpline[0] );
+                    //    mat4.transform( testSpline[0] );
                         
                         testSpline[1] = new Vec3(bv[domBIndex].r);                  // 1 goes to domB   domIndex
                         c = dominantCurveOIB.getCoords().duplicate();
                         mat4 = c.duplicate().fromLocal();
-                        mat4.transform( testSpline[1] );
+                    //    mat4.transform( testSpline[1] );
                         if(reversePairing){
-                            testSpline[1] = new Vec3(bv[ (bv.length - 1) - domBIndex ].r);
+                            testSpline[1] = new Vec3(bv[ (bv.length - 1) - domBIndex ].r);  // index from end of curve
                             c = dominantCurveOIB.getCoords().duplicate(); // layoutWindow.getCoords(dominantCurveOIB);
                             mat4 = c.duplicate().fromLocal();
-                            mat4.transform( testSpline[1] );
+                    //        mat4.transform( testSpline[1] );
                         }
                         //Curve testCurve = getCurve(testSpline);
                         //ObjectInfo testCurveInfo = new ObjectInfo(testCurve, new CoordinateSystem(), "test " + i);
                         //scene.addObject(testCurveInfo, null); // Just straight line
                     
                         // Add a curve that is modeled from the support curves between these dominant curves.
-                        Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves));
+                        Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves), debug);
                         insertSupportCurve = insertSupportCurve.subdivideCurve(2);
                         if(subdivisions > 0){
                             insertSupportCurve = insertSupportCurve.subdivideCurve(1);
@@ -772,7 +790,7 @@ public class SplineSkin extends Thread {
                     //scene.addObject(testCurveInfo, null); // Just straight line
                 
                     // Add a curve that is modeled from the support curves between these dominant curves.
-                    Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves));
+                    Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves), false);
                     ObjectInfo fillCurveInfo = new ObjectInfo(insertSupportCurve, new CoordinateSystem(), "fill " + i);
                     //scene.addObject(fillCurveInfo, null);
                     
@@ -893,7 +911,7 @@ public class SplineSkin extends Thread {
      * @param Vec3[] - 2 point curve defines region (and endpoints) new support curve is to be added.
      * @param Vector<ObjectInfo> - List of support curves used to define curvature between the dominant curves based on proximity.
      */
-    public Curve createSupportCurve(Vec3[] regionSpline, Vector<ObjectInfo> supportCurves){
+    public Curve createSupportCurve(Vec3[] regionSpline, Vector<ObjectInfo> supportCurves, boolean debug){
         Curve curve = null; // new Curve();
         //System.out.println("     region " + regionSpline[0].x + " " + regionSpline[0].y + " " + regionSpline[0].z);
         
@@ -910,7 +928,8 @@ public class SplineSkin extends Thread {
             ObjectInfo supportCurve = (ObjectInfo)supportCurves.elementAt(i);
             //System.out.println("        XXX: " + supportCurve.getId() );
             
-            BoundingBox bounds = supportCurve.getTranslatedBounds();
+            BoundingBox bounds = supportCurve.getTranslatedBounds(); // Note not translated points
+            //BoundingBox bounds = supportCurve.getBounds();
             Vec3 centre = bounds.getCenter();
             double distance = centre.distance( regionSpline[0].midPoint(regionSpline[1]) );
             if(distance < closestSupportCurveDistance){
@@ -938,28 +957,47 @@ public class SplineSkin extends Thread {
             //System.out.println("    closest support " + closestSupportCurve.getId() + " d:  " + closestSupportCurveDistance + " d2: " + secondClosestSupportCurveDistance);
             // Have closest curve to model the new one, Now bring the geometry in.
             
-            Curve c = (Curve)closestSupportCurve.getObject();
+            Curve c = (Curve)closestSupportCurve.getObject().duplicate();
+            CoordinateSystem cCS;
+            cCS = closestSupportCurve.getCoords().duplicate();
+            Mat4 mat4 = cCS.duplicate().fromLocal();
+            
             // PointJoinObject
             //if((co instanceof Curve) == true){
                 
             //Vec3[] verts =
             MeshVertex[] mesh = c.getVertices();
-            //for(int i = 0; i < mesh.length; i++){
+            for(int i = 0; i < mesh.length; i++){
             //    System.out.println( "  s " + mesh[i].r.x + " " + mesh[i].r.y + " " + mesh[i].r.z);
-            //}
+                //if(debug){
+                    mat4.transform( mesh[i].r );
+                //}
+            }
+            // Translate verts
+            
             
             boolean isSecondSupportCurveOppositeDirection = false;
             
             MeshVertex[] mesh2 = null;
             Vec3 secondClosestCurveMid = null;
             if(secondClosestSupportCurve != null){
-                Curve c2 = (Curve)secondClosestSupportCurve.getObject();
+                Curve c2 = (Curve)secondClosestSupportCurve.getObject().duplicate();
                 mesh2 = c2.getVertices();
+                
+                // Translate
+                CoordinateSystem c2CS;
+                c2CS = secondClosestSupportCurve.getCoords().duplicate();
+                Mat4 mat42 = c2CS.duplicate().fromLocal();
+                for(int i = 0; i < mesh2.length; i++){
+                    //if(debug){
+                        mat42.transform( mesh2[i].r );
+                    //}
+                }
+                
                 //secondClosestCurveMid = mesh2[0].r.midPoint(mesh2[mesh.length-1].r);
                 secondClosestCurveMid = mesh2[0].r.midPoint(mesh2[mesh2.length-1].r);
             }
             
-           
             
             if(mesh.length > 2){
                 
@@ -1035,14 +1073,14 @@ public class SplineSkin extends Thread {
                         if(secondSupportCurveIndex >= mesh2.length - 1){
                             secondSupportCurveIndex = mesh2.length - 2;
                         }
-                        Vec3 currSecondMidDelta = secondMid.minus(mesh2[1 + secondSupportCurveIndex].r);              // ERROR
+                        Vec3 currSecondMidDelta = secondMid.minus(mesh2[1 + secondSupportCurveIndex].r);   // mesh2 = second supp (** ??? translated ???)
                         //Vec3 secondMidDelta = secondMid.minus(mesh2[1 + i].r);
                         //Vec3 currSecondNewMid = regionSpline[0].midPoint(regionSpline[1]);
-                        Vec3 currSecondNewMid = regionSpline[0].midPoint(regionSpline[1]);
+                        Vec3 currSecondNewMid = regionSpline[0].midPoint(regionSpline[1]);  //
                         Vec3 currSecondMid = currSecondNewMid.minus(currSecondMidDelta);
                         
                         // currNewMid = currNewMid vs currSecondMid with blendClosestScale ratio
-                        currNewMid.x = (currNewMid.x * blendClosestScale) + (currSecondMid.x * (1 - blendClosestScale));
+                        currNewMid.x = (currNewMid.x * blendClosestScale) + (currSecondMid.x * (1 - blendClosestScale)); // BUG here when not viewed head on ***
                         currNewMid.y = (currNewMid.y * blendClosestScale) + (currSecondMid.y * (1 - blendClosestScale));
                         currNewMid.z = (currNewMid.z * blendClosestScale) + (currSecondMid.z * (1 - blendClosestScale));
                         //System.out.println(".");
@@ -3039,13 +3077,13 @@ public class SplineSkin extends Thread {
     /**
      * removeSplineMesh
      * Description: Delete all spline mesh objects from the scene.
+     * @param: Scene, remove objects by name.
      */
     public void removeSplineMesh(Scene scene){
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
         for(int i = sceneObjects.size() - 1; i >= 0; i--){
             ObjectInfo oi = (ObjectInfo)sceneObjects.elementAt(i);
             if(oi.getName().contains("SPLINEMESH")){
-                
                 scene.removeObjectInfo(oi);
             }
         }
