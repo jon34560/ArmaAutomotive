@@ -29,7 +29,8 @@ public class CreateLightTool extends EditingTool
   public CreateLightTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("light");
+    //initButton("light");
+      initButton("light_48");
   }
 
   public void activate()

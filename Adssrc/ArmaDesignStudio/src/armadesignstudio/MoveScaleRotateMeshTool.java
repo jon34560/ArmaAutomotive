@@ -40,7 +40,10 @@ public class MoveScaleRotateMeshTool extends MeshEditingTool
   public MoveScaleRotateMeshTool(EditingWindow fr, MeshEditController controller)
   {
     super(fr, controller);
-    initButton("moveScaleRotate");
+    //initButton("moveScaleRotate");
+      initButton("moveScaleRotate_48");
+      
+      
     manipulator = new Compound3DManipulator();
     manipulator.addEventLink(HandlePressedEvent.class, this, "handlePressed");
     manipulator.addEventLink(HandleDraggedEvent.class, this, "handleDragged");

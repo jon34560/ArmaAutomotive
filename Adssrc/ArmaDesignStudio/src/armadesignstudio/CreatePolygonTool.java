@@ -31,7 +31,9 @@ public class CreatePolygonTool extends EditingTool
   public CreatePolygonTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("polygon");
+    //initButton("polygon");
+      initButton("polygon_48");
+      
     tabulateSines();
   }
 

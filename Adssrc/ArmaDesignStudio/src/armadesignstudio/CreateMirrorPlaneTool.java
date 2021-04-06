@@ -36,7 +36,9 @@ public class CreateMirrorPlaneTool extends EditingTool
   public CreateMirrorPlaneTool(EditingWindow fr)
   {
     super(fr);
-    initButton("mirrorPlane");
+    //initButton("mirrorPlane");
+      initButton("mirrorPlane_48");
+      
     smoothing = Mesh.APPROXIMATING;
   }
 

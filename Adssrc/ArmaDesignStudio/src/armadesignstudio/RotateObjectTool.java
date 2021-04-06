@@ -44,7 +44,9 @@ public class RotateObjectTool extends EditingTool
   public RotateObjectTool(EditingWindow fr)
   {
     super(fr);
-    initButton("rotate");
+    //initButton("rotate");
+      initButton("rotate_48");
+      
   }
 
   public void activate()

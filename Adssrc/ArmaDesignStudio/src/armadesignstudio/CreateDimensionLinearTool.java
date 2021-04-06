@@ -38,7 +38,9 @@ public class CreateDimensionLinearTool extends EditingTool
   public CreateDimensionLinearTool(EditingWindow fr)
   {
     super(fr);
-    initButton("dimension_linear");
+    //initButton("dimension_linear");
+      initButton("dimensionLinear_48");
+      
     smoothing = Mesh.APPROXIMATING;
   }
 

@@ -27,7 +27,9 @@ public class CreateCameraTool extends EditingTool
   public CreateCameraTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("camera");
+    //initButton("camera");
+      initButton("camera_48");
+      
   }
 
   public void activate()

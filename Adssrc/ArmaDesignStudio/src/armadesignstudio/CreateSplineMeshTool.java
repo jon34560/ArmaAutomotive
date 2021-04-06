@@ -35,7 +35,8 @@ public class CreateSplineMeshTool extends EditingTool
   public CreateSplineMeshTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("splineMesh");
+    //initButton("splineMesh");
+      initButton("splineMesh_48");
   }
 
   public void activate()

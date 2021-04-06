@@ -216,40 +216,54 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // Build the tool palette.
 
     tools = new ToolPalette(2, 7);
+    tools.setBackground(new Color(49, 49, 49)); // only corners
+      
     EditingTool metaTool, altTool, defaultTool, compoundTool;
-    tools.addTool(defaultTool = new MoveObjectTool(this));
+      
+    tools.addTool(defaultTool = new MoveObjectTool(this));              // move, select by smallest
+    tools.addTool( new MoveClosestObjectTool(this));
+      
+    tools.addTool(metaTool = new MoveViewTool(this));
+    tools.addTool(altTool = new RotateViewTool(this));
+      
     tools.addTool(new RotateObjectTool(this));
     tools.addTool(new ScaleObjectTool(this));
-    tools.addTool(compoundTool = new MoveScaleRotateObjectTool(this));
+      
+    tools.addTool(compoundTool = new MoveScaleRotateObjectTool(this)); // TBD
+    
     tools.addTool(new CreateCubeTool(this));
     tools.addTool(new CreateSphereTool(this));
     tools.addTool(new CreateCylinderTool(this));
     tools.addTool(new CreateSplineMeshTool(this));
     tools.addTool(new CreatePolygonTool(this));
+    
     tools.addTool(new CreateCurveTool(this));
     tools.addTool(new CreateSupportCurveTool(this));
+    tools.addTool(new CreateMeshVoidCurveTool(this));
+      
     tools.addTool(new CreateCameraTool(this));
     tools.addTool(new CreateLightTool(this));
-    tools.addTool(metaTool = new MoveViewTool(this));
-    tools.addTool(altTool = new RotateViewTool(this));
-      
+    
     // Dimension Tool
     // Grid Tool
     // Snap To Tool
     tools.addTool(new CreateDimensionLinearTool(this));
     tools.addTool(new CreateDimensionTool(this));
-    tools.addTool(new CreateSnapToTool(this));
+    //tools.addTool(new CreateSnapToTool(this));
     tools.addTool(new CreateLabelTool(this));
+    
     tools.addTool(new CreateForceTool(this));
-    tools.addTool(new CreateVoidTool(this));
+    tools.addTool(new CreateFixedTool(this));
+     
+    //tools.addTool(new CreateVoidTool(this));
       
     //tools.addTool(new CreateAlignLeftTool(this));
     //tools.addTool(new CreateAlignRightTool(this));
     //tools.addTool(new CreateAlignUpTool(this));
     //tools.addTool(new CreateAlignDownTool(this));
       
-      tools.addTool(new CreateMirrorPlaneTool(this));
-      tools.addTool(new CreateExportRegionTool(this));
+    tools.addTool(new CreateMirrorPlaneTool(this));
+    tools.addTool(new CreateExportRegionTool(this));
       
       
     if (ArmaDesignStudio.getPreferences().getUseCompoundMeshTool())
@@ -269,7 +283,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // Set colors
     //centerContainer.getViewport().setBackground(Color.RED);
     //centerContainer.setBackground(new Color(23, 23, 23)); // no effect
-      centerContainer.setBackground(new Color(64, 64, 64));  // temp
+    centerContainer.setBackground(new Color(64, 64, 64));  // temp
       
     propertiesScroller.setBackground(new Color(95, 95, 95)); // background of property container
     propertiesPanel.setBackground(new Color(95, 95, 95));

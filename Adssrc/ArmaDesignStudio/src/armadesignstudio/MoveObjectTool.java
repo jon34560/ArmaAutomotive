@@ -35,7 +35,8 @@ public class MoveObjectTool extends EditingTool
   public MoveObjectTool(EditingWindow fr)
   {
     super(fr);
-    initButton("move");
+    //initButton("move");
+      initButton("move_1_48");
   }
 
   public void activate()

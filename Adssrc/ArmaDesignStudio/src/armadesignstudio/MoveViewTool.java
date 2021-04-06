@@ -30,7 +30,9 @@ public class MoveViewTool extends EditingTool
   public MoveViewTool(EditingWindow fr)
   {
     super(fr);
-    initButton("moveView");
+    //initButton("moveView");
+      initButton("moveView_48");
+      
   }
   
   public void activate()

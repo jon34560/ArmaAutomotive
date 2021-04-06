@@ -42,7 +42,8 @@ public class CreateLabelTool extends EditingTool
   public CreateLabelTool(EditingWindow fr)
   {
     super(fr);
-    initButton("label");
+    //initButton("label");
+      initButton("label_48");
     smoothing = Mesh.APPROXIMATING;
   }
 

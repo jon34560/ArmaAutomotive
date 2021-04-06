@@ -54,7 +54,10 @@ public class MoveScaleRotateObjectTool extends EditingTool
   public MoveScaleRotateObjectTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("moveScaleRotate");
+    //initButton("moveScaleRotate");
+      initButton("moveScaleRotate_48");
+      
+      
     manipulator = new Compound3DManipulator();
     manipulator.addEventLink(HandlePressedEvent.class, this, "handlePressed");
     manipulator.addEventLink(HandleDraggedEvent.class, this, "handleDragged");

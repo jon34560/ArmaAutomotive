@@ -31,7 +31,9 @@ public class RotateViewTool extends EditingTool
   public RotateViewTool(EditingWindow fr)
   {
     super(fr);
-    initButton("rotateView");
+    //initButton("rotateView");
+      initButton("rotateView_48");
+      
   }
 
   public void activate()

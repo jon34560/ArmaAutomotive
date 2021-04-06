@@ -627,7 +627,7 @@ public class ThemeManager {
             try {
                 ctor = buttonClass.getConstructor(Object.class, ImageIcon.class, ImageIcon.class);
                 
-                //System.out.println(" ");
+                //System.out.println("  >>>  ImageIcon selected w: " + selected.getIconWidth()   );
                 
                 return (ToolButton) ctor.newInstance(owner, new ImageIcon(url), selected);
             } catch (Throwable t) {
@@ -642,6 +642,8 @@ public class ThemeManager {
         if (url != null) {
             try {
                 ctor = buttonClass.getConstructor(Object.class, ImageIcon.class);
+                
+                //System.out.println("   ----- ");
                 return (ToolButton) ctor.newInstance(owner, new ImageIcon(url));
             } catch (Throwable t) {
                 System.out.println("Could not find a usable Ctor for ToolButton: "

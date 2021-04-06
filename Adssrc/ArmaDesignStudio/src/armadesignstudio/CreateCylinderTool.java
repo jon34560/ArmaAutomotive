@@ -31,7 +31,8 @@ public class CreateCylinderTool extends EditingTool
   public CreateCylinderTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("cylinder");
+    //initButton("cylinder");
+      initButton("cylendar_48");
   }
 
   public void activate()

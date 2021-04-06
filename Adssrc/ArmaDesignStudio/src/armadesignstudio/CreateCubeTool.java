@@ -30,7 +30,9 @@ public class CreateCubeTool extends EditingTool
   public CreateCubeTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("cube");
+    //initButton("cube");
+      initButton("cube_48");
+      
   }
 
   public void activate()

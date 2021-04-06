@@ -50,7 +50,8 @@ public class ScaleObjectTool extends EditingTool
   public ScaleObjectTool(EditingWindow fr)
   {
     super(fr);
-    initButton("resize");
+    //initButton("resize");
+      initButton("resize_48");
   }
 
   public void activate()

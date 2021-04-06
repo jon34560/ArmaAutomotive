@@ -29,7 +29,8 @@ public class CreateSphereTool extends EditingTool
   public CreateSphereTool(LayoutWindow fr)
   {
     super(fr);
-    initButton("sphere");
+    //initButton("sphere");
+      initButton("sphere_48");
   }
 
   public void activate()

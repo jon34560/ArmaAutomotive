@@ -37,7 +37,9 @@ public class CreateCurveTool extends EditingTool
   public CreateCurveTool(EditingWindow fr)
   {
     super(fr);
-    initButton("interpCurve");
+    //initButton("interpCurve");
+      initButton("interpCurve_48");
+      
     smoothing = Mesh.APPROXIMATING;
   }
 

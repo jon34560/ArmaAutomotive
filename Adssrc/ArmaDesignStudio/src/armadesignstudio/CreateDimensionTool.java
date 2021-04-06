@@ -38,7 +38,9 @@ public class CreateDimensionTool extends EditingTool
   public CreateDimensionTool(EditingWindow fr)
   {
     super(fr);
-    initButton("dimension");
+    //initButton("dimension");
+      initButton("dimension_48");
+      
     smoothing = Mesh.APPROXIMATING;
   }
 

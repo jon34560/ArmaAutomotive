@@ -38,7 +38,9 @@ public class CreateForceTool extends EditingTool
   public CreateForceTool(EditingWindow fr)
   {
     super(fr);
-    initButton("force");
+    //initButton("force");
+      initButton("force_48");
+      
     smoothing = Mesh.APPROXIMATING;
   }
 

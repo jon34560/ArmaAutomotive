@@ -38,7 +38,9 @@ public class CreateExportRegionTool extends EditingTool
   public CreateExportRegionTool(EditingWindow fr)
   {
     super(fr);
-    initButton("exportRegion");
+    //initButton("exportRegion");
+      initButton("void_48");
+      
     smoothing = Mesh.APPROXIMATING;
   }
 
