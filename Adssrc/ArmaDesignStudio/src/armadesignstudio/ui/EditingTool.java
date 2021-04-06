@@ -74,6 +74,8 @@ public abstract class EditingTool
   protected void initButton(String name)
   {
     button = ThemeManager.getToolButton(this, name);
+      
+      System.out.println("   EditingTool button size " + button.getWidth() + " x " + button.getHeight() );
   }
 
   /** Get the tool tip text to display for this tool (or null if it does not have a tool tip). */

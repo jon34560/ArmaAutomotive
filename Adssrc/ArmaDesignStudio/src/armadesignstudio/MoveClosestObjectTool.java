@@ -1,5 +1,5 @@
 /* Copyright (C) 1999-2009 by Peter Eastman
- 2020 by Jon Taylor - Arma Automotive Inc.
+ 2020,2021 by Jon Taylor - Arma Automotive Inc.
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -44,7 +44,7 @@ public class MoveClosestObjectTool extends EditingTool
   public void activate()
   {
     super.activate();
-    theWindow.setHelpText(Translate.text("moveObjectTool.helpText"));
+    theWindow.setHelpText(Translate.text("moveClosestObjectTool.helpText"));
   }
 
   public int whichClicks()
@@ -59,7 +59,7 @@ public class MoveClosestObjectTool extends EditingTool
 
   public String getToolTipText()
   {
-    return Translate.text("moveObjectTool.tipText");
+    return Translate.text("moveClosestObjectTool.tipText");
   }
 
   public void mousePressedOnObject(WidgetMouseEvent e, ViewerCanvas view, int obj)

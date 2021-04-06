@@ -46,7 +46,7 @@ public class CreateMeshVoidCurveTool extends EditingTool
   public void activate()
   {
     super.activate();
-    theWindow.setHelpText(Translate.text("createCurveTool.helpText"));
+    theWindow.setHelpText(Translate.text("createMeshVoidCurveTool.helpText")); // createCurveTool.helpText
   }
 
   public void deactivate()
@@ -62,7 +62,7 @@ public class CreateMeshVoidCurveTool extends EditingTool
 
   public String getToolTipText()
   {
-    return Translate.text("createCurveTool.tipText");
+    return Translate.text("createMeshVoidCurveTool.tipText"); // createCurveTool.tipText
   }
 
   public boolean hilightSelection()
