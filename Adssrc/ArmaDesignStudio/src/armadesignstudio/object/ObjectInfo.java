@@ -49,7 +49,7 @@ public class ObjectInfo
   private boolean tubeLayoutViewModel = false;
     
   private boolean childrenHiddenWhenHidden = false;
-  private int displayModeOveride = 0;   //
+  private int displayModeOveride = 0;       // [wireframe, solid, textured, ...]
   private String groupName = "";
   private double layout_origin_x = 0;
   private double layout_origin_y = 0;
@@ -64,7 +64,7 @@ public class ObjectInfo
   // CAM properties
     private boolean cncDisabled = false;
     private int cncPointOffset = 0;
-    private int cncPolyOrder = 0;
+    private int cncPolyOrder = 0;               // Cant set default by size here as the geometry hasn't been defined yet.
     private double cncPolyDepth = 0;
     private boolean cncReversePointOrder = false;
     
@@ -85,7 +85,10 @@ public class ObjectInfo
     children = new ObjectInfo [0];
     setId(-1);
       
-      //obj.name = name;
+    //obj.name = name;
+    //if(cncPolyOrder == 0){
+    //    cncPolyOrder = getDefaultPolyOrder(); // set default based on size once object geometry is available.
+    //}
   }
 
   /** Create a new ObjectInfo which is identical to this one.  It will still reference the
@@ -962,5 +965,34 @@ public class ObjectInfo
         }
         //System.out.println(" ");
         return botVec;
+    }
+    
+    
+    /**
+     * getDefaultPolyOrder
+     *
+     * Description: Get the size of the object bounds for a general default cut order.
+     *  We want smaller objects cut first in case they exist within larger objects as once a part has
+     *  been cut free from the material it is no longer fixed in place by bracing.
+     *
+     *  NOTE: method replaced by menu based for setting all object poly order by size.
+     *
+     *  @return poly order. order to cut parts.
+     */
+    public int getDefaultPolyOrder(){
+        int order = 0;
+        
+        // get bounds
+        if(this.getObject() != null){
+            Object3D o3d = this.getObject().duplicate();
+            BoundingBox bounds = o3d.getBounds();
+            // create an integer based on the object size.
+            order = (int)(
+                          (bounds.maxx - bounds.minx) * (bounds.maxy - bounds.miny) * (bounds.maxz - bounds.minz)
+                         );
+            
+            //System.out.println("getDefaultPolyOrder " + (bounds.maxx - bounds.minx) );
+        }
+        return order;
     }
 }

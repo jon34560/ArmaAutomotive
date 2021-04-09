@@ -216,7 +216,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // Build the tool palette.
 
     tools = new ToolPalette(2, 7);
-    tools.setBackground(new Color(49, 49, 49)); // only corners
+    //tools.setBackground(new Color(49, 49, 49)); // only corners
+      // Set border to 0
+      //tools.setBor
       
     EditingTool metaTool, altTool, defaultTool, compoundTool;
       
@@ -988,10 +990,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.add(Translate.menuItem("Enable Poly", this, "setGCodeEnablePoly"));
 	  layoutMenu.add(Translate.menuItem("Disable Poly", this, "setGCodeDisablePoly"));
       layoutMenu.addSeparator();
-	  layoutMenu.add(Translate.menuItem("Poly Order", this, "setGCodePolyOrder"));
-	  layoutMenu.add(Translate.menuItem("Poly Depth", this, "setGCodePolyDepth"));
-      layoutMenu.add(Translate.menuItem("Point Offset", this, "setGCodePointOffset"));
-      layoutMenu.add(Translate.menuItem("Reverse Order", this, "setGCodeReverseOrder"));
+	  layoutMenu.add(Translate.menuItem("Set Selected Poly Order", this, "setGCodePolyOrder"));
+      layoutMenu.add(Translate.menuItem("Set Order by Size", this, "setGCodePolyOrdersBySize"));
+      
+	  layoutMenu.add(Translate.menuItem("Set Selected Poly Depth", this, "setGCodePolyDepth"));
+      layoutMenu.add(Translate.menuItem("Set Selected Point Offset", this, "setGCodePointOffset"));
+      layoutMenu.add(Translate.menuItem("Reverse Selected Order", this, "setGCodeReverseOrder"));
 	  layoutMenu.addSeparator();
 	  layoutMenu.add(Translate.menuItem("Set Scale", this, "setGCodeExportScale"));
 	  layoutMenu.addSeparator();
@@ -3936,6 +3940,15 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 		theScene.setGCodePolyOrder();
 	}
   }
+    
+    /**
+     *
+     */
+    public void setGCodePolyOrdersBySize(){
+        if(theScene != null){
+            theScene.setGCodePolyOrdersBySize();
+        }
+    }
     
   public void setGCodePointOffset(){
     if(theScene != null){

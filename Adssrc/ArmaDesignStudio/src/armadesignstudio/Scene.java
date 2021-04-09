@@ -4685,6 +4685,63 @@ public class Scene
 		}
 	}
     
+    /**
+     * setGCodePolyOrdersBySize
+     * Description: Used to set object poly order by size as to create GCode that cuts smaller objects first.
+     *  Once objects are cut any objects within are no longer fixed in place.
+     */
+    public void setGCodePolyOrdersBySize(){
+        // Scale. Find min and max bound size values and scale to a reasonable integer range.
+        double min = Double.MAX_VALUE;
+        double max = 0;
+         
+        //LayoutModeling layout = new LayoutModeling();
+        for (ObjectInfo obj : objects){
+            // Get object bounds.
+            BoundingBox bounds = obj.getBounds();
+            
+            double size = (double)(
+                          (bounds.maxx - bounds.minx) * (bounds.maxy - bounds.miny) * (bounds.maxz - bounds.minz)
+                         );
+            if(size > max){
+                    max = size;
+            }
+            if(size < min){
+                min = size;
+            }
+            
+            System.out.println(" --- " + obj.getName() + " size " + size + " " +  (bounds.maxx - bounds.minx)   );
+            //if(obj.selected == true){
+                //layout.setGCodePolyOrdersBySize();
+            //}
+        }
+        
+        // scale
+        double scaleFactor = 1;
+        if(min < 1){
+            scaleFactor = 2;
+        }
+        
+        // Set poly order based on object size * scaleFactor.
+        for (ObjectInfo obj : objects){
+            
+        }
+        
+        /*
+        if(this.getObject() != null){
+            Object3D o3d = this.getObject().duplicate();
+            BoundingBox bounds = o3d.getBounds();
+            // create an integer based on the object size.
+            order = (int)(
+                          (bounds.maxx - bounds.minx) * (bounds.maxy - bounds.miny) * (bounds.maxz - bounds.minz)
+                         );
+            
+            //System.out.println("getDefaultPolyOrder " + (bounds.maxx - bounds.minx) );
+        }
+        */
+    }
+    
+    
     public void setGCodePointOffset(){
         LayoutModeling layout = new LayoutModeling();
         for (ObjectInfo obj : objects){
