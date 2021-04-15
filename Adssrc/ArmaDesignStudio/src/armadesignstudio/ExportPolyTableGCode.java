@@ -637,41 +637,38 @@ public class ExportPolyTableGCode {
         int groupsWritten = 0;
         Vector polygons = new Vector();
         
+        double minX = 9999;
+        double minY = 9999;
+        double maxX = -9999;
+        double maxY = -9999;
+        double width = 0;
+        double depth = 0;
+        
+        double minZ = 9999;
+        double maxZ = -9999;
+        
+        boolean writeFile = false;
+        
+        // Create gcode file.
+        String gCodeFile = dir + System.getProperty("file.separator") + scene.getName() + ".gcode";
+        //PrintWriter writer = new PrintWriter(gCodeFile, "UTF-8");
+        System.out.println("      File: " + gCodeFile);
+        
+        HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
+        
+        // gcode
+        String gcode = "G1\n";
+        String gcode2 = "G1\n";
+        
         for (ObjectInfo obj : scene.getObjects()){
             String name = obj.getName();
             boolean enabled = layout.isObjectEnabled(obj);
             //System.out.println("   - name: " + name);
-            ObjectInfo[] children = obj.getChildren();
+            //ObjectInfo[] children = obj.getChildren();
             if(enabled){ // children.length > 0 &&
                 //System.out.println("   - Group: " + name + " count: " + children.length);
                 try {
                     
-                    // Create gcode file for group.
-                    String gCodeFile = dir + System.getProperty("file.separator") + scene.getName() + ".gcode";
-                    
-                    //PrintWriter writer = new PrintWriter(gCodeFile, "UTF-8");
-                    System.out.println("      File: " + gCodeFile);
-                    
-                    
-                    // gcode
-                    String gcode = "G1\n";
-                    String gcode2 = "G1\n";
-
-                    double minX = 9999;
-                    double minY = 9999;
-                    double maxX = -9999;
-                    double maxY = -9999;
-                    double width = 0;
-                    double depth = 0;
-                    
-                    double minZ = 9999;
-                    double maxZ = -9999;
-
-                    boolean writeFile = false;
-
-                    HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
-                    
-                    //for (ObjectInfo child : children){
                         ObjectInfo childClone = obj.duplicate(); // child.duplicate();
                         childClone.setLayoutView(false);
 
@@ -702,12 +699,12 @@ public class ExportPolyTableGCode {
                             childClone.setCoords(c);
                             //c.setOrigin( );
 
-                            Vec3 origin = c.getOrigin(); // childClone.getCoords().getOrigin();
-                            double angles[] = c.getRotationAngles(); //  childClone.getCoords().getRotationAngles();
+                            //Vec3 origin = c.getOrigin(); // childClone.getCoords().getOrigin();
+                            //double angles[] = c.getRotationAngles(); //  childClone.getCoords().getRotationAngles();
                             //System.out.println(" " + origin.x + " " + c.getOrigin().x);
                             //System.out.println("         angles:  x " + angles[0] + " y " + angles[1] + " z " + angles[2]);
 
-                            Mesh mesh = (Mesh) childClone.getObject(); // Object3D
+                            Mesh mesh = (Mesh) childClone.getObject().duplicate(); // Object3D
                             Vec3 [] verts = mesh.getVertexPositions();
                             for (Vec3 vert : verts){
                                 // Transform vertex points around object loc/rot.
@@ -959,130 +956,140 @@ public class ExportPolyTableGCode {
                     */
                     
                     
-                    // Add boundary points (so you don't cut outside of the material or the clamps)
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1\n";
+                    
 
                     // Sort polygons by order attribute
 
 
 
-                    //
-                    // Write gcode file
-                    // Iterate data
-                    for(int p = 0; p < polygons.size(); p++){
-                        //System.out.println(" POLYGON ***");
-                        
-                        Vector polygon = (Vector)polygons.elementAt(p);
-                        boolean lowered = false;
-                        Vec3 firstPoint = null;
-                        for(int pt = 0; pt < polygon.size(); pt++){
-                            Vec3 point = (Vec3)polygon.elementAt(pt);
-                            //System.out.println("  Point *** " + point.getX() + " " + point.getY());
+                    
 
 
-                            point.x = (point.x + -minX); // shift to align all geometry to 0,0
-                            point.z = (point.z + -minZ); //
-                            
-                            //point.z = (point.z + -minZ);
-
-                            gcode2 += "G1 X" +
-                                roundThree(point.x) +
-                                " Y" +
-                                roundThree(point.z) +
-                           //     " Z" +
-                           //     roundThree(point.y) +
-                                "\n"; // G90
-                            if(!lowered){
-                                gcode2 += "G00 Z-0.5\n"; // Lower router head for cutting.
-                                lowered = true;
-                                firstPoint = point;
-                            }
-
-                            polygon.setElementAt(point, pt);
-                        }
-
-                        // Connect last point to first point
-                        if(firstPoint != null){
-                            gcode2 += "G1 X" +
-                                roundThree(firstPoint.x) +
-                                " Y" +
-                                roundThree(firstPoint.z) + "\n"; // G90
-                        }
-
-                        gcode2 += "G00 Z0.5\n"; // Raise router head
-                    }
-
-                    System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
-                    System.out.println("Align: x: " + -minX + " y: " + -minZ);
-
-
-                    // Write gcode to file
-                    if(writeFile){
-                        try {
-                            groupsWritten++;
-                            
-                            String gcodeFile = dir + System.getProperty("file.separator") + scene.getName() + "";
-                            gcodeFile += ".gcode";
-                            System.out.println("Writing g code file: " + gcodeFile);
-                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                            writer2.println(gcode2);
-                            writer2.close();
-                        } catch (Exception e){
-                            System.out.println("Error: " + e.toString());
-                        }
-                        
-                        // Multi part file
-                        String gcode3 = gcode2;
-                        int lines = 0; // StringUtils.countMatches(gcode2, "\n");
-                        for(int i = 0; i < gcode3.length(); i++){
-                            if(gcode3.charAt(i) == '\n'){
-                                lines++;
-                            }
-                        }
-                        if(lines > 499){
-                            int lineNumber = 0;
-                            int fileNumber = 1;
-                            lines = 0;
-                            for(int i = 0; i < gcode3.length(); i++){
-                                if(gcode3.charAt(i) == '\n'){
-                                    lines++;
-                                    if(lines > 480){
-                                        String gCodeSection = gcode3.substring(0, i);
-                                        
-                                        String gcodeFile = dir + System.getProperty("file.separator") + name + "_" + fileNumber;
-                                        gcodeFile += ".gcode";
-                                        System.out.println("Writing g code file: " + gcodeFile);
-                                        PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                                        writer2.println(gCodeSection);
-                                        writer2.close();
-                                        
-                                        fileNumber++;
-                                        gcode3 = gcode3.substring(i+1, gcode3.length());
-                                    }
-                                }
-                            }
-                            String gcodeFile = dir + System.getProperty("file.separator") + name + "_" + fileNumber;
-                            gcodeFile += ".gcode";
-                            System.out.println("Writing g code file: " + gcodeFile);
-                            PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
-                            writer2.println(gcode3);
-                            writer2.close();
-                            System.out.println(" Lines *** " + lines);
-                        }
-                        
-                    }
+                    
 
                 } catch (Exception e){
                     System.out.println("Error: " + e);
                     e.printStackTrace();
                 }
             } // Obj has children and is enabled.
-        } // Loop objets
+        } // Loop objects
+        
+        
+        //
+        // Write gcode file
+        // Iterate data
+        for(int p = 0; p < polygons.size(); p++){
+            //System.out.println(" POLYGON ***");
+            
+            Vector polygon = (Vector)polygons.elementAt(p);
+            boolean lowered = false;
+            Vec3 firstPoint = null;
+            for(int pt = 0; pt < polygon.size(); pt++){
+                Vec3 point = (Vec3)polygon.elementAt(pt);
+                //System.out.println("  Point *** " + point.getX() + " " + point.getY());
+
+
+                point.x = (point.x + -minX); // shift to align all geometry to 0,0
+                point.z = (point.z + -minZ); //
+                
+                //point.z = (point.z + -minZ);
+
+                gcode2 += "G1 X" +
+                    roundThree(point.x) +
+                    " Y" +
+                    roundThree(point.z) +
+               //     " Z" +
+               //     roundThree(point.y) +
+                    "\n"; // G90
+                if(!lowered){
+                    gcode2 += "G00 Z-0.5\n"; // Lower router head for cutting.
+                    lowered = true;
+                    firstPoint = point;
+                }
+
+                polygon.setElementAt(point, pt);
+            }
+
+            // Connect last point to first point
+            if(firstPoint != null){
+                gcode2 += "G1 X" +
+                    roundThree(firstPoint.x) +
+                    " Y" +
+                    roundThree(firstPoint.z) + "\n"; // G90
+            }
+
+            gcode2 += "G00 Z0.5\n"; // Raise router head
+        }
+
+        System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
+        System.out.println("Align: x: " + -minX + " y: " + -minZ);
+        
+        
+        // Write gcode to file
+        if(writeFile){
+            
+            // Add boundary points (so you don't cut outside of the material or the clamps)
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1\n";
+            
+            try {
+                groupsWritten++;
+                
+                String gcodeFile = dir + System.getProperty("file.separator") + scene.getName() + "";
+                gcodeFile += ".gcode";
+                System.out.println("Writing g code file: " + gcodeFile);
+                PrintWriter writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                writer2.println(gcode2);
+                writer2.close();
+            
+            
+                // Multi part file
+                String gcode3 = gcode2;
+                int lines = 0; // StringUtils.countMatches(gcode2, "\n");
+                for(int i = 0; i < gcode3.length(); i++){
+                    if(gcode3.charAt(i) == '\n'){
+                        lines++;
+                    }
+                }
+                if(lines > 499){
+                    int lineNumber = 0;
+                    int fileNumber = 1;
+                    lines = 0;
+                    for(int i = 0; i < gcode3.length(); i++){
+                        if(gcode3.charAt(i) == '\n'){
+                            lines++;
+                            if(lines > 480){
+                                String gCodeSection = gcode3.substring(0, i);
+                                
+                                gcodeFile = dir + System.getProperty("file.separator") + scene.getName() + "_" + fileNumber;
+                                gcodeFile += ".gcode";
+                                System.out.println("Writing g code file: " + gcodeFile);
+                                writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                                writer2.println(gCodeSection);
+                                writer2.close();
+                                
+                                fileNumber++;
+                                gcode3 = gcode3.substring(i+1, gcode3.length());
+                            }
+                        }
+                    }
+                    gcodeFile = dir + System.getProperty("file.separator") + scene.getName() + "_" + fileNumber;
+                    gcodeFile += ".gcode";
+                    System.out.println("Writing g code file: " + gcodeFile);
+                    writer2 = new PrintWriter(gcodeFile, "UTF-8");
+                    writer2.println(gcode3);
+                    writer2.close();
+                    System.out.println(" Lines *** " + lines);
+                }
+            } catch (Exception e){
+                System.out.println("Error: " + e.toString());
+            }
+        }
+        
         System.out.println("Export done. Groups: " + groupsWritten);
         
         // Notify dialog.

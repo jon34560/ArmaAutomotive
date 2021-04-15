@@ -96,9 +96,11 @@ public class GCodeImporter
               
             // GCode parser
               // G1
-            //if(){
-                
-            //}
+            if("G1".equals(fields[0])  ){
+                //if(){
+                    
+                //}
+            }
               //for(int i = 0; i < fields.length; i++){
                   //System.out.println(" line field " + fields[i]);
               //}
