@@ -50,6 +50,11 @@ import java.awt.geom.RoundRectangle2D;
 // Rename ExportPolyTableGCode
 public class ExportPolyTableGCode {
     
+    private boolean orderBySize = true;
+    private boolean marginByNesting = true;
+    private double drill_bit = 0.125;   // 0.125 1/8th 3.175mm
+    private double material_height = 0.125;
+    
     public ExportPolyTableGCode(){
         
     }
@@ -63,6 +68,198 @@ public class ExportPolyTableGCode {
     public void export(Scene scene){
         System.out.println("Export GCode");
     }
+    
+    /**
+     * getUserInput
+     *
+     * Description:
+     */
+    public boolean getUserInput(){
+        JPanel panel = new JPanel();
+        //panel.setBackground(new Color(0, 0, 0));
+        panel.setSize(new Dimension(390, 32));
+        panel.setLayout(null);
+        
+        int x = 0;
+        int y = 0;
+        
+        /*
+        JLabel widthLabel = new JLabel("Bed Width");
+        //widthLabel.setForeground(new Color(255, 255, 0));
+        widthLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        widthLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        widthLabel.setBounds(0, 0, 130, 40); // x, y, width, height
+        panel.add(widthLabel);
+        
+        JTextField widthField = new JTextField(new String(width+""));
+        widthField.setBounds(130, 0, 130, 40); // x, y, width, height
+        panel.add(widthField);
+        //widthField.getDocument().addDocumentListener(myListener);
+        
+        JLabel labelDepth = new JLabel("Bed Depth");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        labelDepth.setHorizontalAlignment(SwingConstants.CENTER);
+        labelDepth.setFont(new Font("Arial", Font.BOLD, 11));
+        labelDepth.setBounds(0, 40, 130, 40); // x, y, width, height
+        panel.add(labelDepth);
+        
+        JTextField depthtField = new JTextField( new String(depth+""));
+        depthtField.setBounds(130, 40, 130, 40); // x, y, width, height
+        panel.add(depthtField);
+        */
+        
+        
+        
+         
+        
+        /*
+        // quanta_length
+        JLabel labelAccuracy = new JLabel("Accracy");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        labelAccuracy.setHorizontalAlignment(SwingConstants.CENTER);
+        labelAccuracy.setFont(new Font("Arial", Font.BOLD, 11));
+        labelAccuracy.setBounds(0, 120, 130, 40); // x, y, width, height
+        panel.add(labelAccuracy);
+        
+        JTextField accuracyField = new JTextField(new String(accuracy + ""));
+        accuracyField.setBounds(130, 120, 130, 40); // x, y, width, height
+        panel.add(accuracyField);
+         */
+        
+        // Auto Nest Objects
+        JLabel orderBySizeLabel = new JLabel("Order by object size"); //
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        orderBySizeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        orderBySizeLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        orderBySizeLabel.setBounds(0, y, 130, 40); // x, y, width, height
+        panel.add(orderBySizeLabel);
+        
+        JCheckBox orderBySizeCheck = new JCheckBox("");
+        orderBySizeCheck.setBounds(130, y, 130, 40); // x, y, width, height
+        orderBySizeCheck.setSelected( orderBySize );
+        panel.add(orderBySizeCheck);
+        y += 40;
+        
+        
+        JLabel optimizationLabel = new JLabel("Margin Inset/Outset by nesting."); // inset / outset based on within another shape. Allowance Margin
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        optimizationLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        optimizationLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        optimizationLabel.setBounds(0, y, 130, 40); // x, y, width, height
+        panel.add(optimizationLabel);
+        
+        JCheckBox optimizationCheck = new JCheckBox("");
+        optimizationCheck.setBounds(130, y, 130, 40); // x, y, width, height
+        optimizationCheck.setSelected( marginByNesting );
+        panel.add(optimizationCheck);
+        y += 40;
+        
+    
+        JLabel labelBit = new JLabel("Drill Bit/Plasma Kerf Diameter");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        labelBit.setHorizontalAlignment(SwingConstants.CENTER);
+        labelBit.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBit.setBounds(0, y, 130, 40); // x, y, width, height
+        panel.add(labelBit);
+        
+        JTextField bitField = new JTextField("0.0354331"); // 0.0354331 0.125
+        bitField.setBounds(130, y, 130, 40); // x, y, width, height
+        panel.add(bitField);
+        y += 40;
+        
+        
+        
+        JLabel labelHeight = new JLabel("Material Thickness");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        labelHeight.setHorizontalAlignment(SwingConstants.CENTER);
+        labelHeight.setFont(new Font("Arial", Font.BOLD, 11));
+        labelHeight.setBounds(0, y, 130, 40); // x, y, width, height
+        panel.add(labelHeight);
+        
+        JTextField heightField = new JTextField(new String(material_height+""));
+        heightField.setBounds(130, y, 130, 40); // x, y, width, height
+        panel.add(heightField);
+        y += 40;
+        
+        /*
+        JLabel labelBitAngle = new JLabel("Drill Bit Angle");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        labelBitAngle.setHorizontalAlignment(SwingConstants.CENTER);
+        labelBitAngle.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitAngle.setBounds(0, 200, 130, 40); // x, y, width, height
+        panel.add(labelBitAngle);
+        
+        JTextField bitAngleField = new JTextField( new String(drill_bit_angle+""));
+        bitAngleField.setBounds(130, 200, 130, 40); // x, y, width, height
+        panel.add(bitAngleField);
+        */
+        
+        /*
+        // Debug feature.
+        JLabel pathBit = new JLabel("Tool Path Markup");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        pathBit.setHorizontalAlignment(SwingConstants.CENTER);
+        pathBit.setFont(new Font("Arial", Font.BOLD, 11));
+        pathBit.setBounds(0, 240, 130, 40); // x, y, width, height
+        panel.add(pathBit);
+        
+        JCheckBox toolpathCheck = new JCheckBox("");
+        toolpathCheck.setBounds(130, 240, 130, 40); // x, y, width, height
+        toolpathCheck.setSelected(false);
+        panel.add(toolpathCheck);
+        */
+        
+        /*
+        JLabel optimizationLabel = new JLabel("Cut Optimization ");
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        optimizationLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        optimizationLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        optimizationLabel.setBounds(0, 280, 130, 40); // x, y, width, height
+        panel.add(optimizationLabel);
+        
+        JCheckBox optimizationCheck = new JCheckBox("");
+        optimizationCheck.setBounds(130, 280, 130, 40); // x, y, width, height
+        optimizationCheck.setSelected( cutOptimization );
+        panel.add(optimizationCheck);
+        */
+        
+        /*
+        JLabel minimizePassesLabel = new JLabel("Minimize Passes");
+        //minimizePassesLabel.setForeground(new Color(255, 255, 0));
+        minimizePassesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        minimizePassesLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        minimizePassesLabel.setBounds(0, 320, 130, 40); // x, y, width, height
+        panel.add(minimizePassesLabel);
+        
+        JCheckBox minimizePassesCheck = new JCheckBox("");
+        minimizePassesCheck.setBounds(130, 320, 130, 40); // x, y, width, height
+        minimizePassesCheck.setSelected( minimizePasses );
+        panel.add(minimizePassesCheck);
+        */
+        
+        UIManager.put("OptionPane.minimumSize",new Dimension(400, 350 + 80));
+        int result = JOptionPane.showConfirmDialog(null, panel, "CNC Mill Properties", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            //System.out.println("width value: " + widthField.getText());
+            //System.out.println("depth value: " + depthtField.getText());
+            //System.out.println("height value: " + heightField.getText());
+            //System.out.println("bit value: " + bitField.getText());
+            //this.width = Integer.parseInt(widthField.getText());
+            //this.depth = Integer.parseInt(depthtField.getText());
+            this.material_height = Double.parseDouble(heightField.getText());
+            this.drill_bit = Double.parseDouble(bitField.getText());
+            //this.accuracy = Double.parseDouble(accuracyField.getText());
+            //this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
+            //this.toolpathMarkup = toolpathCheck.isSelected();
+            //this.cutOptimization = optimizationCheck.isSelected();
+            //this.minimizePasses = minimizePassesCheck.isSelected();
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
     
     
     /**
@@ -592,6 +789,9 @@ public class ExportPolyTableGCode {
     public void exportAllGCode(Scene scene){
         LayoutModeling layout = new LayoutModeling();
 
+        
+        getUserInput();
+        
         //layout.setBaseDir(this.getDirectory() + System.getProperty("file.separator") + this.getName() + "_layout_data" );
 
         //String dir = System.getProperty("user.dir") + System.getProperty("file.separator") + "gcode";
