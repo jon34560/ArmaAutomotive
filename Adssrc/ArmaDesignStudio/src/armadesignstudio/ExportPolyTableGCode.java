@@ -50,6 +50,8 @@ import java.awt.geom.RoundRectangle2D;
 // Rename ExportPolyTableGCode
 public class ExportPolyTableGCode {
     
+    private boolean isRouter = true;
+    private boolean isPlasmaCutter = true;
     private boolean orderBySize = true;
     private boolean marginByNesting = true;
     private double drill_bit = 0.125;   // 0.125 1/8th 3.175mm
@@ -125,6 +127,38 @@ public class ExportPolyTableGCode {
         accuracyField.setBounds(130, 120, 130, 40); // x, y, width, height
         panel.add(accuracyField);
          */
+        
+        // Checkbox Router
+        JLabel routerLabel = new JLabel("Router"); //
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        routerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        routerLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        routerLabel.setBounds(0, y, 130, 40); // x, y, width, height
+        panel.add(routerLabel);
+        
+        JCheckBox routerCheck = new JCheckBox("");
+        routerCheck.setBounds(130, y, 130, 40); // x, y, width, height
+        routerCheck.setSelected( isRouter );
+        panel.add(routerCheck);
+        y += 40;
+        
+        
+        
+        // Checkbox Plasma Cutter
+        JLabel plasmaCutterLabel = new JLabel("Plasma Cutter"); //
+        //labelHeight.setForeground(new Color(255, 255, 0));
+        plasmaCutterLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        plasmaCutterLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        plasmaCutterLabel.setBounds(0, y, 130, 40); // x, y, width, height
+        panel.add(plasmaCutterLabel);
+        
+        JCheckBox plasmaCutterCheck = new JCheckBox("");
+        plasmaCutterCheck.setBounds(130, y, 130, 40); // x, y, width, height
+        plasmaCutterCheck.setSelected( isPlasmaCutter );
+        panel.add(plasmaCutterCheck);
+        y += 40;
+        
+        
         
         // Auto Nest Objects
         JLabel orderBySizeLabel = new JLabel("Order by object size"); //
@@ -272,6 +306,50 @@ public class ExportPolyTableGCode {
     public void exportGroupGCode(Scene scene){ // Vector<ObjectInfo> objects
         LayoutModeling layout = new LayoutModeling();
 
+        //
+        // Detect orientation of curve geometry. (X/Y or X/Z)
+        //
+        double sceneDepth = 0;
+        double sceneHeight = 0;
+        double minY_ = 9999;
+        double maxY_ = 0;
+        double minZ_ = 9999;
+        double maxZ_ = 0;
+        for (ObjectInfo obj : scene.getObjects()){
+            Object co = (Object)obj.getObject();
+            boolean enabled = layout.isObjectEnabled(obj);
+            if(enabled && co instanceof Curve){
+                // Object co = (Object)childClone.getObject();
+                BoundingBox bounds = obj.getTranslatedBounds();
+                
+                if(bounds.miny < minY_){
+                    minY_ = bounds.miny;
+                }
+                if(bounds.maxy > maxY_){
+                    maxY_ = bounds.maxy;
+                }
+                if(bounds.minz < minZ_){
+                    minZ_ = bounds.minz;
+                }
+                if(bounds.maxz > maxZ_){
+                    maxZ_ = bounds.maxz;
+                }
+            }
+        }
+        sceneDepth = maxZ_ - minZ_;
+        sceneHeight = maxY_ - minY_;
+        System.out.println(" sceneDepth: " + sceneDepth + " sceneHeight: " + sceneHeight);
+        
+        boolean frontView = false;
+        if(sceneDepth > sceneHeight){ // Top
+            
+        }
+        if(sceneDepth < sceneHeight){ // Front
+            frontView = true;
+        }
+        
+        
+        
         //layout.setBaseDir(this.getDirectory() + System.getProperty("file.separator") + this.getName() + "_layout_data" );
 
         //String dir = System.getProperty("user.dir") + System.getProperty("file.separator") + "gcode";
@@ -635,14 +713,27 @@ public class ExportPolyTableGCode {
                     }
                     */
                     
+                    if(frontView){ // if frontView swap Z with Y
+                        
+                        // Add boundary points (so you don't cut outside of the material or the clamps)
+                        gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxY - minY) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxY - minY) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                        gcode2 += "G1\n";
+                        
+                    } else {
                     
-                    // Add boundary points (so you don't cut outside of the material or the clamps)
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                    gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                    gcode2 += "G1\n";
+                        // Add boundary points (so you don't cut outside of the material or the clamps)
+                        gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+                        gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                        gcode2 += "G1\n";
+                            
+                    }
 
                     // Sort polygons by order attribute
 
@@ -661,19 +752,26 @@ public class ExportPolyTableGCode {
                             Vec3 point = (Vec3)polygon.elementAt(pt);
                             //System.out.println("  Point *** " + point.getX() + " " + point.getY());
 
-
                             point.x = (point.x + -minX); // shift to align all geometry to 0,0
+                            point.y = (point.y + -minY);
                             point.z = (point.z + -minZ); //
                             
                             //point.z = (point.z + -minZ);
 
-                            gcode2 += "G1 X" +
-                                roundThree(point.x) +
-                                " Y" +
-                                roundThree(point.z) +
-                           //     " Z" +
-                           //     roundThree(point.y) +
-                                "\n"; // G90
+                            if(frontView){ // if frontView swap Z with Y
+                                gcode2 += "G1 X" +
+                                    roundThree(point.x) +
+                                    " Y" +
+                                    roundThree(point.y) +
+                                    "\n"; // G90
+                            } else {        // top
+                                gcode2 += "G1 X" +
+                                    roundThree(point.x) +
+                                    " Y" +
+                                    roundThree(point.z) +
+                                    "\n"; // G90
+                            }
+                                
                             if(!lowered){
                                 gcode2 += "G00 Z-0.5\n"; // Lower router head for cutting.
                                 lowered = true;
@@ -685,17 +783,30 @@ public class ExportPolyTableGCode {
 
                         // Connect last point to first point
                         if(firstPoint != null){
-                            gcode2 += "G1 X" +
-                                roundThree(firstPoint.x) +
-                                " Y" +
-                                roundThree(firstPoint.z) + "\n"; // G90
+                            
+                            if(frontView){ // if frontView swap Z with Y
+                                gcode2 += "G1 X" +
+                                    roundThree(firstPoint.x) +
+                                    " Y" +
+                                    roundThree(firstPoint.y) + "\n"; // G90
+                            } else {                                    // top view
+                                gcode2 += "G1 X" +
+                                    roundThree(firstPoint.x) +
+                                    " Y" +
+                                    roundThree(firstPoint.z) + "\n"; // G90
+                            }
                         }
 
                         gcode2 += "G00 Z0.5\n"; // Raise router head
                     }
 
-                    System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
-                    System.out.println("Align: x: " + -minX + " y: " + -minZ);
+                    if(frontView){ // if frontView swap Z with Y
+                        System.out.println("Width: " + (maxX - minX) + " Height: " + (maxY - minY));
+                        System.out.println("Align: x: " + -minX + " y: " + -minY);
+                    } else {
+                        System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
+                        System.out.println("Align: x: " + -minX + " y: " + -minZ);
+                    }
 
 
                     // Write gcode to file
@@ -789,6 +900,47 @@ public class ExportPolyTableGCode {
     public void exportAllGCode(Scene scene){
         LayoutModeling layout = new LayoutModeling();
 
+        //
+        // Detect orientation of curve geometry. (X/Y or X/Z)
+        //
+        double sceneDepth = 0;
+        double sceneHeight = 0;
+        double minY_ = 9999;
+        double maxY_ = 0;
+        double minZ_ = 9999;
+        double maxZ_ = 0;
+        for (ObjectInfo obj : scene.getObjects()){
+            Object co = (Object)obj.getObject();
+            boolean enabled = layout.isObjectEnabled(obj);
+            if(enabled && co instanceof Curve){
+                // Object co = (Object)childClone.getObject();
+                BoundingBox bounds = obj.getTranslatedBounds();
+                
+                if(bounds.miny < minY_){
+                    minY_ = bounds.miny;
+                }
+                if(bounds.maxy > maxY_){
+                    maxY_ = bounds.maxy;
+                }
+                if(bounds.minz < minZ_){
+                    minZ_ = bounds.minz;
+                }
+                if(bounds.maxz > maxZ_){
+                    maxZ_ = bounds.maxz;
+                }
+            }
+        }
+        sceneDepth = maxZ_ - minZ_;
+        sceneHeight = maxY_ - minY_;
+        System.out.println(" sceneDepth: " + sceneDepth + " sceneHeight: " + sceneHeight);
+        
+        boolean frontView = false;
+        if(sceneDepth > sceneHeight){ // Top
+            
+        }
+        if(sceneDepth < sceneHeight){ // Front
+            frontView = true;
+        }
         
         getUserInput();
         
@@ -1155,17 +1307,8 @@ public class ExportPolyTableGCode {
                     }
                     */
                     
-                    
-                    
-
                     // Sort polygons by order attribute
 
-
-
-                    
-
-
-                    
 
                 } catch (Exception e){
                     System.out.println("Error: " + e);
@@ -1173,6 +1316,7 @@ public class ExportPolyTableGCode {
                 }
             } // Obj has children and is enabled.
         } // Loop objects
+        
         
         
         //
@@ -1190,17 +1334,29 @@ public class ExportPolyTableGCode {
 
 
                 point.x = (point.x + -minX); // shift to align all geometry to 0,0
+                point.y = (point.y + -minY);
                 point.z = (point.z + -minZ); //
                 
-                //point.z = (point.z + -minZ);
+                
+                if(frontView){ // if frontView swap Z with Y *** TODO
+                    
+                    gcode2 += "G1 X" +
+                        roundThree(point.x) +
+                        " Y" +
+                        roundThree(point.y) +
+                        "\n"; // G90
 
-                gcode2 += "G1 X" +
-                    roundThree(point.x) +
-                    " Y" +
-                    roundThree(point.z) +
-               //     " Z" +
-               //     roundThree(point.y) +
-                    "\n"; // G90
+                    
+                } else {
+                    gcode2 += "G1 X" +
+                        roundThree(point.x) +
+                        " Y" +
+                        roundThree(point.z) +
+                   //     " Z" +
+                   //     roundThree(point.y) +
+                        "\n"; // G90
+                    
+                }
                 if(!lowered){
                     gcode2 += "G00 Z-0.5\n"; // Lower router head for cutting.
                     lowered = true;
@@ -1212,29 +1368,56 @@ public class ExportPolyTableGCode {
 
             // Connect last point to first point
             if(firstPoint != null){
-                gcode2 += "G1 X" +
-                    roundThree(firstPoint.x) +
-                    " Y" +
-                    roundThree(firstPoint.z) + "\n"; // G90
+                
+                if(frontView){ // if frontView swap Z with Y *** TODO
+                
+                    gcode2 += "G1 X" +
+                        roundThree(firstPoint.x) +
+                        " Y" +
+                        roundThree(firstPoint.y) + "\n"; // G90
+                    
+                } else {    // Top view
+                    gcode2 += "G1 X" +
+                        roundThree(firstPoint.x) +
+                        " Y" +
+                        roundThree(firstPoint.z) + "\n"; // G90
+                
+                }
             }
 
             gcode2 += "G00 Z0.5\n"; // Raise router head
         }
 
-        System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
-        System.out.println("Align: x: " + -minX + " y: " + -minZ);
+        if(frontView){
+            System.out.println("Width: " + (maxX - minX) + " Height: " + (maxY - minY));
+            System.out.println("Align: x: " + -minX + " y: " + -minY);
+        } else {
+            System.out.println("Width: " + (maxX - minX) + " Height: " + (maxZ - minZ));
+            System.out.println("Align: x: " + -minX + " y: " + -minZ);
+        }
         
         
         // Write gcode to file
         if(writeFile){
             
-            // Add boundary points (so you don't cut outside of the material or the clamps)
-            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
-            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-            gcode2 += "G1\n";
+            if(frontView){ // if frontView swap Z with Y *** TODO
+                // Add boundary points (so you don't cut outside of the material or the clamps)
+                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxY - minY) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxY - minY) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                gcode2 += "G1\n";
+            } else {
+                // Add boundary points (so you don't cut outside of the material or the clamps)
+                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+                gcode2 += "G1\n";
+            }
+            
             
             try {
                 groupsWritten++;
