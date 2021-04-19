@@ -110,23 +110,9 @@ public class ExportPolyTableGCode {
         panel.add(depthtField);
         */
         
+        // Units?
         
         
-         
-        
-        /*
-        // quanta_length
-        JLabel labelAccuracy = new JLabel("Accracy");
-        //labelHeight.setForeground(new Color(255, 255, 0));
-        labelAccuracy.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAccuracy.setFont(new Font("Arial", Font.BOLD, 11));
-        labelAccuracy.setBounds(0, 120, 130, 40); // x, y, width, height
-        panel.add(labelAccuracy);
-        
-        JTextField accuracyField = new JTextField(new String(accuracy + ""));
-        accuracyField.setBounds(130, 120, 130, 40); // x, y, width, height
-        panel.add(accuracyField);
-         */
         
         // Checkbox Router
         JLabel routerLabel = new JLabel("Router"); //
@@ -182,10 +168,10 @@ public class ExportPolyTableGCode {
         optimizationLabel.setBounds(0, y, 130, 40); // x, y, width, height
         panel.add(optimizationLabel);
         
-        JCheckBox optimizationCheck = new JCheckBox("");
-        optimizationCheck.setBounds(130, y, 130, 40); // x, y, width, height
-        optimizationCheck.setSelected( marginByNesting );
-        panel.add(optimizationCheck);
+        JCheckBox marginByNestingCheck = new JCheckBox("");
+        marginByNestingCheck.setBounds(130, y, 130, 40); // x, y, width, height
+        marginByNestingCheck.setSelected( marginByNesting );
+        panel.add(marginByNestingCheck);
         y += 40;
         
     
@@ -280,8 +266,17 @@ public class ExportPolyTableGCode {
             //System.out.println("bit value: " + bitField.getText());
             //this.width = Integer.parseInt(widthField.getText());
             //this.depth = Integer.parseInt(depthtField.getText());
+            
+            this.isRouter = routerCheck.isSelected();
+            this.isPlasmaCutter = plasmaCutterCheck.isSelected();
+            
             this.material_height = Double.parseDouble(heightField.getText());
             this.drill_bit = Double.parseDouble(bitField.getText());
+            
+            this.orderBySize = orderBySizeCheck.isSelected();
+            this.marginByNesting = marginByNestingCheck.isSelected();
+            
+            
             //this.accuracy = Double.parseDouble(accuracyField.getText());
             //this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
             //this.toolpathMarkup = toolpathCheck.isSelected();
@@ -306,6 +301,8 @@ public class ExportPolyTableGCode {
     public void exportGroupGCode(Scene scene){ // Vector<ObjectInfo> objects
         LayoutModeling layout = new LayoutModeling();
 
+        getUserInput();
+        
         //
         // Detect orientation of curve geometry. (X/Y or X/Z)
         //
@@ -900,6 +897,9 @@ public class ExportPolyTableGCode {
     public void exportAllGCode(Scene scene){
         LayoutModeling layout = new LayoutModeling();
 
+        getUserInput();
+        
+        
         //
         // Detect orientation of curve geometry. (X/Y or X/Z)
         //
@@ -932,17 +932,14 @@ public class ExportPolyTableGCode {
         }
         sceneDepth = maxZ_ - minZ_;
         sceneHeight = maxY_ - minY_;
-        System.out.println(" sceneDepth: " + sceneDepth + " sceneHeight: " + sceneHeight);
+        //System.out.println(" sceneDepth: " + sceneDepth + " sceneHeight: " + sceneHeight);
         
         boolean frontView = false;
-        if(sceneDepth > sceneHeight){ // Top
-            
-        }
         if(sceneDepth < sceneHeight){ // Front
             frontView = true;
         }
         
-        getUserInput();
+        
         
         //layout.setBaseDir(this.getDirectory() + System.getProperty("file.separator") + this.getName() + "_layout_data" );
 
@@ -1004,13 +1001,15 @@ public class ExportPolyTableGCode {
         // Create gcode file.
         String gCodeFile = dir + System.getProperty("file.separator") + scene.getName() + ".gcode";
         //PrintWriter writer = new PrintWriter(gCodeFile, "UTF-8");
-        System.out.println("      File: " + gCodeFile);
+        //System.out.println("      File: " + gCodeFile);
         
         HashMap<Vector, Integer> polygonOrder = new HashMap<Vector, Integer>();
         
         // gcode
-        String gcode = "G1\n";
-        String gcode2 = "G1\n";
+        //String gcode = "G1\n";
+        String gcode2 = "( Arma Design Studio )\n"+ "G1\n";
+        
+        
         
         for (ObjectInfo obj : scene.getObjects()){
             String name = obj.getName();
@@ -1318,6 +1317,30 @@ public class ExportPolyTableGCode {
         } // Loop objects
         
         
+        if(frontView){ // if frontView swap Z with Y *** TODO
+            // Add boundary points (so you don't cut outside of the material or the clamps)
+            gcode2 += "( Boundary )\n";
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxY - minY) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxY - minY) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1\n";
+        } else {
+            // Add boundary points (so you don't cut outside of the material or the clamps)
+            gcode2 += "( Boundary )\n";
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
+            gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
+            gcode2 += "G1\n";
+        }
+         
+        // M3 start spindle clockwise
+        if(isRouter){
+            gcode2 += "M3\n";
+        }
         
         //
         // Write gcode file
@@ -1385,8 +1408,16 @@ public class ExportPolyTableGCode {
                 }
             }
 
+            // If router
             gcode2 += "G00 Z0.5\n"; // Raise router head
         }
+        
+        
+        // M5 stop spindle
+        if(isRouter){
+            gcode2 += "M5\n";
+        }
+        gcode2 += "M2\n"; // End program
 
         if(frontView){
             System.out.println("Width: " + (maxX - minX) + " Height: " + (maxY - minY));
@@ -1399,25 +1430,6 @@ public class ExportPolyTableGCode {
         
         // Write gcode to file
         if(writeFile){
-            
-            if(frontView){ // if frontView swap Z with Y *** TODO
-                // Add boundary points (so you don't cut outside of the material or the clamps)
-                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxY - minY) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxY - minY) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                gcode2 += "G1\n";
-            } else {
-                // Add boundary points (so you don't cut outside of the material or the clamps)
-                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(0) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(maxX - minX) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(maxZ - minZ) + "\n"; // G90
-                gcode2 += "G1 X" + roundThree(0) + " Y" + roundThree(0) + "\n"; // G90
-                gcode2 += "G1\n";
-            }
-            
             
             try {
                 groupsWritten++;

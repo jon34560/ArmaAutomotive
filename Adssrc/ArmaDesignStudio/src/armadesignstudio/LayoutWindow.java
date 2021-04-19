@@ -1000,8 +1000,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
 	  layoutMenu.add(Translate.menuItem("Set Scale", this, "setGCodeExportScale"));
 	  layoutMenu.addSeparator();
 	  // exportGCode
-	  layoutMenu.add(Translate.menuItem("Export Poly Table (XZ) GCode (Children Grouped)", this, "exportGroupGCode"));
-      layoutMenu.add(Translate.menuItem("Export Poly Table (XZ) GCode (All)", this, "exportAllGCode"));
+	  layoutMenu.add(Translate.menuItem("Export Poly Table GCode (Children Grouped)", this, "exportGroupGCode"));
+      layoutMenu.add(Translate.menuItem("Export Poly Table GCode (All)", this, "exportAllGCode"));
       layoutMenu.add(Translate.menuItem("Export Tube Notch (X) GCode", this, "exportTubeGCode"));
       layoutMenu.add(Translate.menuItem("Export Tube Bend (X) GCode", this, "exportTubeBendGCode"));
       layoutMenu.add(Translate.menuItem("Export 3 Axis (Top Down) Mesh GCode", this, "export3dGCode"));
