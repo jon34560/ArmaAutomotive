@@ -3434,7 +3434,45 @@ public class Scene
     * Description: Export all supported scene elements to DXF.
     */    
     public void exportDXF(){
-        LayoutModeling layout = new LayoutModeling(); 
+        LayoutModeling layout = new LayoutModeling();
+        
+        //
+        // Detect orientation of curve geometry. (X/Y or X/Z)
+        //
+        double sceneDepth = 0;
+        double sceneHeight = 0;
+        double minY_ = 9999;
+        double maxY_ = -999;
+        double minZ_ = 9999;
+        double maxZ_ = -999;
+        for (ObjectInfo obj : getObjects()){
+            Object co = (Object)obj.getObject();
+            boolean enabled = layout.isObjectEnabled(obj);
+            if(enabled && co instanceof Curve){
+                BoundingBox bounds = obj.getTranslatedBounds();
+                if(bounds.miny < minY_){
+                    minY_ = bounds.miny;
+                }
+                if(bounds.maxy > maxY_){
+                    maxY_ = bounds.maxy;
+                }
+                if(bounds.minz < minZ_){
+                    minZ_ = bounds.minz;
+                }
+                if(bounds.maxz > maxZ_){
+                    maxZ_ = bounds.maxz;
+                }
+            }
+        }
+        sceneDepth = maxZ_ - minZ_;
+        sceneHeight = maxY_ - minY_;
+        boolean frontView = false;
+        if(sceneDepth < sceneHeight){ // Front
+            frontView = true;
+        }
+        
+        
+        
         DXFDocument dxfDocument = new DXFDocument("Arma Design Studion DXF Export");
         DXFGraphics dxfGraphics = dxfDocument.getGraphics();
         dxfGraphics.setColor(Color.BLACK);
@@ -3490,7 +3528,13 @@ public class Scene
           for(int pt = 0; pt < polygon.size(); pt++){
             Vec3 point = (Vec3)polygon.elementAt(pt);
             RealPoint realPoint = new RealPoint(point.x, point.y, point.z);
-            realPoints.addElement(realPoint);
+            
+              // If front view swap y with z
+              if(frontView == false){
+                  realPoint = new RealPoint(point.x, -point.z, point.y);
+              }
+              
+              realPoints.addElement(realPoint);
             //polygon.setElementAt(point, pt);
           }
           System.out.println(" add polygon ");

@@ -1037,6 +1037,8 @@ public class ExportPolyTableGCode {
                                 co instanceof Curve &&
                                 child_enabled){  // Is mesh and visible.
                             
+                            boolean isNested = isObjectNested(obj, scene);
+                            
                             //System.out.println("      - Poly " + child_name);
                             writeFile = true;
                             //writer.println("# " + child_name );
@@ -1496,6 +1498,25 @@ public class ExportPolyTableGCode {
         }
     }
     
+    
+    /**
+     * isObjectNested
+     *
+     * Description:
+     */
+    public boolean isObjectNested(ObjectInfo obj, Scene scene){
+        
+        BoundingBox currBounds = obj.getTranslatedBounds();
+        
+        //for (ObjectInfo obj : scene.getObjects()){
+        //    String name = obj.getName();
+        //    boolean enabled = layout.isObjectEnabled(obj);
+            
+            
+        //}
+        
+        return false;
+    }
     
     
     String roundThree(double x){
