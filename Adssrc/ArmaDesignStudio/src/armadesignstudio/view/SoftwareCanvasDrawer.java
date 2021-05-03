@@ -968,6 +968,9 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
         c = layout.getCoords(objClone);
         double scale = 1.0;
         
+        
+        Color markupColour = new Color(0.9f, 0.1f, 0.1f);
+        
         Mesh mesh = (Mesh) objClone.getObject();
         Vec3 [] verts = mesh.getVertexPositions();
         if(verts.length >= 2){
@@ -983,19 +986,129 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
             //pixelWidth = (int)Math.abs(p0.y - p1.y);
             
             // line connecting point verticies.
+            
             double size = 0.05;
+            // The issue with this is that the size of the marking annotation only works at a specific scale.
             Vec3 vert1 = new Vec3( verts[0].x - size, verts[0].y, verts[0].z); // point 2
             Vec3 vert2 = new Vec3( verts[1].x + size, verts[1].y, verts[1].z); // point 3
-            renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
+            //renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
             
             vert1 = new Vec3( verts[0].x, verts[0].y - size, verts[0].z); // point 2
             vert2 = new Vec3( verts[1].x, verts[1].y + size, verts[1].z); // point 3
-            renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
+            //renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
             
             vert1 = new Vec3( verts[0].x, verts[0].y, verts[0].z - size); // point 2
             vert2 = new Vec3( verts[1].x, verts[1].y, verts[1].z + size); // point 3
-            renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
+            //renderLine(vert1, vert2, theCamera, new Color(1.0f, 0.0f, 0.0f));
             
+            // Line on screen coordinates
+            // ***
+            // Vec3 verts[0]  to screenCoordinates.
+            
+            
+            
+            Vec3 p1 = verts[0];
+            Vec3 p2 = verts[1];
+            if (theCamera.isPerspective())
+                {
+                  double z1 = theCamera.getObjectToView().timesZ(p1);
+                  double z2 = theCamera.getObjectToView().timesZ(p2);
+                  double clip = theCamera.getClipDistance();
+                  if (z1 < clip)
+                  {
+                    if (z2 < clip)
+                      return;
+                    double f = ((double) (clip-z1))/(z2-z1);
+                    p1 = new Vec3(p1.x+f*(p2.x-p1.x), p1.y+f*(p2.y-p1.y), p1.z+f*(p2.z-p1.z));
+                  }
+                  else if (z2 < clip)
+                  {
+                    double f = ((double) (clip-z2))/(z1-z2);
+                    p2 = new Vec3(p2.x+f*(p1.x-p2.x), p2.y+f*(p1.y-p2.y), p2.z+f*(p1.z-p2.z));
+                  }
+                }
+                Vec2 p1_screen = theCamera.getObjectToScreen().timesXY(p1);
+                Vec2 p2_screen = theCamera.getObjectToScreen().timesXY(p2);
+               
+           // if(
+           //    (Math.max(p1_screen.x, p2_screen.x) - Math.min(p1_screen.x, p2_screen.x))
+           //    >
+           //    (Math.max(p1_screen.y, p2_screen.y) - Math.min(p1_screen.y, p2_screen.y)) ){ // horizontal
+            
+                
+                if(p1_screen.x < p2_screen.x){
+                    renderLine( new Vec2(p2_screen.x + 2, p2_screen.y + 2),
+                       theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p2_screen.x + 2, p2_screen.y - 2),
+                       theCamera.getObjectToView().timesZ(p2),
+                       theCamera,
+                               markupColour);                       // Right
+                    
+                    renderLine( new Vec2(p1_screen.x - 2, p1_screen.y + 2),
+                       theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p1_screen.x - 2, p1_screen.y - 2),
+                       theCamera.getObjectToView().timesZ(p2),
+                       theCamera,
+                               markupColour);                       // Left
+                    
+                    // Upper
+                    renderLine( new Vec2(p1_screen.x - 2, p1_screen.y + 2),
+                               theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p2_screen.x + 2, p2_screen.y + 2), // theCamera.getObjectToScreen().timesXY(p2)
+                               theCamera.getObjectToView().timesZ(p2),
+                               theCamera,
+                               markupColour);
+                    
+                    // Lower
+                    renderLine(new Vec2(p1_screen.x - 2, p1_screen.y - 2), // theCamera.getObjectToScreen().timesXY(p1)
+                           theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p2_screen.x + 2, p2_screen.y - 2), // theCamera.getObjectToScreen().timesXY(p2)
+                           theCamera.getObjectToView().timesZ(p2),
+                           theCamera,
+                               markupColour);
+                    
+                } else {
+                    renderLine( new Vec2(p1_screen.x + 2, p1_screen.y + 2),
+                       theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p1_screen.x + 2, p1_screen.y - 2),
+                       theCamera.getObjectToView().timesZ(p2),
+                       theCamera,
+                               markupColour);                       // Right
+                    
+                    renderLine( new Vec2(p2_screen.x - 2, p2_screen.y + 2),
+                       theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p2_screen.x - 2, p2_screen.y - 2),
+                       theCamera.getObjectToView().timesZ(p2),
+                       theCamera,
+                               markupColour);                       // Left
+                    
+                    // Upper
+                    renderLine( new Vec2(p2_screen.x - 2, p2_screen.y + 2),
+                               theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p1_screen.x + 2, p1_screen.y + 2), // theCamera.getObjectToScreen().timesXY(p2)
+                               theCamera.getObjectToView().timesZ(p2),
+                               theCamera,
+                               markupColour);
+                    
+                    // Lower
+                    renderLine(new Vec2(p2_screen.x - 2, p2_screen.y - 2), // theCamera.getObjectToScreen().timesXY(p1)
+                           theCamera.getObjectToView().timesZ(p1),
+                               new Vec2(p1_screen.x + 2, p1_screen.y - 2), // theCamera.getObjectToScreen().timesXY(p2)
+                           theCamera.getObjectToView().timesZ(p2),
+                           theCamera,
+                               markupColour);
+                    
+                }
+                
+                
+                
+                
+            
+                
+                
+            //}
+            
+            //drawLine(new Point (20, 20), new  Point (50, 50), new Color(0,1,0)); // screen xy 3d coordinates, top left
             
             //System.out.println("   draw vert: " + verts[0].x + " " + verts[0].y + "  " + verts[0].z );
         }
