@@ -3537,7 +3537,7 @@ public class Scene
               realPoints.addElement(realPoint);
             //polygon.setElementAt(point, pt);
           }
-          System.out.println(" add polygon ");
+          //System.out.println(" add polygon ");
           DXFLWPolyline polyline = new DXFLWPolyline( polygon.size(), realPoints, true, dxfGraphics); // int numVertices, Vector<RealPoint> vertices, boolean closed, Graphics2D graphics
           dxfDocument.addEntity(polyline);
         } 

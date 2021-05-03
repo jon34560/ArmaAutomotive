@@ -1009,6 +1009,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
       layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
       
+      layoutMenu.addSeparator();
+      layoutMenu.add(Translate.menuItem("3D Print GCode", this, "print3DGCode"));
+      
+      
       //layoutMenu.add(Translate.menuItem("Export GCode Mesh", this, "exportGCodeMesh"));
   }
    
@@ -3801,6 +3805,23 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void debug(){
         if(theScene != null){
             theScene.debug();
+        }
+    }
+    
+    /**
+     * print3DGCode
+     *
+     * Description:
+     */
+    public void print3DGCode(){
+        if(theScene != null){
+            Print3D print3D = new Print3D();
+            print3D.setScene(theScene);
+            print3D.setObjects(theScene.getObjects());
+            print3D.setLayoutWindow(this);
+            if(print3D.getUserInput()){
+                print3D.start();
+            }
         }
     }
 
