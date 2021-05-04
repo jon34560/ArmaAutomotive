@@ -8,7 +8,9 @@
   <property name="docs" value="ArmaDesignStudio/docs" />
   <property name="lib" value="lib" />
   <property name="dist" value="." />
-<!--  <property name="build.compiler" value="classic" /> -->
+  <property name="launch4j.dir" location="launch4j" />
+  
+  <!--  <property name="build.compiler" value="classic" /> -->
 
   <!-- set of all library jars -->
   <fileset id="libraries" dir="${lib}" includes="*.jar" />
@@ -56,6 +58,12 @@
       <fileset refid="subproject.files" />
     </subant>
   </target>
+  
+  <target name="exe" depends="core">
+      <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar
+          :${launch4j.dir}/lib/xstream.jar" />
+      <launch4j configFile="./l4j/ArmaDesignStudioApp.xml" />
+  </target>
 
   <target name="docs" depends="init">
     <javadoc packagenames="armadesignstudio.*"
@@ -70,7 +78,7 @@
         windowtitle="Arma Design Studio Documentation"
 	public="true">
       <doctitle><![CDATA[<h1>Arma Design Studio</h1>]]></doctitle>
-      <bottom><![CDATA[<i>Copyright &#169; 1999-2011 by Peter Eastman.</i>]]></bottom>
+      <bottom><![CDATA[<i>Copyright &#169; 1999-2011 by Peter Eastman, 2020 Jon Taylor.</i>]]></bottom>
     </javadoc>
   </target>
 
@@ -78,6 +86,8 @@
     <!-- Delete the ${build} and ${docs} directory trees -->
     <delete dir="${build}" />
     <delete dir="${docs}" />
+    
+    
 
     <!-- execute the "clean" target for all found subproject ant files -->
     <subant target="clean">

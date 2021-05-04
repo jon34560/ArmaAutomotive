@@ -581,6 +581,18 @@ public class ObjectInfo
     this.visible = visible;
   }
 
+    
+    public boolean isChildrenHiddenWhenHidden()
+    {
+      return childrenHiddenWhenHidden;
+    }
+    
+    public void setChildrenHiddenWhenHidden(boolean c)
+    {
+      this.childrenHiddenWhenHidden = c;
+    }
+    
+    
   /** Get whether this object is locked. */
 
   public boolean isLocked()

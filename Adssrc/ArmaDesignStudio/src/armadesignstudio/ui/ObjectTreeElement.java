@@ -24,6 +24,7 @@ public class ObjectTreeElement extends TreeElement
     protected ObjectInfo info;
     private static Icon lockIcon = ThemeManager.getIcon("lock");
     private static Icon visibleIcon = ThemeManager.getIcon("visible");
+    private static Icon hiddenIcon = ThemeManager.getIcon("hidden");
 
   public ObjectTreeElement(ObjectInfo info, TreeList tree)
   {
@@ -61,6 +62,13 @@ public class ObjectTreeElement extends TreeElement
   }
     
   public Icon getVisibilityIcon(){
+      
+      if(info.isChildrenHiddenWhenHidden()){
+          return hiddenIcon;
+      }
+      // info
+      // hiddenIcon
+      
       return visibleIcon;
   }
 
