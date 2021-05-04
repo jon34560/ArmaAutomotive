@@ -1,4 +1,5 @@
 /* Copyright (C) 2001-2008 by Peter Eastman
+ 2021 Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -20,8 +21,9 @@ import java.util.*;
 
 public class ObjectTreeElement extends TreeElement
 {
-  protected ObjectInfo info;
-  private static Icon lockIcon = ThemeManager.getIcon("lock");
+    protected ObjectInfo info;
+    private static Icon lockIcon = ThemeManager.getIcon("lock");
+    private static Icon visibleIcon = ThemeManager.getIcon("visible");
 
   public ObjectTreeElement(ObjectInfo info, TreeList tree)
   {
@@ -56,6 +58,10 @@ public class ObjectTreeElement extends TreeElement
   public Icon getIcon()
   {
     return (info.isLocked() ? lockIcon : null);
+  }
+    
+  public Icon getVisibilityIcon(){
+      return visibleIcon;
   }
 
   /* Determine whether this element can be added as a child of another one  If el is null,

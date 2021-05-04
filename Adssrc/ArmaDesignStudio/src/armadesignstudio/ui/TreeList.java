@@ -399,27 +399,38 @@ public class TreeList extends CustomWidget
         g.setColor(Color.black);
         if (el.isExpanded())
         {
-          openHandle.translate(x+INDENT_WIDTH/2, y+rowHeight/2);
+          openHandle.translate(x+INDENT_WIDTH/2, (y+rowHeight/2)-1);
           g.drawPolygon(openHandle);
-          openHandle.translate(-x-INDENT_WIDTH/2, -y-rowHeight/2);
+          openHandle.translate(-x-INDENT_WIDTH/2, (-y-rowHeight/2)+1);
         }
         else
         {
-          closedHandle.translate(x+INDENT_WIDTH/2, y+rowHeight/2);
+          closedHandle.translate(x+INDENT_WIDTH/2, (y+rowHeight/2)-1);
           g.drawPolygon(closedHandle);
-          closedHandle.translate(-x-INDENT_WIDTH/2, -y-rowHeight/2);
+          closedHandle.translate(-x-INDENT_WIDTH/2, (-y-rowHeight/2)+1);
         }
       }
-      
+        x += 1;
+        
       // Draw the label.
       
       x += INDENT_WIDTH;
       Icon icon = el.getIcon();
       if (icon != null)
       {
-        icon.paintIcon(getComponent(), g, x, y);
+        icon.paintIcon(getComponent(), g, x, y + 2);
         x += icon.getIconWidth();
+          x += 2;
       }
+        
+        // visibility icon
+        Icon vibilityIcon = el.getVisibilityIcon();
+        if (vibilityIcon != null){
+            vibilityIcon.paintIcon(getComponent(), g, x, y + 2); //
+            x += vibilityIcon.getIconWidth();
+            x += 2;
+        }
+        
       if (el.isSelected())
       {
         g.setColor(el.isGray() ? Color.gray : Color.black);
@@ -432,6 +443,9 @@ public class TreeList extends CustomWidget
         g.setColor(el.isGray() ? Color.gray : Color.black);
         g.drawString(el.getLabel(), x+1, y+fm.getMaxAscent());
       }
+        
+        
+        
       y += rowHeight;
       maxRowWidth = Math.max(maxRowWidth, fm.stringWidth(el.getLabel())+x+1);
     }

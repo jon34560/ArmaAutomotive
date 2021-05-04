@@ -70,7 +70,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   BMenu layoutModelView, layoutLayView, gCodeScaleMenu, exportGCode, exportLayoutDXF, exportObj, layoutHide, exportGCodeMesh; // JDT
   BMenuItem fileMenuItem[], editMenuItem[], objectMenuItem[], toolsMenuItem[];
   BMenuItem animationMenuItem[], sceneMenuItem[], popupMenuItem[];
-  BMenuItem layoutMenuItem[]; // JDT ???
+  BMenuItem layoutMenuItem[]; // JDT
   BMenuItem feaMenuItem[]; // JDT
   BMenuItem cfdMenuItem[]; // JDT
   BCheckBoxMenuItem displayItem[];
@@ -336,7 +336,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     UIUtilities.applyDefaultFont(getContent());
     //UIUtilities.applyDefaultBackground(centerContainer);
       
-    itemTreeScroller.setBackground(Color.white);
+    itemTreeScroller.setBackground(Color.white);    // scene object list
     itemSelectionScroller.setBackground(Color.white);
     if (ArmaDesignStudio.APP_ICON != null)
       setIcon(ArmaDesignStudio.APP_ICON);
