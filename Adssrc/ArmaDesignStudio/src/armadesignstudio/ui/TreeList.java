@@ -17,6 +17,7 @@ import buoy.widget.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import armadesignstudio.object.ObjectInfo;
 
 /** This is a Widget which displays a hierarchy of objects.  It provides functionality
     for opening and closing parts of the hierarchy, selecting elements, and moving elements
@@ -483,6 +484,18 @@ public class TreeList extends CustomWidget
       showPopupIfNeeded(ev);
       return;
     }
+      
+      // hide/show child
+      if(pos.x > ((ind+1)*INDENT_WIDTH) + 1 && pos.x < ((ind+1)*INDENT_WIDTH) + 9){
+          Object obj = (Object) el.getObject();
+          if( obj instanceof armadesignstudio.object.ObjectInfo ){
+              ObjectInfo oi = (ObjectInfo)obj;
+              oi.setChildrenHiddenWhenHidden(!oi.isChildrenHiddenWhenHidden());
+              // How to toggle children???
+              
+          }
+      }
+      
     if (i < ind || (el.getParent() != null && el.selectWithParent() && el.getParent().isSelected()))
     {
       showPopupIfNeeded(ev);

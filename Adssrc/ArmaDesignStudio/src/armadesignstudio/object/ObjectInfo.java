@@ -582,7 +582,7 @@ public class ObjectInfo
   }
 
     
-    public boolean isChildrenHiddenWhenHidden()
+    public boolean isChildrenHiddenWhenHidden() // isChildrenHidden
     {
       return childrenHiddenWhenHidden;
     }
@@ -592,6 +592,10 @@ public class ObjectInfo
       this.childrenHiddenWhenHidden = c;
     }
     
+    public void toggleChildrenHidden(){
+        
+        
+    }
     
   /** Get whether this object is locked. */
 

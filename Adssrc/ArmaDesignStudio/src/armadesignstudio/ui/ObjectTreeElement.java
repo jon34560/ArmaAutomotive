@@ -62,13 +62,11 @@ public class ObjectTreeElement extends TreeElement
   }
     
   public Icon getVisibilityIcon(){
-      
       if(info.isChildrenHiddenWhenHidden()){
           return hiddenIcon;
       }
       // info
       // hiddenIcon
-      
       return visibleIcon;
   }
 
