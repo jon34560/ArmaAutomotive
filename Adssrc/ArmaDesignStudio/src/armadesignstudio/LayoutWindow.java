@@ -333,6 +333,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       }
     });
     itemTree.setPopupMenuManager(this);
+      itemTree.setEditingWindow(this);
     UIUtilities.applyDefaultFont(getContent());
     //UIUtilities.applyDefaultBackground(centerContainer);
       
@@ -3276,13 +3277,13 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         {
           ObjectInfo info = theScene.getObject(sel[i]);
           undo.addCommand(UndoRecord.COPY_OBJECT_INFO, new Object [] {info, info.duplicate()});
-            info.setVisible(visible);
+            //info.setVisible(visible);
             info.setChildrenHiddenWhenHidden(visible);
             
             ObjectInfo[] children = info.getChildren();
             for(int j = 0; j < children.length; j++){
                 ObjectInfo child = children[j];
-                child.setVisible(visible);
+                //child.setVisible(visible);
                 child.setChildrenHiddenWhenHidden(visible);
             }
             

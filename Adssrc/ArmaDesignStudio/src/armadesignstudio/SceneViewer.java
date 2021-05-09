@@ -244,7 +244,7 @@ public class SceneViewer extends ViewerCanvas
       for (int i = 0; i < theScene.getNumObjects(); i++)
       {
         ObjectInfo obj = theScene.getObject(i);
-        if (obj == boundCamera || !obj.isVisible())
+        if (obj == boundCamera || !obj.isVisible() || obj.isHiddenByParent()) // 
           continue;
         theCamera.setObjectTransform(obj.getCoords().fromLocal());
         obj.getObject().renderObject(obj, this, viewdir);

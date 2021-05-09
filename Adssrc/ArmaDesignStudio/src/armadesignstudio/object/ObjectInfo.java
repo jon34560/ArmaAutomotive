@@ -582,6 +582,10 @@ public class ObjectInfo
   }
 
     
+    // rename to: isHiddenByParent  ???
+    public boolean isHiddenByParent(){
+        return childrenHiddenWhenHidden;
+    }
     public boolean isChildrenHiddenWhenHidden() // isChildrenHidden
     {
       return childrenHiddenWhenHidden;

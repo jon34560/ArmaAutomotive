@@ -32,6 +32,7 @@ public class TreeList extends CustomWidget
   private boolean updateDisabled, moving, origSelected[], insertAbove, okToInsert, allowMultiple;
   private PopupMenuManager popupManager;
   protected UndoRecord undo;
+    private EditingWindow editingWindow = null;
   
   private static final Polygon openHandle, closedHandle, insertHandle;
   private static final int INDENT_WIDTH = 10;
@@ -490,11 +491,18 @@ public class TreeList extends CustomWidget
           Object obj = (Object) el.getObject();
           if( obj instanceof armadesignstudio.object.ObjectInfo ){
               ObjectInfo oi = (ObjectInfo)obj;
-              oi.setChildrenHiddenWhenHidden(!oi.isChildrenHiddenWhenHidden());
-              // How to toggle children???
+              oi.setChildrenHiddenWhenHidden(!oi.isChildrenHiddenWhenHidden()); // Toggle child visibility
               
               // ***
               setChildrenVisible(el, oi.isChildrenHiddenWhenHidden());
+              
+              if(editingWindow != null){
+                  editingWindow.updateImage();
+              }
+              // SceneViewer.updateImage();
+              // LayoutWindow.updateImage();
+              // Scene window.updateImage();
+              
           }
       }
       
@@ -879,4 +887,8 @@ public class TreeList extends CustomWidget
       super(el);
     }
   }
+    
+    public void setEditingWindow(EditingWindow ew){
+        this.editingWindow = ew;
+    }
 }
