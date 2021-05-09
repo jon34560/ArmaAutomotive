@@ -1204,7 +1204,7 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
      * Description: draw number.
      */
     public void renderDouble(double number, Vec3 location, double scale, double pixelWidth, Camera theCamera){
-        String strNumber = String.format("%.2f", number);
+        String strNumber = String.format("%.3f", number);
         int fontSize = 8;
         if(pixelWidth > 30){ fontSize = 10; }
         if(pixelWidth > 45){ fontSize = 12; }

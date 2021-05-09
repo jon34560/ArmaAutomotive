@@ -493,6 +493,8 @@ public class TreeList extends CustomWidget
               oi.setChildrenHiddenWhenHidden(!oi.isChildrenHiddenWhenHidden());
               // How to toggle children???
               
+              // ***
+              setChildrenVisible(el, oi.isChildrenHiddenWhenHidden());
           }
       }
       
@@ -553,7 +555,25 @@ public class TreeList extends CustomWidget
     repaint();
     showPopupIfNeeded(ev);
   }
+    
+    /**
+     * setChildrenVisible
+     *
+     * Description: Called by mousePressed on child visibility icon.
+     */
+    private void setChildrenVisible(TreeElement el, boolean visible){
+        for (int i = 0; i < el.getNumChildren(); i++){
+            TreeElement childEl = el.getChild(i);
+            Object obj = (Object) childEl.getObject();
+            if( obj instanceof armadesignstudio.object.ObjectInfo ){
+                ObjectInfo oi = (ObjectInfo)obj;
+                oi.setChildrenHiddenWhenHidden(visible);
+            }
+            setChildrenVisible(childEl,  visible);
+        }
+    }
   
+    
   private void mouseDragged(MouseDraggedEvent ev)
   {
     Point pos = ev.getPoint();
