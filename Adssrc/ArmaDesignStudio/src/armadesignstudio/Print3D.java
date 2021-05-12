@@ -556,13 +556,13 @@ public class Print3D extends Thread {
         }
         
         //
-        // Route drill cutting path
+        // Route drill cutting path -> printing path
         //
         for(int s = 0; s < sections && running; s++){ // height sections
             double sectionBottom = this.miny + ((s) * material_height);
             double sectionTop = this.miny + ((s+1) * material_height);
             
-            progressLabel.setText("Routing cutting path for section "+ (s+1) +" of " + sections + ".");
+            progressLabel.setText("Routing print path for section "+ (s+1) +" of " + sections + ".");
             
             Vector toolpathMarkupPoints = new Vector();
             //BoundingBox sectionBounds = o3d.getBounds();
@@ -574,7 +574,7 @@ public class Print3D extends Thread {
             //
             String gcode = "";
             gcode += "; Arma Automotive\n";
-            gcode += "; CNC Top Down Mill\n";
+            gcode += "; 3D Print\n";
             
             gcode += "G1\n";
             
@@ -613,6 +613,9 @@ public class Print3D extends Thread {
                 XStart[x] = start;
                 //System.out.println(" x " + x + " " + XStart[x]  );
             }
+            
+            // X, Z, Y
+            //isPointInSolid(Vec3 point);
             
             for(int x = 0; x <= mapWidth && running; x++){
                 
@@ -921,6 +924,19 @@ public class Print3D extends Thread {
         progressDialog.setVisible(false);
     }
     
+    
+    /**
+     * isPointInSolid
+     *
+     * Description:
+     *
+     * @param Vec3
+     */
+    public boolean isPointInSolid(Vec3 point){
+        
+        
+        return false;
+    }
     
     /**
      * trigon_height

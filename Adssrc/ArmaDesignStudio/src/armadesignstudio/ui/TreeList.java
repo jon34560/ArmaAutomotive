@@ -492,17 +492,10 @@ public class TreeList extends CustomWidget
           if( obj instanceof armadesignstudio.object.ObjectInfo ){
               ObjectInfo oi = (ObjectInfo)obj;
               oi.setChildrenHiddenWhenHidden(!oi.isChildrenHiddenWhenHidden()); // Toggle child visibility
-              
-              // ***
               setChildrenVisible(el, oi.isChildrenHiddenWhenHidden());
-              
               if(editingWindow != null){
                   editingWindow.updateImage();
               }
-              // SceneViewer.updateImage();
-              // LayoutWindow.updateImage();
-              // Scene window.updateImage();
-              
           }
       }
       

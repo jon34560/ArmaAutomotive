@@ -53,6 +53,8 @@ import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /** The Scene class describes a collection of objects, arranged relative to each other to
     form a scene, as well as the available textures and materials, environment options, etc. */
@@ -1719,6 +1721,43 @@ public class Scene
 
   public void writeToStream(DataOutputStream out) throws IOException
   {
+      
+      // Progress dialog. (Doesn't work until save is in new thread)
+      final JDialog progressDialog = new JDialog(); //  parentFrame , "Progress Dialog", true ); // parentFrame , "Progress Dialog", true); // Frame owner
+      JProgressBar dpb = new JProgressBar(0, 100);
+      progressDialog.add(BorderLayout.CENTER, dpb);
+      JLabel progressLabel = new JLabel("Saving...");
+      progressDialog.add(BorderLayout.NORTH, progressLabel);
+      progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+      progressDialog.setSize(300, 75);
+      progressDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+      // progressDialog.setLocationRelativeTo(parentFrame);
+      Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+      progressDialog.setLocation((int)(screenSize.getWidth() / 2) - (300/2), (int) ((screenSize.getHeight()/(float)2) - ((float)75/(float)2.0)));
+      progressDialog.addWindowListener(new WindowAdapter()
+      {
+          public void windowClosed(WindowEvent e)
+          {
+              System.out.println("jdialog window closed event received");
+              //running = false;
+          }
+          public void windowClosing(WindowEvent e)
+          {
+              System.out.println("jdialog window closing event received");
+              //running = false;
+          }
+      });
+      progressDialog.setVisible(true);
+      
+      Scene scene = this;
+      //try {
+      //(new Thread() {
+      //  public void run() {
+            
+            //
+            int totalItems = images.size() + materials.size() + textures.size() + objects.size();
+            int currProgress = 0;
+      
     Material mat;
     Texture tex;
     int i, j, index = 0;
@@ -1743,6 +1782,11 @@ public class Scene
         ImageMap img = images.elementAt(i);
         out.writeUTF(img.getClass().getName());
         img.writeToStream(out);
+          
+          currProgress++;
+          int progress = (int) (((float)(currProgress) / (float)(totalItems)) * (float)100);
+          dpb.setValue(progress);
+          
       }
 
     // Save the materials.
@@ -1753,10 +1797,14 @@ public class Scene
         mat = materials.elementAt(i);
         out.writeUTF(mat.getClass().getName());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        mat.writeToFile(new DataOutputStream(bos), this);
+        mat.writeToFile(new DataOutputStream(bos), scene);
         byte bytes[] = bos.toByteArray();
         out.writeInt(bytes.length);
         out.write(bytes, 0, bytes.length);
+              
+        currProgress++;
+              int progress = (int) (((float)(currProgress) / (float)(totalItems)) * (float)100);
+              dpb.setValue(progress);
       }
 
     // Save the textures.
@@ -1767,10 +1815,15 @@ public class Scene
         tex = textures.elementAt(i);
         out.writeUTF(tex.getClass().getName());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        tex.writeToFile(new DataOutputStream(bos), this);
+        tex.writeToFile(new DataOutputStream(bos), scene);
         byte bytes[] = bos.toByteArray();
         out.writeInt(bytes.length);
         out.write(bytes, 0, bytes.length);
+              
+        currProgress++;
+        int progress = (int) (((float)(currProgress) / (float)(totalItems)) * (float)100);
+        dpb.setValue(progress);
+              
       }
 
     // Save the objects.
@@ -1780,6 +1833,10 @@ public class Scene
         // table is a hash table of object3d
         // index is the last object index used.
       index = writeObjectToFile(out, objects.elementAt(i), table, index);
+              
+        currProgress++;
+        int progress = (int) (((float)(currProgress) / (float)(totalItems)) * (float)100);
+        dpb.setValue(progress);
     }
 
     // Record the children of each object.  The format of this will be changed in the
@@ -1803,7 +1860,7 @@ public class Scene
         out.writeInt(textures.lastIndexOf(environTexture));
         out.writeUTF(environMapping.getClass().getName());
         if (environMapping instanceof LayeredMapping)
-          ((LayeredMapping) environMapping).writeToFile(out, this);
+          ((LayeredMapping) environMapping).writeToFile(out, scene);
         else
           environMapping.writeToFile(out);
         for (i = 0; i < environParamValue.length; i++)
@@ -1840,6 +1897,19 @@ public class Scene
       out.write(value.toByteArray());
     }
     Thread.currentThread().setContextClassLoader(contextClassLoader);
+      
+      /*
+        }
+         }).start();
+      
+      } catch (Exception e){
+          } catch (IOException e){
+              
+          }
+       */
+      
+      // Done
+      progressDialog.setVisible(false);
   }
 
   /**
@@ -1999,6 +2069,7 @@ public class Scene
         SplineSkin skin = new SplineSkin();
         skin.removeSplineMesh(this);
         skin.connectedCurvesToQuadMesh(this, layoutWindow, objects, debug, subdivisions);
+        skin.connectedCurvesToTriangleMesh(this, layoutWindow, objects, debug, subdivisions);
     }
     
     public void autoSkinByVoids(LayoutWindow layoutWindow){

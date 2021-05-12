@@ -948,7 +948,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   private void createPopupMenu()
   {
     popupMenu = new BPopupMenu();
-    popupMenuItem = new BMenuItem [19]; // 16
+    popupMenuItem = new BMenuItem [20]; // 16
     popupMenu.add(popupMenuItem[0] = Translate.menuItem("editObject", this, "editObjectCommand", null));
     popupMenu.add(popupMenuItem[1] = Translate.menuItem("objectLayout", this, "objectLayoutCommand", null));
     popupMenu.add(popupMenuItem[2] = Translate.menuItem("setTextureAndMaterial", this, "setTextureCommand", null));
@@ -975,6 +975,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     popupMenu.add(popupMenuItem[17] = Translate.menuItem("zoomToObject", this, "zoomToObject", null));
       
     popupMenu.add(popupMenuItem[18] = Translate.menuItem("alignObjectToCollided", this, "alignObjectToCollided", null));
+      
+      popupMenu.addSeparator();
+      popupMenu.add(popupMenuItem[19] = Translate.menuItem("getDebugInfo", this, "getDebugInfoCommand", null));
       
   }
 
@@ -1890,6 +1893,21 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
       
   }
+    
+    /**
+     * getDebugInfoCommand
+     *
+     * Description: Print selected object debug info.
+     */
+    public void getDebugInfoCommand(){
+        System.out.println("getDebugInfoCommand to object function not implemented. ");
+        // ***
+        
+        // Collection<ObjectInfo> getSelectedObjects()
+        
+        
+    }
+    
 
     /**
      * actionPerformed

@@ -1,5 +1,5 @@
 /* Copyright (C) 1999-2013 by Peter Eastman
-                 2019-2020 Jon Taylor
+                 2019-2021 Jon Taylor
 
    This program is free software; you can redistribute it and/or modify it under the
    terms of the GNU General Public License as published by the Free Software
@@ -73,6 +73,8 @@ public class ObjectInfo
     
   // Pair align move highlight object to be moved.
   private boolean renderMoveHighlight = false;
+    
+    private Vector<String> debugInfo = new Vector<String>();
 
   /** Create a new ObjectInfo. */
 
@@ -1014,5 +1016,18 @@ public class ObjectInfo
             //System.out.println("getDefaultPolyOrder " + (bounds.maxx - bounds.minx) );
         }
         return order;
+    }
+    
+    
+    // add to debugInfo
+    public void addDebugInfo(String line){
+        debugInfo.addElement(line);
+        if(debugInfo.size() > 1000){
+            debugInfo.removeElementAt(0);
+        }
+    }
+    
+    public Vector<String> getDebugInfo(){
+        return debugInfo;
     }
 }

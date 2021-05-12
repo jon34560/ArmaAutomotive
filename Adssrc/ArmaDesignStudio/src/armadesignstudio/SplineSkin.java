@@ -1,4 +1,4 @@
-/* Copyright (C) 2019, 2020, 2021 by Jon Taylor
+/* Copyright (C) 2019 - 2021 by Jon Taylor
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -499,6 +499,26 @@ public class SplineSkin extends Thread {
                  
             } // delim
         } // dom pairs
+        
+    }
+    
+    /**
+     * connectedCurvesToTriangleMesh
+     *
+     * Description: create mesh from two dominant curves connected together and also between a support curve.
+     *
+     * @param: Scene
+     */
+    public void connectedCurvesToTriangleMesh(Scene scene,
+                                          LayoutWindow layoutWindow,
+                                          Vector<ObjectInfo> objects,
+                                          boolean debug,
+                                          int subdivisions){
+        Vector< PointJoinObject > connections = new Vector<>();
+        Vector< ObjectInfo > supportCurveOIs = new Vector<>();
+        Vector< ObjectInfo > dominantCurveOIs = new Vector<>();
+        HashMap<Integer, Curve> subdividedCurves = new HashMap<Integer, Curve>();
+        
         
     }
     
