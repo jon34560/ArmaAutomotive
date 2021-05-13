@@ -54,6 +54,8 @@ import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import armadesignstudio.fea.*;
 
+//import static edu.uta.futureye.function.FMath.C0;
+
 /** This class implements the dialog box which is used for the "Object Layout" and
     "Transform Object" commands.  It allows the user enter values for the position,
     orientation, and size of an object.  The initial values are passed to the constructor

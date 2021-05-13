@@ -307,6 +307,7 @@ public class Print3D extends Thread {
         if(minimizePasses){
             mapWidth = (int)((this.maxx - this.minx) / drill_bit) + 0;  // Only pass once for each width of the drill bit.
         }
+        int mapHeight = (int)((this.maxy - this.miny) / accuracy);
         
         int sections = 1;
         if(this.maxy - this.miny > material_height){
@@ -618,7 +619,19 @@ public class Print3D extends Thread {
             //isPointInSolid(Vec3 point);
             
             for(int x = 0; x <= mapWidth && running; x++){
-                
+                for(int z = 0; z <= mapDepth && running; z++){
+                    for(int y = 0; y <= mapHeight && running; y++){
+                        //
+                    
+                        
+                    }
+                }
+                System.out.println(" x " + x);
+            }
+            
+            
+            
+            for(int x = 0; x <= mapWidth && running; x++){
                 // Optimization, skip z line if no objects in path.
                 // Include one adjacent row (past and future) to create edge.
                 int prevZLength = 0;
@@ -834,53 +847,12 @@ public class Print3D extends Thread {
                     
                     
                     //System.out.println(" map   x: " + x_loc + " z: " +z_loc  + " h: "  +height );
-                    /*
-                    // Move up to height of next point before moving cutter or the corner will be cut.
-                    if( z != 1 && !(z == 0 && z == 0) ){
-                        
-                        gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
-                        " Y" + roundThree(prev_z_loc - this.minz) +
-                        " Z" + roundThree( (prev_height - material_height)  ); //  // - this.maxy
-                        gcode += " F"+10+"";
-                        gcode += ";  A pre rise  \n"; //
-                        
-                    } else if(z == 1) {    // end on z line
-                        
-                        // Raise
-                        gcode += "G1 " +
-                        " Z" + roundThree(0.0);
-                        gcode += " F"+10+"";
-                        gcode += "; end line  \n"; // End line
-                        
-                        gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
-                        " Y" + roundThree(prev_z_loc - this.minz) +
-                        " Z" + roundThree(0);
-                        gcode += " F"+10+"";
-                        gcode += "; C   \n"; // End line
-                        
-                    } else if(x == 0 && z == 0) { // Should only occur once.???
-                     
-                        gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
-                        " Y" + roundThree(prev_z_loc - this.minz) +
-                        " Z" + roundThree(0);
-                        gcode += " F"+10+"";
-                        gcode += "; D \n";
-                        
-                    }
-                    */
+                    
                     
                     // todo: if x < mapWidth && height == next X height skip. Compression of gcode
                     //if( x < mapWidth &&  ){
                     // GCode coordinates are different.
-                    /*
-                    if( (prev_height - material_height) != (height - material_height) ){
-                        gcode += "G1 X" + roundThree(prev_x_loc - this.minx) +
-                        " Y" + roundThree(prev_z_loc - this.minz) +
-                        " Z" + roundThree(prev_height - material_height);
-                        gcode += " F"+10+"";
-                        gcode += ";\n"; // End line
-                    }
-                     */
+                    
                     //}
                     prev_x = x;
                     prev_z = z;

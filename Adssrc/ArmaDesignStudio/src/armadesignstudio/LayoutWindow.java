@@ -797,6 +797,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       toolsMenu.add(Translate.menuItem("Spline Grid Skin", this, "splineGridSkin"));
       
       toolsMenu.addSeparator();
+      toolsMenu.add(Translate.menuItem("Join Curves", this, "joinCurvesCommand"));
       //toolsMenu.add(Translate.menuItem("Move and Connect Curves", this, "moveConnectCurvesCommand"));
       toolsMenu.add(Translate.menuItem("Connect Curves", this, "connectCurvesCommand"));
       toolsMenu.add(Translate.menuItem("Mesh from Connected Curves (Beta)", this, "connectedCurvesToMeshCommand"));
@@ -2480,15 +2481,102 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     
     /**
-     * moveConnectCurvesCommand
+     * joinCurvesCommand
      *
-     * Derscription: move curves such that the verts use the same coordinates then add a point join object like connectCurvesCommand() does
+     * Derscription: move curves such that the verts use the same coordinates
+     *  Modify geometry such that the closest points
      */
-    public void moveConnectCurvesCommand(){
+    public void joinCurvesCommand(){
+        System.out.println("joinCurvesCommand " );
         int [] selection = theScene.getSelection();
+        if(selection.length < 2){
+            System.out.println("Error: Select two curves ");
+        }
+        // 1) Get the selected curves.
+        ObjectInfo dominantCurve = null;
+        ObjectInfo supportCurve = null;
+        for(int i = 0; i < selection.length; i++){
+            ObjectInfo obj = theScene.getObject(selection[i]);
+            Object co = (Object)obj.getObject();
+            if((co instanceof Curve) == true){
+                if(((Curve)co).isSupportMode()){
+                    supportCurve = obj;
+                } else {
+                    dominantCurve = obj;
+                }
+            }
+        }
         
+        Object aCo = (Object)dominantCurve.getObject();
+        Object bCo = (Object)supportCurve.getObject();
         
-        System.out.println("moveConnectCurvesCommand " );
+        if(dominantCurve != null && supportCurve != null){
+            
+            // 3) find closest joining point
+            
+            // Transform points of  curves with object matrix.
+            CoordinateSystem c;
+            c = dominantCurve.getCoords().duplicate();
+            Mat4 aMat4 = c.duplicate().fromLocal();
+            MeshVertex aDomv[] = ((Mesh)aCo).getVertices();
+            Vec3 aTranslatedPoints[] = new Vec3[aDomv.length];
+            for(int i = 0; i < aDomv.length; i++){
+                Vec3 point = ((MeshVertex)aDomv[i]).r;
+                aMat4.transform(point);
+                //subv[i].r = point;
+                aTranslatedPoints[i] = point;
+            }
+            
+            c = supportCurve.getCoords().duplicate();
+            Mat4 bMat4 = c.duplicate().fromLocal();
+            MeshVertex bDomv[] = ((Mesh)bCo).getVertices();
+            Vec3 bTranslatedPoints[] = new Vec3[bDomv.length];
+            for(int i = 0; i < bDomv.length; i++){
+                Vec3 point = ((MeshVertex)bDomv[i]).r;
+                bMat4.transform(point);
+                //subv[i].r = point;
+                bTranslatedPoints[i] = point;
+            }
+            
+            double closestDistance = 99999;
+            int closestA = -1;
+            int closestB = -1;
+            Vec3 closestAVec = null;
+            Vec3 closestBVec = null;
+            for(int a = 0; a < aTranslatedPoints.length; a++){
+                Vec3 aVec = (Vec3)aTranslatedPoints[a];
+                for(int b = 0; b < bTranslatedPoints.length; b++){
+                    Vec3 bVec = (Vec3)bTranslatedPoints[b];
+                    double distance = aVec.distance(bVec);
+                    if(distance < closestDistance){
+                        closestDistance = distance;
+                        closestA = a;
+                        closestB = b;
+                        closestAVec = aVec;
+                        closestBVec = bVec;
+                    }
+                }
+            }
+            
+            System.out.println(" closest a " + closestA + " " + closestB + " "   );
+            
+            // Move Support point
+            if(closestA > -1 && closestB > -1){
+                
+                bTranslatedPoints[closestB] = closestAVec;
+                bDomv[closestB].r = closestAVec;
+                //bCo.setVertices();
+                
+                ((Mesh)bCo).setVertexPositions(bTranslatedPoints);
+                supportCurve.setObject((Object3D)bCo);
+                
+                updateImage();
+            }
+            
+            
+        }
+        
+        // 4) Which point to move? both or one? Move the support curve, leave dominant curve.
         
     }
     

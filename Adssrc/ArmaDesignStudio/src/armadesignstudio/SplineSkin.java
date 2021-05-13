@@ -127,45 +127,49 @@ public class SplineSkin extends Thread {
         // Support curves connecting two dominant curves                min(dom_curve_A_id)_max(dom_curve_B_id) -> Vector<ObjectInfo> support curve IO
         HashMap<String, Vector<ObjectInfo>> spanningSupportCurves = new HashMap<String, Vector<ObjectInfo>>(); // (key, Vector<ObjectInfo>)
         
+        
+        
         //
         // Collect connected parralel and connected support curves into data structures.
+        // Dominant
         //
-        for(int i = 0; i < dominantCurveOIs.size(); i++){
+        for(int i = 0; i < dominantCurveOIs.size(); i++){                             // first dominant curve
             ObjectInfo curveOI = (ObjectInfo)dominantCurveOIs.elementAt(i);
             int curveId = curveOI.getId();  // objectInfo.getId();
             // what other curves (and points) is this connected to. (Depricate, use support curves to determine mesh regions)
-            for(int x = 0; x < connections.size(); x++){
+            for(int x = 0; x < connections.size(); x++){                              // Find first connection to first dominant curve
                 PointJoinObject pjo = (PointJoinObject)connections.elementAt(x);
                 int supConnectedCurve = -1;
-                if(pjo.objectA == curveId){
+                if(pjo.objectA == curveId){                                           // A side of connection connects to dominant curve, B might be support curve
                     supConnectedCurve = pjo.objectB;
                 }
                 if(pjo.objectB == curveId){
                     supConnectedCurve = pjo.objectA;
                 }
                 if(supConnectedCurve > -1){
-                    for(int j = 0; j < supportCurveOIs.size(); j++){                    // connected Support curves
+                    for(int j = 0; j < supportCurveOIs.size(); j++){                  // connected Support curves
                         ObjectInfo compareCurveOI = (ObjectInfo)supportCurveOIs.elementAt(j);
                         int compareCurveId = compareCurveOI.getId();
-                        if(supConnectedCurve == compareCurveId){
+                        if(supConnectedCurve == compareCurveId){                      // found support curve (compareCurveOI) connected to first dominant
                             //System.out.println("  Found sup curve "+ compareCurveId +" that connects to "+curveId+" end B");
-                            for(int y = 0; y < connections.size(); y++){
-                                if(x != y){
+                            for(int y = 0; y < connections.size(); y++){                // find second connection to support curve (compareCurveOI)
+                                if(x != y){                                             // not allready first connection
                                     PointJoinObject pjo2 = (PointJoinObject)connections.elementAt(y);
                                     int domConnectedCurve = -1;
                                     if(pjo2.objectA == compareCurveId){
-                                        domConnectedCurve = pjo2.objectB;
+                                        domConnectedCurve = pjo2.objectB;               // found second dominant curve connected to support curve
                                     }
                                     if(pjo2.objectB == compareCurveId){
                                         domConnectedCurve = pjo2.objectA;
                                     }
                                     if(domConnectedCurve > -1){
                                         // Find dominant curve connected to compareCurveId, Then create mesh
-                                        for(int k = 0; k < dominantCurveOIs.size(); k++){ // dominant curves
-                                            if(i != k){
+                                        for(int k = 0; k < dominantCurveOIs.size(); k++){ // find second dominant curve Object from id
+                                            if(i != k){                                   // not first dominant curve
                                                 ObjectInfo parallelDomCurveOI = (ObjectInfo)dominantCurveOIs.elementAt(k);
                                                 int parallelCurveId = parallelDomCurveOI.getId();
                                                 if(domConnectedCurve == parallelCurveId){
+                                                    // Create string key of first dominant key (curveId) and second dominant curve (parallelCurveId)
                                                     String parallelDominantCurveKey = Math.min(curveId, parallelCurveId) + "_" + Math.max(curveId, parallelCurveId);
                                                     if(dominantParralelCurveIDs.contains(parallelDominantCurveKey) == false){
                                                         dominantParralelCurveIDs.addElement(parallelDominantCurveKey);
@@ -173,6 +177,7 @@ public class SplineSkin extends Thread {
                                                     //System.out.println("   parallel dom curves " +
                                                     //                   curveId + " - " + parallelCurveId + " = " + parallelDominantCurveKey);
                                                     
+                                                    // track support curves (spanningSupportCurves) between dominant curves
                                                     Vector currentSpanningSupportCurves = spanningSupportCurves.get(parallelDominantCurveKey);
                                                     if(currentSpanningSupportCurves == null){
                                                         currentSpanningSupportCurves = new Vector();
@@ -181,12 +186,15 @@ public class SplineSkin extends Thread {
                                                         currentSpanningSupportCurves.addElement(compareCurveOI);
                                                     }
                                                     spanningSupportCurves.put(parallelDominantCurveKey, currentSpanningSupportCurves);
+                                                
+                                                    k = dominantCurveOIs.size(); // done loop
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
+                            j = supportCurveOIs.size(); // done loop
                         }
                     }
                 } // end
@@ -195,6 +203,29 @@ public class SplineSkin extends Thread {
         
         
         //
+        // Collect records of the dominant curves that are connected together. For use in triangles that only have one support curve.
+        //
+        HashMap<String, Vector<PointJoinObject>> connectedDominantCurves = new HashMap<String, Vector<PointJoinObject>>();
+        /*
+        for(int i = 0; i < dominantCurveOIs.size(); i++){                             // first dominant curve
+            ObjectInfo curveOI = (ObjectInfo)dominantCurveOIs.elementAt(i);
+            int curveId = curveOI.getId();  // objectInfo.getId();
+            
+            for(int x = 0; x < connections.size(); x++){                              // Find first connection to first dominant curve
+                PointJoinObject pjo = (PointJoinObject)connections.elementAt(x);
+                int supConnectedCurve = -1;
+                if(pjo.objectA == curveId){                                           // A side of connection connects to dominant curve, B might be support curve
+                    //supConnectedCurve = pjo.objectB;
+                }
+                if(pjo.objectB == curveId){
+                    //supConnectedCurve = pjo.objectA;
+                }
+            }
+        }
+        */
+        
+        //
+        // Quad
         // For each pair of dominant curves, create span support curves across the subdivided
         //
         for(int i = 0; i < dominantParralelCurveIDs.size(); i++){
@@ -211,16 +242,16 @@ public class SplineSkin extends Thread {
                 ObjectInfo dominantCurveOIA = scene.getObjectById(aIndex);
                 ObjectInfo dominantCurveOIB = scene.getObjectById(bIndex);
                 
-                Curve subdividedA = subdividedCurves.get(aIndex);
+                Curve subdividedA = subdividedCurves.get(aIndex);           // subdivided geometry of first dominant curve
                 Curve subdividedB = subdividedCurves.get(bIndex);
                 
                 // Translate subdivided?
                 
-                ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
-                subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
+                //ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
+                //subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
                 //    scene.addObject(subACurveInfo, null);
-                ObjectInfo subBCurveInfo = new ObjectInfo(subdividedB, new CoordinateSystem(), "subdivided curve B " + i);
-                subBCurveInfo.setCoords( dominantCurveOIB.getCoords().duplicate() );
+                //ObjectInfo subBCurveInfo = new ObjectInfo(subdividedB, new CoordinateSystem(), "subdivided curve B " + i);
+                //subBCurveInfo.setCoords( dominantCurveOIB.getCoords().duplicate() );
                 //    scene.addObject(subBCurveInfo, null);
                     
                 MeshVertex av[] = ((Mesh) subdividedA).getVertices();
@@ -232,29 +263,30 @@ public class SplineSkin extends Thread {
                 //    reversePairing = true;
                 //}
                 
-                //
+                // *** may be buggy and require manual overide in cases. ***
+                // *** THIS IS WRONG *** Can't use end points must use segment ends.
                 if(av[0].r.distance(bv[0].r) + av[av.length - 1].r.distance(bv[bv.length - 1].r) // a start -> b start + a end -> b end
                    >
                    av[0].r.distance(bv[bv.length - 1].r) + av[av.length - 1].r.distance(bv[0].r) // a start -> b end + a end -> b start
                    ){
-                    reversePairing = true;
+                    reversePairing = true;  // *** INVALID ***
                     System.out.println(" dominant curve reversed ");
+                    
+                    // Debug
+                    dominantCurveOIA.addDebugInfo("In reverse pair with: " + dominantCurveOIB.getName());
+                    dominantCurveOIB.addDebugInfo("In reverse pair with: " + dominantCurveOIA.getName());
                 }
                 
                 
+                //
                 // Find square segments
-                // Find pairs of closts non opposite support curves
-                //for(int x = 0; x < connections.size(); x++){
-                    //PointJoinObject pjoA = (PointJoinObject)connections.elementAt(x-1);
-                    //PointJoinObject pjoB = (PointJoinObject)connections.elementAt(x);
-                    // objectA int
-                    // objectAPoint int
-                    // objectASubPoint int
-                //}
+                // Find indexes of support curves along dominant curves
+                //
+                
                 Vector<Integer> dominantAConnectionIndexes = new Vector<Integer>();
                 Vector<Integer> dominantBConnectionIndexes = new Vector<Integer>();
                 
-                Vector<ObjectInfo> supportCurves = spanningSupportCurves.get(parallelDominantCurves);   // a_b
+                Vector<ObjectInfo> supportCurves = spanningSupportCurves.get(parallelDominantCurves);   // a_b  list of all support curves between dom curves
                 for(int j = 0; j < supportCurves.size(); j++){
                     ObjectInfo supportCurve = (ObjectInfo)supportCurves.elementAt(j);
                     int supportId = supportCurve.getId();
@@ -300,7 +332,9 @@ public class SplineSkin extends Thread {
                 // These need to be sorted
                 
                 
-                // Pair dominant curves
+                //
+                // Pair dominant curves (QUAD)
+                //
                 //int aLength = dominantAConnectionIndexes.size();
                 //int bLength = dominantBConnectionIndexes.size();
                 for(int jj = 1; jj < dominantAConnectionIndexes.size() && jj < dominantBConnectionIndexes.size(); jj++){ // pair segments
@@ -445,7 +479,7 @@ public class SplineSkin extends Thread {
                         //                   " ai " +domAIndex + " bi: " + domBIndex );
                     
                         // TEMP this is just a straight line, next use interpolating support lines based on distance spanning the dom lines
-                        Vec3[] testSpline = new Vec3[2];
+                        Vec3[] testSpline = new Vec3[2]; // reference geometry of definite endpoints
                 
                         testSpline[0] = new Vec3(av[domAIndex].r);                  // 0 goes to domA   domIndex
                         CoordinateSystem c;
@@ -493,7 +527,134 @@ public class SplineSkin extends Thread {
                     
                     skinMesh(newSupportCurvePoints, scene,  layoutWindow, "SPLINEMESH"); // Generate
                     
+                } // end quad
+                
+                //
+                // Triangle, Two connected dominant curves and the dominant curves are also conneted
+                //
+                // If dominant curves are connected together and one support connect exists between them, then there is a triangle.
+                //if(dominantAConnectionIndexes.size() == 1 || dominantBConnectionIndexes.size() == 1){ // only one support connection NO ***
+                for(int jj = 0; jj < dominantAConnectionIndexes.size() && jj < dominantBConnectionIndexes.size(); jj++){ // pair segments
+                    // If there is a connection between the two dominant curves.
+                    // aIndex bIndex
+                    
+                    int aEnd = dominantAConnectionIndexes.elementAt(jj);
+                    int bEnd = dominantBConnectionIndexes.elementAt(jj);
+                    
+                    //
+                    for(int cn = 0; cn < connections.size(); cn++){                              //
+                        PointJoinObject pjo = (PointJoinObject)connections.elementAt(cn);
+                        //int supConnectedCurve = -1;
+                        if( (pjo.objectA == aIndex && pjo.objectB == bIndex) || (pjo.objectB == aIndex && pjo.objectA == bIndex) ){                                           //
+                            //supConnectedCurve = pjo.objectB;
+                            System.out.println(" TRIANGLE a " + pjo.objectA + " " + pjo.objectB  );
+                            
+                            //pjo is start
+                            int aStart = pjo.objectASubPoint;
+                            int bStart = pjo.objectBSubPoint;
+                            
+                            int aLength = aEnd - aStart;
+                            int bLength = bEnd - bStart;
+                            int length = Math.min(aLength, bLength);
+                            
+                            for(int j = 0; j <= length; j++){                                // shortest length from a | b
+                                
+                                float pairLengthScale = aLength / bLength;
+                                
+                                int domAIndex = j; // (int) subdividedA.getVertices().length * ;
+                                int domBIndex = j;
+                                if(aLength > bLength){  // a longer
+                                    domAIndex = (int)(((float)j / (float)bLength) * (float)aLength);
+                                    
+                                    if(debug){
+                                        System.out.println(" a>b domAIndex= " +  domAIndex );
+                                    }
+                                    //if(j == subdividedB.getVertices().length - 1){ // Connect to end of dominant curve (NO, DEPRICATE)
+                                        //domAIndex = subdividedA.getVertices().length - 1;
+                                    //}
+                                } else if(aLength < bLength){ // b longer
+                                    domBIndex = (int)(((float)j / (float)aLength) * (float)bLength);
+                                    
+                                    if(debug){
+                                        System.out.println(" a<b domBIndex= " +  domBIndex );
+                                    }
+                                    //if(j == subdividedA.getVertices().length - 1){
+                                        //domBIndex = subdividedB.getVertices().length - 1;
+                                    //}
+                                }
+                                domAIndex += aStart;
+                                domBIndex += bStart;
+                                //System.out.println(" - domAIndex " + domAIndex + " domBIndex " + domBIndex );
+                                if(domAIndex >= av.length){                      // Bounds check
+                                    domAIndex = av.length - 1;
+                                }
+                                if(domBIndex >= bv.length){                      // Bounds check
+                                    domBIndex = bv.length - 1;
+                                }
+                            
+                                
+                                
+                                Vec3[] testSpline = new Vec3[2]; // reference geometry of definite endpoints
+                        
+                                testSpline[0] = new Vec3(av[domAIndex].r);                  // 0 goes to domA   domIndex
+                                CoordinateSystem c;
+                                c = dominantCurveOIA.getCoords().duplicate();
+                                Mat4 mat4 = c.duplicate().fromLocal();
+                            //    mat4.transform( testSpline[0] );
+                                
+                                testSpline[1] = new Vec3(bv[domBIndex].r);                  // 1 goes to domB   domIndex
+                                c = dominantCurveOIB.getCoords().duplicate();
+                                mat4 = c.duplicate().fromLocal();
+                            //    mat4.transform( testSpline[1] );
+                                if(reversePairing){
+                                    testSpline[1] = new Vec3(bv[ (bv.length - 1) - domBIndex ].r);  // index from end of curve
+                                    c = dominantCurveOIB.getCoords().duplicate(); // layoutWindow.getCoords(dominantCurveOIB);
+                                    mat4 = c.duplicate().fromLocal();
+                            //        mat4.transform( testSpline[1] );
+                                }
+                                //Curve testCurve = getCurve(testSpline);
+                                //ObjectInfo testCurveInfo = new ObjectInfo(testCurve, new CoordinateSystem(), "test " + i);
+                                //scene.addObject(testCurveInfo, null); // Just straight line
+                            
+                                // NOTE: createSupportCurve needs two support curves to blend between. ***
+                                
+                                // Add a curve that is modeled from the support curves between these dominant curves.
+                                Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves), debug);
+                                insertSupportCurve = insertSupportCurve.subdivideCurve(2);
+                                if(subdivisions > 0){
+                                    insertSupportCurve = insertSupportCurve.subdivideCurve(1);
+                                }
+                                ObjectInfo fillCurveInfo = new ObjectInfo(insertSupportCurve, new CoordinateSystem(), "fill " + i);
+                                
+                                if(debug){
+                                    scene.addObject(fillCurveInfo, null); // debug
+                                }
+                                
+                                MeshVertex mv[] = ((Mesh)insertSupportCurve).getVertices();
+                                Vec3[] insertCurvePoints = new Vec3[mv.length]; // insertSupportCurve.getVertices();
+                                for(int v = 0; v < mv.length; v++){
+                                    insertCurvePoints[v] = mv[v].r;
+                                }
+                                
+                                //newSupportCurvePoints.addElement(insertCurvePoints);
+                            }
+                            
+                            cn = connections.size(); // exit loop
+                        }
+                        /*
+                        if(pjo.objectB == aIndex && pjo.objectA == bIndex){
+                            //supConnectedCurve = pjo.objectA;
+                            System.out.println(" TRIANGLE b " + pjo.objectA + " " + pjo.objectB  );
+                            
+                            c = connections.size(); // exit loop
+                        }
+                        */
+                        // 1 Where is the connection between the dominant curves.
+                        // 2
+                    }
+                    
                 }
+                
                 //System.out.println(" *** subdividedA.getVertices().length " + subdividedA.getVertices().length +
                 //                   "  subdividedB.getVertices().length " + subdividedB.getVertices().length);
                  
@@ -502,28 +663,13 @@ public class SplineSkin extends Thread {
         
     }
     
-    /**
-     * connectedCurvesToTriangleMesh
-     *
-     * Description: create mesh from two dominant curves connected together and also between a support curve.
-     *
-     * @param: Scene
-     */
-    public void connectedCurvesToTriangleMesh(Scene scene,
-                                          LayoutWindow layoutWindow,
-                                          Vector<ObjectInfo> objects,
-                                          boolean debug,
-                                          int subdivisions){
-        Vector< PointJoinObject > connections = new Vector<>();
-        Vector< ObjectInfo > supportCurveOIs = new Vector<>();
-        Vector< ObjectInfo > dominantCurveOIs = new Vector<>();
-        HashMap<Integer, Curve> subdividedCurves = new HashMap<Integer, Curve>();
-        
-        
-    }
+    
+    
     
     /**
      * connectedCurvesToMeshCommand
+     *
+     *     *** DEPRICATE ***
      *
      * Description: Create mesh from connected curves
      *  TODO: order of points along curve may need to be reversed in pairs.
@@ -681,19 +827,20 @@ public class SplineSkin extends Thread {
                 Curve subdividedA = subdividedCurves.get(aIndex);
                 Curve subdividedB = subdividedCurves.get(bIndex);
                 
-                ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
-                subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
+            //    ObjectInfo subACurveInfo = new ObjectInfo(subdividedA, new CoordinateSystem(), "subdivided curve A " + i);
+            //    subACurveInfo.setCoords( dominantCurveOIA.getCoords().duplicate() );
             //    scene.addObject(subACurveInfo, null);
-                ObjectInfo subBCurveInfo = new ObjectInfo(subdividedB, new CoordinateSystem(), "subdivided curve B " + i);
-                subBCurveInfo.setCoords( dominantCurveOIB.getCoords().duplicate() );
+            //    ObjectInfo subBCurveInfo = new ObjectInfo(subdividedB, new CoordinateSystem(), "subdivided curve B " + i);
+            //    subBCurveInfo.setCoords( dominantCurveOIB.getCoords().duplicate() );
             //    scene.addObject(subBCurveInfo, null);
                     
                 MeshVertex av[] = ((Mesh) subdividedA).getVertices();
                 MeshVertex bv[] = ((Mesh) subdividedB).getVertices();
                 
                 // determine if reverse pairs
+                // *** may be buggy and require manual overide in cases ***
                 boolean reversePairing = false;
-                if( av[0].r.distance(bv[0].r) > av[0].r.distance(bv[ bv.length - 1 ].r)){
+                if(av[0].r.distance(bv[0].r) > av[0].r.distance(bv[bv.length - 1].r)){
                     reversePairing = true;
                 }
                 //System.out.println("   Reverse: " + reversePairing);
@@ -707,7 +854,7 @@ public class SplineSkin extends Thread {
                 
                 Vector newSupportCurvePoints = new Vector();
                 
-                // Iterate over dominant sections
+                // Iterate over dominant sections (DEPRICATE???)
                 int aStart = 0;
                 int aEnd = subdividedA.getVertices().length - 1;
                 int bStart = 0;
@@ -1054,7 +1201,7 @@ public class SplineSkin extends Thread {
             }
             
             
-            if(mesh.length > 2){
+            if(mesh.length > 2 && mesh2 != null){
                 
                 // BUGS
                 //

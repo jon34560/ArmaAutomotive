@@ -507,6 +507,9 @@ public class ArmaDesignStudio
       List plugins = PluginRegistry.getPlugins(Plugin.class);
       for (int i = 0; i < plugins.size(); i++)
       {
+          System.out.println("save plugin: " + i + " " );
+          // ((Plugin) plugins.get(i))
+          
         try
         {
           ((Plugin) plugins.get(i)).processMessage(Plugin.SCENE_SAVED, new Object [] {f, fr});
