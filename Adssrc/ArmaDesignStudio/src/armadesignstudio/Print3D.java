@@ -353,6 +353,8 @@ public class Print3D extends Thread {
         Double[][] cutHeights = new Double[mapWidth + 1][mapDepth + 1]; // state of machined material. Used to ensure not too deep a pass is made.
         Double[][] mapHeights = new Double[mapWidth + 1][mapDepth + 1]; // Object top surface
         
+        // <Double>
+        Vector[][] mapSolids = new Vector[mapWidth + 1][mapDepth + 1];
         
         for(int x = 0; x < mapWidth + 1; x++){
             for(int z = 0; z < mapDepth + 1; z++){
@@ -365,7 +367,7 @@ public class Print3D extends Thread {
         //
         // Calculate mapHeights[x][z] given scene mesh objects
         //
-        progressLabel.setText("Calculating height map.");
+        progressLabel.setText("Calculating solids map.");
         for(int x = 0; x < mapWidth + 1; x++){
             for(int z = 0; z < mapDepth + 1; z++){
                 double x_loc = this.minx + (x * accuracy);
@@ -415,7 +417,8 @@ public class Print3D extends Thread {
                             x_loc <= bounds.maxx + drill_bit &&
                             z_loc >= bounds.minz - drill_bit &&
                             z_loc <= bounds.maxz + drill_bit) // optimization, within x,z region space
-                           && (bounds.maxy > height) // this object must have the possibility of raising/changing the mill height.
+                           //&& (bounds.maxy > height
+                           //    ) // this object must have the possibility of raising/changing the mill height.
                            &&
                            obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT
                            ){
@@ -464,6 +467,14 @@ public class Print3D extends Thread {
                                     //if(currHeight == 0){
                                     //    System.out.println(" height 0 ");
                                     //}
+                                    
+                                    Vector currSolids = mapSolids[x][z];
+                                    if(currSolids == null){
+                                        currSolids = new Vector();
+                                    }
+                                    currSolids.addElement(currHeight);
+                                    mapSolids[x][z] = currSolids;
+                                    
                                 }
                                 
                                 // DEBUG
@@ -548,13 +559,57 @@ public class Print3D extends Thread {
                                     }
                                 }
                                 
-                            }
-                        }
-                    }
-                }
+                            } // loop faces
+                        }  // bounds check (optimization)
+                    } // object is of type
+                } // objects
                 mapHeights[x][z] = height;
+            } // Z
+        } // X
+        
+        //
+        // markup mapSolids (debug only)
+        //
+        for(int x = 0; x < mapWidth + 1; x++){
+            for(int z = 0; z < mapDepth + 1; z++){
+                double x_loc = this.minx + (x * accuracy);
+                if(minimizePasses){
+                    x_loc = this.minx + (x * drill_bit);
+                }
+                double z_loc = this.minz + (z * accuracy);
+                //Vec3 point_loc = new Vec3(x_loc, 0, z_loc);
+                
+                // markup
+                if(window != null && toolpathMarkup){
+                    
+                    Vector pointSolids = (Vector)mapSolids[x][z];
+                    
+                    for(int s = 0; pointSolids != null && s < pointSolids.size(); s++){
+                        double solidHeight = (double)pointSolids.elementAt(s);
+                        Vec3[] pathPoints = new Vec3[2];
+                        
+                        float[] s_ = new float[2];
+                        pathPoints[0] = new Vec3(x_loc - (accuracy/2), solidHeight, z_loc - (accuracy/2));
+                        pathPoints[1] = new Vec3(x_loc + (accuracy/2), solidHeight, z_loc + (accuracy/2));
+                        if(z % 2 == 0){
+                            pathPoints[0] = new Vec3(x_loc + (accuracy/2), solidHeight, z_loc - (accuracy/2));
+                            pathPoints[1] = new Vec3(x_loc - (accuracy/2), solidHeight, z_loc + (accuracy/2));
+                        }
+                        s_[0] = 0; s_[1] = 0;
+                     
+                        Curve toolPathMarkup = new Curve(pathPoints, s_, 0, false);
+                        CoordinateSystem coords = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+                        window.addObject(toolPathMarkup, coords, "SOLID ", null);
+                        //window.setSelection(window.getScene().getNumObjects()-1);
+                        //window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+                        //window.updateImage();
+                    }
+                    
+
+                }
             }
         }
+        
         
         //
         // Route drill cutting path -> printing path
@@ -618,11 +673,12 @@ public class Print3D extends Thread {
             // X, Z, Y
             //isPointInSolid(Vec3 point);
             
+            // Traverse space
             for(int x = 0; x <= mapWidth && running; x++){
                 for(int z = 0; z <= mapDepth && running; z++){
                     for(int y = 0; y <= mapHeight && running; y++){
                         //
-                    
+                        
                         
                     }
                 }
@@ -630,7 +686,7 @@ public class Print3D extends Thread {
             }
             
             
-            
+            // reference from mill
             for(int x = 0; x <= mapWidth && running; x++){
                 // Optimization, skip z line if no objects in path.
                 // Include one adjacent row (past and future) to create edge.
@@ -879,6 +935,7 @@ public class Print3D extends Thread {
             
             // Debug toolpath markup
             if(window != null && toolpathMarkup){
+                /*
                 Vec3[] pathPoints = new Vec3[toolpathMarkupPoints.size()];
                 float[] s_ = new float[toolpathMarkupPoints.size()];
                 for(int p = 0; p < toolpathMarkupPoints.size(); p++){
@@ -890,6 +947,7 @@ public class Print3D extends Thread {
                 window.addObject(toolPathMarkup, coords, "Cut Tool Path " + s, null);
                 window.setSelection(window.getScene().getNumObjects()-1);
                 window.setUndoRecord(new UndoRecord(window, false, UndoRecord.DELETE_OBJECT, new Object [] {new Integer(window.getScene().getNumObjects()-1)}));
+               */
                 window.updateImage();
             }
         } // sections
@@ -900,12 +958,59 @@ public class Print3D extends Thread {
     /**
      * isPointInSolid
      *
-     * Description:
+     * Description: Determine if a given point is within a solid object.
+     *  For a given point project rays outward in 6 or more directions and if each ray collides with a polygon from the same object then
+     *   the point is in a solid.
      *
      * @param Vec3
      */
     public boolean isPointInSolid(Vec3 point){
+        running = true;
+        LayoutModeling layout = new LayoutModeling();
         
+        // Rays (x, y, z)
+        
+        for (ObjectInfo obj : objects){
+            if(obj.getName().indexOf("Camera") < 0 &&
+               obj.getName().indexOf("Light") < 0 &&
+               //obj.getClass() != FluidPointObject.class
+               obj.getName().equals("") == false &&
+               obj.isVisible() &&
+               running
+               ){
+                
+                Object3D o3d = obj.getObject();
+                CoordinateSystem c;
+                c = layout.getCoords(obj);
+                Vec3 objOrigin = c.getOrigin();
+                BoundingBox bounds = getTranslatedBounds(obj);
+                
+                if(obj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                    
+                    TriangleMesh triangleMesh = null;
+                    triangleMesh = obj.getObject().convertToTriangleMesh(0.05);
+                    MeshVertex[] verts = triangleMesh.getVertices();
+                    TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                    TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                    
+                    for(int f = 0; f < faces.length; f++){
+                        TriangleMesh.Face face = faces[f];
+                        Vec3 vec1 = new Vec3(verts[face.v1].r); // duplicate
+                        Vec3 vec2 = new Vec3(verts[face.v2].r);
+                        Vec3 vec3 = new Vec3(verts[face.v3].r);
+                        
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        mat4.transform(vec1);
+                        mat4.transform(vec2);
+                        mat4.transform(vec3);
+                        
+                        // if(inside_trigon(point_loc, vec1, vec2, vec3)){
+                        
+                    }
+                    
+                }
+            }
+        }
         
         return false;
     }
@@ -933,11 +1038,9 @@ public class Print3D extends Thread {
         /
         (wv1 + wv2 + wv3);
         */
-        
         Vec3 planeNormal = calcNormal(a, b, c);
         Vec3 intersect = intersectPoint(new Vec3(0,1,0), s, planeNormal, a);
         height = intersect.y;
-        
         return height;
     }
     
