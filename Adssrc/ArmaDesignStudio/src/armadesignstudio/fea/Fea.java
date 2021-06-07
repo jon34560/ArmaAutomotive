@@ -42,6 +42,7 @@ public class Fea
     */
     public void initalize(ObjectInfo meshObj){
         System.out.println("Fea initalize. ");
+        
         Object3D triangleMesh = null;
         if(meshObj.getObject().canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
             triangleMesh = meshObj.getObject().convertToTriangleMesh(0.05);

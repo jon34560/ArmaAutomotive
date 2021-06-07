@@ -56,8 +56,10 @@ public class Print3D extends Thread {
     private double drill_bit = 0.125;   // 0.125 1/8th 3.175mm
     private double drill_bit_angle = 135;
     private double pass_height = 0.5;   // drill cuts this much material per pass
-    private double material_height = 2; // cut scene into layers this thick for seperate parts/files.
-
+    private double material_height = 48; // cut scene into layers this thick for seperate parts/files.
+    private double wall_thickness = 2;
+    private double layer_thickness = 0.1;
+    
     private boolean toolpathMarkup = false;
     private boolean cutOptimization = true;
     private boolean minimizePasses = true;
@@ -113,7 +115,7 @@ public class Print3D extends Thread {
         panel.add(depthtField);
         
         
-        JLabel labelHeight = new JLabel("Layer Height");
+        JLabel labelHeight = new JLabel("Section Height");
         //labelHeight.setForeground(new Color(255, 255, 0));
         labelHeight.setHorizontalAlignment(SwingConstants.CENTER);
         labelHeight.setFont(new Font("Arial", Font.BOLD, 11));
@@ -149,17 +151,30 @@ public class Print3D extends Thread {
         bitField.setBounds(130, 160, 130, 40); // x, y, width, height
         panel.add(bitField);
         
-        //
-        JLabel labelBitAngle = new JLabel("Drill Bit Angle");
-        //labelHeight.setForeground(new Color(255, 255, 0));
-        labelBitAngle.setHorizontalAlignment(SwingConstants.CENTER);
-        labelBitAngle.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBitAngle.setBounds(0, 200, 130, 40); // x, y, width, height
-        panel.add(labelBitAngle);
         
-        JTextField bitAngleField = new JTextField( new String(drill_bit_angle+""));
-        bitAngleField.setBounds(130, 200, 130, 40); // x, y, width, height
-        panel.add(bitAngleField);
+        JLabel labelLayerThickness = new JLabel("Layer Thickness");
+        //labelLayerThickness.setForeground(new Color(255, 255, 0));
+        labelLayerThickness.setHorizontalAlignment(SwingConstants.CENTER);
+        labelLayerThickness.setFont(new Font("Arial", Font.BOLD, 11));
+        labelLayerThickness.setBounds(0, 200, 130, 40); // x, y, width, height
+        panel.add(labelLayerThickness);
+        
+        JTextField layerThicknessField = new JTextField("0.5");
+        layerThicknessField.setBounds(130, 200, 130, 40); // x, y, width, height
+        panel.add(layerThicknessField);
+        
+        
+        //
+        JLabel labelWallThickness = new JLabel("Wall Thickness");
+        //labelWallThickness.setForeground(new Color(255, 255, 0));
+        labelWallThickness.setHorizontalAlignment(SwingConstants.CENTER);
+        labelWallThickness.setFont(new Font("Arial", Font.BOLD, 11));
+        labelWallThickness.setBounds(0, 240, 130, 40); // x, y, width, height
+        panel.add(labelWallThickness);
+        
+        JTextField wallThicknessField = new JTextField( new String(wall_thickness+""));
+        wallThicknessField.setBounds(130, 240, 130, 40); // x, y, width, height
+        panel.add(wallThicknessField);
         
         
         // Debug feature.
@@ -167,24 +182,24 @@ public class Print3D extends Thread {
         //labelHeight.setForeground(new Color(255, 255, 0));
         pathBit.setHorizontalAlignment(SwingConstants.CENTER);
         pathBit.setFont(new Font("Arial", Font.BOLD, 11));
-        pathBit.setBounds(0, 240, 130, 40); // x, y, width, height
+        pathBit.setBounds(0, 280, 130, 40); // x, y, width, height
         panel.add(pathBit);
         
         JCheckBox toolpathCheck = new JCheckBox("");
-        toolpathCheck.setBounds(130, 240, 130, 40); // x, y, width, height
+        toolpathCheck.setBounds(130, 280, 130, 40); // x, y, width, height
         toolpathCheck.setSelected(false);
         panel.add(toolpathCheck);
         
         
-        JLabel optimizationLabel = new JLabel("Cut Optimization ");
+        JLabel optimizationLabel = new JLabel("Path Optimization ");
         //labelHeight.setForeground(new Color(255, 255, 0));
         optimizationLabel.setHorizontalAlignment(SwingConstants.CENTER);
         optimizationLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        optimizationLabel.setBounds(0, 280, 130, 40); // x, y, width, height
+        optimizationLabel.setBounds(0, 320, 130, 40); // x, y, width, height
         panel.add(optimizationLabel);
         
         JCheckBox optimizationCheck = new JCheckBox("");
-        optimizationCheck.setBounds(130, 280, 130, 40); // x, y, width, height
+        optimizationCheck.setBounds(130, 320, 130, 40); // x, y, width, height
         optimizationCheck.setSelected( cutOptimization );
         panel.add(optimizationCheck);
         
@@ -193,17 +208,17 @@ public class Print3D extends Thread {
         //minimizePassesLabel.setForeground(new Color(255, 255, 0));
         minimizePassesLabel.setHorizontalAlignment(SwingConstants.CENTER);
         minimizePassesLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        minimizePassesLabel.setBounds(0, 320, 130, 40); // x, y, width, height
+        minimizePassesLabel.setBounds(0, 360, 130, 40); // x, y, width, height
         panel.add(minimizePassesLabel);
         
         JCheckBox minimizePassesCheck = new JCheckBox("");
-        minimizePassesCheck.setBounds(130, 320, 130, 40); // x, y, width, height
+        minimizePassesCheck.setBounds(130, 360, 130, 40); // x, y, width, height
         minimizePassesCheck.setSelected( minimizePasses );
         panel.add(minimizePassesCheck);
         
         
-        UIManager.put("OptionPane.minimumSize",new Dimension(400, 350 + 80));
-        int result = JOptionPane.showConfirmDialog(null, panel, "CNC Mill Properties", JOptionPane.OK_CANCEL_OPTION);
+        UIManager.put("OptionPane.minimumSize",new Dimension(400, 350 + 120));
+        int result = JOptionPane.showConfirmDialog(null, panel, "CNC Print Properties", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("width value: " + widthField.getText());
             //System.out.println("depth value: " + depthtField.getText());
@@ -214,7 +229,8 @@ public class Print3D extends Thread {
             this.material_height = Double.parseDouble(heightField.getText());
             this.drill_bit = Double.parseDouble(bitField.getText());
             this.accuracy = Double.parseDouble(accuracyField.getText());
-            this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
+            //this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
+            this.wall_thickness = Double.parseDouble(wallThicknessField.getText());
             this.toolpathMarkup = toolpathCheck.isSelected();
             this.cutOptimization = optimizationCheck.isSelected();
             this.minimizePasses = minimizePassesCheck.isSelected();
@@ -354,7 +370,9 @@ public class Print3D extends Thread {
         Double[][] mapHeights = new Double[mapWidth + 1][mapDepth + 1]; // Object top surface
         
         // <Double>
-        Vector[][] mapSolids = new Vector[mapWidth + 1][mapDepth + 1];
+        Vector[][] mapSolids = new Vector[mapWidth + 1][mapDepth + 1]; // edges
+        
+        int[][][] spaceState = new int[mapWidth + 1][mapDepth + 1][mapHeight + 1]; // 0 = empty, 1 = fill 
         
         for(int x = 0; x < mapWidth + 1; x++){
             for(int z = 0; z < mapDepth + 1; z++){
@@ -606,6 +624,28 @@ public class Print3D extends Thread {
                     }
                     
 
+                }
+            }
+        }
+        
+        //
+        // Route printing path
+        //
+        for(int x = 0; x < mapWidth + 1; x++){
+            for(int z = 0; z < mapDepth + 1; z++){
+                double x_loc = this.minx + (x * accuracy);
+                if(minimizePasses){
+                    x_loc = this.minx + (x * drill_bit);
+                }
+                double z_loc = this.minz + (z * accuracy);
+                for(int y = 0; y < mapHeight + 1; y++){
+                    double y_loc = this.miny + (y * accuracy);
+                
+                    // wall_thickness
+                    
+                    
+                    
+                
                 }
             }
         }

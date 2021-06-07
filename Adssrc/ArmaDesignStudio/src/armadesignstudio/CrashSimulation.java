@@ -54,6 +54,12 @@ import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import armadesignstudio.fea.*;
 
+import fea.*;   // Gennadiy FEA
+import elem.*;
+import gener.*;
+import model.*;
+import util.*;
+
 //import static edu.uta.futureye.function.FMath.C0;
 
 /** This class implements the dialog box which is used for the "Object Layout" and
@@ -257,6 +263,11 @@ public class CrashSimulation extends BDialog
             
             solver(); // New FEA Solver.
             fea.initalize(obj);
+            
+            
+            // Test
+            //Jfem jfem = new Jfem();
+            
             
             while(obj != null && inerta > 0.001){
                 impact(obj);

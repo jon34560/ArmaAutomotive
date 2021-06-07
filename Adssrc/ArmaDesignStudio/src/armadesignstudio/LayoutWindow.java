@@ -1904,8 +1904,19 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         System.out.println("getDebugInfoCommand to object function not implemented. ");
         // ***
         
-        // Collection<ObjectInfo> getSelectedObjects()
-        
+        //
+        Collection<ObjectInfo> selected = getSelectedObjects();
+        Object sel[] = selected.toArray();
+        for(int i = 0; i < sel.length; i++){
+            ObjectInfo info = (ObjectInfo)sel[i];
+            
+            System.out.println("" + info.getName());
+            Vector<String> debugInfo = info.getDebugInfo();
+            for(int d = 0; d < debugInfo.size(); d++){
+                System.out.println(" " + debugInfo.elementAt(d));
+            }
+            
+        }
         
     }
     
