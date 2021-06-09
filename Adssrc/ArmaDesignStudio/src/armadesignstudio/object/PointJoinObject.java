@@ -282,6 +282,10 @@ public class PointJoinObject extends Object3D implements Mesh // extends Curve i
                 
                 objectASubPoint = closestAIndex;
                 objectBSubPoint = closestBIndex;
+                
+                
+                System.out.println("  - a " + objectASubPoint+ " len: " + vertsASubdivided.length + " " + objA.getName());
+                System.out.println("  - b " + objectBSubPoint+ " len: " + vertsBSubdivided.length + " " + objB.getName());
             }
         }
     }
