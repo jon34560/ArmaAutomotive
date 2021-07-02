@@ -70,7 +70,8 @@ public class SplineSkin extends Thread {
                                           LayoutWindow layoutWindow,
                                           Vector<ObjectInfo> objects,
                                           boolean debug,
-                                          int subdivisions){
+                                          int subdivisions,
+                                          int mode){
         Vector< PointJoinObject > connections = new Vector<>();
         Vector< ObjectInfo > supportCurveOIs = new Vector<>();
         Vector< ObjectInfo > dominantCurveOIs = new Vector<>();
@@ -518,7 +519,8 @@ public class SplineSkin extends Thread {
                                                                       connections, debug, debugStack,
                                                                       dominantCurveOIA,
                                                                       dominantCurveOIB,
-                                                                      subdividedCurves);
+                                                                      subdividedCurves,
+                                                                      mode);
                         insertSupportCurve = insertSupportCurve.subdivideCurve(2);
                         if(subdivisions > 0){
                             insertSupportCurve = insertSupportCurve.subdivideCurve(1);
@@ -653,7 +655,8 @@ public class SplineSkin extends Thread {
                                 Curve insertSupportCurve = createSupportCurve(testSpline, spanningSupportCurves.get(parallelDominantCurves), connections, debug, debugStack,
                                     dominantCurveOIA,
                                     dominantCurveOIB,
-                                    subdividedCurves);
+                                    subdividedCurves,
+                                                mode);
                                 insertSupportCurve = insertSupportCurve.subdivideCurve(2);
                                 if(subdivisions > 0){
                                     insertSupportCurve = insertSupportCurve.subdivideCurve(1);
@@ -940,7 +943,8 @@ public class SplineSkin extends Thread {
                                     Vector<String> debugStack,
                                     ObjectInfo dominantCurveOIA,
                                     ObjectInfo dominantCurveOIB,
-                                    HashMap<Integer, Curve> subdividedCurves){
+                                    HashMap<Integer, Curve> subdividedCurves,
+                                    int mode){
         Curve curve = null; // new Curve();
         //System.out.println("     region " + regionSpline[0].x + " " + regionSpline[0].y + " " + regionSpline[0].z);
         
@@ -1177,7 +1181,7 @@ public class SplineSkin extends Thread {
                 // This will be complicated.
                 
                 
-                
+                if(mode == 1){
                 // closestSupportMeshSegment
                 // secondSupportMeshSegment
                 for(int i = 0; i < closestSupportMeshSegment.length ; i++){                                  // iterate mesh (closest support curve points, excluding start and end(which are hard coded))
@@ -1218,10 +1222,10 @@ public class SplineSkin extends Thread {
                 }
                 curve = getCurve(newSupportSplineX);
                 
+                }
                 
-                
+                if(mode == 0){
                  
-                 /*
                 // CAN't do long support, but accurate on supports teminating at dominant
                 for(int i = 0; i < mesh.length - 2; i++){                                  // iterate mesh (closest support curve points, excluding start and end(which are hard coded))
                     
@@ -1260,7 +1264,8 @@ public class SplineSkin extends Thread {
                     newSupportSpline[1 + i] = currNewMid;
                 }
                 curve = getCurve(newSupportSpline);
-                 */
+                
+                }
                 
                 /*
                 // subdividedMesh
@@ -3729,7 +3734,7 @@ public class SplineSkin extends Thread {
                                                                   connections, false, debugStack,
                                                                   dominantCurveOIA,
                                                                   dominantCurveOIB,
-                                                                  subdividedCurves);
+                                                                  subdividedCurves, 0);
                     ObjectInfo fillCurveInfo = new ObjectInfo(insertSupportCurve, new CoordinateSystem(), "fill " + i);
                     //scene.addObject(fillCurveInfo, null);
                     

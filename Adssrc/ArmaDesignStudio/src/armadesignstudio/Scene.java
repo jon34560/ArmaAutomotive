@@ -2065,17 +2065,17 @@ public class Scene
      * connectedCurvesToQuadMesh
      * Description: 
      */
-    public void connectedCurvesToQuadMesh(LayoutWindow layoutWindow, boolean debug, int subdivisions){
+    public void connectedCurvesToQuadMesh(LayoutWindow layoutWindow, boolean debug, int subdivisions, int mode){
         SplineSkin skin = new SplineSkin();
         skin.removeSplineMesh(this);
-        skin.connectedCurvesToQuadMesh(this, layoutWindow, objects, debug, subdivisions);
+        skin.connectedCurvesToQuadMesh(this, layoutWindow, objects, debug, subdivisions, mode);
         //skin.connectedCurvesToTriangleMesh(this, layoutWindow, objects, debug, subdivisions);
     }
     
     public void connectedCurvesToTriangleMesh(LayoutWindow layoutWindow, boolean debug, int subdivisions){
         SplineSkin skin = new SplineSkin();
         //skin.removeSplineMesh(this);
-        skin.connectedCurvesToTriangleMesh(this, layoutWindow, objects, debug, subdivisions);
+        //skin.connectedCurvesToTriangleMesh(this, layoutWindow, objects, debug, subdivisions);
     }
     
     public void autoSkinByVoids(LayoutWindow layoutWindow){

@@ -9,6 +9,7 @@ importing and exporting a variety of file formats.
   <comments>
   </comments>
   <plugin class="armadesignstudio.translators.OBJTranslator"/>
+  <plugin class="armadesignstudio.translators.STLTranslator"/>
   <plugin class="armadesignstudio.translators.POVTranslator"/>
   <plugin class="armadesignstudio.translators.VRMLTranslator"/>
   <plugin class="armadesignstudio.translators.GCodeTranslator"/>
